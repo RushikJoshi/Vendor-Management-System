@@ -1,0 +1,214 @@
+import { useEffect, useState } from "react";
+import { useSearchParams, useNavigate } from "react-router-dom";
+import api from "../../services/api";
+import { toast } from "react-hot-toast";
+// Replace CircularProgress with a custom CSS spinner to avoid MUI dependency issues in this environment
+const LoadingSpinner = () => (
+    <div className="flex flex-col items-center gap-4">
+        <div className="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
+        <p className="text-sm font-black text-indigo-600 uppercase tracking-widest animate-pulse">Initializing Portal...</p>
+    </div>
+);
+import { CheckCircle, ArrowRight, ArrowLeft, Upload, FileText } from "lucide-react";
+
+export default function RegistrationWizard() {
+    const [searchParams] = useSearchParams();
+    const navigate = useNavigate();
+    const token = searchParams.get("token");
+
+    const [invitation, setInvitation] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [currentStep, setCurrentStep] = useState(0);
+    const [formValues, setFormValues] = useState({});
+    const [files, setFiles] = useState({});
+    const [submitting, setSubmitting] = useState(false);
+
+    useEffect(() => {
+        if (!token) {
+            toast.error("Invitation token missing");
+            navigate("/login");
+            return;
+        }
+
+        const verify = async () => {
+            try {
+                const res = await api.get(`/invitations/verify/${token}`);
+                setInvitation(res.data.data);
+                // Initialize form values with email
+                setFormValues({ email: res.data.data.email });
+            } catch (err) {
+                toast.error("Invalid or expired link");
+                navigate("/login");
+            } finally {
+                setLoading(false);
+            }
+        };
+        verify();
+    }, [token]);
+
+    if (loading) return (
+        <div className="min-h-screen flex items-center justify-center bg-slate-50">
+            <LoadingSpinner />
+        </div>
+    );
+
+    const sections = invitation?.category?.formTemplate?.sections || [];
+    const currentSection = sections[currentStep];
+
+    const handleInputChange = (name, value) => {
+        setFormValues(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleFileChange = (name, file) => {
+        setFiles(prev => ({ ...prev, [name]: file }));
+    };
+
+    const nextStep = () => {
+        if (currentStep < sections.length - 1) {
+            setCurrentStep(prev => prev + 1);
+            window.scrollTo(0, 0);
+        } else {
+            handleSubmit();
+        }
+    };
+
+    const prevStep = () => {
+        if (currentStep > 0) {
+            setCurrentStep(prev => prev - 1);
+            window.scrollTo(0, 0);
+        }
+    };
+
+    const handleSubmit = async () => {
+        setSubmitting(true);
+        const toastId = toast.loading("Processing your application dossier...");
+        try {
+            const formData = new FormData();
+            formData.append("invitationToken", token);
+            formData.append("companyName", formValues.companyName || "");
+            formData.append("data", JSON.stringify(formValues));
+
+            Object.keys(files).forEach(key => {
+                formData.append(key, files[key]);
+            });
+
+            const res = await api.post("/applications/submit", formData, {
+                headers: { "Content-Type": "multipart/form-data" }
+            });
+
+            const appId = res.data.data._id;
+            await api.post(`/applications/${appId}/finalize`);
+
+            toast.success("Application submitted successfully!", { id: toastId });
+            navigate("/success"); // Need to create success page
+        } catch (err) {
+            toast.error(err.response?.data?.message || "Submission failed", { id: toastId });
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
+    return (
+        <div className="min-h-screen bg-[#f8fafc] py-20 px-4">
+            <div className="max-w-4xl mx-auto">
+                <div className="mb-12 text-center">
+                    <p className="text-[10px] font-black text-indigo-600 uppercase tracking-[0.4em] mb-4">Supplier Onboarding</p>
+                    <h1 className="text-4xl font-black text-slate-900 tracking-tight mb-2">{invitation.category.name} Registration</h1>
+                    <p className="text-slate-500 font-medium">Protocol ID: <span className="font-mono">{invitation.category.code}</span></p>
+                </div>
+
+                {/* Custom Stepper */}
+                <div className="flex justify-between items-center mb-16 px-4">
+                    {sections.map((sec, idx) => (
+                        <div key={idx} className="flex flex-col items-center flex-1 relative">
+                            <div className={`w-10 h-10 rounded-2xl flex items-center justify-center font-black text-sm transition-all z-10 ${idx <= currentStep ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/30" : "bg-white border border-slate-200 text-slate-400"}`}>
+                                {idx < currentStep ? <CheckCircle size={18} /> : idx + 1}
+                            </div>
+                            <p className={`mt-3 text-[10px] font-black uppercase tracking-widest ${idx <= currentStep ? "text-slate-900" : "text-slate-400"}`}>{sec.title}</p>
+                            {idx < sections.length - 1 && (
+                                <div className={`absolute left-1/2 top-5 w-full h-[2px] -z-0 ${idx < currentStep ? "bg-indigo-600" : "bg-slate-200"}`} />
+                            )}
+                        </div>
+                    ))}
+                </div>
+
+                <div className="bg-white border border-slate-200 rounded-[3rem] shadow-2xl shadow-slate-200/50 p-12 animate-in slide-in-from-bottom-5 duration-500">
+                    <div className="mb-10">
+                        <h2 className="text-2xl font-black text-slate-900 mb-2">{currentSection.title}</h2>
+                        <p className="text-slate-400 text-sm font-medium">Please provide accurate information for verification.</p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        {currentSection.fields.map((field, fIdx) => (
+                            <div key={fIdx} className={`space-y-2 ${field.type === 'textarea' ? 'md:col-span-2' : ''}`}>
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">
+                                    {field.label} {field.required && <span className="text-rose-500">*</span>}
+                                </label>
+
+                                {field.type === "text" || field.type === "number" || field.type === "date" ? (
+                                    <input
+                                        type={field.type}
+                                        required={field.required}
+                                        className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-600/5 transition-all outline-none font-bold text-slate-900"
+                                        placeholder={field.placeholder}
+                                        value={formValues[field.name] || ""}
+                                        onChange={(e) => handleInputChange(field.name, e.target.value)}
+                                    />
+                                ) : field.type === "dropdown" ? (
+                                    <select
+                                        required={field.required}
+                                        className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-600/5 transition-all outline-none font-bold text-slate-900 appearance-none"
+                                        value={formValues[field.name] || ""}
+                                        onChange={(e) => handleInputChange(field.name, e.target.value)}
+                                    >
+                                        <option value="">Select option...</option>
+                                        {field.options.map((opt, oIdx) => (
+                                            <option key={oIdx} value={opt}>{opt}</option>
+                                        ))}
+                                    </select>
+                                ) : field.type === "file" ? (
+                                    <div className="relative group">
+                                        <input
+                                            type="file"
+                                            required={field.required}
+                                            onChange={(e) => handleFileChange(field.fieldId || field.name, e.target.files[0])}
+                                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                                        />
+                                        <div className={`w-full px-6 py-4 bg-slate-50 border-2 border-dashed rounded-2xl flex items-center gap-4 transition-all ${files[field.name] ? "border-emerald-200 bg-emerald-50" : "border-slate-200 group-hover:border-indigo-400 group-hover:bg-indigo-50"}`}>
+                                            <div className={`p-2 rounded-xl ${files[field.name] ? "bg-emerald-500 text-white" : "bg-slate-200 text-slate-500"}`}>
+                                                <Upload size={18} />
+                                            </div>
+                                            <p className={`font-bold text-sm ${files[field.name] ? "text-emerald-700" : "text-slate-400"}`}>
+                                                {files[field.name] ? files[field.name].name : "Upload Document"}
+                                            </p>
+                                        </div>
+                                    </div>
+                                ) : null}
+                            </div>
+                        ))}
+                    </div>
+
+                    <div className="flex items-center justify-between mt-16 pt-8 border-t border-slate-100">
+                        <button
+                            onClick={prevStep}
+                            disabled={currentStep === 0}
+                            className={`flex items-center gap-2 font-black text-[10px] uppercase tracking-widest px-8 py-4 rounded-2xl transition-all ${currentStep === 0 ? "text-slate-300 cursor-not-allowed" : "text-slate-400 hover:bg-slate-50 hover:text-slate-900"}`}
+                        >
+                            <ArrowLeft size={16} />
+                            Back
+                        </button>
+
+                        <button
+                            onClick={nextStep}
+                            disabled={submitting}
+                            className="flex items-center gap-3 font-black text-[10px] uppercase tracking-widest px-10 py-5 bg-indigo-600 text-white rounded-[1.5rem] shadow-xl shadow-indigo-600/20 hover:scale-105 active:scale-95 transition-all disabled:opacity-50"
+                        >
+                            {submitting ? "Processing..." : currentStep === sections.length - 1 ? "Finalize & Submit" : "Next Segment"}
+                            {!submitting && <ArrowRight size={16} />}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}

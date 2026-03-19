@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    container_name: vms-backend
+    ports:
+      - "5000:5000"
+    environment:
+      - NODE_ENV=production
+      - MONGODB_URI=mongodb://mongodb:27017/vendor_db
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - vms-network
+
+  mongodb:
+    image: mongo:latest
+    container_name: vms-mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - vms-mongo-data:/data/db
+    networks:
+      - vms-network
+
+  redis:
+    image: redis:alpine
+    container_name: vms-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - vms-network
+
+networks:
+  vms-network:
+    driver: bridge
+
+volumes:
+  vms-mongo-data:

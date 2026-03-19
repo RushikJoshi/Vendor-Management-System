@@ -1,0 +1,68 @@
+const Notification = require("../models/Notification");
+const { emitNotification } = require("../utils/socket");
+const User = require("../models/User");
+
+/**
+ * Send a notification to a specific user
+ */
+const sendNotification = async (userId, data) => {
+    try {
+        const notification = await Notification.create({
+            userId,
+            ...data
+        });
+        emitNotification(userId, notification);
+        return notification;
+    } catch (error) {
+        console.error("Error sending notification:", error);
+    }
+};
+
+/**
+ * Alias for sendNotification
+ */
+const notify = sendNotification;
+
+/**
+ * Send notification to all admins with a specific role
+ */
+const notifyAdminsByRole = async (role, data) => {
+    try {
+        // Find users with specific role. 
+        // Note: Check if 'role' field or 'roleName' is used.
+        const admins = await User.find({ 
+            $or: [
+                { role: role.toLowerCase() },
+                { roleName: role }
+            ]
+        });
+        
+        for (const admin of admins) {
+            await sendNotification(admin._id, data);
+        }
+    } catch (error) {
+        console.error(`Error notifying admins with role ${role}:`, error);
+    }
+};
+
+/**
+ * Send notification to all admins (superadmins or company admins)
+ */
+const notifyAllAdmins = async (data) => {
+    try {
+        const admins = await User.find({ role: { $in: ["superadmin", "company_admin"] } });
+        for (const admin of admins) {
+            await sendNotification(admin._id, data);
+        }
+    } catch (error) {
+        console.error("Error notifying all admins:", error);
+    }
+};
+
+module.exports = {
+    sendNotification,
+    notify,
+    notifyAdminsByRole,
+    notifyAllAdmins
+};
+

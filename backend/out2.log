@@ -1,0 +1,74 @@
+[dotenv@17.3.1] injecting env (17) from .env -- tip: ⚙️  suppress all logs with { quiet: true }
+🚀 Attempting to start server on port: 5000
+2026-03-03 00:22:36:2236 [32minfo[39m: [32mServer running in development mode on port 5000[39m
+2026-03-03 00:22:36:2236 [32minfo[39m: [32m🎯 Job Processor Initialized[39m
+2026-03-03 00:22:37:2237 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-03 00:22:37:2237 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-03 00:22:37:2237 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+MongoDB connected
+⚡ MASTER_VENDOR_FORM already exists. Seeding skipped.
+[0mGET /api/forms/master/public [36m304[0m 122.561 ms - -[0m
+[0mGET /api/forms/master/public [36m304[0m 175.786 ms - -[0m
+[0mPOST /api/applications/submit [32m200[0m 20978.496 ms - -[0m
+📧 Email sent: <242d6ca4-a18d-6c13-18ee-9ebc27c00c36@gmail.com>
+📧 Email sent: <b077adda-e15a-27c3-a4f6-585ab3a79973@gmail.com>
+📧 Submission emails sent → Vendor: dharmikjethwani777@gmail.com | Admin: mediamarek2025@gmail.com
+[0mPOST /api/applications/6995ad10899f52a29c08d7f1/finalize [32m200[0m 29412.293 ms - 106[0m
+[0mPOST /api/auth/login [32m200[0m 284.364 ms - 665[0m
+[0mGET /api/auth/permissions [32m200[0m 58.784 ms - 162[0m
+[0mGET /api/dashboard/vendor-stats [36m304[0m 125.913 ms - -[0m
+[0mGET /api/dashboard/vendor-stats [36m304[0m 113.597 ms - -[0m
+[0mGET /api/applications [32m200[0m 275.859 ms - -[0m
+[0mGET /api/applications [36m304[0m 254.938 ms - -[0m
+[0mGET /api/auth/me [32m200[0m 112.320 ms - 207[0m
+[0mGET /api/auth/me [36m304[0m 113.755 ms - -[0m
+[0mPOST /api/auth/login [32m200[0m 231.000 ms - 665[0m
+[0mGET /api/auth/permissions [36m304[0m 56.726 ms - -[0m
+[0mGET /api/dashboard/vendor-stats [36m304[0m 116.475 ms - -[0m
+[0mGET /api/dashboard/vendor-stats [36m304[0m 115.239 ms - -[0m
+[0mGET /api/slm/contracts?page=1&limit=10&search=&status=All [36m304[0m 249.214 ms - -[0m
+[0mGET /api/slm/contracts/stats [36m304[0m 329.803 ms - -[0m
+[0mGET /api/slm/contracts?page=1&limit=10&search=&status=All [36m304[0m 230.602 ms - -[0m
+[0mGET /api/slm/contracts/stats [36m304[0m 275.884 ms - -[0m
+[0mGET /api/forms/published [32m200[0m 68.607 ms - -[0m
+[0mGET /api/forms/published [36m304[0m 71.989 ms - -[0m
+[0mGET /api/categories [32m200[0m 201.484 ms - -[0m
+[0mGET /api/categories [36m304[0m 199.860 ms - -[0m
+[0mGET /api/slm/contracts?page=1&limit=10&search=&status=All [36m304[0m 222.801 ms - -[0m
+[0mGET /api/slm/contracts/stats [36m304[0m 279.489 ms - -[0m
+[0mGET /api/slm/contracts?page=1&limit=10&search=&status=All [36m304[0m 220.670 ms - -[0m
+[0mGET /api/slm/contracts/stats [36m304[0m 274.586 ms - -[0m
+[0mGET /api/applications [36m304[0m 244.111 ms - -[0m
+[0mGET /api/applications [36m304[0m 251.077 ms - -[0m
+[0mGET /api/vendors?status=approved [36m304[0m 190.479 ms - -[0m
+[0mGET /api/vendors?status=approved [36m304[0m 174.117 ms - -[0m
+[0mGET /api/applications [36m304[0m 227.416 ms - -[0m
+[0mGET /api/applications [36m304[0m 232.257 ms - -[0m
+[0mPATCH /api/applications/6995ad10899f52a29c08d7f1/approve-stage [32m200[0m 207.280 ms - -[0m
+[0mGET /api/applications/6995ad10899f52a29c08d7f1 [32m200[0m 199.180 ms - -[0m
+[0mGET /api/applications [32m200[0m 237.485 ms - -[0m
+📧 Email sent: <051fdde2-9858-3821-6485-a1f546e8e8ea@gmail.com>
+ERROR: Invalid token. Please log in again. Error: Invalid token. Please log in again.
+    at C:\vendor-management-system\backend\middlewares\auth.middleware.js:38:21
+    at C:\vendor-management-system\backend\utils\asyncHandler.js:11:25
+    at Layer.handleRequest (C:\vendor-management-system\backend\node_modules\router\lib\layer.js:152:17)
+    at next (C:\vendor-management-system\backend\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\vendor-management-system\backend\node_modules\router\lib\route.js:117:3)
+    at handle (C:\vendor-management-system\backend\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\vendor-management-system\backend\node_modules\router\lib\layer.js:152:17)
+    at C:\vendor-management-system\backend\node_modules\router\index.js:295:15
+    at processParams (C:\vendor-management-system\backend\node_modules\router\index.js:582:12)
+    at next (C:\vendor-management-system\backend\node_modules\router\index.js:291:5)
+[0mGET /api/auth/me [33m401[0m 5.321 ms - -[0m
+ERROR: Invalid token. Please log in again. Error: Invalid token. Please log in again.
+    at C:\vendor-management-system\backend\middlewares\auth.middleware.js:38:21
+    at C:\vendor-management-system\backend\utils\asyncHandler.js:11:25
+    at Layer.handleRequest (C:\vendor-management-system\backend\node_modules\router\lib\layer.js:152:17)
+    at next (C:\vendor-management-system\backend\node_modules\router\lib\route.js:157:13)
+    at Route.dispatch (C:\vendor-management-system\backend\node_modules\router\lib\route.js:117:3)
+    at handle (C:\vendor-management-system\backend\node_modules\router\index.js:435:11)
+    at Layer.handleRequest (C:\vendor-management-system\backend\node_modules\router\lib\layer.js:152:17)
+    at C:\vendor-management-system\backend\node_modules\router\index.js:295:15
+    at processParams (C:\vendor-management-system\backend\node_modules\router\index.js:582:12)
+    at next (C:\vendor-management-system\backend\node_modules\router\index.js:291:5)
+[0mGET /api/auth/me [33m401[0m 5.672 ms - -[0m

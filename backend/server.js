@@ -1,0 +1,151 @@
+const express = require("express");
+const cors = require("cors");
+const helmet = require("helmet");
+const compression = require("compression");
+const xss = require("xss-clean");
+const cookieParser = require("cookie-parser");
+const { apiLimiter, sanitizeRequest } = require("./middleware/securityMiddleware");
+const configs = require("./config/env");
+const logger = require("./utils/logger");
+const connectDB = require("./config/db");
+const AppError = require("./utils/AppError");
+const globalErrorHandler = require("./middlewares/error.middleware");
+const JobProcessor = require("./jobs/JobProcessor");
+const { successResponse } = require("./utils/responseHandler");
+const FormSeeder = require("./services/FormSeeder");
+const http = require("http");
+const socketUtil = require("./utils/socket");
+
+
+// Ensure all models are registered
+require("./models/Permission");
+require("./models/Role");
+require("./models/Admin");
+require("./models/User"); // Added User model registration
+require("./models/vendor.model"); // New professional vendor model
+// require("./models/Vendor"); // Commented out to avoid conflict
+require("./models/Category");
+require("./models/FormTemplate");
+require("./models/VendorApplication");
+require("./models/AuditLog");
+require("./models/Document");
+require("./models/Notification");
+require("./models/Message");
+require("./models/Contract");
+require("./models/activityLog.model");
+require("./models/Company");
+require("./models/Department");
+require("./models/RFQ");
+require("./models/Quotation");
+require("./models/PurchaseOrder");
+require("./models/Payment");
+require("./models/Rating");
+
+const app = express();
+
+// 1) Database Connection
+connectDB();
+
+// 2) Security & Optimization Middlewares
+app.use(helmet()); // Set security HTTP headers
+app.use(cors()); // Enable CORS
+app.use(express.json({ limit: "10kb" })); // Body parser, reading data from body into req.body
+app.use(cookieParser()); // Cookie parser for HTTP-only cookies
+app.use(sanitizeRequest); // Data sanitization against NoSQL query injection
+// app.use(xss()); // Data sanitization against XSS
+app.use(compression()); // Compress responses
+
+// 3) Request Logging
+if (configs.NODE_ENV === "development") {
+    app.use(require("morgan")("dev"));
+} else {
+    app.use((req, res, next) => {
+        logger.http(`${req.method} ${req.url}`);
+        next();
+    });
+}
+
+// 4) Health Check
+app.get("/health", (req, res) => {
+    return successResponse(res, "System Healthy", {
+        status: "UP",
+        uptime: process.uptime(),
+        timestamp: new Date(),
+        memoryUsage: process.memoryUsage(),
+    });
+});
+
+// 5) API Rate Limiting
+app.use("/api", apiLimiter);
+
+// 6) API Versioning & Routes
+const API_V1 = "/api/v1";
+
+app.use(`${API_V1}/auth`, require("./routes/authRoutes"));
+app.use(`${API_V1}/vendors`, require("./routes/vendor.routes")); // Integrated new professional vendor routes
+app.use(`${API_V1}/admin`, require("./routes/adminRoutes"));
+app.use(`${API_V1}/forms`, require("./routes/formRoutes"));
+app.use(`${API_V1}/applications`, require("./routes/applicationRoutes"));
+app.use(`${API_V1}/categories`, require("./routes/categoryRoutes"));
+app.use(`${API_V1}/invitations`, require("./routes/invitationRoutes"));
+app.use(`${API_V1}/notifications`, require("./routes/notificationRoutes"));
+app.use(`${API_V1}/slm`, require("./routes/slmRoutes"));
+app.use(`${API_V1}/contracts`, require("./routes/contractRoutes"));
+app.use(`${API_V1}/dashboard`, require("./routes/dashboard.routes"));
+app.use(`${API_V1}/activity-logs`, require("./routes/activityLog.routes"));
+app.use(`${API_V1}/category`, require("./routes/aiRoutes"));
+app.use(`${API_V1}/rfqs`, require("./routes/rfqRoutes"));
+app.use(`${API_V1}/quotations`, require("./routes/quotationRoutes"));
+app.use(`${API_V1}/departments`, require("./routes/departmentRoutes"));
+app.use(`${API_V1}/purchase-orders`, require("./routes/poRoutes"));
+app.use(`${API_V1}/users`, require("./routes/userManagement.routes"));
+ // Added specifically for POST /api/category/generate-ai
+
+// Backward compatibility (optional, but requested to not break existing business logic)
+// I'll keep the /api prefix as well for now or redirect
+// Backward compatibility & Frontend aliases
+app.use("/api/auth", require("./routes/authRoutes"));
+app.use("/api/vendors", require("./routes/vendor.routes")); // Integrated new professional vendor routes
+app.use("/api/vendor", require("./routes/vendor.routes")); // Integrated new professional vendor routes (alias)
+app.use("/api/admin", require("./routes/adminRoutes"));
+app.use("/api/forms", require("./routes/formRoutes"));
+app.use("/api/applications", require("./routes/applicationRoutes"));
+app.use("/api/categories", require("./routes/categoryRoutes"));
+app.use("/api/invitations", require("./routes/invitationRoutes"));
+app.use("/api/notifications", require("./routes/notificationRoutes"));
+app.use("/api/slm", require("./routes/slmRoutes"));
+app.use("/api/contracts", require("./routes/contractRoutes"));
+app.use("/api/dashboard", require("./routes/dashboard.routes"));
+app.use("/api/activity-logs", require("./routes/activityLog.routes"));
+app.use("/api/category", require("./routes/aiRoutes"));
+app.use("/api/rfqs", require("./routes/rfqRoutes"));
+app.use("/api/quotations", require("./routes/quotationRoutes"));
+app.use("/api/departments", require("./routes/departmentRoutes"));
+app.use("/api/purchase-orders", require("./routes/poRoutes")); // Added proxy for POST /api/category/generate-ai
+
+// 7) Handle Undefined Routes
+app.use((req, res, next) => {
+    next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
+});
+
+// 8) Global Error Handling Middleware
+app.use(globalErrorHandler);
+
+// 9) Start Server
+const PORT = configs.PORT || 5000;
+const server = http.createServer(app);
+
+// Initialize Socket.io
+socketUtil.init(server);
+
+console.log('🚀 Attempting to start server on port:', PORT);
+server.listen(PORT, () => {
+    logger.info(`Server running in ${configs.NODE_ENV} mode on port ${PORT}`);
+
+    // Initialize Bull Job Processor
+    JobProcessor.init();
+
+    // Seed pre-configured forms
+    FormSeeder.seedMasterForm();
+});
+
