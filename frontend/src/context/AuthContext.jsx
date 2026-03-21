@@ -27,14 +27,9 @@ export function AuthProvider({ children }) {
           const userData = res.data.data;
           console.log("Session rehydrated. User:", userData);
           setUser(userData);
+          setAllowedModules(userData.allowedModules || []);
           localStorage.setItem("role", userData.role);
           localStorage.setItem("user", JSON.stringify(userData));
-
-          // Fetch permissions
-          try {
-            const permRes = await api.get("/auth/permissions");
-            if (permRes.data.success) setAllowedModules(permRes.data.allowedModules);
-          } catch { /* non-critical */ }
         }
       } catch (err) {
         console.error("Rehydration failed:", err);
@@ -60,19 +55,14 @@ export function AuthProvider({ children }) {
 
     api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
     setUser(userData);
-
-    // Fetch permissions
-    try {
-      const permRes = await api.get("/auth/permissions");
-      if (permRes.data.success) setAllowedModules(permRes.data.allowedModules);
-    } catch { /* non-critical */ }
+    setAllowedModules(userData.allowedModules || []);
 
     // Route based on role
     const normalizedRole = normalizeRole(role);
     console.log("Normalized Role for routing:", normalizedRole);
 
-    if (["admin", "hr", "manager"].includes(normalizedRole)) {
-      console.log("Redirecting to Admin Portal...");
+    if (normalizedRole !== "vendor") {
+      console.log("Redirecting to Internal Portal...");
       navigate("/admin/dashboard");
     } else {
       console.log("Redirecting to Vendor Portal...");

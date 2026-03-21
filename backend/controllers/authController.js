@@ -144,6 +144,18 @@ exports.login = asyncHandler(async (req, res, next) => {
     tenantId: user.tenantId,
   };
 
+  // Fetch Role Details for dynamic RBAC
+  const Role = require("../models/Role");
+  const roleDetails = await Role.findOne({
+    name: user.role,
+    $or: [
+        { tenantId: user.tenantId },
+        { tenantId: { $exists: false } }
+    ]
+  }).populate("permissions");
+
+  const allowedModules = roleDetails?.accessibleModules || ["Dashboard"];
+
   res.status(200).json({
     success: true,
     message: "Logged in successfully",
@@ -154,6 +166,8 @@ exports.login = asyncHandler(async (req, res, next) => {
       email: user.email,
       role: user.role,
       tenantId: user.tenantId,
+      allowedModules,
+      roleDetails
     },
   });
 });
@@ -222,14 +236,22 @@ exports.logout = asyncHandler(async (req, res, next) => {
 // @access  Private
 exports.getMe = asyncHandler(async (req, res, next) => {
   const user = await User.findById(req.user.id);
+  if (!user) return next(new AppError("User not found", 404));
 
-  if (!user) {
-    return next(new AppError("User not found", 404));
-  }
+  const Role = require("../models/Role");
+  const roleDetails = await Role.findOne({
+    name: user.role,
+    $or: [{ tenantId: user.tenantId }, { tenantId: { $exists: false } }]
+  }).populate("permissions");
+  const allowedModules = roleDetails?.accessibleModules || ["Dashboard"];
 
   res.status(200).json({
     success: true,
-    data: user,
+    data: {
+        ...user.toObject(),
+        roleDetails,
+        allowedModules
+    },
   });
 });
 

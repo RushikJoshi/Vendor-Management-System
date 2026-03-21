@@ -2812,3 +2812,68 @@
 2026-03-18 16:14:24:1424 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
 2026-03-18 16:14:24:1424 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
 2026-03-18 16:14:24:1424 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-19 15:33:58:3358 [32minfo[39m: [32mServer running in development mode on port 5000[39m
+2026-03-19 15:33:58:3358 [32minfo[39m: [32m🎯 Job Processor Initialized[39m
+2026-03-19 15:33:58:3358 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-19 15:33:58:3358 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-19 15:33:58:3358 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-19 15:45:43:4543 [32minfo[39m: [32mServer running in development mode on port 5000[39m
+2026-03-19 15:45:43:4543 [32minfo[39m: [32m🎯 Job Processor Initialized[39m
+2026-03-19 15:45:44:4544 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-19 15:45:44:4544 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-19 15:45:44:4544 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-19 15:46:20:4620 [32minfo[39m: [32mServer running in development mode on port 5000[39m
+2026-03-19 15:46:20:4620 [32minfo[39m: [32m🎯 Job Processor Initialized[39m
+2026-03-19 15:46:20:4620 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-19 15:46:20:4620 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-19 15:46:20:4620 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-19 15:46:33:4633 [32minfo[39m: [32mServer running in development mode on port 5000[39m
+2026-03-19 15:46:33:4633 [32minfo[39m: [32m🎯 Job Processor Initialized[39m
+2026-03-19 15:46:33:4633 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-19 15:46:33:4633 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-19 15:46:34:4634 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-19 15:54:37:5437 [32minfo[39m: [32mServer running in development mode on port 5000[39m
+2026-03-19 15:54:37:5437 [32minfo[39m: [32m🎯 Job Processor Initialized[39m
+2026-03-19 15:54:37:5437 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-19 15:54:37:5437 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-19 15:54:37:5437 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-19 16:00:49:049 [32minfo[39m: [32mServer running in development mode on port 5000[39m
+2026-03-19 16:00:49:049 [32minfo[39m: [32m🎯 Job Processor Initialized[39m
+2026-03-19 16:00:49:049 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-19 16:00:49:049 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-19 16:00:49:049 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-19 16:05:52:552 [32minfo[39m: [32mServer running in development mode on port 5000[39m
+2026-03-19 16:05:52:552 [32minfo[39m: [32m🎯 Job Processor Initialized[39m
+2026-03-19 16:05:53:553 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-19 16:05:53:553 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-19 16:05:53:553 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-19 16:08:13:813 [32minfo[39m: [32mServer running in development mode on port 5000[39m
+2026-03-19 16:08:13:813 [32minfo[39m: [32m🎯 Job Processor Initialized[39m
+2026-03-19 16:08:13:813 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-19 16:08:13:813 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-19 16:08:13:813 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-19 21:32:53:3253 [32minfo[39m: [32mServer running in development mode on port 5000[39m
+2026-03-19 21:32:53:3253 [32minfo[39m: [32m🎯 Job Processor Initialized[39m
+2026-03-19 21:32:54:3254 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-19 21:32:54:3254 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-19 21:32:54:3254 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-19 22:16:31:1631 [32minfo[39m: [32mServer running in development mode on port 5000[39m
+2026-03-19 22:16:31:1631 [32minfo[39m: [32m🎯 Job Processor Initialized[39m
+2026-03-19 22:16:31:1631 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-19 22:16:31:1631 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-19 22:16:31:1631 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-20 10:36:33:3633 [32minfo[39m: [32mServer running in development mode on port 5000[39m
+2026-03-20 10:36:33:3633 [32minfo[39m: [32m🎯 Job Processor Initialized[39m
+2026-03-20 10:36:34:3634 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-20 10:36:34:3634 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-20 10:36:34:3634 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-20 11:26:15:2615 [32minfo[39m: [32mServer running in development mode on port 5000[39m
+2026-03-20 11:26:15:2615 [32minfo[39m: [32m🎯 Job Processor Initialized[39m
+2026-03-20 11:26:15:2615 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-20 11:26:15:2615 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-20 11:26:15:2615 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-20 12:05:06:56 [32minfo[39m: [32mServer running in development mode on port 5000[39m
+2026-03-20 12:05:06:56 [32minfo[39m: [32m🎯 Job Processor Initialized[39m
+2026-03-20 12:05:06:56 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-20 12:05:06:56 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-20 12:05:06:56 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m

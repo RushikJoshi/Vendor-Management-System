@@ -26,12 +26,23 @@ export default function ProtectedRoute({ children, requiredRole, role, module })
     }
   }
 
-  // Legacy OR-list check
-  if (role && !requiredRole) {
+  // Role check: Admin routes usually allow any internal role
+  if (role) {
     const allowed = Array.isArray(role) ? role : [role];
     const normalizedAllowed = allowed.map(r => normalizeRole(r));
-    if (!normalizedAllowed.includes(userRole)) {
-      return <Navigate to="/access-denied" replace />;
+    
+    // If it's an internal route check (admin/hr/manager), 
+    // allow any user whose role is NOT vendor and has some allowedModules,
+    // OR if their specific role is in the list.
+    const isInternalRoute = normalizedAllowed.includes("admin") || normalizedAllowed.includes("hr");
+    
+    if (isInternalRoute) {
+        if (userRole === "vendor") return <Navigate to="/access-denied" replace />;
+    } else {
+        // Strict check for single roles (like specific vendor routes)
+        if (!normalizedAllowed.includes(userRole)) {
+            return <Navigate to="/access-denied" replace />;
+        }
     }
   }
 

@@ -92,3 +92,42 @@ exports.updateUserStatus = asyncHandler(async (req, res, next) => {
 
     successResponse(res, `User account ${status === 'active' ? 'activated' : 'deactivated'} successfully`, user);
 });
+
+// @desc    Update user details
+// @route   PUT /api/users/:id
+// @access  Private (Admin only)
+exports.updateUser = asyncHandler(async (req, res, next) => {
+    const { name, email, role } = req.body;
+
+    const user = await User.findById(req.params.id);
+    if (!user) {
+        return next(new AppError("User not found", 404));
+    }
+
+    // Check if new email is taken
+    if (email && email !== user.email) {
+        const existingEmail = await User.findOne({ email });
+        if (existingEmail) {
+            return next(new AppError("Email already in use", 400));
+        }
+    }
+
+    user.name = name || user.name;
+    user.email = email || user.email;
+    if (role) user.role = role;
+
+    await user.save();
+
+    successResponse(res, "User updated successfully", user);
+});
+
+// @desc    Delete user
+// @route   DELETE /api/users/:id
+// @access  Private (Admin only)
+exports.deleteUser = asyncHandler(async (req, res, next) => {
+    const user = await User.findByIdAndDelete(req.params.id);
+    if (!user) {
+        return next(new AppError("User not found", 404));
+    }
+    successResponse(res, "User deleted successfully", null);
+});

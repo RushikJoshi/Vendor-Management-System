@@ -1,37 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { 
-  Users, 
-  FileText, 
-  ShoppingCart, 
-  CreditCard, 
-  TrendingUp, 
-  TrendingDown,
-  Clock,
-  CheckCircle,
-  AlertCircle,
-  MoreVertical,
-  Plus,
-  Search,
-  Filter,
-  ArrowUpRight,
-  ArrowDownRight,
-  Calendar,
-  Zap
+  Users, FileText, ShoppingCart, CreditCard, TrendingUp, TrendingDown,
+  Clock, CheckCircle, AlertCircle, MoreVertical, Plus, Search,
+  Filter, ArrowUpRight, ArrowDownRight, Calendar, Zap, ChevronRight,
+  ShieldCheck, Globe, Activity, Layers, Database, Lock, Terminal
 } from 'lucide-react';
 import { 
-  AreaChart, 
-  Area, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-  Cell
+  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  BarChart, Bar, Cell
 } from 'recharts';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
+import StatCard from '../../components/vms/StatCard';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const SaaSDashboard = () => {
   const navigate = useNavigate();
@@ -44,58 +25,39 @@ const SaaSDashboard = () => {
   });
 
   const chartData = [
-    { name: 'Jan', value: 4000 },
-    { name: 'Feb', value: 3000 },
-    { name: 'Mar', value: 5000 },
-    { name: 'Apr', value: 4500 },
-    { name: 'May', value: 6000 },
-    { name: 'Jun', value: 5500 },
+    { name: 'JAN', value: 4000 },
+    { name: 'FEB', value: 3000 },
+    { name: 'MAR', value: 5000 },
+    { name: 'APR', value: 4500 },
+    { name: 'MAY', value: 6000 },
+    { name: 'JUN', value: 5500 },
   ];
 
   const departmentData = [
-    { name: 'Tech', value: 45, color: '#4F46E5' },
-    { name: 'Logistics', value: 30, color: '#10B981' },
-    { name: 'Real Estate', value: 25, color: '#F59E0B' },
+    { name: 'ENGINEERING', value: 45, color: '#0F172A' },
+    { name: 'INFRASTRUCTURE', value: 30, color: '#334155' },
+    { name: 'OPERATIONS', value: 25, color: '#64748B' },
   ];
 
   useEffect(() => {
-    // Simulate API loading
     const timer = setTimeout(() => {
         setLoading(false);
-    }, 1500);
+    }, 1000);
     return () => clearTimeout(timer);
   }, []);
-
-  const StatCard = ({ title, value, icon: Icon, trend, isPositive, color }) => (
-    <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 group hover:shadow-md transition-all duration-300">
-      <div className="flex justify-between items-start mb-4">
-        <div className={`p-3 rounded-xl ${color} bg-opacity-10 transition-colors group-hover:bg-opacity-20`}>
-          <Icon className={`${color.replace('bg-', 'text-')}`} size={22} />
-        </div>
-        <div className={`flex items-center gap-1 text-xs font-bold ${isPositive ? 'text-emerald-500' : 'text-rose-500'}`}>
-          {isPositive ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
-          {trend}
-        </div>
-      </div>
-      <div>
-        <p className="text-sm text-gray-400 font-medium tracking-tight mb-1 uppercase tracking-wider">{title}</p>
-        <h3 className="text-2xl font-black text-gray-900 tracking-tight">{value}</h3>
-      </div>
-    </div>
-  );
 
   const Badge = ({ children, status }) => {
     const styles = {
       high: "bg-rose-50 text-rose-600 border-rose-100",
       medium: "bg-amber-50 text-amber-600 border-amber-100",
       low: "bg-emerald-50 text-emerald-600 border-emerald-100",
-      open: "bg-indigo-50 text-indigo-600 border-indigo-100",
-      pending: "bg-blue-50 text-blue-600 border-blue-100",
-      closed: "bg-gray-100 text-gray-600 border-gray-200"
+      open: "bg-slate-900 text-white border-slate-900",
+      pending: "bg-slate-100 text-slate-500 border-slate-200",
+      closed: "bg-slate-50 text-slate-300 border-slate-100"
     };
 
     return (
-      <span className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${styles[status]}`}>
+      <span className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-[0.2em] border shadow-sm ${styles[status]}`}>
         {children}
       </span>
     );
@@ -103,197 +65,293 @@ const SaaSDashboard = () => {
 
   if (loading) {
     return (
-      <div className="p-8 space-y-8 animate-pulse">
-        <div className="h-10 bg-gray-200 rounded-lg w-1/4"></div>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          {[1,2,3,4].map(i => <div key={i} className="h-32 bg-gray-200 rounded-2xl"></div>)}
+      <div className="p-10 space-y-12 animate-pulse bg-white min-h-screen">
+        <div className="h-20 bg-slate-50 rounded-[2.5rem] w-1/3"></div>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          {[1,2,3,4].map(i => <div key={i} className="h-40 bg-slate-50 rounded-[2.5rem]"></div>)}
         </div>
-        <div className="grid grid-cols-3 gap-6">
-            <div className="col-span-2 h-[400px] bg-gray-200 rounded-2xl"></div>
-            <div className="h-[400px] bg-gray-200 rounded-2xl"></div>
+        <div className="grid grid-cols-3 gap-8">
+            <div className="col-span-2 h-[500px] bg-slate-50 rounded-[3.5rem]"></div>
+            <div className="h-[500px] bg-slate-50 rounded-[3.5rem]"></div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="p-8 space-y-8 bg-[#F9FAFB] min-h-screen font-sans">
-      {/* Header Section */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-black text-gray-900 tracking-tight">Executive <span className="text-indigo-600">Overview</span></h1>
-          <p className="text-gray-500 text-sm font-medium flex items-center gap-2 mt-1">
-            <Calendar size={14} /> {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
-          </p>
-        </div>
-        <div className="flex gap-3">
-          <button className="flex items-center gap-2 bg-white border border-gray-200 text-gray-700 px-4 py-2.5 rounded-xl font-bold text-sm hover:bg-gray-50 transition-all shadow-sm">
-            <Filter size={18} /> Filters
-          </button>
-          <button 
-            onClick={() => navigate('/admin/rfq/create')}
-            className="flex items-center gap-2 bg-indigo-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-200 group"
-          >
-            <Plus size={18} className="group-hover:rotate-90 transition-transform" /> 
-            Create RFQ
-          </button>
-        </div>
-      </div>
+    <div className="space-y-12 fade-in pb-20">
+      {/* ── BREADCRUMB & HEADER ─────────────────────────────────────────── */}
+      <header className="flex flex-col xl:flex-row justify-between items-start xl:items-end gap-10 border-b border-slate-200 pb-12 relative overflow-hidden">
+          <div className="space-y-6 relative z-10">
+              <div className="flex items-center gap-2">
+                  <span className="bg-slate-900 text-white px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-[0.2em]">Operational Intel</span>
+                  <div className="h-1 w-6 bg-slate-200 rounded-full"></div>
+                  <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Global Node Overview</span>
+              </div>
+              <div>
+                  <h1 className="text-5xl font-black text-slate-900 tracking-[-0.05em] uppercase leading-none mb-4">Command Center</h1>
+                  <p className="text-sm font-medium text-slate-500 max-w-xl italic border-l-4 border-slate-900/10 pl-6">Real-time procurement landscape. Synchronizing vendor pipelines, capital velocity, and structural risk across all operational sectors.</p>
+              </div>
+          </div>
 
-      {/* Quick Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard title="Active Vendors" value={stats.totalVendors.value} icon={Users} trend={stats.totalVendors.trend} isPositive={stats.totalVendors.isPositive} color="bg-indigo-500" />
-        <StatCard title="Live RFQs" value={stats.openRFQs.value} icon={FileText} trend={stats.openRFQs.trend} isPositive={stats.openRFQs.isPositive} color="bg-orange-500" />
-        <StatCard title="Market Value" value={stats.totalSpent.value} icon={CreditCard} trend={stats.totalSpent.trend} isPositive={stats.totalSpent.isPositive} color="bg-emerald-500" />
-        <StatCard title="POs Pending" value={stats.pendingPOs.value} icon={ShoppingCart} trend={stats.pendingPOs.trend} isPositive={stats.pendingPOs.isPositive} color="bg-rose-500" />
+          <div className="flex flex-wrap items-center gap-4 relative z-10">
+            <button className="flex items-center gap-4 bg-white border border-slate-100 text-slate-400 px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] hover:text-slate-900 hover:border-slate-900 transition-all shadow-subtle active:scale-95">
+              <Filter size={18} /> Analysis Filter
+            </button>
+            <button 
+                onClick={() => navigate('/admin/rfq/create')}
+                className="flex items-center gap-4 bg-slate-900 text-white px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] hover:bg-slate-800 transition-all shadow-xl shadow-slate-200 active:scale-95"
+            >
+              <Plus size={18} /> Initiate RFQ Protocol
+            </button>
+          </div>
+      </header>
+
+      {/* ── METRIC SNAPSHOTS ────────────────────────────────────────────── */ }
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8">
+        <MetricCard label="Registry Density" value={stats.totalVendors.value} trend="+12.4%" trendIsPos={true} icon={Users} />
+        <MetricCard label="Active Protocols" value={stats.openRFQs.value} trend="+5.2%" trendIsPos={true} icon={FileText} />
+        <MetricCard label="Capital Velocity" value={stats.totalSpent.value} trend="+18.9%" trendIsPos={true} icon={TrendingUp} />
+        <MetricCard label="Queue Latency" value={stats.pendingPOs.value} trend="-2.4%" trendIsPos={false} icon={Clock} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Main Analytics Chart */}
-        <div className="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-gray-100 min-w-0">
-          <div className="flex justify-between items-center mb-8">
-            <div>
-              <h2 className="text-lg font-black text-gray-900 tracking-tight">Procurement Trends</h2>
-              <p className="text-xs text-gray-400 font-bold uppercase tracking-widest mt-1">Monthly spending overview</p>
+        {/* ── PRIMARY ANALYTICS ─────────────────────────────────────────── */ }
+        <div className="lg:col-span-2 bg-white rounded-[3.5rem] border border-slate-100 shadow-premium overflow-hidden flex flex-col">
+            <div className="p-10 border-b border-slate-50 flex items-center justify-between bg-slate-50/50">
+                <div className="flex items-center gap-4 font-black">
+                     <div className="w-1.5 h-6 bg-slate-900 rounded-full"></div>
+                     <div>
+                        <h2 className="text-xs uppercase tracking-[0.2em] text-slate-900">Procurement Drift</h2>
+                        <p className="text-[9px] text-slate-400 uppercase tracking-widest mt-1">6-Month Capital Flow Registry</p>
+                     </div>
+                </div>
+                <div className="flex items-center gap-4">
+                     <div className="h-10 px-4 bg-white border border-slate-100 rounded-xl flex items-center gap-2 text-[9px] font-black text-slate-400 uppercase tracking-widest shadow-inner">
+                         <Calendar size={12} /> FY 2024-25
+                     </div>
+                </div>
             </div>
-            <select className="bg-gray-50 border-none text-xs font-bold rounded-lg px-3 py-2 outline-none">
-              <option>Last 6 Months</option>
-              <option>Last Year</option>
-            </select>
-          </div>
-          <div className="h-[300px] w-full min-h-[300px] min-w-0">
-            <ResponsiveContainer width="100%" height="100%" debounce={50} minWidth={0}>
-
-              <AreaChart data={chartData}>
-                <defs>
-                  <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#4F46E5" stopOpacity={0.1}/>
-                    <stop offset="95%" stopColor="#4F46E5" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F5F9" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94A3B8', fontSize: 12}} dy={10} />
-                <YAxis axisLine={false} tickLine={false} tick={{fill: '#94A3B8', fontSize: 12}} />
-                <Tooltip 
-                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)', fontWeight: 'bold' }}
-                />
-                <Area type="monotone" dataKey="value" stroke="#4F46E5" strokeWidth={3} fillOpacity={1} fill="url(#colorValue)" />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        {/* Department Distribution */}
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 min-w-0">
-            <h2 className="text-lg font-black text-gray-900 tracking-tight mb-8">Resources</h2>
-            <div className="h-[200px] w-full mb-8 min-h-[200px] min-w-0">
-                <ResponsiveContainer width="100%" height="100%" debounce={50} minWidth={0}>
-
-                    <BarChart data={departmentData}>
-                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94A3B8', fontSize: 10}} />
-                        <Tooltip cursor={{fill: 'transparent'}} />
-                        <Bar dataKey="value" radius={[6, 6, 0, 0]}>
-                            {departmentData.map((entry, index) => (
-                                <Cell key={`cell-${index}`} fill={entry.color} />
-                            ))}
-                        </Bar>
-                    </BarChart>
+            
+            <div className="p-10 h-[450px] relative">
+                <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                        <defs>
+                            <linearGradient id="driftGradient" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="5%" stopColor="#0F172A" stopOpacity={0.08}/>
+                                <stop offset="95%" stopColor="#0F172A" stopOpacity={0}/>
+                            </linearGradient>
+                        </defs>
+                        <CartesianGrid strokeDasharray="10 10" vertical={false} stroke="#F1F5F9" />
+                        <XAxis 
+                            dataKey="name" 
+                            axisLine={false} 
+                            tickLine={false} 
+                            tick={{fill: '#94A3B8', fontSize: 10, fontWeight: 900}} 
+                            dy={20}
+                        />
+                        <YAxis 
+                            axisLine={false} 
+                            tickLine={false} 
+                            tick={{fill: '#94A3B8', fontSize: 10, fontWeight: 900}} 
+                        />
+                        <Tooltip 
+                            cursor={{ stroke: '#0F172A', strokeWidth: 1, strokeDasharray: '4 4' }}
+                            contentStyle={{ borderRadius: '24px', border: 'none', boxShadow: '0 40px 100px -30px rgba(0,0,0,0.15)', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em' }} 
+                        />
+                        <Area 
+                            type="monotone" 
+                            dataKey="value" 
+                            stroke="#0F172A" 
+                            strokeWidth={4} 
+                            fill="url(#driftGradient)" 
+                            activeDot={{ r: 8, fill: '#0F172A', stroke: '#fff', strokeWidth: 4 }} 
+                        />
+                    </AreaChart>
                 </ResponsiveContainer>
             </div>
-            <div className="space-y-4">
-                {departmentData.map((dept, i) => (
-                    <div key={i} className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                            <div className="w-2 h-2 rounded-full" style={{backgroundColor: dept.color}}></div>
-                            <span className="text-sm font-bold text-gray-600">{dept.name}</span>
+        </div>
+
+        {/* ── COMPONENT SPLIT ──────────────────────────────────────────── */ }
+        <div className="bg-white rounded-[3.5rem] border border-slate-100 shadow-premium overflow-hidden flex flex-col">
+             <div className="p-10 border-b border-slate-50 bg-slate-50/50 font-black">
+                <h2 className="text-xs uppercase tracking-[0.2em] text-slate-900">Portfolio Diversity</h2>
+                <p className="text-[9px] text-slate-400 uppercase tracking-widest mt-1">Sector Allocation Matrix</p>
+             </div>
+
+             <div className="flex-1 p-10 flex flex-col">
+                <div className="h-[220px] mb-10">
+                    <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={departmentData}>
+                            <XAxis dataKey="name" hide />
+                            <Tooltip cursor={{fill: 'transparent'}} contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 20px 50px -10px rgba(0,0,0,0.1)', fontSize: '10px', fontWeight: 900 }} />
+                            <Bar dataKey="value" radius={[12, 12, 12, 12]} barSize={50}>
+                                {departmentData.map((entry, index) => (
+                                    <Cell key={`cell-${index}`} fill={entry.color} />
+                                ))}
+                            </Bar>
+                        </BarChart>
+                    </ResponsiveContainer>
+                </div>
+
+                <div className="space-y-6">
+                    {departmentData.map((dept, i) => (
+                        <div key={i} className="flex items-center justify-between group cursor-pointer">
+                            <div className="flex items-center gap-4">
+                                <div className="w-12 h-2 rounded-full overflow-hidden bg-slate-50 border border-slate-100 relative shadow-inner">
+                                    <div className="absolute top-0 left-0 h-full transition-all duration-1000" style={{backgroundColor: dept.color, width: `${dept.value}%`}}></div>
+                                </div>
+                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest group-hover:text-slate-900 transition-colors uppercase">{dept.name}</span>
+                            </div>
+                            <span className="text-[10px] font-black text-slate-900 tracking-tighter shadow-subtle px-3 py-1 bg-slate-50 border border-slate-100 rounded-lg">{dept.value}%</span>
                         </div>
-                        <span className="text-xs font-black text-gray-900">{dept.value}%</span>
-                    </div>
-                ))}
-            </div>
+                    ))}
+                </div>
+
+                <div className="mt-auto pt-10 border-t border-slate-50">
+                    <button className="w-full flex items-center justify-between p-6 bg-slate-900 text-white rounded-[2rem] shadow-xl hover:bg-slate-800 transition-all active:scale-[0.98] group">
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em]">Detailed Ledger</span>
+                        <ChevronRight size={18} className="group-hover:translate-x-2 transition-transform" />
+                    </button>
+                </div>
+             </div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Recent RFQs Section */}
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-lg font-black text-gray-900 tracking-tight uppercase tracking-wide">Live Requests</h2>
-            <button className="text-xs font-black text-indigo-600 hover:underline tracking-widest uppercase">View All</button>
-          </div>
-          <div className="space-y-4">
-            {[
-              { title: 'Infrastructure Upgrade', dept: 'Development', priority: 'high', status: 'open', date: 'Mar 24' },
-              { title: 'Server Maintenance', dept: 'IT', priority: 'medium', status: 'pending', date: 'Mar 22' },
-              { title: 'Office Supplies', dept: 'Admin', priority: 'low', status: 'open', date: 'Mar 20' },
-            ].map((rfq, i) => (
-              <div key={i} className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-transparent hover:border-indigo-100 hover:bg-white hover:shadow-sm transition-all group overflow-hidden relative">
-                <div className="absolute left-0 top-0 bottom-0 w-1 bg-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+        {/* ── LIVE OPERATIONS ──────────────────────────────────────────── */ }
+        <div className="bg-white rounded-[3.5rem] border border-slate-100 shadow-premium overflow-hidden">
+            <div className="p-10 border-b border-slate-50 flex items-center justify-between bg-slate-50/50">
                 <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-gray-400 group-hover:text-indigo-500 shadow-sm transition-colors">
-                    <Zap size={18} />
-                  </div>
-                  <div>
-                    <p className="font-black text-gray-900 group-hover:text-indigo-600 transition-colors uppercase tracking-tight leading-tight">{rfq.title}</p>
-                    <div className="flex items-center gap-3 mt-1">
-                      <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider underline decoration-indigo-200 underline-offset-4">{rfq.dept}</span>
-                      <span className="text-[10px] text-gray-300">•</span>
-                      <span className="text-[10px] text-gray-400 font-bold flex items-center gap-1 uppercase tracking-wider">
-                        <Clock size={10} /> {rfq.date}
-                      </span>
+                     <div className="w-12 h-12 rounded-2xl bg-white border border-slate-100 flex items-center justify-center text-slate-900 shadow-xl">
+                        <Terminal size={20} />
+                     </div>
+                     <h2 className="text-xs font-black uppercase tracking-[0.2em] text-slate-900">Operational Log</h2>
+                </div>
+                <button className="text-[9px] font-black text-slate-400 uppercase tracking-widest hover:text-slate-900 transition-colors border-b-2 border-slate-100 hover:border-slate-900 pb-1 italic">Archive Access</button>
+            </div>
+            
+            <div className="p-8 space-y-4">
+                {[
+                  { title: 'Cluster Infrastructure Upgrade', dept: 'System_Arch', priority: 'high', status: 'open', date: 'TRANS_24.03' },
+                  { title: 'Global Registry Maintenance', dept: 'Reg_Logic', priority: 'medium', status: 'pending', date: 'TRANS_22.03' },
+                  { title: 'Operational Asset Procurement', dept: 'Proc_Ops', priority: 'low', status: 'open', date: 'TRANS_20.03' },
+                ].map((rfq, i) => (
+                  <motion.div 
+                    key={i} 
+                    whileHover={{ x: 10, backgroundColor: '#FDFDFD' }}
+                    className="flex items-center justify-between p-6 bg-white border border-slate-50 rounded-[2rem] hover:border-slate-300 hover:shadow-xl transition-all group relative active:scale-[0.99] cursor-pointer"
+                  >
+                    <div className="flex items-center gap-6">
+                      <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-300 group-hover:text-slate-900 group-hover:shadow-inner transition-all border border-transparent group-hover:border-slate-100">
+                        <Zap size={20} />
+                      </div>
+                      <div>
+                        <p className="font-black text-slate-900 uppercase tracking-tighter leading-none mb-2">{rfq.title}</p>
+                        <div className="flex items-center gap-3">
+                          <span className="text-[8px] text-slate-400 font-black uppercase tracking-widest bg-slate-50 px-2 py-0.5 rounded-md border border-slate-100">{rfq.dept}</span>
+                          <span className="text-slate-200 text-xs font-black">/</span>
+                          <span className="text-[8px] text-slate-300 font-black flex items-center gap-1 uppercase tracking-widest italic group-hover:text-slate-500 transition-colors">
+                            {rfq.date}
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Badge status={rfq.priority}>{rfq.priority}</Badge>
-                  <Badge status={rfq.status}>{rfq.status}</Badge>
-                </div>
-              </div>
-            ))}
-          </div>
+                    <div className="flex items-center gap-4">
+                      <Badge status={rfq.priority}>{rfq.priority}</Badge>
+                      <div className="w-px h-6 bg-slate-100"></div>
+                      <Badge status={rfq.status}>{rfq.status}</Badge>
+                    </div>
+                  </motion.div>
+                ))}
+            </div>
         </div>
 
-        {/* Vendor Approval Section */}
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-lg font-black text-gray-900 tracking-tight uppercase tracking-wide">Vendor Registrations</h2>
-            <span className="bg-rose-100 text-rose-600 px-2.5 py-1 rounded-full text-[10px] font-black tracking-widest uppercase animate-pulse">2 Pending</span>
-          </div>
-          <div className="space-y-4">
-            {[
-              { name: 'NexGen Logistics', applied: '2h ago', category: 'Shipping', logo: 'NL' },
-              { name: 'TerraBuild Infra', applied: '5h ago', category: 'Materials', logo: 'TB' },
-            ].map((vendor, i) => (
-              <div key={i} className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-transparent transition-all">
+        {/* ── REGISTRATION QUEUE ────────────────────────────────────────── */ }
+        <div className="bg-white rounded-[3.5rem] border border-slate-100 shadow-premium overflow-hidden">
+            <div className="p-10 border-b border-slate-50 flex items-center justify-between bg-slate-50/50">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-white border border-gray-100 shadow-sm rounded-xl flex items-center justify-center font-black text-indigo-600 tracking-tight">
-                    {vendor.logo}
-                  </div>
-                  <div>
-                    <p className="font-black text-gray-900 leading-tight uppercase tracking-tight">{vendor.name}</p>
-                    <p className="text-[10px] text-gray-400 font-bold mt-1 uppercase tracking-wider">{vendor.category} • {vendor.applied}</p>
-                  </div>
+                     <div className="w-12 h-12 rounded-2xl bg-white border border-slate-100 flex items-center justify-center text-slate-900 shadow-xl">
+                        <Globe size={20} />
+                     </div>
+                     <h2 className="text-xs font-black uppercase tracking-[0.2em] text-slate-900">Registry Ingress</h2>
                 </div>
-                <div className="flex gap-2">
-                  <button className="bg-emerald-50 text-emerald-600 px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-emerald-100 transition-colors">Approve</button>
-                  <button className="bg-rose-50 text-rose-600 px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-rose-100 transition-colors">Reject</button>
-                </div>
-              </div>
-            ))}
-          </div>
-          <div className="mt-6 pt-6 border-t border-dashed border-gray-200 text-center">
-            <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-4">Compliance Check Active</p>
-            <div className="flex justify-center -space-x-3">
-                {[1,2,3,4,5].map(i => (
-                    <div key={i} className="w-8 h-8 rounded-full border-2 border-white bg-gray-200"></div>
-                ))}
-                <div className="w-8 h-8 rounded-full border-2 border-white bg-indigo-100 flex items-center justify-center text-[10px] font-black text-indigo-600">+8</div>
+                <div className="bg-rose-50 border border-rose-100 text-rose-600 px-4 py-2 rounded-2xl text-[9px] font-black tracking-widest uppercase animate-pulse shadow-sm">2 Actions Pending</div>
             </div>
-          </div>
+
+            <div className="p-8 space-y-4">
+                {[
+                  { name: 'NexGen Global Logistics', applied: '02H_LATENCY', category: 'LOGISTICS', logo: 'NL' },
+                  { name: 'TerraBuild Infrastructures', applied: '05H_LATENCY', category: 'CONSTRUCTION', logo: 'TB' },
+                ].map((vendor, i) => (
+                  <div key={i} className="flex items-center justify-between p-6 bg-slate-50/30 border border-slate-100 rounded-[2rem] hover:bg-white hover:border-slate-300 hover:shadow-xl transition-all group active:scale-[0.99] cursor-pointer">
+                    <div className="flex items-center gap-6">
+                      <div className="w-14 h-14 bg-white border border-slate-200 shadow-sm rounded-2xl flex items-center justify-center font-black text-slate-900 text-lg tracking-tighter group-hover:shadow-xl transition-all relative overflow-hidden">
+                        {vendor.logo}
+                        <div className="absolute inset-0 bg-slate-900 opacity-0 group-hover:opacity-5 transition-opacity"></div>
+                      </div>
+                      <div>
+                        <p className="font-black text-slate-900 leading-none uppercase tracking-tighter mb-2 group-hover:text-emerald-700 transition-colors uppercase">{vendor.name}</p>
+                        <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest">{vendor.category} <span className="text-slate-200 mx-2">|</span> {vendor.applied}</p>
+                      </div>
+                    </div>
+                    <div className="flex gap-3">
+                      <button className="h-11 px-6 bg-slate-900 text-white rounded-2xl text-[9px] font-black uppercase tracking-widest hover:bg-slate-800 active:scale-95 transition-all shadow-xl shadow-slate-200">Verify</button>
+                      <button className="h-11 px-6 bg-white border border-slate-100 text-slate-400 rounded-2xl text-[9px] font-black uppercase tracking-widest hover:bg-rose-50 hover:text-rose-600 hover:border-rose-100 active:scale-95 transition-all">Defer</button>
+                    </div>
+                  </div>
+                ))}
+            </div>
+            
+            <div className="p-10 pt-0 mt-4 border-t border-slate-50/50">
+                <div className="py-10 text-center space-y-6">
+                    <p className="text-[10px] font-black text-slate-300 uppercase tracking-[0.4em] italic mb-6">Autonomous Security Mesh Active</p>
+                    <div className="flex justify-center -space-x-4">
+                        {[1,2,3,4,5].map(i => (
+                            <div key={i} className="w-12 h-12 rounded-full border-4 border-white bg-slate-100 shadow-xl overflow-hidden flex items-center justify-center text-[11px] font-black text-slate-400 uppercase">NODE_{i}</div>
+                        ))}
+                        <div className="w-12 h-12 rounded-full border-4 border-white bg-slate-900 flex items-center justify-center text-[10px] font-black text-white shadow-xl">+32</div>
+                    </div>
+                </div>
+            </div>
         </div>
       </div>
+
+      <style>{`
+          .shadow-premium {
+              box-shadow: 0 40px 100px -30px rgba(0, 0, 0, 0.08);
+          }
+          .shadow-subtle {
+              box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+          }
+          .no-scrollbar::-webkit-scrollbar { display: none; }
+          .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      `}</style>
     </div>
   );
 };
+
+const MetricCard = ({ label, value, trend, trendIsPos, icon: Icon }) => (
+    <motion.div 
+        whileHover={{ y: -8, scale: 1.02 }}
+        className="bg-white rounded-[3.5rem] border border-slate-100 p-10 shadow-premium flex flex-col justify-between group transition-all duration-500 cursor-pointer overflow-hidden relative"
+    >
+        <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:scale-110 transition-transform duration-700 pointer-events-none">
+            <Icon size={120} strokeWidth={2.5} />
+        </div>
+        <div className="flex justify-between items-start mb-10 relative z-10">
+            <div className="w-16 h-16 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-center text-slate-900 group-hover:bg-slate-900 group-hover:text-white group-hover:shadow-2xl transition-all duration-500">
+                <Icon size={28} />
+            </div>
+            <div className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest border transition-all ${trendIsPos ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'}`}>
+                {trend}
+            </div>
+        </div>
+        <div className="relative z-10">
+            <h3 className="text-4xl font-black text-slate-900 tracking-tighter leading-none mb-3 group-hover:text-slate-900 transition-colors">{value}</h3>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] leading-none mb-1 group-hover:text-slate-500 transition-colors uppercase">{label}</p>
+        </div>
+    </motion.div>
+);
 
 export default SaaSDashboard;

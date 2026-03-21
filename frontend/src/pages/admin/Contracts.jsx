@@ -3,25 +3,11 @@ import api from "../../services/api";
 import Table from "../../components/Table";
 import { toast } from "react-hot-toast";
 import {
-    Search,
-    Plus,
-    FileSignature,
-    Calendar,
-    Clock,
-    AlertTriangle,
-    Download,
-    Eye,
-    Filter,
-    MoreVertical,
-    ChevronRight,
-    User,
-    Tags,
-    DollarSign,
-    X,
-    Building2,
-    ShieldCheck
+    Search, Plus, FileSignature, Calendar, Clock, AlertTriangle, Download,
+    Eye, Filter, MoreVertical, ChevronRight, User, Tags, DollarSign, X,
+    Building2, ShieldCheck, Activity, Layers, ArrowUpRight, Lock, Terminal, Globe
 } from "lucide-react";
-import StatusBadge from "../../components/StatusBadge";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function Contracts() {
     const [contracts, setContracts] = useState([]);
@@ -50,7 +36,7 @@ export default function Contracts() {
             const res = await api.get(`/slm/contracts/stats`);
             setStats(res.data.data);
         } catch (err) {
-            console.error("Stats fetch error", err);
+            console.error("Stats fail", err);
         }
     };
 
@@ -68,7 +54,7 @@ export default function Contracts() {
             setContracts(res.data.data);
             setPagination(res.data.pagination || { ...pagination, page });
         } catch (err) {
-            toast.error("Failed to load contract registry");
+            toast.error("Registry sync failure");
         } finally {
             setLoading(false);
         }
@@ -79,7 +65,7 @@ export default function Contracts() {
             const res = await api.get("/admin/vendors");
             setVendors(res.data.data);
         } catch (err) {
-            console.error("Vendor fetch error", err);
+            console.error("Vendor fail", err);
         }
     };
 
@@ -100,10 +86,10 @@ export default function Contracts() {
     };
 
     const renderDaysBadge = (days) => {
-        if (days < 0) return <span className="text-rose-600 font-bold">Expired</span>;
-        if (days < 15) return <span className="bg-rose-50 text-rose-600 px-2 py-1 rounded-[4px] text-[10px] font-bold border border-rose-100">{days} Days</span>;
-        if (days <= 30) return <span className="bg-amber-50 text-amber-600 px-2 py-1 rounded-[4px] text-[10px] font-bold border border-amber-100">{days} Days</span>;
-        return <span className="text-gray-600 font-medium">{days} Days</span>;
+        if (days < 0) return <span className="text-rose-600 font-black uppercase tracking-widest text-[10px]">Decommissioned</span>;
+        if (days < 15) return <span className="bg-rose-50 text-rose-600 px-3 py-1 rounded-lg text-[9px] font-black border border-rose-100 uppercase tracking-widest animate-pulse">{days} Days Remaining</span>;
+        if (days <= 30) return <span className="bg-amber-50 text-amber-600 px-3 py-1 rounded-lg text-[9px] font-black border border-amber-100 uppercase tracking-widest">{days} Days Remaining</span>;
+        return <span className="text-slate-400 font-black uppercase tracking-widest text-[9px]">{days} Days Residual</span>;
     };
 
     const handleCreateContract = async (e) => {
@@ -111,7 +97,7 @@ export default function Contracts() {
         const tid = toast.loading("Executing contractual agreement...");
         try {
             await api.post("/slm/contracts", formData);
-            toast.success("Contract Registered Successfully", { id: tid });
+            toast.success("Contractual Protocol Registered", { id: tid });
             setShowCreateModal(false);
             fetchContracts(1);
             fetchStats();
@@ -125,87 +111,99 @@ export default function Contracts() {
                 documentUrl: "https://example.com/contract.pdf"
             });
         } catch (err) {
-            toast.error(err.response?.data?.message || "Registration failed", { id: tid });
+            toast.error(err.response?.data?.message || "Registration failure", { id: tid });
         }
     };
 
     const handleDelete = async (id) => {
-        if (!window.confirm("Are you sure you want to permanently delete this contract?")) return;
-        const tid = toast.loading("Deleting contract...");
+        if (!window.confirm("PROTOCOL SECURITY: Permanently purge contractual artifact?")) return;
+        const tid = toast.loading("Purging artifact...");
         try {
             await api.delete(`/slm/contracts/${id}`);
-            toast.success("Contract deleted", { id: tid });
+            toast.success("Artifact purged", { id: tid });
             fetchContracts(pagination.page);
             fetchStats();
             setSelectedContract(null);
         } catch (err) {
-            toast.error(err.response?.data?.message || "Deletion failed", { id: tid });
+            toast.error(err.response?.data?.message || "Purge failure", { id: tid });
         }
     };
 
     const handleTerminate = async (id) => {
-        if (!window.confirm("Are you sure you want to terminate this contract immediately?")) return;
-        const tid = toast.loading("Terminating contract...");
+        if (!window.confirm("PROTOCOL SECURITY: Immediate operational termination?")) return;
+        const tid = toast.loading("Terminating engagement...");
         try {
             await api.patch(`/slm/contracts/${id}/terminate`);
-            toast.success("Contract terminated", { id: tid });
+            toast.success("Engagement terminated", { id: tid });
             fetchContracts(pagination.page);
             fetchStats();
             setSelectedContract(null);
         } catch (err) {
-            toast.error(err.response?.data?.message || "Termination failed", { id: tid });
+            toast.error(err.response?.data?.message || "Termination failure", { id: tid });
         }
     };
 
     return (
-        <div className="space-y-6 fade-in pb-12">
-            {/* 8. ALERT BANNER */}
+        <div className="space-y-12 fade-in pb-20">
+            {/* ── ALERTS ─────────────────────────────────────────────────── */}
             {stats.expiringSoon > 0 && (
-                <div className="bg-rose-50 border border-rose-100 rounded-[10px] p-4 flex items-center gap-3 animate-pulse">
-                    <AlertTriangle className="text-rose-600" size={20} />
-                    <p className="text-rose-800 text-sm font-bold tracking-tight uppercase">
-                        ⚠️ Critical: {stats.expiringSoon} engagement(s) reaching maturity within 30 days. Action required.
-                    </p>
-                </div>
+                <motion.div 
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-rose-50 border border-rose-100 rounded-2xl p-6 flex items-center justify-between shadow-premium"
+                >
+                    <div className="flex items-center gap-6">
+                        <div className="w-12 h-12 bg-rose-100 rounded-xl flex items-center justify-center text-rose-600 animate-pulse">
+                            <AlertTriangle size={24} />
+                        </div>
+                        <div>
+                            <p className="text-[10px] font-black text-rose-800 uppercase tracking-[0.3em] mb-1">Maturity Advisory</p>
+                            <p className="text-sm font-bold text-rose-900 tracking-tight">{stats.expiringSoon} Engagement(s) reaching termination threshold within 30 days. Renewal protocol required.</p>
+                        </div>
+                    </div>
+                </motion.div>
             )}
 
-            {/* 1. PAGE HEADER */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <div>
-                    <h1 className="text-3xl font-extrabold text-[#1F2937] tracking-tighter uppercase">Contract Management</h1>
-                    <p className="text-xs font-bold text-emerald-700 uppercase tracking-[0.2em] mt-1">Registry of Infrastructure Procurement & Legal Clauses</p>
-                </div>
-                <button
-                    onClick={() => { fetchVendors(); setShowCreateModal(true); }}
-                    className="flex items-center gap-2 bg-[#0B5D3B] text-white px-6 py-3 rounded-[8px] font-bold text-xs uppercase tracking-widest hover:bg-[#117A4F] transition-all shadow-lg hover:shadow-emerald-900/20"
-                >
-                    <Plus size={18} /> New Contractual Node
-                </button>
-            </div>
-
-            {/* 2. KPI SUMMARY CARDS */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                {[
-                    { label: "Gross Contracts", val: stats.total, color: "border-[#0B5D3B]" },
-                    { label: "Operational Active", val: stats.active, color: "border-emerald-500" },
-                    { label: "Maturity Warning", val: stats.expiringSoon, color: "border-amber-500" },
-                    { label: "Decommissioned", val: stats.expired, color: "border-rose-500" }
-                ].map((kpi, idx) => (
-                    <div key={idx} className={`bg-white p-6 rounded-[10px] border-t-4 ${kpi.color} shadow-sm transition-transform hover:-translate-y-1`}>
-                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.1em]">{kpi.label}</p>
-                        <h3 className="text-3xl font-black text-[#1F2937] mt-2 tracking-tight">{kpi.val}</h3>
+            {/* ── BREADCRUMB & HEADER ─────────────────────────────────────────── */}
+            <header className="flex flex-col xl:flex-row justify-between items-start xl:items-end gap-10 border-b border-slate-200 pb-12">
+                <div className="space-y-6">
+                    <div className="flex items-center gap-2">
+                        <span className="bg-slate-900 text-white px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-[0.2em]">Legal Framework</span>
+                        <div className="h-1 w-6 bg-slate-200 rounded-full"></div>
+                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Global Agreement Registry</span>
                     </div>
-                ))}
+                    <div>
+                        <h1 className="text-5xl font-black text-slate-900 tracking-[-0.05em] uppercase leading-none mb-4">Contract Ledger</h1>
+                        <p className="text-sm font-medium text-slate-500 max-w-xl italic border-l-4 border-slate-900/10 pl-6">Unified registry of infrastructure procurement agreements, legal clauses, and financial engagements across global partner nodes.</p>
+                    </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-4 relative z-10">
+                    <button 
+                         onClick={() => { fetchVendors(); setShowCreateModal(true); }}
+                         className="flex items-center gap-4 bg-slate-900 text-white px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] hover:bg-slate-800 transition-all shadow-xl shadow-slate-200 active:scale-95"
+                    >
+                        <Plus size={18} /> Initialize Contract Node
+                    </button>
+                </div>
+            </header>
+
+            {/* ── KPI MATRIX ────────────────────────────────────────────────── */ }
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <MetricMini label="Aggregated Nodes" value={stats.total} trend="ACTIVE" isPositive={true} icon={FileSignature} />
+                <MetricMini label="Operational Flow" value={stats.active} trend="SYNCED" isPositive={true} icon={Activity} />
+                <MetricMini label="Maturity Risk" value={stats.expiringSoon} trend="ADVISORY" isPositive={false} icon={Clock} />
+                <MetricMini label="Decommissioned" value={stats.expired} trend="ARCHIVED" isPositive={false} icon={Lock} />
             </div>
 
-            {/* 3. FILTER & SEARCH BAR */}
-            <div className="bg-white p-4 rounded-[10px] border border-[#E5E7EB] flex flex-wrap items-center gap-4">
-                <div className="relative flex-1 min-w-[300px]">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+            {/* ── REGISTRY CONTROLS ──────────────────────────────────────────── */ }
+            <div className="bg-white p-4 rounded-[2.5rem] border border-slate-100 shadow-subtle flex flex-wrap items-center gap-6">
+                <div className="relative flex-1 min-w-[350px]">
+                    <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
                     <input
                         type="text"
-                        placeholder="Search by ID or Nomenclature..."
-                        className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-[8px] text-[13px] font-semibold outline-none focus:border-[#0B5D3B] focus:ring-1 focus:ring-[#0B5D3B] transition-all"
+                        placeholder="Filter Agreement Data by ID or Protocol..."
+                        className="w-full pl-16 pr-8 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-[13px] font-black text-slate-900 outline-none focus:bg-white focus:border-slate-900 transition-all shadow-inner placeholder-slate-300"
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         onKeyDown={handleSearch}
@@ -213,322 +211,403 @@ export default function Contracts() {
                 </div>
 
                 <select
-                    className="bg-white border border-gray-200 px-4 py-3 rounded-[8px] text-[12px] font-bold uppercase tracking-wider text-gray-600 outline-none"
+                    className="h-14 bg-white border border-slate-100 px-6 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 outline-none focus:border-slate-900 transition-all cursor-pointer shadow-subtle"
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value)}
                 >
-                    <option value="All">All Classifications</option>
-                    <option value="Active">Active Nodes</option>
+                    <option value="All">All Clusters</option>
+                    <option value="Active">Operational Nodes</option>
                     <option value="Expiring">Maturity Warnings</option>
-                    <option value="Expired">Archived/Expired</option>
-                    <option value="Terminated">Terminated</option>
+                    <option value="Expired">Archived Records</option>
+                    <option value="Terminated">PURGED_STATUS</option>
                 </select>
 
-                <button className="flex items-center gap-2 px-6 py-3 border-2 border-[#0B5D3B] text-[#0B5D3B] rounded-[8px] font-bold text-[11px] uppercase tracking-widest hover:bg-[#E8F5EE] transition-all">
-                    <Download size={16} /> Data Export
+                <button className="h-14 flex items-center gap-4 px-8 bg-white border border-slate-100 text-slate-400 hover:text-slate-900 hover:border-slate-900 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] transition-all shadow-subtle active:scale-95 group">
+                    <Download size={18} className="group-hover:-translate-y-1 transition-transform" /> Registry Export
                 </button>
             </div>
 
-            {/* 4. CONTRACT TABLE */}
-            {contracts.length === 0 && !loading ? (
-                <div className="bg-white border border-[#E5E7EB] rounded-[10px] p-20 flex flex-col items-center justify-center text-center shadow-sm">
-                    <div className="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-600 mb-6 border border-emerald-100">
-                        <FileSignature size={40} />
-                    </div>
-                    <h3 className="text-xl font-black text-gray-900 uppercase tracking-tight">Registry Silence</h3>
-                    <p className="text-gray-400 text-xs font-bold uppercase tracking-widest mt-2 max-w-xs">
-                        No active contractual records detected in the current filter parameters.
-                    </p>
-                    <button
-                        onClick={() => setShowCreateModal(true)}
-                        className="mt-8 flex items-center gap-2 bg-[#0B5D3B] text-white px-8 py-3 rounded-[8px] font-bold text-xs uppercase tracking-widest hover:bg-[#117A4F] transition-all shadow-lg"
-                    >
-                        <Plus size={18} /> Initialize First Agreement
-                    </button>
-                </div>
-            ) : (
+            {/* ── REGISTRY TABLE ─────────────────────────────────────────────── */ }
+            <div className="bg-white rounded-[3.5rem] border border-slate-100 shadow-premium overflow-hidden">
                 <Table
-                    headers={["Registry ID", "Stakeholder / Service", "Financial Engagement", "Contract Period", "Maturity", "Status", ""]}
+                    headers={["Protocol ID", "Stakeholder Context", "Financial Flux", "Temporal Spacing", "Maturity", "Status", ""]}
                     data={contracts}
                     loading={loading}
                     pagination={pagination}
                     renderRow={(c) => (
                         <>
-                            <td className="px-6 py-4 text-[#1F2937]">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-8 h-8 bg-gray-50 rounded-[4px] border border-gray-100 flex items-center justify-center text-[#0B5D3B]">
-                                        <FileSignature size={16} />
+                            <td className="px-10 py-8">
+                                <div className="flex items-center gap-6">
+                                    <div className="w-12 h-12 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-center text-slate-300 group-hover:text-slate-900 group-hover:shadow-xl transition-all shadow-inner relative">
+                                        <FileSignature size={18} />
                                     </div>
-                                    <span className="text-[13px] font-black">{c.contractNumber}</span>
+                                    <span className="text-sm font-black text-slate-900 tracking-tighter uppercase leading-none">{c.contractNumber}</span>
                                 </div>
                             </td>
-                            <td className="px-6 py-4">
+                            <td className="px-10 py-8">
                                 <div>
-                                    <p className="text-[13px] font-bold text-gray-900 leading-none">{c.vendorId?.companyName || "N/A"}</p>
-                                    <p className="text-[10px] font-bold text-gray-400 mt-1 uppercase tracking-tighter">{c.contractTitle}</p>
+                                    <p className="text-sm font-black text-slate-900 uppercase tracking-tighter leading-none mb-1">{c.vendorId?.companyName || "GEN_PARTNER"}</p>
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest line-clamp-1 italic">{c.contractTitle}</p>
                                 </div>
                             </td>
-                            <td className="px-6 py-4 font-black text-[#1F2937] text-sm">
-                                ₹{new Intl.NumberFormat('en-IN').format(c.contractValue || 0)}
+                            <td className="px-10 py-8">
+                                <span className="text-sm font-black text-slate-900 tracking-tighter">
+                                    ₹{new Intl.NumberFormat('en-IN').format(c.contractValue || 0)}
+                                </span>
                             </td>
-                            <td className="px-6 py-4">
-                                <div className="flex flex-col gap-1">
-                                    <div className="flex items-center gap-1.5 text-[11px] font-bold text-gray-600 uppercase tracking-tighter">
-                                        <Calendar size={12} className="text-gray-400" />
+                            <td className="px-10 py-8">
+                                <div className="flex flex-col gap-2">
+                                    <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                        <Calendar size={12} className="text-slate-200" />
                                         {new Date(c.startDate).toLocaleDateString()}
                                     </div>
-                                    <div className="flex items-center gap-1.5 text-[11px] font-bold text-gray-600 uppercase tracking-tighter">
-                                        <Clock size={12} className="text-gray-400" />
+                                    <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                        <Clock size={12} className="text-slate-200" />
                                         {new Date(c.endDate).toLocaleDateString()}
                                     </div>
                                 </div>
                             </td>
-                            <td className="px-6 py-4">
-                                <div className="font-bold">
-                                    {renderDaysBadge(getDaysRemaining(c.endDate))}
-                                </div>
+                            <td className="px-10 py-8">
+                                {renderDaysBadge(getDaysRemaining(c.endDate))}
                             </td>
-                            <td className="px-6 py-4">
+                            <td className="px-10 py-8">
                                 <StatusBadge status={c.status} />
                             </td>
-                            <td className="px-6 py-4 text-right">
+                            <td className="px-10 py-8 text-right">
                                 <button
                                     onClick={() => setSelectedContract(c)}
-                                    className="p-2 hover:bg-emerald-50 rounded-full transition-all text-gray-400 hover:text-[#0B5D3B]"
+                                    className="p-3 bg-white text-slate-300 hover:text-slate-900 hover:border-slate-900 border border-slate-100 rounded-2xl shadow-sm hover:shadow-xl transition-all active:scale-95"
                                 >
-                                    <Eye size={18} />
+                                    <Eye size={20} />
                                 </button>
                             </td>
                         </>
                     )}
                 />
-            )}
 
-            {/* 7. CONTRACT DETAIL MODAL */}
-            {selectedContract && (
-                <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[60] flex items-center justify-center p-6">
-                    <div className="bg-white rounded-[12px] shadow-2xl w-full max-w-5xl overflow-hidden flex flex-col h-[85vh]">
-                        {/* Modal Header */}
-                        <div className="bg-[#0B5D3B] p-6 text-white flex justify-between items-center">
-                            <div>
-                                <h2 className="text-xl font-black uppercase tracking-tight italic">Registry Record: {selectedContract.contractNumber}</h2>
-                                <p className="text-[10px] font-bold opacity-75 uppercase tracking-[0.2em] mt-1 italic">Procurement Intelligence Module Activated</p>
-                            </div>
-                            <button onClick={() => setSelectedContract(null)} className="p-2 hover:bg-white/10 rounded-full transition-all">
-                                <X size={24} />
-                            </button>
+                {!loading && contracts.length === 0 && (
+                     <div className="py-40 flex flex-col items-center justify-center text-slate-400 grayscale opacity-40 text-center">
+                        <div className="w-20 h-20 bg-slate-50 rounded-[2rem] border-2 border-dashed border-slate-200 flex items-center justify-center mb-8">
+                            <FileSignature size={48} strokeWidth={1} />
                         </div>
+                        <p className="font-black uppercase tracking-[0.3em] text-xs">Registry Silence detected</p>
+                    </div>
+                )}
+            </div>
 
-                        <div className="flex-1 flex overflow-hidden">
-                            {/* Left Panel */}
-                            <div className="w-80 border-r border-gray-100 p-6 bg-gray-50 flex flex-col gap-6">
-                                <div className="bg-white p-5 rounded-[8px] border border-gray-200 shadow-sm">
-                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-50 pb-3 mb-4">Partner Profile</p>
+            {/* ── CONTRACT DOSSIER MODAL ────────────────────────────────────── */ }
+            <AnimatePresence>
+                {selectedContract && (
+                    <div className="fixed inset-0 z-[1000] flex items-center justify-center p-8 bg-slate-900/60 backdrop-blur-md">
+                        <motion.div 
+                            initial={{ opacity: 0, scale: 0.9, y: 30 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.9, y: 30 }}
+                            className="bg-white w-full max-w-6xl h-[85vh] rounded-[3.5rem] shadow-2xl overflow-hidden flex flex-col relative"
+                        >
+                            <div className="p-12 border-b border-slate-50 bg-slate-50 flex justify-between items-center relative overflow-hidden">
+                                <div className="absolute top-0 right-0 p-10 opacity-[0.03] pointer-events-none">
+                                    <FileSignature size={150} />
+                                </div>
+                                <div className="relative z-10">
                                     <div className="flex items-center gap-3 mb-4">
-                                        <div className="w-10 h-10 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-700 border border-emerald-100">
-                                            <Building2 size={20} />
-                                        </div>
-                                        <div>
-                                            <p className="text-[13px] font-black text-gray-900 leading-none">{selectedContract.vendorId?.companyName}</p>
-                                            <p className="text-[10px] font-bold text-emerald-600 mt-1 uppercase tracking-tighter">VMS Node Certified</p>
-                                        </div>
+                                         <Lock size={18} className="text-slate-900" />
+                                         <h3 className="text-3xl font-black text-slate-900 tracking-tighter uppercase leading-none">Agreement Dossier</h3>
                                     </div>
-                                    <div className="space-y-3 pt-3 border-t border-gray-50">
-                                        <div className="flex justify-between items-center">
-                                            <span className="text-[10px] font-bold text-gray-400 uppercase">Node Status</span>
-                                            <StatusBadge status={selectedContract.status} />
-                                        </div>
-                                    </div>
+                                    <p className="text-[10px] font-black tracking-[0.4em] uppercase text-emerald-600 flex items-center gap-2 italic">
+                                        PROTOCOL_ID: {selectedContract.contractNumber} <span className="text-slate-200">|</span> UPLINK_CORE: {new Date(selectedContract.createdAt).toISOString()}
+                                    </p>
                                 </div>
-
-                                <div className="bg-white p-5 rounded-[8px] border border-gray-200 shadow-sm">
-                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest border-b border-gray-50 pb-3 mb-4">Engagement Value</p>
-                                    <div className="flex items-baseline gap-2">
-                                        <h4 className="text-2xl font-black text-gray-900 tracking-tighter">
-                                            ₹{new Intl.NumberFormat('en-IN').format(selectedContract.contractValue || 0)}
-                                        </h4>
-                                    </div>
-                                    <p className="text-[9px] font-bold text-[#0B5D3B] uppercase tracking-widest mt-2 px-1 underline decoration-emerald-200">Legal Financial Commitment</p>
-                                </div>
+                                <button onClick={() => setSelectedContract(null)} className="w-12 h-12 flex items-center justify-center bg-white rounded-2xl shadow-xl border border-slate-100 text-slate-400 hover:text-slate-900 transition-all active:scale-95">
+                                    <X size={24} />
+                                </button>
                             </div>
 
-                            {/* Right Panel */}
-                            <div className="flex-1 flex flex-col overflow-hidden bg-white">
-                                <div className="flex border-b border-gray-100">
-                                    {["Overview", "Documents", "Maturity Cycle", "Audit Log"].map((tab) => (
-                                        <button key={tab} className="px-8 py-5 text-[11px] font-bold uppercase tracking-widest text-gray-400 border-b-2 border-transparent hover:text-[#0B5D3B] focus:text-[#0B5D3B] focus:border-[#0B5D3B] transition-all">
-                                            {tab}
+                            <div className="flex-1 flex overflow-hidden">
+                                <div className="w-80 border-r border-slate-100 bg-slate-50/30 p-10 flex flex-col gap-10 overflow-y-auto no-scrollbar">
+                                    <div className="space-y-4">
+                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] ml-1">Stakeholder Node</p>
+                                        <div className="bg-white border border-slate-100 p-6 rounded-[2rem] shadow-premium group cursor-pointer hover:border-slate-900 transition-all">
+                                             <div className="flex items-center gap-4 mb-4">
+                                                <div className="w-12 h-12 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-center text-slate-900 group-hover:bg-slate-900 group-hover:text-white transition-all">
+                                                    <Building2 size={24} />
+                                                </div>
+                                                <div>
+                                                    <p className="text-xs font-black text-slate-900 uppercase leading-none">{selectedContract.vendorId?.companyName.slice(0, 15)}...</p>
+                                                    <p className="text-[9px] font-bold text-emerald-600 mt-1 uppercase tracking-widest">Certified VMS</p>
+                                                </div>
+                                             </div>
+                                             <div className="pt-4 border-t border-slate-50">
+                                                 <StatusBadge status={selectedContract.status} />
+                                             </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-4">
+                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] ml-1">Engagement Flux</p>
+                                        <div className="bg-slate-900 text-white p-8 rounded-[2rem] shadow-2xl relative overflow-hidden group">
+                                            <div className="absolute top-0 right-0 p-4 opacity-[0.05] group-hover:scale-110 transition-transform">
+                                                <DollarSign size={80} />
+                                            </div>
+                                            <h4 className="text-3xl font-black tracking-tighter shadow-subtle group-hover:text-emerald-400 transition-colors">
+                                                ₹{new Intl.NumberFormat('en-IN').format(selectedContract.contractValue || 0)}
+                                            </h4>
+                                            <p className="text-[9px] font-black text-white/40 uppercase tracking-[0.25em] mt-3 italic underline decoration-white/10 decoration-2 underline-offset-8">Financial Protocol Commit</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="mt-auto">
+                                        <button className="w-full flex items-center justify-between p-6 bg-white border border-slate-200 text-slate-400 rounded-2xl shadow-subtle hover:border-slate-900 hover:text-slate-900 transition-all group active:scale-[0.98]">
+                                            <span className="text-[9px] font-black uppercase tracking-[0.3em]">IPFS Data Node</span>
+                                            <Globe size={18} className="group-hover:rotate-180 transition-transform duration-1000" />
                                         </button>
-                                    ))}
+                                    </div>
                                 </div>
 
-                                <div className="flex-1 p-8 overflow-auto">
-                                    <div className="grid grid-cols-2 gap-8">
-                                        <DetailItem label="Contract Nomenclature" value={selectedContract.contractTitle} icon={<FileSignature size={14} />} />
-                                        <DetailItem label="Sector Classification" value="Infratructure Division" icon={<Tags size={14} />} />
-                                        <DetailItem label="Lifecycle Start" value={new Date(selectedContract.startDate).toDateString()} icon={<Calendar size={14} />} />
-                                        <DetailItem label="Maturity Threshold" value={new Date(selectedContract.endDate).toDateString()} icon={<Clock size={14} />} />
+                                <div className="flex-1 flex flex-col bg-white overflow-hidden">
+                                     <div className="flex border-b border-slate-100 bg-slate-50/20">
+                                        {["Clausal Overview", "Encrypted Docs", "Maturity Ledger", "Operational Log"].map((tab, i) => (
+                                            <button key={tab} className={`px-10 py-6 text-[10px] font-black uppercase tracking-[0.2em] border-b-2 transition-all ${i === 0 ? 'text-slate-900 border-slate-900 bg-white' : 'text-slate-300 border-transparent hover:text-slate-500'}`}>
+                                                {tab}
+                                            </button>
+                                        ))}
                                     </div>
 
-                                    <div className="mt-12">
-                                        <h5 className="text-[11px] font-black text-gray-900 uppercase tracking-[0.2em] border-b-2 border-emerald-700 inline-block pb-1 mb-6 italic">Governance Timeline</h5>
-                                        <div className="relative pl-8 border-l-2 border-emerald-100 py-2 space-y-8">
-                                            <TimelineItem date={new Date(selectedContract.startDate).toDateString()} label="Contract Execution Authorized" color="bg-emerald-500" />
-                                            <TimelineItem date="Current Status" label="Operational Engagement Active" color="bg-emerald-300" />
-                                            <TimelineItem date={new Date(selectedContract.endDate).toDateString()} label="Mandatory Renewal Evaluation" color="bg-gray-200" />
+                                    <div className="flex-1 p-12 overflow-y-auto no-scrollbar space-y-16">
+                                        <div className="grid grid-cols-2 gap-12">
+                                            <DetailItem label="Protocol Nomenclature" value={selectedContract.contractTitle} icon={<Terminal size={16} />} />
+                                            <DetailItem label="Sector Classification" value="INTERNAL_INFRASTRUCTURE" icon={<Layers size={16} />} />
+                                            <DetailItem label="Genesis Threshold" value={new Date(selectedContract.startDate).toDateString()} icon={<Calendar size={16} />} />
+                                            <DetailItem label="Maturity Event" value={new Date(selectedContract.endDate).toDateString()} icon={<Clock size={16} />} />
+                                        </div>
+
+                                        <div>
+                                            <div className="flex items-center gap-4 mb-10">
+                                                <div className="w-1.5 h-6 bg-slate-900 rounded-full"></div>
+                                                <h5 className="text-[11px] font-black text-slate-900 uppercase tracking-[0.4em] italic leading-none">Temporal Evolution</h5>
+                                            </div>
+                                            <div className="relative pl-12 border-l-4 border-slate-50 py-4 space-y-12 ml-4">
+                                                <TimelineItem date={new Date(selectedContract.startDate).toDateString()} label="Contractual Hub Authorized" status="COMPLETED" />
+                                                <TimelineItem date="SYNC_ACTIVE_NOW" label="Operational Engagement Validated" status="ACTIVE" />
+                                                <TimelineItem date={new Date(selectedContract.endDate).toDateString()} label="Mandatory Integrity Review" status="PENDING" />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                     <div className="p-8 border-t border-slate-50 bg-slate-50/30 flex justify-between items-center">
+                                        <div className="flex gap-4">
+                                            <button
+                                                onClick={() => handleTerminate(selectedContract._id)}
+                                                disabled={selectedContract.status === 'terminated'}
+                                                className="h-12 px-8 rounded-2xl border border-rose-100 text-rose-500 bg-white text-[9px] font-black uppercase tracking-[0.2em] hover:bg-rose-600 hover:text-white hover:border-rose-600 transition-all disabled:opacity-30 shadow-subtle active:scale-95"
+                                            >
+                                                Force Terminate
+                                            </button>
+                                             <button
+                                                onClick={() => handleDelete(selectedContract._id)}
+                                                className="h-12 px-8 rounded-2xl border border-slate-200 text-slate-300 hover:text-rose-600 hover:border-rose-600 bg-white text-[9px] font-black uppercase tracking-[0.2em] transition-all shadow-subtle active:scale-95"
+                                            >
+                                                Purge Artifact
+                                            </button>
+                                        </div>
+                                        <div className="flex gap-4">
+                                            <button className="h-12 px-10 bg-slate-900 text-white text-[9px] font-black uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-slate-200 hover:bg-slate-800 transition-all flex items-center gap-3 active:scale-95 group">
+                                                <Download size={16} className="group-hover:-translate-y-1 transition-transform" /> Sync Certificate
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-
-                        <div className="p-4 bg-gray-50 border-t border-gray-100 flex justify-between gap-3">
-                            <div className="flex gap-2">
-                                <button
-                                    onClick={() => handleTerminate(selectedContract._id)}
-                                    disabled={selectedContract.status === 'terminated'}
-                                    className="px-6 py-2.5 rounded-[6px] border border-rose-200 text-rose-600 bg-rose-50 text-[11px] font-bold uppercase tracking-widest hover:bg-rose-600 hover:text-white transition-all disabled:opacity-50"
-                                >
-                                    Force Terminate
-                                </button>
-                                <button
-                                    onClick={() => handleDelete(selectedContract._id)}
-                                    className="px-6 py-2.5 rounded-[6px] border border-red-200 text-red-600 bg-white text-[11px] font-bold uppercase tracking-widest hover:bg-red-50 transition-all font-mono"
-                                >
-                                    Delete Record
-                                </button>
-                            </div>
-                            <div className="flex gap-2">
-                                <button onClick={() => setSelectedContract(null)} className="px-6 py-2.5 rounded-[6px] border border-gray-200 text-gray-600 text-[11px] font-bold uppercase tracking-widest hover:bg-white transition-all">Dismiss Dossier</button>
-                                <button className="px-6 py-2.5 rounded-[6px] bg-[#0B5D3B] text-white text-[11px] font-bold uppercase tracking-widest hover:bg-[#117A4F] transition-all flex items-center gap-2">
-                                    <Download size={14} /> Download Certificate
-                                </button>
-                            </div>
-                        </div>
+                        </motion.div>
                     </div>
-                </div>
-            )}
+                )}
+            </AnimatePresence>
 
-            {/* CREATE CONTRACT MODAL */}
-            {showCreateModal && (
-                <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-[70] flex items-center justify-center p-6">
-                    <div className="bg-white rounded-[12px] shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col">
-                        <div className="bg-emerald-900 p-6 text-white flex justify-between items-center">
-                            <div>
-                                <h2 className="text-xl font-black uppercase tracking-widest italic">Initialize Contractual Agreement</h2>
-                                <p className="text-[10px] font-bold opacity-75 uppercase tracking-[0.3em] mt-1">Infrastructure Procurement Module v2.0</p>
-                            </div>
-                            <button onClick={() => setShowCreateModal(false)} className="p-2 hover:bg-white/10 rounded-full transition-all">
-                                <X size={24} />
-                            </button>
-                        </div>
-
-                        <form onSubmit={handleCreateContract} className="p-8 space-y-6">
-                            <div className="grid grid-cols-2 gap-6">
-                                <div className="col-span-2">
-                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">Select Registered Vendor</label>
-                                    <select
-                                        required
-                                        className="w-full bg-gray-50 border border-gray-200 rounded-[8px] px-4 py-3 text-[13px] font-bold text-gray-900 outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600 transition-all font-mono"
-                                        value={formData.vendorId}
-                                        onChange={(e) => setFormData({ ...formData, vendorId: e.target.value })}
-                                    >
-                                        <option value="">-- AUTHORIZED PROVIDER LIST --</option>
-                                        {vendors.map(v => <option key={v._id} value={v._id}>{v.companyName} ({v.email})</option>)}
-                                    </select>
+            {/* ── INITIALIZE MODAL ───────────────────────────────────────────── */ }
+            <AnimatePresence>
+                {showCreateModal && (
+                    <div className="fixed inset-0 z-[1000] flex items-center justify-center p-8 bg-slate-900/60 backdrop-blur-md">
+                        <motion.div 
+                            initial={{ opacity: 0, scale: 0.9, y: 30 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.9, y: 30 }}
+                            className="bg-white w-full max-w-3xl rounded-[3.5rem] shadow-2xl overflow-hidden flex flex-col relative"
+                        >
+                            <div className="p-10 border-b border-slate-50 bg-slate-900 text-white flex justify-between items-center relative overflow-hidden">
+                                <div className="absolute top-0 right-0 p-6 opacity-[0.08] pointer-events-none">
+                                    <ShieldCheck size={120} />
                                 </div>
-
-                                <div>
-                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">Engagement ID (Registry No)</label>
-                                    <input
-                                        required
-                                        type="text"
-                                        placeholder="Ex: CNT-2024-XXXX"
-                                        className="w-full bg-gray-50 border border-gray-200 rounded-[8px] px-4 py-3 text-[13px] font-bold text-gray-900 outline-none focus:border-emerald-600"
-                                        value={formData.contractNumber}
-                                        onChange={(e) => setFormData({ ...formData, contractNumber: e.target.value })}
-                                    />
+                                <div className="relative z-10">
+                                    <h2 className="text-2xl font-black uppercase tracking-tighter italic leading-none">Initialize Protocol</h2>
+                                    <p className="text-[9px] font-black opacity-40 uppercase tracking-[0.4em] mt-2">Legal Genesis Entry_Point_v4.2</p>
                                 </div>
-
-                                <div>
-                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">Financial Consideration (INR)</label>
-                                    <input
-                                        required
-                                        type="number"
-                                        placeholder="0.00"
-                                        className="w-full bg-gray-50 border border-gray-200 rounded-[8px] px-4 py-3 text-[13px] font-bold text-gray-900 outline-none focus:border-emerald-600"
-                                        value={formData.contractValue}
-                                        onChange={(e) => setFormData({ ...formData, contractValue: e.target.value })}
-                                    />
-                                </div>
-
-                                <div className="col-span-2">
-                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">Contract Nomenclature (Title)</label>
-                                    <input
-                                        required
-                                        type="text"
-                                        placeholder="Formal Title of Agreement"
-                                        className="w-full bg-gray-50 border border-gray-200 rounded-[8px] px-4 py-3 text-[13px] font-bold text-gray-900 outline-none focus:border-emerald-600"
-                                        value={formData.contractTitle}
-                                        onChange={(e) => setFormData({ ...formData, contractTitle: e.target.value })}
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">Commencement Date</label>
-                                    <input
-                                        required
-                                        type="date"
-                                        className="w-full bg-gray-50 border border-gray-200 rounded-[8px] px-4 py-3 text-[13px] font-bold text-gray-900 outline-none"
-                                        value={formData.startDate}
-                                        onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">Engagement Maturity Date</label>
-                                    <input
-                                        required
-                                        type="date"
-                                        className="w-full bg-gray-50 border border-gray-200 rounded-[8px] px-4 py-3 text-[13px] font-bold text-gray-900 outline-none"
-                                        value={formData.endDate}
-                                        onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="flex justify-end gap-3 pt-4">
-                                <button type="button" onClick={() => setShowCreateModal(false)} className="px-6 py-3 rounded-[8px] border border-gray-200 text-gray-400 text-xs font-bold uppercase tracking-widest hover:text-gray-600 transition-all">Cancel Agreement</button>
-                                <button type="submit" className="px-10 py-3 rounded-[8px] bg-emerald-700 text-white text-xs font-black uppercase tracking-widest hover:bg-emerald-900 transition-all shadow-xl shadow-emerald-900/10 flex items-center gap-2">
-                                    <ShieldCheck size={18} /> Authorize & Sign
+                                <button onClick={() => setShowCreateModal(false)} className="w-10 h-10 flex items-center justify-center bg-white/10 hover:bg-white/20 rounded-xl transition-all">
+                                    <X size={20} />
                                 </button>
                             </div>
-                        </form>
+
+                            <form onSubmit={handleCreateContract} className="p-10 lg:p-12 space-y-10">
+                                <div className="grid grid-cols-2 gap-8">
+                                    <div className="col-span-2 space-y-3">
+                                        <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.4em] ml-2">Authorized Operational Partner</label>
+                                        <select
+                                            required
+                                            className="vms-input h-16 appearance-none bg-slate-50 shadow-inner"
+                                            value={formData.vendorId}
+                                            onChange={(e) => setFormData({ ...formData, vendorId: e.target.value })}
+                                        >
+                                            <option value="">-- SELECT SECURITY NODE --</option>
+                                            {vendors.map(v => <option key={v._id} value={v._id}>{v.companyName.toUpperCase()} ({v.email.toLowerCase()})</option>)}
+                                        </select>
+                                    </div>
+
+                                    <div className="space-y-3">
+                                        <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.4em] ml-2">Registry ID (Protocol_No)</label>
+                                        <input
+                                            required type="text" placeholder="CNT-NODE-2025"
+                                            className="vms-input h-16 shadow-inner"
+                                            value={formData.contractNumber}
+                                            onChange={(e) => setFormData({ ...formData, contractNumber: e.target.value })}
+                                        />
+                                    </div>
+
+                                    <div className="space-y-3">
+                                        <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.4em] ml-2">Capital Engagement (INR)</label>
+                                        <input
+                                            required type="number" placeholder="0.00"
+                                            className="vms-input h-16 shadow-inner"
+                                            value={formData.contractValue}
+                                            onChange={(e) => setFormData({ ...formData, contractValue: e.target.value })}
+                                        />
+                                    </div>
+
+                                    <div className="col-span-2 space-y-3">
+                                        <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.4em] ml-2">Agreement Nomenclature (Title)</label>
+                                        <input
+                                            required type="text" placeholder="Unified Structural Covenant..."
+                                            className="vms-input h-16 shadow-inner"
+                                            value={formData.contractTitle}
+                                            onChange={(e) => setFormData({ ...formData, contractTitle: e.target.value })}
+                                        />
+                                    </div>
+
+                                    <div className="space-y-3">
+                                        <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.4em] ml-2">Genesis Ingress</label>
+                                        <input
+                                            required type="date"
+                                            className="vms-input h-16 shadow-inner"
+                                            value={formData.startDate}
+                                            onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
+                                        />
+                                    </div>
+
+                                    <div className="space-y-3">
+                                        <label className="text-[9px] font-black text-slate-400 uppercase tracking-[0.4em] ml-2">Maturity Threshold</label>
+                                        <input
+                                            required type="date"
+                                            className="vms-input h-16 shadow-inner border-rose-100 focus:border-rose-400"
+                                            value={formData.endDate}
+                                            onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="flex justify-between items-center pt-8 border-t border-slate-50">
+                                    <div className="flex items-center gap-3 text-slate-300">
+                                        <ShieldCheck size={20} />
+                                        <span className="text-[9px] font-black uppercase tracking-[0.2em]">High Frequency Encryption Active</span>
+                                    </div>
+                                    <div className="flex gap-4">
+                                        <button type="button" onClick={() => setShowCreateModal(false)} className="px-8 py-5 text-slate-400 hover:text-slate-900 font-black uppercase text-[10px] tracking-widest transition-all">Cancel</button>
+                                        <button type="submit" className="px-10 py-5 bg-slate-900 text-white text-[10px] font-black uppercase tracking-[0.3em] rounded-2xl shadow-xl shadow-slate-200 hover:bg-black transition-all active:scale-95 flex items-center gap-3 group">
+                                            Authorize Protocol <ArrowUpRight size={18} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </motion.div>
                     </div>
-                </div>
-            )}
+                )}
+            </AnimatePresence>
+
+            <style>{`
+                .vms-input {
+                    width: 100%;
+                    padding: 0 1.5rem;
+                    background-color: #F8FAFC;
+                    border: 1px solid #F1F5F9;
+                    border-radius: 1.5rem;
+                    font-size: 0.8125rem;
+                    font-weight: 900;
+                    color: #0F172A;
+                    transition: all 0.3s;
+                    outline: none;
+                    text-transform: uppercase;
+                }
+                .vms-input:focus {
+                    background-color: #FFFFFF;
+                    border-color: #0F172A;
+                    box-shadow: 0 10px 30px -5px rgba(0,0,0,0.05);
+                }
+                .shadow-premium {
+                    box-shadow: 0 40px 100px -30px rgba(0, 0, 0, 0.08);
+                }
+                .shadow-subtle {
+                    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+                }
+                .no-scrollbar::-webkit-scrollbar { display: none; }
+                .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+            `}</style>
         </div>
     );
 }
 
-function DetailItem({ label, value, icon }) {
-    return (
-        <div className="group">
-            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 group-hover:text-emerald-700 transition-colors">{label}</p>
-            <div className="flex items-center gap-2">
-                <div className="text-emerald-700 opacity-50">{icon}</div>
-                <p className="text-sm font-black text-gray-900 tracking-tight">{value}</p>
+const DetailItem = ({ label, value, icon }) => (
+    <div className="group space-y-3">
+        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] ml-1 group-hover:text-slate-900 transition-colors uppercase">{label}</p>
+        <div className="flex items-center gap-4 bg-slate-50 border border-slate-100 p-6 rounded-[2rem] group-hover:border-slate-900 group-hover:bg-white transition-all shadow-subtle">
+            <div className="w-10 h-10 bg-white rounded-xl border border-slate-100 flex items-center justify-center text-slate-300 group-hover:text-slate-900 group-hover:shadow-inner transition-colors">
+                {icon}
+            </div>
+            <p className="text-xs font-black text-slate-900 tracking-tighter uppercase">{value || 'DATA_VACUUM'}</p>
+        </div>
+    </div>
+);
+
+const TimelineItem = ({ date, label, status }) => (
+    <div className="relative pl-6">
+        <div className={`absolute -left-[30px] top-1 w-5 h-5 rounded-full border-4 border-white shadow-xl ${
+            status === 'COMPLETED' ? 'bg-slate-900' : 
+            status === 'ACTIVE' ? 'bg-emerald-500 animate-pulse' : 'bg-slate-200'
+        }`}></div>
+        <p className={`text-[9px] font-black uppercase tracking-[0.3em] mb-1 ${status === 'ACTIVE' ? 'text-emerald-600' : 'text-slate-400'}`}>{date}</p>
+        <p className={`text-xs font-black uppercase tracking-tight ${status === 'ACTIVE' ? 'text-emerald-900' : 'text-slate-900'}`}>{label}</p>
+    </div>
+);
+
+const MetricMini = ({ label, value, trend, isPositive, icon: Icon }) => (
+    <div className="bg-white border border-slate-100 rounded-[2.5rem] p-10 shadow-premium group hover:border-slate-900 transition-all duration-500 overflow-hidden relative">
+        <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:scale-110 transition-transform pointer-events-none">
+            <Icon size={100} />
+        </div>
+        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-6 group-hover:text-slate-900 transition-colors uppercase relative z-10">{label}</p>
+        <div className="flex items-end justify-between relative z-10">
+            <h3 className="text-4xl font-black text-slate-900 tracking-tighter leading-none">{value}</h3>
+            <div className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest border transition-all ${isPositive ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-slate-50 text-slate-400 border-slate-100'}`}>
+                {trend}
             </div>
         </div>
-    );
-}
+    </div>
+);
 
-function TimelineItem({ date, label, color }) {
+const StatusBadge = ({ status }) => {
+    const s = status?.toString().toLowerCase();
+    const style = s === 'active' ? 'bg-emerald-900 text-white border-emerald-900' :
+                  s === 'expired' || s === 'terminated' ? 'bg-rose-50 text-rose-600 border-rose-100' :
+                  'bg-slate-50 text-slate-400 border-slate-100';
     return (
-        <div className="relative">
-            <div className={`absolute -left-[37px] top-1.5 w-4 h-4 rounded-full border-4 border-white shadow-sm ${color}`}></div>
-            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">{date}</p>
-            <p className="text-xs font-bold text-gray-800 mt-0.5">{label}</p>
-        </div>
+        <span className={`px-4 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-[0.2em] border shadow-sm ${style}`}>
+            {status || 'DRAFT'}
+        </span>
     );
-}
+};

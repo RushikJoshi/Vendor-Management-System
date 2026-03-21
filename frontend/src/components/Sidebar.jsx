@@ -12,33 +12,42 @@ import {
   ChevronRight,
   LogOut,
   HelpCircle,
-  Bell
+  Bell,
+  Workflow,
+  Plus,
+  ArrowRight
 } from "lucide-react";
+import { motion } from "framer-motion";
 
 export default function Sidebar({ links = [] }) {
   const location = useLocation();
 
   return (
-    <aside className="fixed left-0 top-0 bottom-0 w-80 bg-white border-r border-gray-100 z-50 flex flex-col transition-all duration-300 shadow-[20px_0_70px_-50px_rgba(0,0,0,0.1)]">
-      {/* Brand area */}
-      <div className="p-10 mb-6 relative overflow-hidden group">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50 rounded-full -translate-y-16 translate-x-16 group-hover:scale-110 transition-transform duration-500 opacity-50"></div>
-        <div className="flex items-center gap-4 relative z-10">
-          <div className="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-indigo-200 group-hover:rotate-6 transition-transform">
-            <ShieldCheck size={28} />
-          </div>
-          <div>
-            <h2 className="text-2xl font-black text-gray-900 tracking-tighter leading-none uppercase">VMS <span className="text-indigo-600 tracking-normal italic">SaaS</span></h2>
-            <p className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.3em] mt-2">Enterprise Core</p>
+    <aside className="fixed left-0 top-0 bottom-0 w-72 bg-white text-slate-500 z-50 flex flex-col transition-all duration-500 shadow-[20px_0_50px_rgba(0,0,0,0.02)] border-r border-slate-100 overflow-hidden">
+      
+      {/* ── BRAND IDENTITY ─────────────────────────────────────────────── */}
+      <div className="p-10 mb-6 relative">
+        <div className="flex items-center gap-4 group cursor-pointer">
+          <motion.div 
+            whileHover={{ scale: 1.1, rotate: 5 }}
+            className="w-12 h-12 bg-slate-900 rounded-2xl flex items-center justify-center text-white shadow-2xl shadow-slate-200 ring-4 ring-slate-50"
+          >
+            <ShieldCheck size={24} strokeWidth={2.5} />
+          </motion.div>
+          <div className="transition-all group-hover:translate-x-1">
+            <h2 className="text-xl font-black text-slate-900 tracking-tighter leading-none uppercase">Antigravity</h2>
+            <p className="text-[9px] font-black text-slate-300 uppercase tracking-[0.3em] mt-1.5 opacity-80">Vendor OS v2.0</p>
           </div>
         </div>
       </div>
 
-      {/* Navigation area */}
-      <nav className="flex-1 px-6 space-y-1 overflow-y-auto no-scrollbar">
-        <p className="px-4 text-[10px] font-black text-gray-300 uppercase tracking-[0.2em] mb-4">Main Navigation</p>
+      {/* ── NAVIGATION CORE ───────────────────────────────────────────── */}
+      <nav className="flex-1 px-6 space-y-2 overflow-y-auto no-scrollbar pt-6">
+        <div className="px-4 mb-6">
+            <span className="text-[10px] font-black text-slate-300 uppercase tracking-[0.4em]">System Index</span>
+        </div>
         
-        {links.map((link) => {
+        {links.map((link, idx) => {
           const Icon = link.icon || LayoutDashboard;
           const isActive = location.pathname === link.to;
           
@@ -47,47 +56,81 @@ export default function Sidebar({ links = [] }) {
               key={link.to}
               to={link.to}
               className={({ isActive }) =>
-                `flex items-center justify-between px-4 py-3.5 rounded-2xl transition-all duration-300 group relative ${isActive
-                  ? "bg-indigo-600 text-white shadow-xl shadow-indigo-100 scale-[1.02]"
-                  : "text-gray-400 hover:bg-gray-50 hover:text-gray-700"
+                `flex items-center justify-between px-5 py-4 rounded-3xl transition-all duration-500 group relative ${isActive
+                  ? "bg-slate-900 text-white shadow-[0_20px_40px_-10px_rgba(15,23,42,0.3)]"
+                  : "text-slate-400 hover:bg-slate-50 hover:text-slate-900"
                 }`
               }
             >
               <div className="flex items-center gap-4">
-                <Icon size={20} className={`${isActive ? "text-white" : "group-hover:text-indigo-600"} transition-colors`} strokeWidth={isActive ? 3 : 2} />
-                <span className={`text-[13px] font-black uppercase tracking-tight ${isActive ? "text-white" : "text-gray-500 group-hover:text-gray-900"}`}>{link.label}</span>
+                <Icon size={18} className={`${isActive ? "text-white" : "group-hover:text-slate-900 hover-bounce"} transition-colors`} strokeWidth={isActive ? 2.5 : 2} />
+                <span className={`text-[13px] font-black tracking-widest uppercase ${isActive ? "text-white" : "group-hover:text-slate-900"}`}>
+                  {link.label}
+                </span>
               </div>
-              {isActive && <ChevronRight size={16} className="text-white opacity-50" />}
+              
+              <AnimatePresence>
+                {isActive && (
+                    <motion.div 
+                        layoutId="active-pill"
+                        className="w-1.5 h-1.5 rounded-full bg-white shadow-sm"
+                    />
+                )}
+              </AnimatePresence>
+
+              {!isActive && (
+                  <ArrowRight size={14} className="opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all text-slate-300" />
+              )}
             </NavLink>
           );
         })}
       </nav>
 
-      {/* Bottom area */}
-      <div className="p-8 space-y-4">
-        <div className="bg-gray-50 rounded-2xl p-4 border border-gray-100 group hover:border-indigo-100 transition-colors">
-            <div className="flex items-center gap-3 mb-3">
-                <div className="p-2 bg-indigo-100 rounded-xl text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
-                    <ShieldAlert size={18} />
+      {/* ── BOTTOM OPERATIONALS ───────────────────────────────────────── */}
+      <div className="p-8 mt-auto space-y-8 bg-slate-50/50 border-t border-slate-100">
+        <div className="bg-white rounded-[2rem] p-6 border border-slate-100 shadow-sm group hover:border-slate-900 transition-all cursor-pointer">
+            <div className="flex items-center gap-3 mb-4">
+                <div className="w-8 h-8 bg-slate-900 rounded-xl flex items-center justify-center text-white">
+                    <Workflow size={14} />
                 </div>
-                <p className="text-[11px] font-black text-gray-900 uppercase tracking-widest leading-none">Status Center</p>
+                <div>
+                   <p className="text-[9px] font-black text-slate-900 uppercase tracking-widest leading-none">Status</p>
+                   <p className="text-[8px] text-slate-400 font-bold mt-1 uppercase">Live Node</p>
+                </div>
             </div>
-            <div className="space-y-2">
-                <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-wider text-gray-400">
-                    <span>Account Health</span>
-                    <span className="text-indigo-600">98%</span>
+            <div className="space-y-3">
+                <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                    <motion.div 
+                        initial={{ width: 0 }}
+                        animate={{ width: '99.9%' }}
+                        className="h-full bg-slate-900 rounded-full"
+                    />
                 </div>
-                <div className="h-1.5 w-full bg-gray-200 rounded-full overflow-hidden">
-                    <div className="h-full bg-indigo-500 rounded-full" style={{width: '98%'}}></div>
+                <div className="flex justify-between items-center text-[9px] font-black uppercase tracking-widest text-slate-400">
+                    <span>Registry Sync</span>
+                    <span className="text-slate-900">99.9%</span>
                 </div>
             </div>
         </div>
 
-        <button className="w-full flex items-center gap-4 px-6 py-4 text-gray-400 font-black text-xs uppercase tracking-[0.2em] hover:text-rose-500 hover:bg-rose-50 rounded-2xl transition-all group">
-            <LogOut size={18} className="group-hover:-translate-x-1 transition-transform" />
-            Sign Out
+        <button className="w-full flex items-center justify-center gap-4 px-6 py-4 bg-white border border-slate-200 text-slate-400 font-black text-[10px] uppercase tracking-[0.3em] rounded-2xl hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-all shadow-sm active:scale-95 group overflow-hidden relative">
+            <span className="relative z-10 flex items-center gap-3">
+                <LogOut size={16} className="group-hover:-translate-x-1 transition-transform" />
+                Sign Out Protocol
+            </span>
         </button>
       </div>
+
+      <style>{`
+          .no-scrollbar::-webkit-scrollbar { display: none; }
+          .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+          .hover-bounce { transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+          .group:hover .hover-bounce { transform: scale(1.1) rotate(5deg); }
+      `}</style>
     </aside>
   );
+}
+
+function AnimatePresence({ children }) {
+    return <>{children}</>;
 }

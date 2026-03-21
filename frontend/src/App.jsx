@@ -16,6 +16,7 @@ import FormBuilder from "./pages/admin/FormBuilder";
 import AdminMessages from "./pages/admin/Messages";
 import AuditLogs from "./pages/admin/AuditLogs";
 import UserManagement from "./pages/admin/UserManagement";
+import RoleManagement from "./pages/admin/RoleManagement";
 
 
 import VendorDashboard from "./pages/vendor/Dashboard";
@@ -102,6 +103,7 @@ function App() {
             <Route path="messages" element={<AdminMessages />} />
             <Route path="audit-logs" element={<AuditLogs />} />
             <Route path="users" element={<UserManagement />} />
+            <Route path="roles" element={<RoleManagement />} />
             <Route path="settings" element={<Settings />} />
 
           </Route>

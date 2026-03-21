@@ -6,11 +6,18 @@ const AppError = require("../utils/AppError");
  */
 exports.authorizeRoles = (...roles) => {
     return (req, res, next) => {
-        // req.user is attached by the 'protect' middleware
-        if (!roles.includes(req.user.role)) {
+        if (!req.user || !req.user.role) {
+            console.error("RBAC Failure: Unified user context missing required role field.");
+            return next(new AppError("User context not established. Please login again.", 401));
+        }
+
+        const userRole = req.user.role.toLowerCase();
+        const allowedRoles = roles.map(r => r.toLowerCase());
+
+        if (!allowedRoles.includes(userRole)) {
             return next(
                 new AppError(
-                    "You are not authorized to access this resource",
+                    `Unauthorized: Role [${req.user.role}] does not have required permissions for this protocol.`,
                     403
                 )
             );

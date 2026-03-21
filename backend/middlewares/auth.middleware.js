@@ -49,7 +49,18 @@ exports.protect = asyncHandler(async (req, res, next) => {
         );
     }
 
-    // 4) GRANT ACCESS
+    // 4) Fetch Role Details for dynamic RBAC
+    const Role = require("../models/Role");
+    const roleDetails = await Role.findOne({
+        name: currentUser.role,
+        $or: [
+            { tenantId: currentUser.tenantId },
+            { tenantId: { $exists: false } }
+        ]
+    }).populate("permissions");
+
+    // 5) GRANT ACCESS
     req.user = currentUser;
+    req.userRole = roleDetails; // Attach full role details including limits and permissions
     next();
 });

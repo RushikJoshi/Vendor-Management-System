@@ -4,15 +4,12 @@ const roleSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true,
-        unique: true,
-        enum: [
-            "Super Admin",
-            "Technical Reviewer",
-            "Finance Reviewer",
-            "Compliance Officer",
-            "Procurement Manager",
-            "Vendor"
-        ],
+        trim: true
+    },
+    tenantId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Company",
+        required: false // Optional for global roles
     },
     permissions: [
         {
@@ -20,6 +17,26 @@ const roleSchema = new mongoose.Schema({
             ref: "Permission",
         },
     ],
-});
+    minLimit: {
+        type: Number,
+        default: 0
+    },
+    maxLimit: {
+        type: Number,
+        default: 0
+    },
+    accessibleModules: [
+        {
+            type: String, // e.g., "HR", "Sales", "Inventory", "Vendor Management"
+        }
+    ],
+    description: {
+        type: String,
+        trim: true
+    }
+}, { timestamps: true });
+
+// Ensure unique role name per tenant
+roleSchema.index({ name: 1, tenantId: 1 }, { unique: true });
 
 module.exports = mongoose.model("Role", roleSchema);

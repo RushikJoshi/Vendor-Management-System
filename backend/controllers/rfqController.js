@@ -48,24 +48,29 @@ exports.createRFQ = asyncHandler(async (req, res, next) => {
 // @desc    Get RFQs with filters
 // @route   GET /api/v1/rfqs
 exports.getRFQs = asyncHandler(async (req, res, next) => {
-    const filter = { tenantId: req.user.tenantId };
-    
-    if (req.user.role === 'vendor') {
-        // Vendors only see published RFQs they are eligible for
-        filter.status = 'published';
-        // filter.$or = [{ 'vendorSelection.type': 'open' }, { 'vendorSelection.targetedVendors': req.user.vendorId }];
+    console.log(`📡 GET RFQs for tenant: ${req.tenantId}`);
+    try {
+        const tenantId = req.tenantId || req.user?.tenantId;
+        const filter = { tenantId };
+        
+        if (req.user?.role === 'vendor') {
+            filter.status = 'published';
+        }
+
+        const rfqs = await RFQ.find(filter)
+            .populate('departmentId', 'name')
+            .populate('vendorSelection.targetedVendors', 'name companyName email')
+            .sort('-createdAt');
+
+        res.status(200).json({
+            success: true,
+            count: rfqs.length,
+            data: rfqs,
+        });
+    } catch (err) {
+        console.error("Critical RFQ Registry Failure:", err);
+        return next(new AppError(`Error retrieving RFQs: ${err.message}`, 500));
     }
-
-    const rfqs = await RFQ.find(filter)
-        .populate('departmentId', 'name')
-        .populate('vendorSelection.targetedVendors', 'name companyName email')
-        .sort('-createdAt');
-
-    res.status(200).json({
-        success: true,
-        count: rfqs.length,
-        data: rfqs,
-    });
 });
 
 // @desc    Update RFQ status (Publish, Close, etc.)

@@ -5,15 +5,67 @@
 @tailwind utilities;
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+  }
   body {
-    @apply bg-gray-50 text-slate-900 font-sans antialiased selection:bg-indigo-100 selection:text-indigo-900;
+    @apply bg-gray-50 text-slate-900 font-sans antialiased selection:bg-indigo-100 selection:text-indigo-900 transition-colors duration-300;
   }
 
+  /* Target body when html has .dark class */
+  .dark body {
+    @apply bg-slate-950 text-slate-100;
+  }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-black tracking-tight text-slate-900;
+    @apply font-black tracking-tight text-slate-900 dark:text-white transition-colors duration-300;
+  }
+
+  section {
+    @apply scroll-mt-24;
   }
 }
+
+
+/* ... existing code ... */
+
+@layer utilities {
+  .animated-gradient-text {
+    @apply bg-clip-text text-transparent bg-[length:300%_auto];
+    background-image: linear-gradient(
+      to right,
+      #a855f7,
+      #3b82f6,
+      #6366f1,
+      #a855f7
+    );
+    animation: gradient-move 8s linear infinite;
+  }
+
+  @keyframes gradient-move {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .btn-glow {
+    @apply transition-all duration-300;
+  }
+
+  .btn-glow:hover {
+    @apply shadow-[0_0_20px_rgba(139,92,246,0.5)];
+  }
+}
+
 
 
 @layer components {
@@ -66,26 +118,83 @@
   @apply bg-slate-200 rounded-full hover:bg-slate-300 transition-colors;
 }
 
-/* Subtle Glassmorphism */
-.glass {
-  @apply bg-white/70 backdrop-blur-xl border border-white/20 shadow-2xl;
+/* Premium SaaS UI Tokens */
+@layer components {
+  .vms-card {
+    @apply bg-white border border-slate-200/60 transition-all duration-500 overflow-hidden;
+    box-shadow: 0 4px 25px -5px rgba(0,0,0,0.02), 0 10px 15px -5px rgba(0,0,0,0.03);
+    border-radius: 20px;
+  }
+  .vms-card:hover {
+    box-shadow: 0 30px 50px -10px rgba(0,0,0,0.08);
+    transform: translateY(-2px);
+  }
+
+  .vms-card-glass {
+    @apply bg-white/70 backdrop-blur-2xl border border-white/40;
+    box-shadow: 0 20px 40px -10px rgba(0,0,0,0.05);
+    border-radius: 24px;
+  }
+
+  .vms-btn-primary {
+    @apply px-5 py-2.5 text-white font-bold hover:bg-slate-800 active:scale-95 transition-all flex items-center justify-center gap-2 shadow-lg shadow-slate-200/50;
+    background-color: #0F172A;
+    border-radius: 14px;
+    letter-spacing: -0.01em;
+  }
+
+  .vms-btn-accent {
+    @apply px-5 py-2.5 text-white font-bold hover:bg-emerald-600 active:scale-95 transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-200/50;
+    background-color: #10B981;
+    border-radius: 14px;
+    letter-spacing: -0.01em;
+  }
+
+  .vms-btn-outline {
+    @apply px-5 py-2.5 bg-white border border-slate-200 text-slate-700 font-bold hover:bg-slate-50 hover:border-slate-300 active:scale-95 transition-all flex items-center justify-center gap-2;
+    border-radius: 14px;
+  }
+
+  .vms-badge {
+    @apply px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border transition-all;
+  }
+
+  /* Status Badges - Premium Soft Style */
+  .badge-blue { @apply bg-blue-50/50 text-blue-600 border border-blue-100/50 shadow-sm; }
+  .badge-yellow { @apply bg-amber-50/50 text-amber-600 border border-amber-100/50 shadow-sm; }
+  .badge-green { @apply bg-emerald-50/50 text-emerald-600 border border-emerald-100/50 shadow-sm; }
+  .badge-red { @apply bg-rose-50/50 text-rose-600 border border-rose-100/50 shadow-sm; }
+  .badge-slate { @apply bg-slate-50/50 text-slate-600 border border-slate-100/50 shadow-sm; }
+
+  /* Table Styles */
+  .vms-table-header {
+    @apply px-8 py-5 text-left text-[11px] font-black text-slate-400 uppercase tracking-[0.15em] border-b border-slate-50 bg-slate-50/30;
+  }
+
+  .vms-table-row {
+    @apply hover:bg-slate-50/60 transition-all border-b border-slate-50 last:border-0;
+  }
 }
 
 /* Animations */
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+.hover-scale {
+  @apply hover:scale-[1.02] transition-all duration-500 ease-out;
+}
+.hover-scale:hover {
+  box-shadow: 0 35px 60px -15px rgba(0,0,0,0.1);
 }
 
-.animate-slide-up {
-  animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-.animate-in {
-  animation: fadeIn 0.4s ease-out;
+.fade-in {
+  animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
 }
+
+/* Glassmorphism Header */
+.header-glass {
+  @apply sticky top-0 z-40 w-full bg-white/70 backdrop-blur-lg border-b border-slate-200/50;
+}
+

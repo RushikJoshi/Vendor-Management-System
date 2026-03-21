@@ -99,6 +99,7 @@ app.use(`${API_V1}/quotations`, require("./routes/quotationRoutes"));
 app.use(`${API_V1}/departments`, require("./routes/departmentRoutes"));
 app.use(`${API_V1}/purchase-orders`, require("./routes/poRoutes"));
 app.use(`${API_V1}/users`, require("./routes/userManagement.routes"));
+app.use(`${API_V1}/roles`, require("./routes/role.routes"));
  // Added specifically for POST /api/category/generate-ai
 
 // Backward compatibility (optional, but requested to not break existing business logic)
@@ -122,6 +123,8 @@ app.use("/api/rfqs", require("./routes/rfqRoutes"));
 app.use("/api/quotations", require("./routes/quotationRoutes"));
 app.use("/api/departments", require("./routes/departmentRoutes"));
 app.use("/api/purchase-orders", require("./routes/poRoutes")); // Added proxy for POST /api/category/generate-ai
+app.use("/api/users", require("./routes/userManagement.routes"));
+app.use("/api/roles", require("./routes/role.routes"));
 
 // 7) Handle Undefined Routes
 app.use((req, res, next) => {
@@ -148,4 +151,4 @@ server.listen(PORT, () => {
     // Seed pre-configured forms
     FormSeeder.seedMasterForm();
 });
-
+
