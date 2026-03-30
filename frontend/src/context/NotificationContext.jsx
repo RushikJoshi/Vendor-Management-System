@@ -12,8 +12,10 @@ export const NotificationProvider = ({ children }) => {
     const [unreadCount, setUnreadCount] = useState(0);
     const [socket, setSocket] = useState(null);
 
-    const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api/v1';
-    const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000';
+    const apiRoot = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+    const API_URL = apiRoot.endsWith("/v1") ? apiRoot : `${apiRoot}/v1`;
+    const SOCKET_URL =
+        import.meta.env.VITE_SOCKET_URL || apiRoot.replace(/\/api(?:\/v1)?\/?$/, "");
 
     const fetchNotifications = async () => {
         try {
@@ -37,7 +39,10 @@ export const NotificationProvider = ({ children }) => {
         if (user) {
             fetchNotifications();
 
-            const newSocket = io(SOCKET_URL);
+            const newSocket = io(SOCKET_URL, {
+                transports: ["websocket", "polling"],
+                reconnectionAttempts: 3,
+            });
             setSocket(newSocket);
 
             newSocket.emit('join', user._id || user.id);

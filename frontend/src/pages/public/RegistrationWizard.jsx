@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { useSearchParams, useNavigate, useParams } from "react-router-dom";
+import { useSearchParams, useNavigate, useParams, useLocation } from "react-router-dom";
 import api from "../../services/api";
 import axios from "axios";
 import { toast } from "react-hot-toast";
@@ -9,6 +9,8 @@ const publicApi = axios.create({
     baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000/api",
 });
 import {
+    Search,
+    Activity,
     CheckCircle,
     ArrowRight,
     ArrowLeft,
@@ -16,26 +18,30 @@ import {
     FileText,
     ShieldCheck,
     Building2,
-    CreditCard,
-    FileStack,
-    CheckSquare,
+    Package,
+    Globe,
+    Users,
+    Briefcase,
     AlertCircle,
     X,
-    Edit2
+    Edit2,
+    FileStack,
+    CheckSquare,
+    CreditCard
 } from "lucide-react";
 
 const LoadingSpinner = () => (
     <div className="flex flex-col items-center gap-6">
         <div className="relative w-20 h-20">
-            <div className="absolute inset-0 border-4 border-[#0F7B4D]/10 rounded-full"></div>
-            <div className="absolute inset-0 border-4 border-[#0F7B4D] border-t-transparent rounded-full animate-spin"></div>
-            <div className="absolute inset-4 bg-[#0F7B4D]/5 rounded-full flex items-center justify-center">
-                <ShieldCheck className="text-[#0F7B4D]" size={24} />
+            <div className="absolute inset-0 rounded-full border-4 border-indigo-100"></div>
+            <div className="absolute inset-0 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent"></div>
+            <div className="absolute inset-4 flex items-center justify-center rounded-full bg-indigo-50">
+                <ShieldCheck className="text-indigo-600" size={24} />
             </div>
         </div>
         <div className="text-center">
-            <p className="text-lg font-bold text-slate-900 mb-1">Authenticating Session</p>
-            <p className="text-sm text-slate-500 font-medium">Please wait while we secure your connection...</p>
+            <p className="mb-1 text-lg font-bold text-slate-900">Preparing Registration</p>
+            <p className="text-sm font-medium text-slate-500">Please wait while we load the available setup.</p>
         </div>
     </div>
 );
@@ -47,10 +53,10 @@ const FloatingLabelInput = ({ label, name, value, onChange, onBlur, type = "text
         <div className="relative group">
             <div className={`
                 absolute left-4 transition-all duration-200 pointer-events-none flex items-center gap-2
-                ${(focused || value) ? '-top-2.5 text-xs bg-white px-2 text-[#0F7B4D] font-bold z-10' : 'top-4 text-slate-400'}
+                ${(focused || value) ? '-top-2.5 z-10 bg-white px-2 text-xs font-bold text-indigo-600' : 'top-4 text-slate-400'}
             `}>
                 {focused && Icon && <Icon size={12} />}
-                {label} {required && <span className="text-[#0F7B4D]">*</span>}
+                {label} {required && <span className="text-indigo-600">*</span>}
             </div>
             <input
                 type={type}
@@ -60,15 +66,15 @@ const FloatingLabelInput = ({ label, name, value, onChange, onBlur, type = "text
                 onFocus={() => setFocused(true)}
                 onBlur={(e) => { setFocused(false); onBlur && onBlur(e); }}
                 className={`
-                    w-full px-4 py-4 bg-white border rounded-xl transition-all outline-none font-medium text-slate-700
-                    ${focused ? 'border-[#0F7B4D] ring-4 ring-[#0F7B4D]/5 shadow-sm' : 'border-slate-200'}
+                    w-full rounded-xl border bg-white px-4 py-4 font-medium text-slate-700 outline-none transition-all
+                    ${focused ? 'border-indigo-300 ring-4 ring-indigo-100 shadow-sm' : 'border-slate-200'}
                     ${value && !focused ? 'border-slate-200' : ''}
                 `}
                 placeholder={focused ? placeholder : ""}
                 required={required}
             />
             {value && !focused && (
-                <div className="absolute right-4 top-4 text-[#0F7B4D] animate-in fade-in zoom-in duration-300">
+                <div className="absolute right-4 top-4 animate-in fade-in zoom-in text-indigo-600 duration-300">
                     <CheckCircle size={18} />
                 </div>
             )}
@@ -77,106 +83,72 @@ const FloatingLabelInput = ({ label, name, value, onChange, onBlur, type = "text
 };
 
 const FileUploadField = ({ label, file, onChange, required, fieldId }) => {
-    const [isDragging, setIsDragging] = useState(false);
     const fileInputRef = useRef(null);
 
-    const handleDragOver = (e) => {
-        e.preventDefault();
-        setIsDragging(true);
-    };
-
-    const handleDragLeave = () => {
-        setIsDragging(false);
-    };
-
-    const handleDrop = (e) => {
-        e.preventDefault();
-        setIsDragging(false);
-        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-            onChange(fieldId, e.dataTransfer.files[0]);
-        }
-    };
-
     return (
-        <div className="space-y-3">
-            <label className="text-sm font-bold text-slate-700 flex justify-between items-center">
-                <span>{label} {required && <span className="text-[#0F7B4D]">*</span>}</span>
-                {file && <span className="text-[10px] bg-emerald-100 text-[#0F7B4D] px-2 py-0.5 rounded-full font-black uppercase tracking-wider">Verified</span>}
-            </label>
+        <div className="flex flex-col gap-1 w-full">
+            <input
+                type="file"
+                ref={fileInputRef}
+                onChange={(e) => onChange(fieldId || label, e.target.files[0])}
+                className="hidden"
+            />
             <div
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
                 onClick={() => fileInputRef.current.click()}
                 className={`
-                    relative border-2 border-dashed rounded-2xl p-8 transition-all cursor-pointer group
-                    ${file ? 'border-[#0F7B4D] bg-emerald-50/30' : 'border-slate-200 hover:border-[#0F7B4D] hover:bg-[#0F7B4D]/5'}
-                    ${isDragging ? 'border-[#0F7B4D] bg-[#0F7B4D]/10 scale-[0.99]' : ''}
+                    flex items-center gap-2 h-9 px-2 border-2 border-dashed rounded-sm transition-all cursor-pointer bg-slate-50
+                    ${file ? 'border-blue-700 bg-blue-50/50' : 'border-slate-300 hover:border-blue-400 hover:bg-slate-100'}
                 `}
             >
-                <input
-                    type="file"
-                    ref={fileInputRef}
-                    onChange={(e) => onChange(fieldId || label, e.target.files[0])}
-                    className="hidden"
-                />
-
-                <div className="flex flex-col items-center text-center">
-                    {file ? (
-                        <>
-                            <div className="w-12 h-12 bg-[#0F7B4D] text-white rounded-xl flex items-center justify-center mb-3 shadow-lg shadow-[#0F7B4D]/20">
-                                <FileText size={20} />
-                            </div>
-                            <p className="text-sm font-bold text-slate-900 mb-1">{file.name}</p>
-                            <p className="text-xs text-slate-500 mb-4">{(file.size / 1024).toFixed(1)} KB</p>
-                            <button
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    onChange(fieldId, null);
-                                }}
-                                className="text-xs font-black text-[#0F7B4D] hover:underline uppercase tracking-widest flex items-center gap-2"
-                            >
-                                <X size={12} strokeWidth={3} /> Replace Document
-                            </button>
-                        </>
-                    ) : (
-                        <>
-                            <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-3 transition-colors ${isDragging ? 'bg-[#0F7B4D] text-white' : 'bg-slate-100 text-slate-400 group-hover:bg-[#0F7B4D]/10 group-hover:text-[#0F7B4D]'}`}>
-                                <Upload size={20} />
-                            </div>
-                            <p className="text-sm font-bold text-slate-900 mb-1">Click or drag file to upload</p>
-                            <p className="text-xs text-slate-400">PDF, JPG, or PNG (Max. 10MB)</p>
-                        </>
-                    )}
+                <div className={`flex h-5 w-5 items-center justify-center rounded-sm ${file ? 'bg-blue-700 text-white' : 'bg-slate-200 text-slate-400'}`}>
+                    {file ? <CheckCircle size={12} strokeWidth={3} /> : <Upload size={12} />}
                 </div>
-
-                {isDragging && (
-                    <div className="absolute inset-0 bg-[#0F7B4D]/5 border-2 border-[#0F7B4D] rounded-2xl flex items-center justify-center animate-in fade-in duration-200">
-                        <p className="font-black text-[#0F7B4D] uppercase tracking-widest">Drop Files Now</p>
-                    </div>
+                <div className="flex-1 min-w-0">
+                    <p className={`text-[11px] font-bold truncate ${file ? 'text-blue-900' : 'text-slate-500'}`}>
+                        {file ? file.name : "ATTACH DOCUMENT"}
+                    </p>
+                </div>
+                {file && (
+                    <button
+                        onClick={(e) => { e.stopPropagation(); onChange(fieldId, null); }}
+                        className="text-red-500 hover:text-red-700 transition-colors p-1"
+                    >
+                        <X size={12} strokeWidth={3} />
+                    </button>
                 )}
             </div>
         </div>
     );
 };
 
+const hasRenderableSections = (formTemplate) =>
+    Array.isArray(formTemplate?.sections) &&
+    formTemplate.sections.some(
+        (section) => Array.isArray(section?.fields) && section.fields.length > 0
+    );
+
 export default function RegistrationWizard() {
     const { categoryId: urlCategoryId } = useParams();
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
+    const location = useLocation();
     const token = searchParams.get("token");
+    const shouldOpenDirectForm = location.pathname === "/onboarding";
 
     // ── Public 3-step state ──────────────────────────
     const [publicStep, setPublicStep] = useState(
-        urlCategoryId || token ? "form" : "pick-category"
+        urlCategoryId || token || shouldOpenDirectForm ? "form" : "pick-category"
     ); // "pick-category" | "category-detail" | "form"
     const [allCategories, setAllCategories] = useState([]);
+    const [searchQuery, setSearchQuery] = useState("");
     const [catLoading, setCatLoading] = useState(true);
     const [selectedCat, setSelectedCat] = useState(null);
     // ─────────────────────────────────────────────────
 
     const [categoryDetails, setCategoryDetails] = useState(null);
-    const [loading, setLoading] = useState(urlCategoryId || token ? true : false);
+    const [loading, setLoading] = useState(
+        urlCategoryId || token || shouldOpenDirectForm ? true : false
+    );
     const [currentStep, setCurrentStep] = useState(0);
     const [formValues, setFormValues] = useState({});
     const [files, setFiles] = useState({});
@@ -186,11 +158,11 @@ export default function RegistrationWizard() {
     const [emailError, setEmailError] = useState("");
 
     const STEPS = [
-        { name: "Basic Info", icon: Building2 },
-        { name: "Business Details", icon: CheckSquare },
-        { name: "Financial Details", icon: CreditCard },
-        { name: "Documents", icon: FileStack },
-        { name: "Review & Submit", icon: ShieldCheck },
+        { name: "Basic Info", desc: "General information", icon: Building2 },
+        { name: "Business Details", desc: "Organization & ownership", icon: CheckSquare },
+        { name: "Financial Details", desc: "Banking & financial info", icon: CreditCard },
+        { name: "Documents", desc: "Upload required files", icon: FileStack },
+        { name: "Review & Submit", desc: "Verify & finalize", icon: ShieldCheck },
     ];
 
     // Fetch all active categories for Step 1 — public endpoint (NO auth token)
@@ -220,14 +192,65 @@ export default function RegistrationWizard() {
                 if (catIdToFetch) {
                     // Use publicApi — no auth header, won't trigger 401 redirect
                     const formRes = await publicApi.get(`/forms/public/${catIdToFetch}`);
+                    if (!hasRenderableSections(formRes.data.data)) {
+                        throw new Error("Selected registration form is not published yet.");
+                    }
                     setCategoryDetails({ formTemplate: formRes.data.data });
                 } else {
-                    const formRes = await publicApi.get(`/forms/master/public`);
-                    setCategoryDetails({ formTemplate: formRes.data.data });
+                    try {
+                        const formRes = await publicApi.get(`/forms/master/public`);
+                        if (!hasRenderableSections(formRes.data.data)) {
+                            throw new Error("Master registration form is not published yet.");
+                        }
+                        setCategoryDetails({ formTemplate: formRes.data.data });
+                    } catch (masterErr) {
+                        if (shouldOpenDirectForm) {
+                            const categoriesRes = await publicApi.get("/categories/public-list");
+                            const openCategories = (categoriesRes.data.data || []).filter(
+                                (category) => category.hasPublishedForm
+                            );
+
+                            let fallbackCategory = null;
+                            let fallbackTemplate = null;
+
+                            for (const category of openCategories) {
+                                try {
+                                    const fallbackFormRes = await publicApi.get(
+                                        `/forms/public/${category._id}`
+                                    );
+
+                                    if (hasRenderableSections(fallbackFormRes.data.data)) {
+                                        fallbackCategory = category;
+                                        fallbackTemplate = fallbackFormRes.data.data;
+                                        break;
+                                    }
+                                } catch {
+                                    // Try the next open category until we find a usable form.
+                                }
+                            }
+
+                            if (!fallbackCategory || !fallbackTemplate) {
+                                throw masterErr;
+                            }
+
+                            setSelectedCat(fallbackCategory);
+                            setCategoryDetails({ formTemplate: fallbackTemplate });
+                        } else {
+                            throw masterErr;
+                        }
+                    }
                 }
             } catch (err) {
-                const msg = err.response?.data?.message || "Registration form not available for this category.";
-                toast.error(msg);
+                const msg =
+                    err.response?.data?.message ||
+                    err.message ||
+                    "Registration form not available for this category.";
+                if (token || urlCategoryId || selectedCat || shouldOpenDirectForm) {
+                    toast.error(msg);
+                }
+                setCategoryDetails(null);
+                setCurrentStep(0);
+                setIsReviewStep(false);
                 setPublicStep("pick-category");
             } finally {
                 setLoading(false);
@@ -237,107 +260,190 @@ export default function RegistrationWizard() {
         if (publicStep === "form") {
             fetchDetails();
         }
-    }, [publicStep, token, urlCategoryId, selectedCat]);
+    }, [publicStep, token, urlCategoryId, selectedCat, shouldOpenDirectForm]);
 
-    // ── STEP 1: Category Card Selection ──────────────
+    // ── STEP 1: Category Card Selection (REDESIGNED) ──────────────
     if (publicStep === "pick-category") {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-slate-50 to-emerald-50/30">
-                {/* Top bar */}
-                <div className="bg-[#0F7B4D] py-4 px-8 flex items-center gap-3">
-                    <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
-                        <ShieldCheck className="text-[#0F7B4D]" size={18} />
+            <div className="min-h-screen bg-[#f8fafc] font-sans selection:bg-indigo-100 selection:text-indigo-900">
+                {/* Refined Header */}
+                <header className="sticky top-0 z-40 border-b border-slate-200 bg-white shadow-sm">
+                    <div className="mx-auto flex max-w-[1800px] items-center justify-between px-6 py-3">
+                        <div className="flex items-center gap-4">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-900 text-white shadow-xl shadow-slate-200">
+                                <ShieldCheck size={20} strokeWidth={2.5} />
+                            </div>
+                            <div>
+                                <h1 className="text-xl font-bold tracking-tight text-slate-900 leading-none">VMS PRO</h1>
+                                <p className="text-[12px] font-semibold text-slate-500 mt-1">Enterprise Registry</p>
+                            </div>
+                        </div>
                     </div>
-                    <div>
-                        <p className="text-white font-black text-sm tracking-tight">VMS PORTAL</p>
-                        <p className="text-emerald-300 text-[9px] font-bold uppercase tracking-widest">Vendor Registration</p>
-                    </div>
-                </div>
+                </header>
 
-                <div className="max-w-5xl mx-auto px-4 py-12">
-                    {/* Header */}
-                    <div className="text-center mb-10">
-                        <span className="inline-block px-4 py-1 bg-emerald-100 text-[#0F7B4D] text-[10px] font-black uppercase tracking-[0.3em] rounded-full mb-4">
-                            Step 1 of 3
-                        </span>
-                        <h1 className="text-4xl font-black text-slate-900 tracking-tight mb-3">Select Your Category</h1>
-                        <p className="text-slate-500 font-medium max-w-lg mx-auto">
-                            Choose the vendor category that best describes your business. Each category has its own registration form.
+                <main className="mx-auto max-w-[1800px] px-6 py-6 lg:py-8">
+                    {/* Minimal Section Header */}
+                    <div className="mb-4">
+                        <div className="flex items-center gap-3 mb-4">
+                            <span className="flex items-center gap-2 rounded-full bg-slate-900 px-3 py-1 text-[9px] font-black uppercase tracking-[0.2em] text-white">
+                                Selection Portal
+                            </span>
+                        </div>
+                        <h1 className="text-3xl font-black tracking-tight text-slate-900 sm:text-4xl md:leading-[1.1]">
+                            Select Your <span className="text-indigo-600">Onboarding Vertical.</span>
+                        </h1>
+                        <p className="mt-4 max-w-2xl text-base font-medium leading-relaxed text-slate-600">
+                            Our architecture uses specialized workflows for different industry domains. Select your business vertical below to initiate the secure registration process.
                         </p>
                     </div>
 
-                    {catLoading ? (
-                        <div className="flex justify-center py-20"><LoadingSpinner /></div>
-                    ) : allCategories.length === 0 ? (
-                        <div className="text-center py-20 text-slate-400">
-                            <p className="font-bold">No active categories available at this time.</p>
-                            <p className="text-sm mt-1">Please contact the administrator.</p>
+                    <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                        <div className="flex items-center gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-50 text-slate-700 border border-slate-100 shadow-inner">
+                                <Building2 size={18} />
+                            </div>
+                            <div>
+                                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Total Portals</p>
+                                <p className="text-lg font-bold text-slate-900">{(allCategories || []).length} Categories</p>
+                            </div>
                         </div>
-                    ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                            {allCategories.map(cat => {
-                                const hasForm = cat.hasPublishedForm;
-                                return (
-                                    <button
-                                        key={cat._id}
-                                        onClick={() => {
-                                            if (!hasForm) {
-                                                toast.error("This category's registration form is not yet available.");
-                                                return;
-                                            }
-                                            setSelectedCat(cat);
-                                            setPublicStep("category-detail");
-                                        }}
-                                        className={`text-left group bg-white border rounded-2xl p-6 transition-all duration-200 relative
-                                            ${hasForm
-                                                ? "border-slate-200 hover:border-[#0F7B4D] hover:shadow-xl cursor-pointer"
-                                                : "border-slate-100 opacity-60 cursor-not-allowed"
-                                            }`}
-                                    >
-                                        {/* Form status badge */}
-                                        <div className="absolute top-4 right-4">
-                                            {hasForm ? (
-                                                <span className="text-[9px] font-black bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
-                                                    ✓ Open
-                                                </span>
-                                            ) : (
-                                                <span className="text-[9px] font-black bg-slate-100 text-slate-400 px-2 py-0.5 rounded-full">
-                                                    Form Pending
-                                                </span>
-                                            )}
-                                        </div>
-
-                                        <div className={`w-10 h-10 rounded-xl border flex items-center justify-center mb-4 transition-all
-                                            ${hasForm ? "bg-emerald-50 border-emerald-100 group-hover:bg-[#0F7B4D]" : "bg-slate-50 border-slate-100"}`}>
-                                            <Building2 size={18} className={`transition-colors ${hasForm ? "text-[#0F7B4D] group-hover:text-white" : "text-slate-300"}`} />
-                                        </div>
-                                        <p className="font-black text-slate-900 mb-1 pr-16">{cat.name}</p>
-                                        <p className="text-[11px] font-mono text-slate-400 mb-3">{cat.code}</p>
-                                        {cat.description && (
-                                            <p className="text-xs text-slate-400 line-clamp-2 leading-relaxed">{cat.description}</p>
-                                        )}
-                                        <div className="flex items-center justify-end mt-4 pt-3 border-t border-slate-100">
-                                            {hasForm ? (
-                                                <span className="text-[10px] font-black text-[#0F7B4D] uppercase tracking-widest flex items-center gap-1">
-                                                    Select <ArrowRight size={12} strokeWidth={3} />
-                                                </span>
-                                            ) : (
-                                                <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">
-                                                    Not Available
-                                                </span>
-                                            )}
-                                        </div>
-                                    </button>
-                                );
-                            })}
+                        <div className="flex items-center gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-100 shadow-inner">
+                                <ShieldCheck size={18} />
+                            </div>
+                            <div>
+                                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Published Status</p>
+                                <p className="text-lg font-bold text-slate-900">{(allCategories || []).filter(c => c.hasPublishedForm).length} Active</p>
+                            </div>
                         </div>
-                    )}
+                    </div>
 
-                    <p className="text-center text-xs text-slate-400 mt-10">
-                        Already registered?{" "}
-                        <a href="/login" className="text-[#0F7B4D] font-bold hover:underline">Sign In</a>
-                    </p>
-                </div>
+                    <div className="mt-6">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-6">
+                            <div>
+                                <h3 className="text-xs font-bold uppercase tracking-[0.3em] text-slate-900">Strategic Business Portals</h3>
+                            </div>
+                            <div className="flex-1 max-w-sm">
+                                <div className="relative">
+                                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500">
+                                        <Search size={16} strokeWidth={2.5} />
+                                    </div>
+                                    <input 
+                                        type="text"
+                                        placeholder="Search portals by name or code..."
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                        className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-11 pr-6 text-[13px] font-bold text-slate-900 outline-none transition-all focus:border-slate-900 focus:ring-2 focus:ring-slate-100 placeholder:text-slate-400"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        {catLoading ? (
+                            <div className="flex justify-center py-32"><LoadingSpinner /></div>
+                        ) : (allCategories || []).filter(c => 
+                            c.name?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                            c.code?.toLowerCase().includes(searchQuery.toLowerCase())
+                        ).length === 0 ? (
+                            <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-20 text-center">
+                                <Search size={48} className="mx-auto text-slate-200 mb-6" />
+                                <h3 className="text-2xl font-bold text-slate-900">No matching categories found.</h3>
+                                <p className="mt-2 text-slate-500 text-lg font-medium italic">Try checking the spelling or contact administration.</p>
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 pb-20">
+                                {(allCategories || [])
+                                    .filter(c => 
+                                        c.name?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                                        c.code?.toLowerCase().includes(searchQuery.toLowerCase())
+                                    )
+                                    .map((cat) => {
+                                    if (!cat) return null;
+                                    const hasForm = cat.hasPublishedForm;
+                                    return (
+                                        <button
+                                            key={cat._id}
+                                            disabled={!hasForm}
+                                            onClick={() => {
+                                                setSelectedCat(cat);
+                                                setPublicStep("category-detail");
+                                            }}
+                                            className={`group relative flex flex-col justify-between rounded-2xl border bg-white p-7 text-left transition-all duration-200
+                                                ${hasForm
+                                                    ? "border-slate-200 hover:border-slate-900 hover:shadow-xl hover:shadow-slate-200/50 cursor-pointer"
+                                                    : "border-slate-100 opacity-60 cursor-not-allowed shadow-none"
+                                                }`}
+                                        >
+                                            <div className="relative z-10 w-full">
+                                                <div className="flex items-start justify-between mb-8">
+                                                    <div className={`flex h-12 w-12 items-center justify-center rounded-xl border transition-all
+                                                        ${hasForm ? "bg-slate-50 text-slate-900 border-slate-200 group-hover:bg-slate-900 group-hover:text-white" : "bg-slate-50 text-slate-300 border-slate-100"}`}>
+                                                        <Building2 size={24} />
+                                                    </div>
+                                                    <div className={`flex items-center gap-2 rounded-lg px-2.5 py-1 text-[9px] font-black uppercase tracking-widest transition-all
+                                                        ${hasForm 
+                                                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-100 shadow-sm' 
+                                                            : 'bg-slate-50 text-slate-400 border border-slate-100'}`}>
+                                                        {hasForm ? (
+                                                            <>
+                                                                <span className="relative flex h-2 w-2">
+                                                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                                                                </span>
+                                                                <span className="tracking-[0.1em]">ACTIVE PORTAL</span>
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <ShieldCheck size={10} strokeWidth={3} />
+                                                                <span className="tracking-[0.1em]">LOCKED</span>
+                                                            </>
+                                                        )}
+                                                    </div>
+                                                </div>
+
+                                                <h3 className="text-xl font-black tracking-tight text-slate-900">
+                                                    {cat.name}
+                                                </h3>
+                                                <p className="mt-1 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+                                                    Code: {cat.code || "REG-X"}
+                                                </p>
+                                                
+                                                <p className="mt-6 line-clamp-3 text-[13px] font-medium leading-relaxed text-slate-500 italic">
+                                                    {cat.description || "Established vertical protocol for industrial procurement and vendor management registry."}
+                                                </p>
+                                            </div>
+
+                                            <div className="mt-8 flex items-center justify-between border-t border-slate-100 pt-6">
+                                                {!hasForm ? (
+                                                    <span className="text-[11px] font-bold uppercase tracking-widest text-slate-300">Registration Locked</span>
+                                                ) : (
+                                                    <span className="text-[11px] font-bold uppercase tracking-widest text-slate-900">Select Portal</span>
+                                                )}
+                                            </div>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        )}
+                    </div>
+
+                    <footer className="mt-auto py-12 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-8">
+                        <div className="flex items-center gap-5">
+                            <ShieldCheck size={22} strokeWidth={2.5} className="text-slate-900" />
+                            <p className="text-sm font-bold tracking-tight text-slate-800">
+                                GT Global Procurement Registry &copy; 2026
+                            </p>
+                        </div>
+                        <div className="flex items-center gap-10">
+                            <p className="text-sm font-bold text-slate-600">
+                                Already registered?
+                            </p>
+                            <a href="/login" className="px-6 py-3 rounded-2xl bg-slate-900 text-xs font-black uppercase tracking-widest text-white hover:bg-slate-800 transition-all shadow-xl shadow-slate-200 active:scale-95">
+                                Sign In Portal
+                            </a>
+                        </div>
+                    </footer>
+                </main>
             </div>
         );
     }
@@ -345,91 +451,149 @@ export default function RegistrationWizard() {
     // ── STEP 2: Category Detail ────────────────────────
     if (publicStep === "category-detail" && selectedCat) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-slate-50 to-emerald-50/30">
-                {/* Top bar */}
-                <div className="bg-[#0F7B4D] py-4 px-8 flex items-center gap-3">
-                    <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
-                        <ShieldCheck className="text-[#0F7B4D]" size={18} />
-                    </div>
-                    <div>
-                        <p className="text-white font-black text-sm tracking-tight">VMS PORTAL</p>
-                        <p className="text-emerald-300 text-[9px] font-bold uppercase tracking-widest">Vendor Registration</p>
-                    </div>
-                </div>
-
-                <div className="max-w-3xl mx-auto px-4 py-12">
-                    <button onClick={() => setPublicStep("pick-category")}
-                        className="flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-[#0F7B4D] mb-8 transition-colors">
-                        <ArrowLeft size={16} strokeWidth={2.5} /> Back to Categories
-                    </button>
-
-                    <span className="inline-block px-4 py-1 bg-emerald-100 text-[#0F7B4D] text-[10px] font-black uppercase tracking-[0.3em] rounded-full mb-6">
-                        Step 2 of 3 — Review Category
-                    </span>
-
-                    <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-lg">
-                        {/* Category Header */}
-                        <div className="bg-[#0F7B4D] p-8">
-                            <p className="text-emerald-300 text-[10px] font-black uppercase tracking-widest mb-2">{selectedCat.code}</p>
-                            <h1 className="text-3xl font-black text-white tracking-tight mb-2">{selectedCat.name}</h1>
-                            <span className={`text-[10px] font-bold px-3 py-1 rounded-full ${selectedCat.isActive ? 'bg-white/20 text-white' : 'bg-red-200 text-red-800'}`}>
-                                {selectedCat.isActive ? "✓ Accepting Registrations" : "Closed"}
-                            </span>
-                        </div>
-
-                        {/* Category Body */}
-                        <div className="p-8 space-y-6">
+            <div className="min-h-screen bg-[#f8fafc] font-sans selection:bg-indigo-100 selection:text-indigo-900 flex flex-col">
+                {/* Simple Header */}
+                <header className="sticky top-0 z-40 border-b border-slate-200 bg-white shadow-sm">
+                    <div className="mx-auto flex max-w-[1200px] items-center justify-between px-6 py-5">
+                        <div className="flex items-center gap-4">
+                            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-900 text-white shadow-xl shadow-slate-200">
+                                <ShieldCheck size={22} strokeWidth={2.5} />
+                            </div>
                             <div>
-                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">About this Category</p>
-                                <p className="text-slate-700 font-medium leading-relaxed">
-                                    {selectedCat.description || "This category handles vendor registrations for the specified domain. Please proceed to complete the registration form with all required details and documents."}
-                                </p>
+                                <h1 className="text-xl font-bold tracking-tight text-slate-900 leading-none">VMS PRO</h1>
+                                <p className="text-[12px] font-semibold text-slate-500 mt-1">Enterprise Registry</p>
                             </div>
+                        </div>
+                        <button
+                            onClick={() => setPublicStep("pick-category")}
+                            className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-bold text-slate-600 hover:bg-slate-50 transition-all"
+                        >
+                            <ArrowLeft size={16} /> Back to Portals
+                        </button>
+                    </div>
+                </header>
 
-                            {selectedCat.approvalType && (
-                                <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                                    <ShieldCheck size={20} className="text-[#0F7B4D]" />
-                                    <div>
-                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Approval Process</p>
-                                        <p className="font-bold text-slate-800">{selectedCat.approvalType} Review</p>
-                                    </div>
+                <main className="mx-auto max-w-[1200px] w-full px-6 py-12 lg:py-20 flex-1 flex flex-col items-center justify-center">
+                    <div className="w-full bg-white rounded-[2.5rem] border border-slate-200 overflow-hidden shadow-xl shadow-slate-200/50">
+                        <div className="grid grid-cols-1 md:grid-cols-2">
+                            {/* Left: Info */}
+                            <div className="p-8 lg:p-12 border-b md:border-b-0 md:border-r border-slate-100">
+                                <div className="flex items-center gap-3 mb-8">
+                                    <span className="flex items-center gap-2 rounded-full bg-slate-900 px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest text-white border border-slate-900 shadow-sm">
+                                        Registry Selection
+                                    </span>
                                 </div>
-                            )}
+                                <h2 className="text-4xl font-black text-slate-900 tracking-tight leading-tight">
+                                    {selectedCat.name}
+                                </h2>
+                                <p className="mt-4 text-[12px] font-black uppercase tracking-widest text-slate-400">
+                                    Official Index: {selectedCat.code}
+                                </p>
+                                
+                                <div className="mt-10 p-6 rounded-2xl bg-slate-50 border border-slate-200/60">
+                                    <p className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3">Service Scope</p>
+                                    <p className="text-[15px] font-semibold text-slate-600 leading-relaxed italic">
+                                        {selectedCat.description || "This portal facilitates the formal onboarding of business entities within this industrial category."}
+                                    </p>
+                                </div>
+                            </div>
 
-                            <div className="p-4 bg-emerald-50 border border-emerald-100 rounded-2xl">
-                                <p className="text-xs font-bold text-emerald-700">
-                                    ✓ You will be asked to fill a registration form with your company details, financial information, and supporting documents.
+                            {/* Right: Actions */}
+                            <div className="p-8 lg:p-12 bg-slate-50/50 flex flex-col justify-center">
+                                <div className="mb-10">
+                                    <h3 className="text-xl font-bold text-slate-900 uppercase tracking-tight">Initiate Official Enrollment</h3>
+                                    <p className="mt-3 text-[14px] font-medium text-slate-500 leading-relaxed">
+                                        By proceeding, you will begin the official onboarding process. Please ensure you have all legal and financial credentials ready for submission.
+                                    </p>
+                                </div>
+
+                                <div className="space-y-4 mb-10">
+                                    {['Electronic Document Submission', 'Compliance Validation (SLA)', 'Departmental Review Cycle'].map((item, i) => (
+                                        <div key={i} className="flex items-center gap-3 text-sm font-bold text-slate-700">
+                                            <div className="flex h-5 w-5 items-center justify-center rounded-full bg-slate-900 text-white">
+                                                <CheckCircle size={12} />
+                                            </div>
+                                            {item}
+                                        </div>
+                                    ))}
+                                </div>
+
+                                <button
+                                    onClick={() => {
+                                        setLoading(true);
+                                        setPublicStep("form");
+                                    }}
+                                    className="w-full flex items-center justify-center gap-3 rounded-xl bg-slate-900 py-5 text-[12px] font-black uppercase tracking-widest text-white shadow-xl shadow-slate-200 hover:bg-black transition-all hover:-translate-y-1 active:translate-y-0"
+                                >
+                                    Proceed to Enrollment dossier
+                                    <ArrowRight size={18} />
+                                </button>
+                                
+                                <p className="mt-6 text-center text-[10px] font-black uppercase tracking-widest text-slate-400">
+                                    Processing time: 10-15 Minutes
                                 </p>
                             </div>
                         </div>
+                    </div>
+                </main>
 
-                        {/* CTA */}
-                        <div className="px-8 pb-8">
-                            <button
-                                onClick={() => setPublicStep("form")}
-                                className="w-full py-5 bg-[#0F7B4D] text-white font-black text-[11px] uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-[#0F7B4D]/20 hover:scale-[1.01] active:scale-95 transition-all flex items-center justify-center gap-3"
-                            >
-                                Proceed to Registration Form
-                                <ArrowRight size={16} strokeWidth={3} />
-                            </button>
-                        </div>
+                <footer className="mt-auto py-10 border-t border-slate-200 bg-white flex justify-center">
+                     <p className="text-sm font-bold tracking-tight text-slate-800">
+                        GT Global Procurement Registry &copy; 2026
+                    </p>
+                </footer>
+            </div>
+        );
+    }
+
+    if (loading) return (
+        <div className="min-h-screen flex items-center justify-center bg-[#f8fafc]">
+            <LoadingSpinner />
+        </div>
+    );
+
+    const sections = categoryDetails?.formTemplate?.sections || [];
+    const hasVisibleSections = hasRenderableSections(categoryDetails?.formTemplate);
+
+    if (!hasVisibleSections) {
+        return (
+            <div className="min-h-screen bg-[#f8fafc] flex items-center justify-center px-6">
+                <div className="max-w-xl w-full bg-white border border-slate-200 rounded-[2.5rem] shadow-xl p-10 md:p-14 text-center">
+                    <div className="w-20 h-20 mx-auto mb-8 rounded-3xl bg-slate-50 border border-slate-100 text-slate-300 flex items-center justify-center shadow-inner">
+                        <AlertCircle size={40} />
+                    </div>
+                    <p className="text-[11px] font-black uppercase tracking-[0.3em] text-slate-400 mb-4">
+                        Status Unavailable
+                    </p>
+                    <h1 className="text-3xl font-black text-slate-900 tracking-tight leading-tight mb-4">
+                        Official form is not yet published.
+                    </h1>
+                    <p className="text-slate-500 font-medium text-lg leading-relaxed mb-10 italic">
+                        The registration portal for this category is under configuration. Please select another vertical.
+                    </p>
+                    <div className="flex flex-col gap-3">
+                        <button
+                            onClick={() => setPublicStep("pick-category")}
+                            className="w-full rounded-2xl bg-slate-900 px-6 py-5 text-[12px] font-black uppercase tracking-widest text-white shadow-xl shadow-slate-200 transition-all hover:-translate-y-1 active:translate-y-0"
+                        >
+                            Back to portal directory
+                        </button>
+                        <button
+                            onClick={() => navigate("/login")}
+                            className="w-full rounded-2xl border border-slate-200 px-6 py-5 text-[12px] font-black uppercase tracking-widest text-slate-600 hover:bg-slate-50 transition-all"
+                        >
+                            Return to Login
+                        </button>
                     </div>
                 </div>
             </div>
         );
     }
 
-    if (loading) return (
-        <div className="min-h-screen flex items-center justify-center bg-slate-50">
-            <LoadingSpinner />
-        </div>
-    );
-
-    const sections = categoryDetails?.formTemplate?.sections || [];
     const currentSection = sections[currentStep] || { sectionTitle: "Loading...", fields: [] };
 
     const mapSectionToStepIndex = (section, idx) => {
-        if (!section) return 0;
+        if (!section || sections.length === 0) return 0;
         const title = (section.sectionTitle || "").toLowerCase();
         if (title.includes("bank") || title.includes("financial") || title.includes("tax") || title.includes("payment") || title.includes("accounting") || title.includes("recon")) return 2;
         if (idx === sections.length - 1 && sections.length > 3) {
@@ -441,7 +605,7 @@ export default function RegistrationWizard() {
         if (title.includes("contact") || title.includes("identification") || title.includes("address") || title.includes("location") || title.includes("vendor")) return 0;
 
         // Dynamic distribution if no keywords match
-        const progress = idx / sections.length;
+        const progress = idx / Math.max(sections.length, 1);
         if (progress < 0.25) return 0;
         if (progress < 0.5) return 1;
         if (progress < 0.75) return 2;
@@ -470,9 +634,9 @@ export default function RegistrationWizard() {
 
             if (data && data[0] && data[0].Status === 'Success') {
                 const postOffice = data[0].PostOffice[0];
-                const cityField = currentFormValues.hasOwnProperty('city') ? 'city' : 'co_city';
-                const stateField = currentFormValues.hasOwnProperty('state') ? 'state' : 'co_state';
-                const countryField = currentFormValues.hasOwnProperty('country') ? 'country' : 'co_country';
+                const cityField = Object.prototype.hasOwnProperty.call(currentFormValues, 'city') ? 'city' : 'co_city';
+                const stateField = Object.prototype.hasOwnProperty.call(currentFormValues, 'state') ? 'state' : 'co_state';
+                const countryField = Object.prototype.hasOwnProperty.call(currentFormValues, 'country') ? 'country' : 'co_country';
 
                 setFormValues(prev => ({
                     ...prev,
@@ -603,158 +767,127 @@ export default function RegistrationWizard() {
     };
 
     return (
-        <div className="min-h-screen bg-[#FDFDFD] flex flex-col lg:flex-row overflow-hidden">
-            {/* Left Side Panel - Sidebar */}
-            <aside className="lg:w-[400px] w-full bg-[#0F7B4D] lg:fixed lg:h-full flex flex-col z-20">
-                <div className="absolute inset-0 bg-gradient-to-b from-[#0F7B4D] via-[#0D6D44] to-[#0A5D3A] opacity-90"></div>
+        <div className="min-h-screen bg-slate-50 text-slate-800 font-sans selection:bg-blue-100">
+            {/* Main Content Area - Now Full Width */}
+            <main className="min-h-screen flex flex-col items-center">
+                
+                {/* Horizontal Top Stepper - Edge to Edge */}
+                <div className="w-full bg-white border-b border-slate-200 py-4 px-2 sticky top-0 z-20 shadow-sm">
+                    <div className="w-full mx-auto">
+                        <div className="flex items-center justify-between gap-1">
+                            {STEPS.map((step, idx) => {
+                                const isCompleted = idx < activeMajorStep;
+                                const isActive = idx === activeMajorStep;
+                                const Icon = step.icon;
 
-                {/* Decorative background patterns */}
-                <div className="absolute inset-0 opacity-10 pointer-events-none">
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-white rounded-full -mr-32 -mt-32 blur-3xl"></div>
-                    <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#000] rounded-full -ml-48 -mb-48 blur-3xl"></div>
-                </div>
+                                return (
+                                    <div key={idx} className="flex-1 flex flex-col items-center group relative">
+                                        {/* Horizontal Progress Line */}
+                                        {idx !== STEPS.length - 1 && (
+                                            <div className="absolute left-[50%] right-[-50%] top-5 h-0.5 border-t-2 border-dotted border-slate-200 z-0">
+                                            </div>
+                                        )}
 
-                <div className="relative p-10 flex flex-col h-full">
-                    {/* Brand/Logo */}
-                    <div className="flex items-center gap-3 mb-16">
-                        <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-xl shadow-black/10">
-                            <ShieldCheck className="text-[#0F7B4D]" size={24} />
-                        </div>
-                        <div>
-                            <h2 className="text-white font-black text-xl tracking-tight leading-none uppercase">Antigravity</h2>
-                            <p className="text-emerald-300 text-[10px] font-black tracking-[0.2em] uppercase mt-1 opacity-80">Procurement Solutions</p>
-                        </div>
-                    </div>
+                                        {/* Icon Circle */}
+                                        <div className={`
+                                            relative z-10 w-10 min-w-[40px] h-10 rounded-full flex items-center justify-center transition-all border-2
+                                            ${isActive ? 'bg-blue-700 border-blue-700 text-white shadow shadow-blue-100 scale-105' : ''}
+                                            ${isCompleted ? 'bg-white border-blue-700 text-blue-700' : ''}
+                                            ${!isActive && !isCompleted ? 'bg-slate-50 border-slate-200 text-slate-300' : ''}
+                                        `}>
+                                            {isCompleted ? <CheckCircle size={16} strokeWidth={3} /> : <Icon size={16} strokeWidth={isActive ? 2.5 : 2} />}
+                                        </div>
 
-                    {/* Progress Indicator */}
-                    <nav className="flex-1 space-y-2">
-                        {STEPS.map((step, idx) => {
-                            const isCompleted = idx < activeMajorStep;
-                            const isActive = idx === activeMajorStep;
-                            const isLocked = idx > activeMajorStep;
-                            const Icon = step.icon;
-
-                            return (
-                                <div
-                                    key={idx}
-                                    className={`
-                                        relative flex items-center gap-4 p-4 rounded-2xl transition-all duration-300
-                                        ${isActive ? 'bg-white/10 border border-white/10 shadow-lg' : ''}
-                                        ${isLocked ? 'opacity-40' : 'opacity-100'}
-                                    `}
-                                >
-                                    <div className={`
-                                        w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-500
-                                        ${isCompleted ? 'bg-emerald-400 text-[#0F7B4D]' : ''}
-                                        ${isActive ? 'bg-white text-[#0F7B4D]' : ''}
-                                        ${isLocked ? 'border border-white/20 text-white/40' : 'text-white'}
-                                    `}>
-                                        {isCompleted ? <CheckCircle size={20} strokeWidth={3} /> : <Icon size={20} />}
+                                        {/* Text Labels */}
+                                        <div className="mt-2 text-center hidden md:block">
+                                            <p className={`text-[10px] font-black uppercase tracking-tight leading-none ${isActive ? 'text-blue-700' : 'text-slate-900'}`}>
+                                                {step.name}
+                                            </p>
+                                        </div>
                                     </div>
-                                    <div className="flex flex-col">
-                                        <p className={`text-[10px] font-black uppercase tracking-[0.2em] leading-none mb-1 ${isActive ? 'text-emerald-300' : 'text-white/40'}`}>
-                                            Step 0{idx + 1}
-                                        </p>
-                                        <p className={`font-bold tracking-tight ${isActive ? 'text-white text-lg' : 'text-white/70 text-base'}`}>
-                                            {step.name}
-                                        </p>
-                                    </div>
-
-                                    {isActive && (
-                                        <div className="absolute -right-2 w-1.5 h-8 bg-white rounded-full"></div>
-                                    )}
-                                </div>
-                            );
-                        })}
-                    </nav>
-
-                    {/* Footer Info */}
-                    <div className="mt-auto pt-10 border-t border-white/10">
-                        <div className="flex items-center gap-4 text-white/60">
-                            <div className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center">
-                                <AlertCircle size={18} />
-                            </div>
-                            <div>
-                                <p className="text-xs font-bold text-white/80">Support Hotline</p>
-                                <p className="text-[10px] font-medium">+1 (800) VENDOR-PRO</p>
-                            </div>
+                                );
+                            })}
                         </div>
                     </div>
                 </div>
-            </aside>
 
-            {/* Right Side Main Form Area */}
-            <main className="flex-1 lg:ml-[400px] min-h-screen relative p-4 lg:p-12 overflow-y-auto">
-                <div className="max-w-4xl mx-auto py-10">
-
-                    {/* Header */}
-                    <header className="mb-12">
+                {/* Form Workspace - Zero Space Left */}
+                <div className="w-full p-2 lg:p-3 flex flex-col">
+                    <div className="w-full py-2">
+                        {/* Form Header */}
+                        <header className="mb-4 pb-3 border-b border-slate-300">
                         <div className="flex items-center justify-between mb-2">
-                            <span className="text-[10px] font-black text-[#0F7B4D] uppercase tracking-[0.4em]">Section {currentStep + 1} of {sections.length}</span>
-                            {!isReviewStep && <span className="text-xs font-bold text-slate-400">{Math.round(((currentStep + 1) / sections.length) * 100)}% Complete</span>}
+                            <span className="px-2 py-0.5 bg-slate-200 border border-slate-300 rounded-sm text-[9px] font-bold uppercase tracking-wider text-slate-700">
+                                {isReviewStep ? "REVIEW" : `PHASE ${currentStep + 1}/${sections.length}`}
+                            </span>
                         </div>
-                        <h1 className="text-4xl font-black text-slate-900 tracking-tight leading-tight mb-3">
-                            {isReviewStep ? "Dossier Verification" : currentSection.sectionTitle}
-                        </h1>
-                        <p className="text-slate-500 font-medium">
-                            {isReviewStep
-                                ? "Please review all entered information before finalizing your registration."
-                                : "The following information is required for the " + (categoryDetails?.formTemplate?.name || "Enterprise") + " onboarding protocol."}
-                        </p>
+                        <h2 className="text-xl font-bold text-slate-900 tracking-tight mb-1 uppercase">
+                            {isReviewStep ? "Verify registry" : currentSection.sectionTitle}
+                        </h2>
                     </header>
 
-                    {/* Main Form Card */}
-                    <div className="bg-white rounded-[2rem] border border-slate-100 shadow-[0_20px_50px_rgba(0,0,0,0.04)] p-8 lg:p-12 transition-all duration-500">
-
+                    {/* Max Density Form Content */}
+                    <div className="bg-white border border-slate-200 p-3 shadow-none rounded-none">
                         {!isReviewStep ? (
-                            <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-8">
+                            <div className="space-y-4">
+                                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-x-2 gap-y-3 items-end">
                                     {currentSection.fields.map((field, fIdx) => {
                                         const fieldName = field.name || field.fieldId;
+                                        
+                                        // Dynamic Column Spans for Ultimate High Density
+                                        let colSpan = "col-span-1";
+                                        if (field.type === 'textarea') {
+                                            colSpan = "col-span-full"; // Full width for comments
+                                        } else if (field.type === 'file' || field.label.toLowerCase().includes('email')) {
+                                            colSpan = "sm:col-span-2"; // Double wide for files/emails
+                                        }
+
                                         return (
-                                            <div key={fIdx} className={`${field.type === 'textarea' || field.type === 'file' || field.type === 'checkbox' ? 'md:col-span-2' : ''}`}>
+                                            <div key={fIdx} className={`${colSpan}`}>
+                                                <label className="block text-[9px] font-bold uppercase tracking-tight text-slate-500 mb-[1px] leading-none">
+                                                    {field.label} {field.required && <span className="text-red-500">*</span>}
+                                                </label>
+                                                
                                                 {field.type === "text" || field.type === "number" || field.type === "date" || field.type === "textarea" || field.type === "email" ? (
-                                                    <div>
-                                                        <FloatingLabelInput
-                                                            label={field.label}
-                                                            name={fieldName}
-                                                            required={field.required}
-                                                            placeholder={field.placeholder || (field.type === "email" ? "Enter your official email" : "")}
-                                                            value={formValues[fieldName] || ""}
-                                                            onChange={(e) => handleInputChange(fieldName, e.target.value)}
-                                                            type={field.type === "textarea" ? "text" : field.type}
-                                                            onBlur={field.type === "email" ? (e) => handleEmailBlur(fieldName, e.target.value) : undefined}
-                                                        />
-                                                        {field.type === "email" && emailError && (
-                                                            <p className="mt-2 text-xs font-bold text-rose-500 flex items-center gap-2">
-                                                                <AlertCircle size={12} /> {emailError}
-                                                            </p>
+                                                    <div className="relative">
+                                                        {field.type === "textarea" ? (
+                                                            <textarea
+                                                                required={field.required}
+                                                                placeholder={field.placeholder}
+                                                                value={formValues[fieldName] || ""}
+                                                                onChange={(e) => handleInputChange(fieldName, e.target.value)}
+                                                                className="w-full h-24 rounded-sm border border-slate-300 bg-white p-2 text-[13px] font-medium text-slate-900 outline-none focus:border-blue-700 focus:ring-0 placeholder:text-slate-300 shadow-none mx-0"
+                                                            />
+                                                        ) : (
+                                                            <input
+                                                                type={field.type}
+                                                                required={field.required}
+                                                                placeholder={field.placeholder}
+                                                                value={formValues[fieldName] || ""}
+                                                                onChange={(e) => handleInputChange(fieldName, e.target.value)}
+                                                                onBlur={field.type === "email" ? (e) => handleEmailBlur(fieldName, e.target.value) : undefined}
+                                                                className="w-full h-9 rounded-sm border border-slate-300 bg-white px-2 text-[13px] font-medium text-slate-900 outline-none focus:border-blue-700 focus:ring-0 placeholder:text-slate-300 shadow-none"
+                                                            />
                                                         )}
-                                                        {field.type === "email" && !emailError && emailWarning && (
-                                                            <p className="mt-2 text-xs font-bold text-amber-600 flex items-center gap-2 bg-amber-50 px-3 py-2 rounded-xl border border-amber-200">
-                                                                <AlertCircle size={12} /> {emailWarning}
+                                                        {field.type === "email" && emailError && (
+                                                            <p className="mt-1 text-[9px] font-bold text-red-600 uppercase flex items-center gap-1">
+                                                                <AlertCircle size={10} /> {emailError}
                                                             </p>
                                                         )}
                                                     </div>
                                                 ) : field.type === "dropdown" ? (
-                                                    <div className="relative group">
-                                                        <label className="text-[10px] font-black text-[#0F7B4D] uppercase tracking-widest ml-1 mb-2 block">
-                                                            {field.label} {field.required && <span className="text-[#0F7B4D]">*</span>}
-                                                        </label>
+                                                    <div className="relative">
                                                         <select
                                                             required={field.required}
-                                                            className="w-full px-4 py-4 bg-white border border-slate-200 rounded-xl focus:ring-4 focus:ring-[#0F7B4D]/5 focus:border-[#0F7B4D] transition-all outline-none font-bold text-slate-900 appearance-none cursor-pointer"
+                                                            className="w-full h-9 rounded-sm border border-slate-300 bg-white px-2 text-[13px] font-medium text-slate-900 outline-none focus:border-blue-700 focus:ring-0 cursor-pointer shadow-none appearance-none"
                                                             value={formValues[fieldName] || ""}
                                                             onChange={(e) => handleInputChange(fieldName, e.target.value)}
                                                         >
-                                                            <option value="">Select option...</option>
+                                                            <option value="">SELECT</option>
                                                             {field.options && field.options.map((opt, oIdx) => (
                                                                 <option key={oIdx} value={opt}>{opt}</option>
                                                             ))}
                                                         </select>
-                                                        <div className="absolute right-4 top-[3.25rem] pointer-events-none text-slate-400">
-                                                            <ArrowRight size={18} className="rotate-90" />
-                                                        </div>
                                                     </div>
                                                 ) : field.type === "file" ? (
                                                     <FileUploadField
@@ -765,19 +898,16 @@ export default function RegistrationWizard() {
                                                         onChange={handleFileChange}
                                                     />
                                                 ) : field.type === "checkbox" ? (
-                                                    <label className="flex items-start gap-4 p-6 bg-slate-50 border border-slate-200 rounded-2xl cursor-pointer group hover:border-[#0F7B4D]/30 transition-all">
+                                                    <div className="flex items-center gap-2 p-1 pt-3">
                                                         <input
                                                             type="checkbox"
                                                             required={field.required}
                                                             checked={formValues[fieldName] || false}
                                                             onChange={(e) => handleInputChange(fieldName, e.target.checked)}
-                                                            className="mt-1 w-6 h-6 rounded-lg border-slate-300 text-[#0F7B4D] focus:ring-[#0F7B4D] transition-all"
+                                                            className="h-4 w-4 rounded-sm border-slate-400 text-blue-700 focus:ring-0"
                                                         />
-                                                        <div className="flex flex-col">
-                                                            <span className="font-bold text-slate-900 leading-tight">{field.label}</span>
-                                                            <span className="text-xs text-slate-500 mt-1">By checking this, you agree to our standard operating procedures.</span>
-                                                        </div>
-                                                    </label>
+                                                        <span className="text-[11px] font-bold text-slate-700 uppercase tracking-tight">{field.label}</span>
+                                                    </div>
                                                 ) : null}
                                             </div>
                                         )
@@ -785,39 +915,30 @@ export default function RegistrationWizard() {
                                 </div>
                             </div>
                         ) : (
-                            <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                            <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
                                 {sections.map((section, sIdx) => (
-                                    <div key={sIdx} className="space-y-6">
-                                        <div className="flex items-center justify-between border-b border-slate-100 pb-4">
-                                            <h3 className="text-xl font-black text-[#0F7B4D] tracking-tight truncate mr-4">{section.sectionTitle}</h3>
-                                            <button
-                                                onClick={() => {
-                                                    setCurrentStep(sIdx);
-                                                    setIsReviewStep(false);
-                                                }}
-                                                className="flex items-center gap-2 text-xs font-black text-slate-400 hover:text-[#0F7B4D] transition-colors uppercase tracking-widest"
-                                            >
-                                                <Edit2 size={12} /> Edit
-                                            </button>
+                                    <div key={sIdx} className="border-b last:border-0 border-slate-200 pb-8 last:pb-0">
+                                        <div className="flex items-center gap-3 mb-4">
+                                            <div className="flex h-6 w-6 items-center justify-center rounded-sm bg-slate-200 text-slate-700 font-bold text-[10px] border border-slate-300">
+                                                {sIdx + 1}
+                                            </div>
+                                            <h3 className="text-sm font-bold text-slate-800 uppercase tracking-tight">{section.sectionTitle}</h3>
                                         </div>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-12">
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                             {section.fields.map((field, fIdx) => {
                                                 const fieldName = field.name || field.fieldId;
                                                 const value = formValues[fieldName];
-                                                const file = files[fieldName];
 
                                                 return (
-                                                    <div key={fIdx} className="space-y-1">
-                                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{field.label}</p>
-                                                        {field.type === 'file' ? (
-                                                            <div className="flex items-center gap-2 text-sm font-bold text-[#0F7B4D]">
+                                                    <div key={fIdx} className="p-3 border border-slate-300 bg-white">
+                                                        <p className="text-[10px] font-bold uppercase tracking-tight text-slate-500 mb-1">{field.label}</p>
+                                                        {field.type === "file" ? (
+                                                            <div className="flex items-center gap-2 text-blue-700 font-bold text-xs uppercase tracking-tight">
                                                                 <FileText size={14} />
-                                                                {file ? file.name : <span className="text-rose-400 uppercase tracking-widest text-[10px]">No Attachment</span>}
+                                                                <span>{files[fieldName] ? files[fieldName].name : "No file attached"}</span>
                                                             </div>
                                                         ) : (
-                                                            <p className="text-sm font-bold text-slate-900">
-                                                                {value ? (field.type === 'checkbox' ? (value ? "Checked / Agreed" : "Not Agreed") : value) : <span className="text-slate-300 italic font-medium">N/A</span>}
-                                                            </p>
+                                                            <p className="font-bold text-slate-900 text-sm uppercase tracking-tight break-words">{value === true ? "YES" : value === false ? "NO" : (value ? value.toString() : "-")}</p>
                                                         )}
                                                     </div>
                                                 );
@@ -826,63 +947,60 @@ export default function RegistrationWizard() {
                                     </div>
                                 ))}
 
-                                <div className="p-8 bg-emerald-50 rounded-[2rem] border border-emerald-100 space-y-4">
-                                    <div className="flex items-center gap-4 text-[#0F7B4D]">
-                                        <ShieldCheck size={28} />
-                                        <h4 className="text-lg font-black tracking-tight">Final Declaration</h4>
+                                <div className="col-span-full mt-6 p-4 border border-blue-200 bg-blue-50/30 rounded-sm">
+                                    <div className="flex items-start gap-4">
+                                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-sm bg-blue-700 text-white shadow-sm">
+                                            <ShieldCheck size={20} strokeWidth={2.5} />
+                                        </div>
+                                        <div className="flex-1">
+                                            <h4 className="text-[11px] font-black text-blue-900 tracking-wider uppercase mb-1 flex items-center gap-2">
+                                                Official Declaration of Accuracy
+                                            </h4>
+                                            <p className="text-[10px] font-bold text-blue-800/70 leading-relaxed uppercase tracking-tight mb-4 max-w-3xl">
+                                                I hereby certify that the information provided in this registration dossier is true, complete, and accurate. I understand that any deliberate omissions or falsifications may result in disqualification.
+                                            </p>
+                                            <label className="inline-flex items-center gap-3 cursor-pointer group bg-white border border-blue-200 px-4 py-2 hover:bg-blue-50 transition-colors">
+                                                <input type="checkbox" required className="h-4 w-4 rounded-sm border-blue-400 text-blue-700 focus:ring-0 cursor-pointer" />
+                                                <span className="text-[11px] font-black text-blue-900 uppercase tracking-widest">Acknowledge & Verify Registry</span>
+                                            </label>
+                                        </div>
                                     </div>
-                                    <p className="text-sm text-emerald-800 font-medium leading-relaxed">
-                                        I hereby certify that the information provided in this registration dossier is true, complete, and accurate to the best of my knowledge. I understand that any deliberate omissions or falsifications may result in disqualification from the procurement registry.
-                                    </p>
-                                    <label className="flex items-center gap-4 mt-8 pt-4 border-t border-emerald-100 cursor-pointer">
-                                        <input type="checkbox" required className="w-6 h-6 rounded-lg text-[#0F7B4D] ring-[#0F7B4D]/20" />
-                                        <span className="font-bold text-[#0F7B4D] text-sm italic">Acknowledged and Verified</span>
-                                    </label>
                                 </div>
                             </div>
                         )}
 
                         {/* Navigation Buttons */}
-                        <div className="flex items-center justify-between mt-16 pt-10 border-t border-slate-100 gap-6">
+                        <div className="flex items-center justify-between mt-8 pt-8 border-t border-slate-300 gap-4">
                             <button
                                 onClick={prevStep}
                                 disabled={currentStep === 0 && !isReviewStep}
                                 className={`
-                                    flex items-center gap-3 font-black text-[10px] uppercase tracking-[0.2em] px-8 py-5 rounded-2xl transition-all
-                                    ${(currentStep === 0 && !isReviewStep) ? 'opacity-30 cursor-not-allowed text-slate-400' : 'bg-white border-2 border-slate-200 text-slate-600 hover:border-[#0F7B4D] hover:text-[#0F7B4D] shadow-sm'}
+                                    flex items-center gap-2 font-bold text-[11px] uppercase tracking-wider px-6 py-3 rounded-sm transition-colors border
+                                    ${(currentStep === 0 && !isReviewStep) ? 'opacity-30 cursor-not-allowed text-slate-400 border-slate-200 bg-slate-50' : 'bg-white border-slate-300 text-slate-700 hover:bg-slate-50 active:bg-slate-100'}
                                 `}
                             >
-                                <ArrowLeft size={16} strokeWidth={3} />
+                                <ArrowLeft size={16} />
                                 Back
                             </button>
 
-                            <div className="flex-1 flex justify-end gap-4">
-                                <button
-                                    onClick={() => toast.success("Draft saved to secure cloud")}
-                                    className="hidden md:flex items-center gap-3 font-black text-[10px] uppercase tracking-[0.2em] px-8 py-5 rounded-2xl text-[#0F7B4D] border-2 border-transparent hover:bg-emerald-50 transition-all"
-                                >
-                                    Save Draft
-                                </button>
-                                <button
-                                    onClick={nextStep}
-                                    disabled={submitting}
-                                    className="flex-1 md:flex-none flex items-center justify-center gap-3 font-black text-[10px] uppercase tracking-[0.2em] px-12 py-5 bg-[#0F7B4D] text-white rounded-2xl shadow-xl shadow-[#0F7B4D]/20 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50"
-                                >
-                                    {submitting ? "Transmitting..." : isReviewStep ? "Finalize & Submit" : currentStep === sections.length - 1 ? "Review Details" : "Next Segment"}
-                                    {!submitting && <ArrowRight size={16} strokeWidth={3} />}
-                                </button>
-                            </div>
+                            <button
+                                onClick={nextStep}
+                                disabled={submitting}
+                                className="flex-1 max-w-[240px] flex items-center justify-center gap-2 rounded-sm bg-blue-700 px-8 py-3 text-[11px] font-bold uppercase tracking-wider text-white shadow-none hover:bg-blue-800 active:bg-blue-900 disabled:opacity-50"
+                            >
+                                {submitting ? "Processing..." : isReviewStep ? "Finalize Submission" : currentStep === sections.length - 1 ? "Review Entry" : "Continue Phase"}
+                                {!submitting && <ArrowRight size={16} />}
+                            </button>
                         </div>
-
                     </div>
 
                     {/* Footer Progress Bar for Mobile */}
                     <div className="lg:hidden mt-8 grid grid-cols-5 gap-2 px-2">
                         {[0, 1, 2, 3, 4].map(i => (
-                            <div key={i} className={`h-1.5 rounded-full transition-all duration-500 ${i <= activeMajorStep ? 'bg-[#0F7B4D]' : 'bg-slate-200'}`}></div>
+                            <div key={i} className={`h-1 rounded-sm transition-all duration-500 ${i <= activeMajorStep ? 'bg-blue-700' : 'bg-slate-200'}`}></div>
                         ))}
                     </div>
-
+                </div>
                 </div>
             </main>
         </div>

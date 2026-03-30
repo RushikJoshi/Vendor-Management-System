@@ -2,6 +2,7 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const AppError = require("../utils/AppError");
 const asyncHandler = require("../utils/asyncHandler");
+const { normalizeRole } = require("../config/roles");
 
 /**
  * Middleware to protect routes - Verify JWT and attach user to request
@@ -51,8 +52,9 @@ exports.protect = asyncHandler(async (req, res, next) => {
 
     // 4) Fetch Role Details for dynamic RBAC
     const Role = require("../models/Role");
+    const normalizedRole = normalizeRole(currentUser.role);
     const roleDetails = await Role.findOne({
-        name: currentUser.role,
+        name: normalizedRole,
         $or: [
             { tenantId: currentUser.tenantId },
             { tenantId: { $exists: false } }

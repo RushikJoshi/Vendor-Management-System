@@ -1,4 +1,5 @@
 const AppError = require("../utils/AppError");
+const { normalizeRole } = require("../config/roles");
 
 /**
  * Middleware to restrict access to specific roles
@@ -11,8 +12,8 @@ exports.authorizeRoles = (...roles) => {
             return next(new AppError("User context not established. Please login again.", 401));
         }
 
-        const userRole = req.user.role.toLowerCase();
-        const allowedRoles = roles.map(r => r.toLowerCase());
+        const userRole = normalizeRole(req.user.role);
+        const allowedRoles = roles.map((role) => normalizeRole(role));
 
         if (!allowedRoles.includes(userRole)) {
             return next(

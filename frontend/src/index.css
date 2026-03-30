@@ -7,6 +7,7 @@
 @layer base {
   html {
     scroll-behavior: smooth;
+    font-size: 67%; /* Scales all rem-based Tailwind classes to 67% */
   }
   body {
     @apply bg-gray-50 text-slate-900 font-sans antialiased selection:bg-indigo-100 selection:text-indigo-900 transition-colors duration-300;

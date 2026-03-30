@@ -13,6 +13,12 @@ export const ROLE_HIERARCHY = {
 export const ROLE_NORMALIZE_MAP = {
     "admin": "admin",
     "Admin": "admin",
+    "superadmin": "admin",
+    "Super Admin": "admin",
+    "system_admin": "admin",
+    "System Admin": "admin",
+    "company_admin": "admin",
+    "Company Admin": "admin",
     "hr": "hr",
     "HR": "hr",
     "Human Resources": "hr",

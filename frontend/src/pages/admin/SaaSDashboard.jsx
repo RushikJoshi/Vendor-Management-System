@@ -1,357 +1,494 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { 
-  Users, FileText, ShoppingCart, CreditCard, TrendingUp, TrendingDown,
-  Clock, CheckCircle, AlertCircle, MoreVertical, Plus, Search,
-  Filter, ArrowUpRight, ArrowDownRight, Calendar, Zap, ChevronRight,
-  ShieldCheck, Globe, Activity, Layers, Database, Lock, Terminal
-} from 'lucide-react';
-import { 
-  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  BarChart, Bar, Cell
-} from 'recharts';
-import { useNavigate } from 'react-router-dom';
-import api from '../../services/api';
-import StatCard from '../../components/vms/StatCard';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useEffect, useState } from "react";
+import {
+  Users,
+  FileText,
+  TrendingUp,
+  Clock,
+  Plus,
+  Filter,
+  Calendar,
+  ChevronRight,
+  Globe,
+  Activity,
+  Terminal,
+  ArrowRight,
+  CircleDollarSign,
+  Building2,
+  ShieldCheck,
+  BriefcaseBusiness,
+  ShieldAlert,
+  BarChart3,
+  CheckCircle2,
+  PieChart,
+} from "lucide-react";
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  Cell,
+} from "recharts";
+import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 
-const SaaSDashboard = () => {
+import api from '../../services/api';
+
+const defaultSpendData = [
+  { name: "Jan", value: 4000 },
+  { name: "Feb", value: 3000 },
+  { name: "Mar", value: 5000 },
+  { name: "Apr", value: 4500 },
+  { name: "May", value: 6000 },
+  { name: "Jun", value: 5500 },
+];
+
+const categoryData = [
+  { name: "Engineering", value: 45, color: "#0f172a" },
+  { name: "Infrastructure", value: 30, color: "#2563eb" },
+  { name: "Operations", value: 25, color: "#f59e0b" },
+];
+
+const activityFeed = [
+  {
+    title: "Strategic sourcing cycle reopened for infrastructure vendors",
+    dept: "Operations",
+    date: "24 Mar",
+    status: "Open",
+  },
+  {
+    title: "Compliance review queue needs final approval from leadership",
+    dept: "Risk",
+    date: "22 Mar",
+    status: "Pending",
+  },
+  {
+    title: "Renewal shortlist prepared for logistics contracts",
+    dept: "Contracts",
+    date: "20 Mar",
+    status: "Ready",
+  },
+];
+
+const queueData = [
+  { name: "NexGen Global Logistics", category: "Logistics", age: "2 hours ago", initials: "NL" },
+  { name: "TerraBuild Infrastructures", category: "Construction", age: "5 hours ago", initials: "TB" },
+];
+
+export default function SaaSDashboard() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState({
-    totalVendors: { value: 124, trend: '+12%', isPositive: true },
-    openRFQs: { value: 45, trend: '+5%', isPositive: true },
-    pendingPOs: { value: 12, trend: '-2%', isPositive: false },
-    totalSpent: { value: '$84,200', trend: '+18%', isPositive: true }
+  const [data, setData] = useState({
+    activeVendors: 124,
+    spendWindow: "$84.2K",
+    complianceScore: "92%",
+    totalVendors: { value: 124, trend: "+12.4%", positive: true },
+    openRFQs: { value: 45, trend: "+5.2%", positive: true },
+    totalSpent: { value: "$84,200", trend: "+18.9%", positive: true },
+    pendingPOs: { value: 12, trend: "-2.4%", positive: false },
+    spendData: defaultSpendData
   });
 
-  const chartData = [
-    { name: 'JAN', value: 4000 },
-    { name: 'FEB', value: 3000 },
-    { name: 'MAR', value: 5000 },
-    { name: 'APR', value: 4500 },
-    { name: 'MAY', value: 6000 },
-    { name: 'JUN', value: 5500 },
-  ];
+  const fetchDashboardData = async () => {
+    try {
+      const res = await api.get('/dashboard/vendor-stats');
+      if (res.data?.data) {
+        const d = res.data.data;
+        const active = d.activeVendors || 0;
+        const avgRating = d.averageRating || 4.6;
+        const compliance = Math.round((avgRating / 5) * 100);
 
-  const departmentData = [
-    { name: 'ENGINEERING', value: 45, color: '#0F172A' },
-    { name: 'INFRASTRUCTURE', value: 30, color: '#334155' },
-    { name: 'OPERATIONS', value: 25, color: '#64748B' },
-  ];
+        setData(prev => ({
+          ...prev,
+          activeVendors: active,
+          complianceScore: `${compliance}%`,
+          spendWindow: `$${(d.totalPendingPayments / 1000).toFixed(1)}K`,
+          totalVendors: { ...prev.totalVendors, value: d.totalVendors || 0 },
+          totalSpent: { ...prev.totalSpent, value: `$${(d.totalOrders || 0).toLocaleString()}` },
+          spendData: d.monthlyVendorStats?.length > 0 ? d.monthlyVendorStats.map(item => ({
+            name: item.month,
+            value: item.count,
+          })) : prev.spendData
+        }));
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-        setLoading(false);
-    }, 1000);
-    return () => clearTimeout(timer);
+    fetchDashboardData();
   }, []);
-
-  const Badge = ({ children, status }) => {
-    const styles = {
-      high: "bg-rose-50 text-rose-600 border-rose-100",
-      medium: "bg-amber-50 text-amber-600 border-amber-100",
-      low: "bg-emerald-50 text-emerald-600 border-emerald-100",
-      open: "bg-slate-900 text-white border-slate-900",
-      pending: "bg-slate-100 text-slate-500 border-slate-200",
-      closed: "bg-slate-50 text-slate-300 border-slate-100"
-    };
-
-    return (
-      <span className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-[0.2em] border shadow-sm ${styles[status]}`}>
-        {children}
-      </span>
-    );
-  };
 
   if (loading) {
     return (
-      <div className="p-10 space-y-12 animate-pulse bg-white min-h-screen">
-        <div className="h-20 bg-slate-50 rounded-[2.5rem] w-1/3"></div>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          {[1,2,3,4].map(i => <div key={i} className="h-40 bg-slate-50 rounded-[2.5rem]"></div>)}
+      <div className="space-y-6">
+        <div className="h-64 rounded-[1.6rem] bg-white" />
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="h-36 rounded-[1.4rem] bg-white" />
+          ))}
         </div>
-        <div className="grid grid-cols-3 gap-8">
-            <div className="col-span-2 h-[500px] bg-slate-50 rounded-[3.5rem]"></div>
-            <div className="h-[500px] bg-slate-50 rounded-[3.5rem]"></div>
+        <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1.25fr_0.75fr]">
+          <div className="h-[420px] rounded-[1.6rem] bg-white" />
+          <div className="h-[420px] rounded-[1.6rem] bg-white" />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-12 fade-in pb-20">
-      {/* ── BREADCRUMB & HEADER ─────────────────────────────────────────── */}
-      <header className="flex flex-col xl:flex-row justify-between items-start xl:items-end gap-10 border-b border-slate-200 pb-12 relative overflow-hidden">
-          <div className="space-y-6 relative z-10">
-              <div className="flex items-center gap-2">
-                  <span className="bg-slate-900 text-white px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-[0.2em]">Operational Intel</span>
-                  <div className="h-1 w-6 bg-slate-200 rounded-full"></div>
-                  <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Global Node Overview</span>
+    <div className="space-y-3 pb-10">
+      <section className="overflow-hidden rounded-2xl border border-slate-200/60 bg-white shadow-sm">
+        <div className="grid gap-0 xl:grid-cols-[1.2fr_0.8fr]">
+          <div className="border-b border-slate-100 p-5 xl:border-b-0 xl:border-r xl:p-6">
+            <div className="mb-6 flex flex-wrap items-center gap-3">
+              <span className="flex items-center gap-2 rounded-full bg-indigo-50/80 border border-indigo-100 px-4 py-1.5 text-[10.5px] font-bold uppercase tracking-[0.15em] text-indigo-700 shadow-sm">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+                </span>
+                Executive dashboard
+              </span>
+              <span className="flex items-center gap-1.5 rounded-full bg-white border border-slate-200/80 shadow-sm px-4 py-1.5 text-[10px] font-semibold uppercase tracking-[0.15em] text-slate-600">
+                <Calendar size={12} className="text-slate-400" />
+                March overview
+              </span>
+            </div>
+
+            <div className="max-w-3xl">
+              <h1 className="text-4xl font-semibold leading-tight tracking-[-0.03em] text-slate-900 md:text-5xl">
+                Vendor Operations at a Glance.
+              </h1>
+              <p className="mt-4 max-w-2xl text-[16px] xl:text-[17px] leading-relaxed font-medium text-slate-500 tracking-wide">
+                Track Approvals, Sourcing Activity, Spend Movement, And Pending Actions From One Clean Executive View.
+              </p>
+            </div>
+
+            <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
+              <FeatureTile icon={Building2} label="Active Vendors" value={data.activeVendors} />
+              <FeatureTile icon={CircleDollarSign} label="Spend Window" value={data.spendWindow} />
+              <FeatureTile icon={ShieldCheck} label="Compliance Score" value={data.complianceScore} />
+            </div>
+          </div>
+
+          <div className="grid gap-3 p-5 xl:p-6 bg-slate-50/50">
+            <InfoPanel
+              icon={Activity}
+              title="Operational Health"
+              value="Stable"
+              note="Vendor onboarding, approvals, and workflow steps are running as expected."
+            />
+            <InfoPanel
+              icon={ShieldAlert}
+              title="Needs Attention"
+              value="02 items"
+              note="Pending approvals should be reviewed before end of day."
+            />
+            <div className="mt-3 flex flex-wrap items-center gap-3">
+              <button className="flex items-center gap-2 rounded-xl border border-slate-200/80 bg-white px-5 py-3 text-[11px] font-bold text-slate-700 shadow-sm transition-all hover:bg-slate-50">
+                <Filter size={16} />
+                Filter view
+              </button>
+              <button
+                onClick={() => navigate("/admin/rfq/create")}
+                className="flex items-center gap-2 rounded-xl bg-slate-900 px-5 py-3 text-[11px] font-bold text-white shadow-sm transition-all hover:bg-slate-800 active:scale-95"
+              >
+                <Plus size={16} />
+                Create RFQ
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
+        <StatCard label="Vendor Network" value={data.totalVendors.value} trend={data.totalVendors.trend} positive={data.totalVendors.positive} icon={Users} />
+        <StatCard label="Open RFQs" value={data.openRFQs.value} trend={data.openRFQs.trend} positive={data.openRFQs.positive} icon={FileText} />
+        <StatCard label="Spend Movement" value={data.totalSpent.value} trend={data.totalSpent.trend} positive={data.totalSpent.positive} icon={TrendingUp} />
+        <StatCard label="Pending POs" value={data.pendingPOs.value} trend={data.pendingPOs.trend} positive={data.pendingPOs.positive} icon={Clock} />
+      </div>
+
+      <div className="grid grid-cols-1 gap-3 xl:grid-cols-[1.55fr_0.75fr]">
+        <section className="overflow-hidden rounded-2xl border border-slate-200/60 bg-white shadow-sm">
+          <div className="flex items-center justify-between border-b border-slate-100 p-4 xl:p-5">
+            <div className="flex items-center gap-4">
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600">
+                <BarChart3 size={18} />
               </div>
               <div>
-                  <h1 className="text-5xl font-black text-slate-900 tracking-[-0.05em] uppercase leading-none mb-4">Command Center</h1>
-                  <p className="text-sm font-medium text-slate-500 max-w-xl italic border-l-4 border-slate-900/10 pl-6">Real-time procurement landscape. Synchronizing vendor pipelines, capital velocity, and structural risk across all operational sectors.</p>
+                <h2 className="text-base font-semibold text-slate-900">Procurement Trend</h2>
+                <p className="mt-1 text-[12px] text-slate-500">Six month sourcing movement</p>
               </div>
+            </div>
+            <div className="flex h-10 items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-[11px] text-slate-600">
+              <Calendar size={12} />
+              FY 2024-25
+            </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-4 relative z-10">
-            <button className="flex items-center gap-4 bg-white border border-slate-100 text-slate-400 px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] hover:text-slate-900 hover:border-slate-900 transition-all shadow-subtle active:scale-95">
-              <Filter size={18} /> Analysis Filter
-            </button>
-            <button 
-                onClick={() => navigate('/admin/rfq/create')}
-                className="flex items-center gap-4 bg-slate-900 text-white px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] hover:bg-slate-800 transition-all shadow-xl shadow-slate-200 active:scale-95"
-            >
-              <Plus size={18} /> Initiate RFQ Protocol
-            </button>
-          </div>
-      </header>
-
-      {/* ── METRIC SNAPSHOTS ────────────────────────────────────────────── */ }
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8">
-        <MetricCard label="Registry Density" value={stats.totalVendors.value} trend="+12.4%" trendIsPos={true} icon={Users} />
-        <MetricCard label="Active Protocols" value={stats.openRFQs.value} trend="+5.2%" trendIsPos={true} icon={FileText} />
-        <MetricCard label="Capital Velocity" value={stats.totalSpent.value} trend="+18.9%" trendIsPos={true} icon={TrendingUp} />
-        <MetricCard label="Queue Latency" value={stats.pendingPOs.value} trend="-2.4%" trendIsPos={false} icon={Clock} />
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* ── PRIMARY ANALYTICS ─────────────────────────────────────────── */ }
-        <div className="lg:col-span-2 bg-white rounded-[3.5rem] border border-slate-100 shadow-premium overflow-hidden flex flex-col">
-            <div className="p-10 border-b border-slate-50 flex items-center justify-between bg-slate-50/50">
-                <div className="flex items-center gap-4 font-black">
-                     <div className="w-1.5 h-6 bg-slate-900 rounded-full"></div>
-                     <div>
-                        <h2 className="text-xs uppercase tracking-[0.2em] text-slate-900">Procurement Drift</h2>
-                        <p className="text-[9px] text-slate-400 uppercase tracking-widest mt-1">6-Month Capital Flow Registry</p>
-                     </div>
-                </div>
-                <div className="flex items-center gap-4">
-                     <div className="h-10 px-4 bg-white border border-slate-100 rounded-xl flex items-center gap-2 text-[9px] font-black text-slate-400 uppercase tracking-widest shadow-inner">
-                         <Calendar size={12} /> FY 2024-25
-                     </div>
-                </div>
-            </div>
-            
-            <div className="p-10 h-[450px] relative">
-                <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                        <defs>
-                            <linearGradient id="driftGradient" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor="#0F172A" stopOpacity={0.08}/>
-                                <stop offset="95%" stopColor="#0F172A" stopOpacity={0}/>
-                            </linearGradient>
-                        </defs>
-                        <CartesianGrid strokeDasharray="10 10" vertical={false} stroke="#F1F5F9" />
-                        <XAxis 
-                            dataKey="name" 
-                            axisLine={false} 
-                            tickLine={false} 
-                            tick={{fill: '#94A3B8', fontSize: 10, fontWeight: 900}} 
-                            dy={20}
-                        />
-                        <YAxis 
-                            axisLine={false} 
-                            tickLine={false} 
-                            tick={{fill: '#94A3B8', fontSize: 10, fontWeight: 900}} 
-                        />
-                        <Tooltip 
-                            cursor={{ stroke: '#0F172A', strokeWidth: 1, strokeDasharray: '4 4' }}
-                            contentStyle={{ borderRadius: '24px', border: 'none', boxShadow: '0 40px 100px -30px rgba(0,0,0,0.15)', fontSize: '10px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em' }} 
-                        />
-                        <Area 
-                            type="monotone" 
-                            dataKey="value" 
-                            stroke="#0F172A" 
-                            strokeWidth={4} 
-                            fill="url(#driftGradient)" 
-                            activeDot={{ r: 8, fill: '#0F172A', stroke: '#fff', strokeWidth: 4 }} 
-                        />
-                    </AreaChart>
-                </ResponsiveContainer>
-            </div>
-        </div>
-
-        {/* ── COMPONENT SPLIT ──────────────────────────────────────────── */ }
-        <div className="bg-white rounded-[3.5rem] border border-slate-100 shadow-premium overflow-hidden flex flex-col">
-             <div className="p-10 border-b border-slate-50 bg-slate-50/50 font-black">
-                <h2 className="text-xs uppercase tracking-[0.2em] text-slate-900">Portfolio Diversity</h2>
-                <p className="text-[9px] text-slate-400 uppercase tracking-widest mt-1">Sector Allocation Matrix</p>
-             </div>
-
-             <div className="flex-1 p-10 flex flex-col">
-                <div className="h-[220px] mb-10">
-                    <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={departmentData}>
-                            <XAxis dataKey="name" hide />
-                            <Tooltip cursor={{fill: 'transparent'}} contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 20px 50px -10px rgba(0,0,0,0.1)', fontSize: '10px', fontWeight: 900 }} />
-                            <Bar dataKey="value" radius={[12, 12, 12, 12]} barSize={50}>
-                                {departmentData.map((entry, index) => (
-                                    <Cell key={`cell-${index}`} fill={entry.color} />
-                                ))}
-                            </Bar>
-                        </BarChart>
-                    </ResponsiveContainer>
-                </div>
-
-                <div className="space-y-6">
-                    {departmentData.map((dept, i) => (
-                        <div key={i} className="flex items-center justify-between group cursor-pointer">
-                            <div className="flex items-center gap-4">
-                                <div className="w-12 h-2 rounded-full overflow-hidden bg-slate-50 border border-slate-100 relative shadow-inner">
-                                    <div className="absolute top-0 left-0 h-full transition-all duration-1000" style={{backgroundColor: dept.color, width: `${dept.value}%`}}></div>
-                                </div>
-                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest group-hover:text-slate-900 transition-colors uppercase">{dept.name}</span>
-                            </div>
-                            <span className="text-[10px] font-black text-slate-900 tracking-tighter shadow-subtle px-3 py-1 bg-slate-50 border border-slate-100 rounded-lg">{dept.value}%</span>
-                        </div>
-                    ))}
-                </div>
-
-                <div className="mt-auto pt-10 border-t border-slate-50">
-                    <button className="w-full flex items-center justify-between p-6 bg-slate-900 text-white rounded-[2rem] shadow-xl hover:bg-slate-800 transition-all active:scale-[0.98] group">
-                        <span className="text-[10px] font-black uppercase tracking-[0.2em]">Detailed Ledger</span>
-                        <ChevronRight size={18} className="group-hover:translate-x-2 transition-transform" />
-                    </button>
-                </div>
-             </div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* ── LIVE OPERATIONS ──────────────────────────────────────────── */ }
-        <div className="bg-white rounded-[3.5rem] border border-slate-100 shadow-premium overflow-hidden">
-            <div className="p-10 border-b border-slate-50 flex items-center justify-between bg-slate-50/50">
-                <div className="flex items-center gap-4">
-                     <div className="w-12 h-12 rounded-2xl bg-white border border-slate-100 flex items-center justify-center text-slate-900 shadow-xl">
-                        <Terminal size={20} />
-                     </div>
-                     <h2 className="text-xs font-black uppercase tracking-[0.2em] text-slate-900">Operational Log</h2>
-                </div>
-                <button className="text-[9px] font-black text-slate-400 uppercase tracking-widest hover:text-slate-900 transition-colors border-b-2 border-slate-100 hover:border-slate-900 pb-1 italic">Archive Access</button>
-            </div>
-            
-            <div className="p-8 space-y-4">
-                {[
-                  { title: 'Cluster Infrastructure Upgrade', dept: 'System_Arch', priority: 'high', status: 'open', date: 'TRANS_24.03' },
-                  { title: 'Global Registry Maintenance', dept: 'Reg_Logic', priority: 'medium', status: 'pending', date: 'TRANS_22.03' },
-                  { title: 'Operational Asset Procurement', dept: 'Proc_Ops', priority: 'low', status: 'open', date: 'TRANS_20.03' },
-                ].map((rfq, i) => (
-                  <motion.div 
-                    key={i} 
-                    whileHover={{ x: 10, backgroundColor: '#FDFDFD' }}
-                    className="flex items-center justify-between p-6 bg-white border border-slate-50 rounded-[2rem] hover:border-slate-300 hover:shadow-xl transition-all group relative active:scale-[0.99] cursor-pointer"
+          <div className="grid gap-3 p-4 xl:grid-cols-[1fr_16rem] xl:p-4">
+            <div className="h-[360px] rounded-[1.25rem] border border-slate-200/60 bg-white p-4 shadow-sm">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={data.spendData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }} barSize={34}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: "#64748b", fontSize: 11, fontWeight: 500 }} dy={10} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fill: "#64748b", fontSize: 11, fontWeight: 500 }} dx={-10} />
+                  <Tooltip
+                    cursor={{ fill: "#f1f5f9" }}
+                    contentStyle={{
+                      borderRadius: "8px",
+                      border: "1px solid #e2e8f0",
+                      boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1)",
+                      fontSize: "12px",
+                      fontWeight: 600,
+                      color: "#1e293b"
+                    }}
+                  />
+                  <Bar
+                    dataKey="value"
+                    radius={[2, 2, 0, 0]}
                   >
-                    <div className="flex items-center gap-6">
-                      <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-300 group-hover:text-slate-900 group-hover:shadow-inner transition-all border border-transparent group-hover:border-slate-100">
-                        <Zap size={20} />
-                      </div>
-                      <div>
-                        <p className="font-black text-slate-900 uppercase tracking-tighter leading-none mb-2">{rfq.title}</p>
-                        <div className="flex items-center gap-3">
-                          <span className="text-[8px] text-slate-400 font-black uppercase tracking-widest bg-slate-50 px-2 py-0.5 rounded-md border border-slate-100">{rfq.dept}</span>
-                          <span className="text-slate-200 text-xs font-black">/</span>
-                          <span className="text-[8px] text-slate-300 font-black flex items-center gap-1 uppercase tracking-widest italic group-hover:text-slate-500 transition-colors">
-                            {rfq.date}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <Badge status={rfq.priority}>{rfq.priority}</Badge>
-                      <div className="w-px h-6 bg-slate-100"></div>
-                      <Badge status={rfq.status}>{rfq.status}</Badge>
-                    </div>
-                  </motion.div>
-                ))}
+                    {data.spendData.map((entry, index) => {
+                      const CHART_COLORS = ["#475569", "#dc2626", "#16a34a", "#2563eb", "#a855f7", "#f59e0b"];
+                      return <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />;
+                    })}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
             </div>
-        </div>
 
-        {/* ── REGISTRATION QUEUE ────────────────────────────────────────── */ }
-        <div className="bg-white rounded-[3.5rem] border border-slate-100 shadow-premium overflow-hidden">
-            <div className="p-10 border-b border-slate-50 flex items-center justify-between bg-slate-50/50">
-                <div className="flex items-center gap-4">
-                     <div className="w-12 h-12 rounded-2xl bg-white border border-slate-100 flex items-center justify-center text-slate-900 shadow-xl">
-                        <Globe size={20} />
-                     </div>
-                     <h2 className="text-xs font-black uppercase tracking-[0.2em] text-slate-900">Registry Ingress</h2>
+            <div className="grid gap-3 self-start">
+              <InsightCard label="This Month" value="+18.9%" tone="text-emerald-600" />
+              <InsightCard label="Best Category" value="Infra" />
+              <InsightCard label="Cycle Average" value="11 days" />
+              <InsightCard label="Escalations" value="03" tone="text-rose-600" />
+            </div>
+          </div>
+        </section>
+
+        <section className="overflow-hidden rounded-2xl border border-slate-200/60 bg-white shadow-sm">
+          <div className="flex items-center gap-4 border-b border-slate-100 p-4 xl:p-5">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600">
+              <PieChart size={18} />
+            </div>
+            <div>
+              <h2 className="text-base font-semibold text-slate-900">Category Mix</h2>
+              <p className="mt-1 text-[12px] text-slate-500">Department allocation</p>
+            </div>
+          </div>
+
+          <div className="p-4 xl:p-5">
+            <div className="mb-8 h-[220px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={categoryData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                  <XAxis dataKey="name" hide />
+                  <YAxis hide />
+                  <Tooltip
+                    cursor={{ fill: "#f1f5f9" }}
+                    contentStyle={{
+                      borderRadius: "8px",
+                      border: "1px solid #e2e8f0",
+                      boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1)",
+                      fontSize: "12px",
+                      fontWeight: 600,
+                      color: "#1e293b"
+                    }}
+                  />
+                  <Bar dataKey="value" radius={[2, 2, 0, 0]} barSize={38}>
+                    {categoryData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="space-y-4">
+              {categoryData.map((item, i) => (
+                <div key={i} className="flex items-center justify-between rounded-xl border border-slate-200/60 bg-white px-4 py-3 shadow-sm transition-all hover:bg-slate-50 hover:shadow-md">
+                  <div className="flex items-center gap-4">
+                    <div className="relative h-2 w-14 overflow-hidden rounded-full bg-slate-100">
+                      <div className="absolute left-0 top-0 h-full" style={{ backgroundColor: item.color, width: `${item.value}%` }} />
+                    </div>
+                    <span className="text-[12px] font-medium text-slate-600">{item.name}</span>
+                  </div>
+                  <span className="text-[12px] font-semibold text-slate-900">{item.value}%</span>
                 </div>
-                <div className="bg-rose-50 border border-rose-100 text-rose-600 px-4 py-2 rounded-2xl text-[9px] font-black tracking-widest uppercase animate-pulse shadow-sm">2 Actions Pending</div>
+              ))}
             </div>
 
-            <div className="p-8 space-y-4">
-                {[
-                  { name: 'NexGen Global Logistics', applied: '02H_LATENCY', category: 'LOGISTICS', logo: 'NL' },
-                  { name: 'TerraBuild Infrastructures', applied: '05H_LATENCY', category: 'CONSTRUCTION', logo: 'TB' },
-                ].map((vendor, i) => (
-                  <div key={i} className="flex items-center justify-between p-6 bg-slate-50/30 border border-slate-100 rounded-[2rem] hover:bg-white hover:border-slate-300 hover:shadow-xl transition-all group active:scale-[0.99] cursor-pointer">
-                    <div className="flex items-center gap-6">
-                      <div className="w-14 h-14 bg-white border border-slate-200 shadow-sm rounded-2xl flex items-center justify-center font-black text-slate-900 text-lg tracking-tighter group-hover:shadow-xl transition-all relative overflow-hidden">
-                        {vendor.logo}
-                        <div className="absolute inset-0 bg-slate-900 opacity-0 group-hover:opacity-5 transition-opacity"></div>
-                      </div>
-                      <div>
-                        <p className="font-black text-slate-900 leading-none uppercase tracking-tighter mb-2 group-hover:text-emerald-700 transition-colors uppercase">{vendor.name}</p>
-                        <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest">{vendor.category} <span className="text-slate-200 mx-2">|</span> {vendor.applied}</p>
-                      </div>
+            <button className="mt-8 flex w-full items-center justify-between rounded-xl bg-slate-900 px-5 py-4 text-sm font-medium text-white transition hover:bg-slate-800">
+              Open detailed report
+              <ChevronRight size={18} />
+            </button>
+          </div>
+        </section>
+      </div>
+
+      <div className="grid grid-cols-1 gap-3 xl:grid-cols-[1.35fr_0.95fr]">
+        <section className="overflow-hidden rounded-2xl border border-slate-200/60 bg-white shadow-sm">
+          <div className="flex items-center justify-between border-b border-slate-100 p-4 xl:p-5">
+            <div className="flex items-center gap-4">
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-900">
+                <Terminal size={18} />
+              </div>
+              <h2 className="text-base font-semibold text-slate-900">Leadership Feed</h2>
+            </div>
+            <button className="text-sm font-medium text-slate-500 transition hover:text-slate-900">
+              View archive
+            </button>
+          </div>
+
+          <div className="space-y-3 p-4">
+            {activityFeed.map((item, i) => (
+              <motion.div
+                key={i}
+                whileHover={{ y: -2 }}
+                className="rounded-xl border border-slate-200/60 bg-white p-5 shadow-sm transition-all hover:shadow-md"
+              >
+                <div className="flex items-start justify-between gap-5">
+                  <div className="flex items-start gap-4">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-sky-50 text-sky-700">
+                      <Activity size={18} />
                     </div>
-                    <div className="flex gap-3">
-                      <button className="h-11 px-6 bg-slate-900 text-white rounded-2xl text-[9px] font-black uppercase tracking-widest hover:bg-slate-800 active:scale-95 transition-all shadow-xl shadow-slate-200">Verify</button>
-                      <button className="h-11 px-6 bg-white border border-slate-100 text-slate-400 rounded-2xl text-[9px] font-black uppercase tracking-widest hover:bg-rose-50 hover:text-rose-600 hover:border-rose-100 active:scale-95 transition-all">Defer</button>
+                    <div>
+                      <p className="text-[16px] font-medium leading-7 text-slate-900">{item.title}</p>
+                      <div className="mt-3 flex flex-wrap items-center gap-3">
+                        <span className="rounded-full bg-slate-100 px-3 py-1 text-[10px] font-medium text-slate-600">
+                          {item.dept}
+                        </span>
+                        <span className="text-[11px] text-slate-400">Updated {item.date}</span>
+                      </div>
                     </div>
                   </div>
-                ))}
-            </div>
-            
-            <div className="p-10 pt-0 mt-4 border-t border-slate-50/50">
-                <div className="py-10 text-center space-y-6">
-                    <p className="text-[10px] font-black text-slate-300 uppercase tracking-[0.4em] italic mb-6">Autonomous Security Mesh Active</p>
-                    <div className="flex justify-center -space-x-4">
-                        {[1,2,3,4,5].map(i => (
-                            <div key={i} className="w-12 h-12 rounded-full border-4 border-white bg-slate-100 shadow-xl overflow-hidden flex items-center justify-center text-[11px] font-black text-slate-400 uppercase">NODE_{i}</div>
-                        ))}
-                        <div className="w-12 h-12 rounded-full border-4 border-white bg-slate-900 flex items-center justify-center text-[10px] font-black text-white shadow-xl">+32</div>
-                    </div>
+                  <StatusPill status={item.status} />
                 </div>
+              </motion.div>
+            ))}
+          </div>
+        </section>
+
+        <div className="space-y-6">
+          <section className="overflow-hidden rounded-2xl border border-slate-200/60 bg-white shadow-sm">
+            <div className="flex items-center justify-between border-b border-slate-100 p-4 xl:p-5">
+              <div className="flex items-center gap-4">
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-900">
+                  <Globe size={18} />
+                </div>
+                <h2 className="text-base font-semibold text-slate-900">Approval Queue</h2>
+              </div>
+              <div className="rounded-xl bg-rose-50 px-3 py-2 text-[11px] font-medium text-rose-600">
+                2 actions pending
+              </div>
             </div>
+
+            <div className="space-y-3 p-4">
+              {queueData.map((vendor, i) => (
+                <div
+                  key={i}
+                  className="flex items-center justify-between rounded-xl border border-slate-200/60 bg-white p-5 shadow-sm transition-all hover:shadow-md"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 text-lg font-semibold text-slate-900">
+                      {vendor.initials}
+                    </div>
+                    <div>
+                      <p className="text-[16px] font-medium text-slate-900">{vendor.name}</p>
+                      <p className="mt-1 text-[12px] text-slate-400">
+                        {vendor.category} | {vendor.age}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex gap-3">
+                    <button className="rounded-xl bg-slate-900 px-4 py-2.5 text-[11px] font-medium text-white transition hover:bg-slate-800">
+                      Review
+                    </button>
+                    <button className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-[11px] font-medium text-slate-600 transition hover:bg-slate-50">
+                      Hold
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+
         </div>
       </div>
-
-      <style>{`
-          .shadow-premium {
-              box-shadow: 0 40px 100px -30px rgba(0, 0, 0, 0.08);
-          }
-          .shadow-subtle {
-              box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
-          }
-          .no-scrollbar::-webkit-scrollbar { display: none; }
-          .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-      `}</style>
     </div>
   );
-};
+}
 
-const MetricCard = ({ label, value, trend, trendIsPos, icon: Icon }) => (
-    <motion.div 
-        whileHover={{ y: -8, scale: 1.02 }}
-        className="bg-white rounded-[3.5rem] border border-slate-100 p-10 shadow-premium flex flex-col justify-between group transition-all duration-500 cursor-pointer overflow-hidden relative"
-    >
-        <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:scale-110 transition-transform duration-700 pointer-events-none">
-            <Icon size={120} strokeWidth={2.5} />
-        </div>
-        <div className="flex justify-between items-start mb-10 relative z-10">
-            <div className="w-16 h-16 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-center text-slate-900 group-hover:bg-slate-900 group-hover:text-white group-hover:shadow-2xl transition-all duration-500">
-                <Icon size={28} />
-            </div>
-            <div className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest border transition-all ${trendIsPos ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'}`}>
-                {trend}
-            </div>
-        </div>
-        <div className="relative z-10">
-            <h3 className="text-4xl font-black text-slate-900 tracking-tighter leading-none mb-3 group-hover:text-slate-900 transition-colors">{value}</h3>
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] leading-none mb-1 group-hover:text-slate-500 transition-colors uppercase">{label}</p>
-        </div>
-    </motion.div>
+const FeatureTile = ({ icon: Icon, label, value }) => (
+  <div className="rounded-xl border border-slate-200/60 bg-white/50 p-4 shadow-sm transition-all">
+    <div className="flex items-center gap-3">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 shadow-inner">
+        <Icon size={18} />
+      </div>
+      <div>
+        <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-500">{label}</p>
+        <p className="mt-1 text-lg font-semibold text-slate-900">{value}</p>
+      </div>
+    </div>
+  </div>
 );
 
-export default SaaSDashboard;
+const InfoPanel = ({ icon: Icon, title, value, note }) => (
+  <div className="group rounded-xl border border-slate-200/60 bg-white p-5 shadow-sm transition-all">
+    <div className="flex items-start gap-3">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-slate-50 text-slate-600 shadow-inner group-hover:bg-indigo-50 group-hover:text-indigo-600 transition-colors">
+        <Icon size={18} />
+      </div>
+      <div>
+        <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-500">{title}</p>
+        <p className="mt-1 text-lg font-semibold text-slate-900">{value}</p>
+        <p className="mt-2 text-[13px] leading-6 text-slate-500">{note}</p>
+      </div>
+    </div>
+  </div>
+);
+
+const StatCard = ({ label, value, trend, positive, icon: Icon }) => (
+  <motion.div
+    whileHover={{ y: -4 }}
+    className="overflow-hidden rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm transition-all hover:shadow-md"
+  >
+    <div className="mb-6 flex items-start justify-between">
+      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-slate-50 to-slate-100 border border-slate-100/80 text-slate-700 shadow-inner">
+        <Icon size={22} />
+      </div>
+      <span className={`px-3 py-1.5 rounded-full text-[10px] font-semibold ${positive ? "bg-emerald-50 text-emerald-600 border border-emerald-100/50" : "bg-rose-50 text-rose-600 border border-rose-100/50"}`}>
+        {trend}
+      </span>
+    </div>
+    <h3 className="text-4xl font-semibold tracking-tight text-slate-900">{value}</h3>
+    <p className="mt-2 text-[12px] font-semibold text-slate-500">{label}</p>
+  </motion.div>
+);
+
+const InsightCard = ({ label, value, tone = "text-slate-900" }) => (
+  <div className="rounded-xl border border-slate-200/60 bg-white px-4 py-3 shadow-sm transition-all hover:shadow-md">
+    <p className="text-[10px] font-medium uppercase tracking-[0.14em] text-slate-400">{label}</p>
+    <p className={`mt-2 text-lg font-semibold ${tone}`}>{value}</p>
+  </div>
+);
+
+const StatusPill = ({ status }) => {
+  const tone =
+    status === "Open"
+      ? "bg-slate-900 text-white"
+      : status === "Pending"
+        ? "bg-amber-50 text-amber-700"
+        : "bg-emerald-50 text-emerald-700";
+
+  return <span className={`px-3 py-1.5 text-[10px] font-medium ${tone}`}>{status}</span>;
+};
+

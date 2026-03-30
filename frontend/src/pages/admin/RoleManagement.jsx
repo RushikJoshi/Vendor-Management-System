@@ -1,423 +1,740 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  Shield, Plus, Search, Edit, Trash2, Lock, Unlock, 
-  CheckCircle2, XCircle, Settings2, AlertCircle, Save, X, 
-  ChevronRight, Layers, DollarSign, Briefcase, Activity, Globe, Terminal, User, ArrowUpRight, ShieldCheck
-} from 'lucide-react';
-import api from '../../services/api';
-import { toast } from 'react-hot-toast';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useEffect, useMemo, useState } from "react";
+import {
+  CheckCircle2,
+  Edit,
+  Layers,
+  LockKeyhole,
+  Plus,
+  Search,
+  Shield,
+  ShieldCheck,
+  Trash2,
+  X,
+} from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import { toast } from "react-hot-toast";
+
+import api from "../../services/api";
+
+const MODULES = [
+  "Dashboard",
+  "Vendors",
+  "Forms",
+  "Applications",
+  "Categories",
+  "Invitations",
+  "SLM",
+  "Contracts",
+  "RFQs",
+  "Quotations",
+  "Departments",
+  "Purchase Orders",
+  "Users",
+  "Roles",
+  "Audit Logs",
+  "Analytics",
+];
+
+const EMPTY_FORM = {
+  name: "",
+  description: "",
+  minLimit: 0,
+  maxLimit: 0,
+  accessibleModules: [],
+  permissions: [],
+};
+
+const formatCurrency = (value) =>
+  Number(value) > 0 ? `INR ${new Intl.NumberFormat("en-IN").format(Number(value))}` : "No limit";
+
+const formatCount = (value, singular, plural = `${singular}s`) =>
+  `${value} ${value === 1 ? singular : plural}`;
 
 const RoleManagement = () => {
-    const [roles, setRoles] = useState([]);
-    const [permissions, setPermissions] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedRole, setSelectedRole] = useState(null);
+  const [roles, setRoles] = useState([]);
+  const [permissions, setPermissions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedRole, setSelectedRole] = useState(null);
+  const [formData, setFormData] = useState(EMPTY_FORM);
 
-    const modules = [
-        "Dashboard", "Vendors", "Forms", "Applications", "Categories", 
-        "Invitations", "SLM", "Contracts", "RFQs", "Quotations", 
-        "Departments", "Purchase Orders", "Users", "Roles", "Audit Logs", "Analytics"
-    ];
+  const fetchRoles = async () => {
+    try {
+      setLoading(true);
+      const res = await api.get("/v1/roles");
+      if (res.data.success) {
+        setRoles(res.data.data);
+      }
+    } catch (error) {
+      toast.error("Failed to load roles");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    const [formData, setFormData] = useState({
-        name: '',
-        description: '',
-        minLimit: 0,
-        maxLimit: 0,
-        accessibleModules: [],
-        permissions: []
+  const fetchPermissions = async () => {
+    try {
+      const res = await api.get("/v1/roles/permissions");
+      if (res.data.success) {
+        setPermissions(res.data.data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch permissions");
+    }
+  };
+
+  useEffect(() => {
+    fetchRoles();
+    fetchPermissions();
+  }, []);
+
+  const resetForm = () => {
+    setSelectedRole(null);
+    setFormData(EMPTY_FORM);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    resetForm();
+  };
+
+  const handleOpenModal = (role = null) => {
+    if (role) {
+      setSelectedRole(role);
+      setFormData({
+        name: role.name,
+        description: role.description || "",
+        minLimit: role.minLimit || 0,
+        maxLimit: role.maxLimit || 0,
+        accessibleModules: role.accessibleModules || [],
+        permissions: role.permissions ? role.permissions.map((item) => item._id || item) : [],
+      });
+    } else {
+      resetForm();
+    }
+
+    setIsModalOpen(true);
+  };
+
+  const handleModuleToggle = (moduleName) => {
+    setFormData((prev) => {
+      const exists = prev.accessibleModules.includes(moduleName);
+      return {
+        ...prev,
+        accessibleModules: exists
+          ? prev.accessibleModules.filter((item) => item !== moduleName)
+          : [...prev.accessibleModules, moduleName],
+      };
+    });
+  };
+
+  const handlePermissionToggle = (permissionId) => {
+    setFormData((prev) => {
+      const exists = prev.permissions.includes(permissionId);
+      return {
+        ...prev,
+        permissions: exists
+          ? prev.permissions.filter((item) => item !== permissionId)
+          : [...prev.permissions, permissionId],
+      };
+    });
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    const toastId = toast.loading(selectedRole ? "Updating role..." : "Creating role...");
+
+    try {
+      let res;
+      if (selectedRole) {
+        res = await api.put(`/v1/roles/${selectedRole._id}`, formData);
+      } else {
+        res = await api.post("/v1/roles", formData);
+      }
+
+      if (res.data.success) {
+        toast.success(selectedRole ? "Role updated successfully" : "Role created successfully", {
+          id: toastId,
+        });
+        closeModal();
+        fetchRoles();
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to save role", {
+        id: toastId,
+      });
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this role?")) return;
+
+    try {
+      const res = await api.delete(`/v1/roles/${id}`);
+      if (res.data.success) {
+        toast.success("Role deleted successfully");
+        fetchRoles();
+      }
+    } catch (error) {
+      toast.error("Failed to delete role");
+    }
+  };
+
+  const filteredRoles = useMemo(() => {
+    const query = searchTerm.trim().toLowerCase();
+
+    return roles.filter((role) => {
+      if (!query) return true;
+
+      return (
+        role.name?.toLowerCase().includes(query) ||
+        role.description?.toLowerCase().includes(query) ||
+        role.accessibleModules?.some((item) => item.toLowerCase().includes(query))
+      );
+    });
+  }, [roles, searchTerm]);
+
+  const stats = useMemo(() => {
+    const activeModules = new Set();
+
+    roles.forEach((role) => {
+      (role.accessibleModules || []).forEach((moduleName) => activeModules.add(moduleName));
     });
 
-    const fetchRoles = async () => {
-        try {
-            setLoading(true);
-            const res = await api.get('/v1/roles');
-            if (res.data.success) {
-                setRoles(res.data.data);
-            }
-        } catch (err) {
-            toast.error('Authorization sync failure');
-        } finally {
-            setLoading(false);
-        }
+    return {
+      totalRoles: roles.length,
+      unrestrictedRoles: roles.filter((role) => !Number(role.maxLimit)).length,
+      permissionNodes: permissions.length,
+      moduleCoverage: activeModules.size,
     };
+  }, [roles, permissions]);
 
-    const fetchPermissions = async () => {
-        try {
-            const res = await api.get('/v1/roles/permissions');
-            if (res.data.success) {
-                setPermissions(res.data.data);
-            }
-        } catch (err) {
-            console.error('Failed to fetch permissions');
-        }
-    };
-
-    useEffect(() => {
-        fetchRoles();
-        fetchPermissions();
-    }, []);
-
-    const handleOpenModal = (role = null) => {
-        if (role) {
-            setSelectedRole(role);
-            setFormData({
-                name: role.name,
-                description: role.description || '',
-                minLimit: role.minLimit || 0,
-                maxLimit: role.maxLimit || 0,
-                accessibleModules: role.accessibleModules || [],
-                permissions: role.permissions ? role.permissions.map(p => p._id || p) : []
-            });
-        } else {
-            setSelectedRole(null);
-            setFormData({
-                name: '',
-                description: '',
-                minLimit: 0,
-                maxLimit: 0,
-                accessibleModules: [],
-                permissions: []
-            });
-        }
-        setIsModalOpen(true);
-    };
-
-    const handleModuleToggle = (module) => {
-        setFormData(prev => {
-            const current = [...prev.accessibleModules];
-            if (current.includes(module)) {
-                return { ...prev, accessibleModules: current.filter(m => m !== module) };
-            } else {
-                return { ...prev, accessibleModules: [...current, module] };
-            }
-        });
-    };
-
-    const handlePermissionToggle = (permId) => {
-        setFormData(prev => {
-            const current = [...prev.permissions];
-            if (current.includes(permId)) {
-                return { ...prev, permissions: current.filter(id => id !== permId) };
-            } else {
-                return { ...prev, permissions: [...current, permId] };
-            }
-        });
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        const toastId = toast.loading("Synthesizing Level Logic...");
-        try {
-            let res;
-            if (selectedRole) {
-                res = await api.put(`/v1/roles/${selectedRole._id}`, formData);
-            } else {
-                res = await api.post('/v1/roles', formData);
-            }
-
-            if (res.data.success) {
-                toast.success(selectedRole ? 'Level modified successfully' : 'Level activated successfully', { id: toastId });
-                setIsModalOpen(false);
-                fetchRoles();
-            }
-        } catch (err) {
-            toast.error(err.response?.data?.message || 'Logic commit failed', { id: toastId });
-        }
-    };
-
-    const handleDelete = async (id) => {
-        if (!window.confirm('Are you sure you want to delete this level? This will impact dependent entities.')) return;
-        try {
-            const res = await api.delete(`/v1/roles/${id}`);
-            if (res.data.success) {
-                toast.success('Level decommissioned');
-                fetchRoles();
-            }
-        } catch (err) {
-            toast.error('Decommission protocol failed');
-        }
-    };
-
-    const filteredRoles = roles.filter(role => 
-        role.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
-    return (
-        <div className="space-y-12 fade-in pb-20">
-            {/* ── BREADCRUMB & HEADER ─────────────────────────────────────────── */}
-            <header className="flex flex-col xl:flex-row justify-between items-start xl:items-end gap-10 border-b border-slate-200 pb-12">
-                <div className="space-y-6">
-                    <div className="flex items-center gap-2">
-                        <span className="bg-slate-900 text-white px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-[0.2em]">Governance Cluster</span>
-                        <div className="h-1 w-6 bg-slate-200 rounded-full"></div>
-                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Logic & RBAC Control</span>
-                    </div>
-                    <div>
-                        <h1 className="text-5xl font-black text-slate-900 tracking-[-0.05em] uppercase leading-none mb-4">Authorization</h1>
-                        <p className="text-sm font-medium text-slate-500 max-w-xl italic border-l-4 border-slate-900/10 pl-6">Deep-level access control terminal. Defining operational boundaries, approval range thresholds, and modular visibility.</p>
-                    </div>
-                </div>
-
-                <div className="flex flex-wrap items-center gap-4 relative z-10">
-                  <button 
-                    onClick={() => handleOpenModal()}
-                    className="flex items-center gap-4 bg-slate-900 text-white px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] hover:bg-slate-800 transition-all shadow-xl shadow-slate-200 active:scale-95"
-                  >
-                    <Plus size={18} /> New Access Level
-                  </button>
-                </div>
-            </header>
-
-            {/* ── ROLE DIRECTORY ──────────────────────────────────────────────── */}
-            <div className="bg-white rounded-[3.5rem] border border-slate-100 shadow-premium overflow-hidden">
-                <div className="p-10 border-b border-slate-50 flex flex-col md:flex-row md:items-center justify-between gap-10 bg-slate-50/50">
-                    <div className="relative w-full md:w-[450px]">
-                        <Search size={22} className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400" />
-                        <input
-                            type="text"
-                            placeholder="Find Operations Level (HR, Exec, Procure...)"
-                            className="w-full pl-16 pr-8 py-5 bg-white border border-slate-200 rounded-[2rem] text-sm font-bold text-slate-900 focus:ring-12 focus:ring-slate-50 focus:border-slate-900 outline-none transition-all shadow-inner placeholder-slate-300"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
-                    </div>
-
-                    <div className="flex items-center gap-6">
-                        <span className="text-[10px] font-black uppercase text-slate-300 tracking-[0.3em]">
-                          Registry Logic Nodes: {filteredRoles.length} levels
-                        </span>
-                    </div>
-                </div>
-
-                <div className="overflow-x-auto no-scrollbar">
-                    <table className="w-full">
-                        <thead>
-                            <tr className="bg-slate-50/20">
-                                <th className="px-10 py-6 text-left text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Operational Alias</th>
-                                <th className="px-10 py-6 text-left text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Valuation Boundaries</th>
-                                <th className="px-10 py-6 text-left text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Component Access</th>
-                                <th className="px-10 py-6 text-right text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Maintenance</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-50">
-                            {loading ? (
-                                [1,2,3].map(i => <tr key={i} className="animate-pulse h-24 bg-slate-50/10"><td colSpan="4"></td></tr>)
-                            ) : filteredRoles.map((role, idx) => (
-                                <motion.tr 
-                                    key={role._id} 
-                                    initial={{ opacity: 0, x: -10 }} 
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: idx * 0.03 }}
-                                    className="group hover:bg-[#FDFDFD] transition-all border-l-4 border-transparent hover:border-slate-900 cursor-pointer"
-                                >
-                                    <td className="px-10 py-8">
-                                        <div className="flex items-center gap-6">
-                                            <div className="w-14 h-14 rounded-2xl bg-white border border-slate-100 flex items-center justify-center text-slate-300 group-hover:text-slate-900 group-hover:shadow-xl transition-all shadow-inner relative overflow-hidden uppercase">
-                                                <span className="text-xl font-black">{role.name.charAt(0)}</span>
-                                                <div className="absolute inset-0 bg-slate-100 opacity-0 group-hover:opacity-10 transition-opacity"></div>
-                                            </div>
-                                            <div>
-                                                <p className="text-sm font-black text-slate-900 uppercase tracking-tighter leading-none mb-2">{role.name}</p>
-                                                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none max-w-xs line-clamp-1 italic">{role.description || 'Global operational access'}</p>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td className="px-10 py-8">
-                                        <div className="flex flex-col gap-2">
-                                            <div className="flex items-center gap-3 text-slate-900 font-black text-[10px] uppercase tracking-widest">
-                                                <div className="w-1 h-1 rounded-full bg-slate-900"></div>
-                                                MAX: {role.maxLimit ? `$${role.maxLimit.toLocaleString()}` : 'UNRESTRICTED'}
-                                            </div>
-                                            <div className="flex items-center gap-3 text-slate-300 font-bold text-[9px] uppercase tracking-widest">
-                                                <div className="w-1 h-1 rounded-full bg-slate-100"></div>
-                                                MIN: {role.minLimit ? `$${role.minLimit.toLocaleString()}` : '$0'}
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td className="px-10 py-8">
-                                        <div className="flex flex-wrap gap-2 max-w-xs">
-                                            {role.accessibleModules?.slice(0, 3).map(m => (
-                                                <span key={m} className="px-3 py-1 bg-white border border-slate-100 rounded-[10px] text-[8px] font-black text-slate-400 uppercase tracking-widest shadow-sm group-hover:border-slate-300 group-hover:text-slate-900 transition-all">{m}</span>
-                                            ))}
-                                            {role.accessibleModules?.length > 3 && (
-                                                <span className="px-3 py-1 bg-slate-900 text-white rounded-[10px] text-[8px] font-black uppercase tracking-widest shadow-xl">+{role.accessibleModules.length - 3}</span>
-                                            )}
-                                            {(!role.accessibleModules || role.accessibleModules.length === 0) && (
-                                                <span className="text-[9px] font-black text-slate-200 uppercase tracking-widest italic flex items-center gap-2">Full Registry Access <ShieldCheck size={10} /></span>
-                                            )}
-                                        </div>
-                                    </td>
-                                    <td className="px-10 py-8 text-right">
-                                        <div className="flex justify-end gap-3 transition-opacity">
-                                            <button 
-                                                onClick={() => handleOpenModal(role)}
-                                                className="p-3 bg-white text-slate-300 hover:text-slate-900 hover:border-slate-900 border border-slate-100 rounded-2xl shadow-sm hover:shadow-xl transition-all active:scale-95"
-                                            >
-                                                <Edit size={18} strokeWidth={2.5} />
-                                            </button>
-                                            <button 
-                                                onClick={() => handleDelete(role._id)}
-                                                className="p-3 bg-white text-slate-300 hover:text-rose-600 hover:border-rose-100 border border-slate-100 rounded-2xl shadow-sm hover:shadow-xl transition-all active:scale-95"
-                                            >
-                                                <Trash2 size={18} strokeWidth={2.5} />
-                                            </button>
-                                        </div>
-                                    </td>
-                                </motion.tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-
-                {!loading && filteredRoles.length === 0 && (
-                    <div className="py-40 flex flex-col items-center justify-center text-slate-400 grayscale opacity-40">
-                        <div className="w-20 h-20 bg-slate-50 rounded-[2rem] border-2 border-dashed border-slate-200 flex items-center justify-center mb-8">
-                            <Shield size={48} strokeWidth={1} />
-                        </div>
-                        <p className="font-black uppercase tracking-[0.3em] text-xs">No authorization levels defined</p>
-                    </div>
-                )}
+  return (
+    <div className="space-y-3 pb-10">
+      <section className="overflow-hidden rounded-2xl border border-slate-200/60 bg-white shadow-sm">
+        <div className="grid gap-0 xl:grid-cols-[1.2fr_0.8fr]">
+          <div className="border-b border-slate-100 p-5 xl:border-b-0 xl:border-r xl:p-6">
+            <div className="mb-5 flex flex-wrap gap-3">
+              <span className="rounded-full border border-indigo-100 bg-indigo-50/80 px-4 py-1.5 text-[10.5px] font-bold uppercase tracking-[0.15em] text-indigo-700 shadow-sm">
+                Access Levels
+              </span>
+              <span className="rounded-full border border-slate-200/80 bg-white px-4 py-1.5 text-[10px] font-semibold uppercase tracking-[0.15em] text-slate-600 shadow-sm">
+                Admin / Roles
+              </span>
             </div>
 
-            {/* ── MODIFICATION MODAL ─────────────────────────────────────────── */ }
-            <AnimatePresence>
-                {isModalOpen && (
-                    <div className="fixed inset-0 z-[1000] flex items-center justify-center p-8 bg-slate-900/60 backdrop-blur-md">
-                        <motion.div 
-                            initial={{ opacity: 0, scale: 0.9, y: 30 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.9, y: 30 }}
-                            className="bg-white w-full max-w-5xl max-h-[90vh] rounded-[3.5rem] shadow-2xl overflow-hidden flex flex-col relative"
-                        >
-                            <div className="absolute top-0 right-0 p-12 opacity-[0.03] pointer-events-none">
-                                <Lock size={200} />
-                            </div>
+            <h1 className="max-w-3xl text-4xl font-semibold leading-tight tracking-[-0.03em] text-slate-900 md:text-5xl">
+              Roles That Stay Clear, Readable, And Easy To Manage.
+            </h1>
+            <p className="mt-4 max-w-2xl text-[16px] font-medium leading-relaxed tracking-wide text-slate-500 xl:text-[17px]">
+              Keep Access Levels, Module Visibility, And Approval Ranges In One Dashboard-Friendly
+              Workspace Without Changing The Backend Flow.
+            </p>
 
-                            <div className="p-12 border-b border-slate-50 bg-slate-50/50 flex justify-between items-center">
-                                <div>
-                                    <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase mb-4">Level <span className="text-slate-400">Synthesis</span></h2>
-                                    <div className="flex items-center gap-2">
-                                         <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest italic">{selectedRole ? 'Modify Existing Logic' : 'Initialize New Access Node'}</span>
-                                    </div>
-                                </div>
-                                <button onClick={() => setIsModalOpen(false)} className="w-12 h-12 flex items-center justify-center bg-white rounded-2xl shadow-xl border border-slate-100 text-slate-400 hover:text-slate-900 transition-all active:scale-95">
-                                    <X size={28} />
-                                </button>
-                            </div>
+            <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
+              <HeroTile icon={Shield} label="Total Levels" value={stats.totalRoles} />
+              <HeroTile icon={Layers} label="Module Coverage" value={stats.moduleCoverage} />
+              <HeroTile
+                icon={LockKeyhole}
+                label="Permission Nodes"
+                value={stats.permissionNodes}
+              />
+            </div>
+          </div>
 
-                            <div className="flex-1 overflow-y-auto p-12 space-y-16 no-scrollbar">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                                    <div className="space-y-10">
-                                        <div className="space-y-3">
-                                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4 italic">Alias (Exec / Sales / HR)</label>
-                                            <input 
-                                                type="text"
-                                                placeholder="Enter Logic Node Alias..."
-                                                className="w-full px-8 py-5 bg-slate-50 border border-slate-100 rounded-[2rem] text-lg font-black text-slate-900 focus:bg-white focus:ring-12 focus:ring-slate-50 focus:border-slate-900 outline-none transition-all shadow-inner placeholder-slate-300 uppercase tracking-tighter"
-                                                value={formData.name}
-                                                onChange={(e) => setFormData({...formData, name: e.target.value})}
-                                            />
-                                        </div>
-                                        <div className="space-y-3">
-                                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4 italic">Operational Brief</label>
-                                            <textarea 
-                                                rows="3"
-                                                placeholder="Define operational boundaries..."
-                                                className="w-full px-8 py-5 bg-slate-50 border border-slate-100 rounded-[2rem] text-sm font-bold text-slate-900 focus:bg-white focus:ring-12 focus:ring-slate-50 focus:border-slate-900 outline-none transition-all shadow-inner placeholder-slate-300 italic"
-                                                value={formData.description}
-                                                onChange={(e) => setFormData({...formData, description: e.target.value})}
-                                            ></textarea>
-                                        </div>
-                                    </div>
-
-                                    <div className="bg-slate-50 rounded-[3rem] p-10 border border-slate-100 space-y-10 flex flex-col justify-center">
-                                        <div className="flex items-center gap-6">
-                                            <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-slate-900 shadow-xl border border-slate-50">
-                                                <DollarSign size={24} strokeWidth={3} />
-                                            </div>
-                                            <div className="flex-1">
-                                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block italic">Maximum Valuation Cap</label>
-                                                <input 
-                                                    type="number"
-                                                    className="w-full bg-transparent border-none p-0 text-3xl font-black text-slate-900 focus:ring-0 outline-none placeholder-slate-200"
-                                                    placeholder="0 = Full Range"
-                                                    value={formData.maxLimit}
-                                                    onChange={(e) => setFormData({...formData, maxLimit: parseInt(e.target.value) || 0})}
-                                                />
-                                            </div>
-                                        </div>
-                                        <div className="h-px bg-slate-200 ml-20"></div>
-                                        <div className="flex items-center gap-6 opacity-40">
-                                            <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-slate-400 border border-slate-50">
-                                                <ArrowDownRight size={24} strokeWidth={2.5} />
-                                            </div>
-                                            <div className="flex-1">
-                                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block italic">Minimum Level Trigger</label>
-                                                <input 
-                                                    type="number"
-                                                    className="w-full bg-transparent border-none p-0 text-xl font-black text-slate-400 focus:ring-0 outline-none"
-                                                    value={formData.minLimit}
-                                                    onChange={(e) => setFormData({...formData, minLimit: parseInt(e.target.value) || 0})}
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="space-y-8">
-                                    <div className="flex items-center justify-between">
-                                        <h3 className="text-xl font-black text-slate-900 uppercase tracking-tighter flex items-center gap-3">
-                                            <Layers className="text-slate-400" size={24} />
-                                            Component <span className="text-slate-400">Visibility</span>
-                                        </h3>
-                                        <span className="text-[9px] font-black text-slate-300 uppercase tracking-[0.4em]">Node Modular Access</span>
-                                    </div>
-                                    <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4">
-                                        {modules.map(module => (
-                                            <button
-                                                key={module}
-                                                type="button"
-                                                onClick={() => handleModuleToggle(module)}
-                                                className={`p-5 rounded-2xl text-[9px] font-black uppercase tracking-[0.1em] text-center transition-all duration-500 border-2 ${
-                                                    formData.accessibleModules.includes(module)
-                                                    ? 'bg-slate-900 text-white border-slate-900 shadow-2xl'
-                                                    : 'bg-white text-slate-300 border-slate-100 hover:border-slate-900 hover:text-slate-900'
-                                                }`}
-                                            >
-                                                {module}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="p-12 border-t border-slate-50 bg-slate-50/50 flex gap-6">
-                                <button 
-                                    onClick={handleSubmit}
-                                    type="button"
-                                    className="flex-1 py-6 bg-slate-900 text-white rounded-[2rem] font-black text-[10px] uppercase tracking-[0.3em] shadow-2xl hover:bg-slate-800 transition-all flex items-center justify-center gap-4 active:scale-95"
-                                >
-                                    <ShieldCheck size={18} /> {selectedRole ? 'Commit Logic Updates' : 'Activate Access Node'}
-                                </button>
-                            </div>
-                        </motion.div>
-                    </div>
-                )}
-            </AnimatePresence>
-
-            <style>{`
-                .shadow-premium {
-                    box-shadow: 0 40px 100px -30px rgba(0, 0, 0, 0.08);
-                }
-                .no-scrollbar::-webkit-scrollbar { display: none; }
-                .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-            `}</style>
+          <div className="grid gap-3 bg-slate-50/50 p-5 xl:p-6">
+            <QuickInfoCard
+              title="Open Access Levels"
+              value={formatCount(stats.unrestrictedRoles, "level")}
+              note="These roles do not currently use a maximum approval limit."
+            />
+            <QuickInfoCard
+              title="Filtered Results"
+              value={formatCount(filteredRoles.length, "role")}
+              note="Use search to quickly find a role by name, description, or module."
+            />
+            <div className="mt-3 flex flex-wrap gap-3">
+              <button
+                onClick={() => handleOpenModal()}
+                className="flex items-center gap-2 rounded-xl bg-slate-900 px-5 py-3 text-[11px] font-bold text-white shadow-sm transition-all hover:bg-slate-800 active:scale-95"
+              >
+                <Plus size={16} />
+                Add Role
+              </button>
+              <button
+                onClick={() => {
+                  fetchRoles();
+                  fetchPermissions();
+                }}
+                className="flex items-center gap-2 rounded-xl border border-slate-200/80 bg-white px-5 py-3 text-[11px] font-bold text-slate-700 shadow-sm transition-all hover:bg-slate-50"
+              >
+                <CheckCircle2 size={16} />
+                Refresh
+              </button>
+            </div>
+          </div>
         </div>
-    );
+      </section>
+
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
+        <SummaryCard label="Role Directory" value={stats.totalRoles} tone="slate" />
+        <SummaryCard label="Unlimited Range" value={stats.unrestrictedRoles} tone="emerald" />
+        <SummaryCard label="Permission Catalog" value={stats.permissionNodes} tone="indigo" />
+        <SummaryCard label="Visible Modules" value={stats.moduleCoverage} tone="amber" />
+      </div>
+
+      <section className="overflow-hidden rounded-2xl border border-slate-200/60 bg-white shadow-sm">
+        <div className="border-b border-slate-100 p-4 xl:p-5">
+          <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
+            <div className="flex items-center gap-4">
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600">
+                <Shield size={18} />
+              </div>
+              <div>
+                <h2 className="text-base font-semibold text-slate-900">Role List</h2>
+                <p className="mt-1 text-[12px] text-slate-500">
+                  Browse approval ranges, module visibility, and permission counts.
+                </p>
+              </div>
+            </div>
+
+            <div className="relative min-w-[18rem] xl:w-[22rem]">
+              <Search
+                size={16}
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+              />
+              <input
+                type="text"
+                placeholder="Search roles, modules, or description"
+                className="w-full rounded-xl border border-slate-200 bg-white py-3 pl-11 pr-4 text-[13px] font-medium text-slate-900 outline-none transition-all focus:border-indigo-200 focus:ring-4 focus:ring-indigo-50"
+                value={searchTerm}
+                onChange={(event) => setSearchTerm(event.target.value)}
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-slate-100">
+            <thead className="bg-slate-50/60">
+              <tr>
+                {["Role", "Approval Range", "Modules", "Permissions", "Actions"].map((heading) => (
+                  <th
+                    key={heading}
+                    className="px-6 py-4 text-left text-[11px] font-bold uppercase tracking-[0.14em] text-slate-500"
+                  >
+                    {heading}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+
+            <tbody className="divide-y divide-slate-100 bg-white">
+              {loading ? (
+                <tr>
+                  <td colSpan={5} className="px-6 py-24 text-center">
+                    <div className="mx-auto h-12 w-12 animate-spin rounded-full border-2 border-slate-200 border-t-slate-900" />
+                  </td>
+                </tr>
+              ) : filteredRoles.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="px-6 py-20 text-center">
+                    <div className="mx-auto flex max-w-md flex-col items-center">
+                      <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 text-slate-500">
+                        <Shield size={22} />
+                      </div>
+                      <p className="mt-5 text-[15px] font-semibold text-slate-900">
+                        No roles match the current search.
+                      </p>
+                      <p className="mt-2 text-[13px] leading-6 text-slate-500">
+                        Try a different role name, description, or module keyword.
+                      </p>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                filteredRoles.map((role, index) => (
+                  <motion.tr
+                    key={role._id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.2, delay: index * 0.02 }}
+                    className="transition-colors hover:bg-slate-50/70"
+                  >
+                    <td className="px-6 py-5">
+                      <div className="flex items-center gap-4">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-slate-50 to-slate-100 text-[14px] font-semibold text-slate-700 shadow-inner">
+                          {role.name?.charAt(0)?.toUpperCase() || "R"}
+                        </div>
+                        <div>
+                          <p className="text-[14px] font-semibold text-slate-900">{role.name}</p>
+                          <p className="mt-1 max-w-[26rem] text-[12px] leading-5 text-slate-500">
+                            {role.description || "No description added for this role."}
+                          </p>
+                        </div>
+                      </div>
+                    </td>
+
+                    <td className="px-6 py-5">
+                      <div className="space-y-2">
+                        <p className="text-[13px] font-semibold text-slate-900">
+                          Max: {formatCurrency(role.maxLimit)}
+                        </p>
+                        <p className="text-[12px] text-slate-500">
+                          Min: {Number(role.minLimit) > 0 ? formatCurrency(role.minLimit) : "INR 0"}
+                        </p>
+                      </div>
+                    </td>
+
+                    <td className="px-6 py-5">
+                      <div className="flex max-w-[20rem] flex-wrap gap-2">
+                        {(role.accessibleModules || []).slice(0, 3).map((moduleName) => (
+                          <span
+                            key={moduleName}
+                            className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[10px] font-semibold text-slate-600"
+                          >
+                            {moduleName}
+                          </span>
+                        ))}
+                        {(role.accessibleModules || []).length > 3 && (
+                          <span className="rounded-full border border-slate-900 bg-slate-900 px-3 py-1 text-[10px] font-semibold text-white">
+                            +{role.accessibleModules.length - 3}
+                          </span>
+                        )}
+                        {(!role.accessibleModules || role.accessibleModules.length === 0) && (
+                          <span className="rounded-full border border-emerald-100 bg-emerald-50 px-3 py-1 text-[10px] font-semibold text-emerald-700">
+                            Full access
+                          </span>
+                        )}
+                      </div>
+                    </td>
+
+                    <td className="px-6 py-5">
+                      <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+                        <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-500">
+                          Assigned
+                        </p>
+                        <p className="mt-1 text-[14px] font-semibold text-slate-900">
+                          {formatCount(role.permissions?.length || 0, "permission")}
+                        </p>
+                      </div>
+                    </td>
+
+                    <td className="px-6 py-5 text-right">
+                      <div className="flex justify-end gap-2">
+                        <button
+                          onClick={() => handleOpenModal(role)}
+                          className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-[12px] font-semibold text-slate-700 transition-all hover:border-slate-300 hover:bg-slate-50"
+                        >
+                          <Edit size={14} />
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDelete(role._id)}
+                          className="inline-flex items-center gap-2 rounded-xl border border-rose-200 bg-white px-4 py-2.5 text-[12px] font-semibold text-rose-600 transition-all hover:bg-rose-50"
+                        >
+                          <Trash2 size={14} />
+                          Delete
+                        </button>
+                      </div>
+                    </td>
+                  </motion.tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <AnimatePresence>
+        {isModalOpen && (
+          <ModalShell onClose={closeModal} maxWidth="max-w-5xl">
+            <div className="flex items-start justify-between border-b border-slate-100 bg-slate-50/70 px-6 py-5">
+              <div>
+                <h3 className="text-xl font-semibold text-slate-900">
+                  {selectedRole ? "Edit Role" : "Create New Role"}
+                </h3>
+                <p className="mt-1 text-[13px] text-slate-500">
+                  Same role APIs, cleaner admin dashboard layout.
+                </p>
+              </div>
+              <button
+                onClick={closeModal}
+                className="rounded-xl p-2 text-slate-400 transition-colors hover:bg-white hover:text-slate-700"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmit} className="flex max-h-[90vh] flex-col">
+              <div className="grid gap-6 overflow-y-auto p-6 xl:grid-cols-[1fr_1fr]">
+                <div className="space-y-5">
+                  <div className="rounded-2xl border border-slate-200/70 bg-white p-5 shadow-sm">
+                    <h4 className="text-[15px] font-semibold text-slate-900">Basic Details</h4>
+                    <div className="mt-5 grid grid-cols-1 gap-5">
+                      <Field label="Role Name">
+                        <input
+                          type="text"
+                          required
+                          placeholder="Enter role name"
+                          className="saas-input"
+                          value={formData.name}
+                          onChange={(event) =>
+                            setFormData({ ...formData, name: event.target.value })
+                          }
+                        />
+                      </Field>
+
+                      <Field label="Description">
+                        <textarea
+                          rows="4"
+                          placeholder="Add a short role description"
+                          className="saas-input resize-none"
+                          value={formData.description}
+                          onChange={(event) =>
+                            setFormData({ ...formData, description: event.target.value })
+                          }
+                        />
+                      </Field>
+                    </div>
+                  </div>
+
+                  <div className="rounded-2xl border border-slate-200/70 bg-white p-5 shadow-sm">
+                    <h4 className="text-[15px] font-semibold text-slate-900">Approval Range</h4>
+                    <div className="mt-5 grid grid-cols-1 gap-5 md:grid-cols-2">
+                      <Field label="Minimum Limit">
+                        <input
+                          type="number"
+                          className="saas-input"
+                          value={formData.minLimit}
+                          onChange={(event) =>
+                            setFormData({
+                              ...formData,
+                              minLimit: parseInt(event.target.value, 10) || 0,
+                            })
+                          }
+                        />
+                      </Field>
+
+                      <Field label="Maximum Limit">
+                        <input
+                          type="number"
+                          className="saas-input"
+                          value={formData.maxLimit}
+                          onChange={(event) =>
+                            setFormData({
+                              ...formData,
+                              maxLimit: parseInt(event.target.value, 10) || 0,
+                            })
+                          }
+                        />
+                      </Field>
+                    </div>
+                    <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-[12px] text-slate-500">
+                      Enter `0` in maximum limit if the role should not have an approval cap.
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-5">
+                  <div className="rounded-2xl border border-slate-200/70 bg-white p-5 shadow-sm">
+                    <div className="flex items-center justify-between gap-4">
+                      <div>
+                        <h4 className="text-[15px] font-semibold text-slate-900">
+                          Module Access
+                        </h4>
+                        <p className="mt-1 text-[12px] text-slate-500">
+                          Choose which sections this role can access.
+                        </p>
+                      </div>
+                      <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[10px] font-semibold text-slate-600">
+                        {formatCount(formData.accessibleModules.length, "module")}
+                      </span>
+                    </div>
+
+                    <div className="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-3">
+                      {MODULES.map((moduleName) => {
+                        const active = formData.accessibleModules.includes(moduleName);
+
+                        return (
+                          <button
+                            key={moduleName}
+                            type="button"
+                            onClick={() => handleModuleToggle(moduleName)}
+                            className={`rounded-xl border px-4 py-3 text-left text-[11px] font-semibold transition-all ${
+                              active
+                                ? "border-slate-900 bg-slate-900 text-white"
+                                : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                            }`}
+                          >
+                            {moduleName}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <div className="rounded-2xl border border-slate-200/70 bg-white p-5 shadow-sm">
+                    <div className="flex items-center justify-between gap-4">
+                      <div>
+                        <h4 className="text-[15px] font-semibold text-slate-900">
+                          Permissions
+                        </h4>
+                        <p className="mt-1 text-[12px] text-slate-500">
+                          Assign permission entries available from the backend catalog.
+                        </p>
+                      </div>
+                      <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[10px] font-semibold text-slate-600">
+                        {formatCount(formData.permissions.length, "permission")}
+                      </span>
+                    </div>
+
+                    {permissions.length === 0 ? (
+                      <div className="mt-5 rounded-xl border border-dashed border-slate-200 bg-slate-50 px-4 py-8 text-center text-[13px] text-slate-500">
+                        No permission items available right now.
+                      </div>
+                    ) : (
+                      <div className="mt-5 grid max-h-[18rem] grid-cols-1 gap-3 overflow-y-auto pr-1">
+                        {permissions.map((permission) => {
+                          const permissionId = permission._id || permission.id;
+                          const active = formData.permissions.includes(permissionId);
+
+                          return (
+                            <button
+                              key={permissionId}
+                              type="button"
+                              onClick={() => handlePermissionToggle(permissionId)}
+                              className={`rounded-xl border px-4 py-3 text-left transition-all ${
+                                active
+                                  ? "border-indigo-200 bg-indigo-50"
+                                  : "border-slate-200 bg-white hover:bg-slate-50"
+                              }`}
+                            >
+                              <div className="flex items-start justify-between gap-4">
+                                <div>
+                                  <p className="text-[13px] font-semibold text-slate-900">
+                                    {permission.name || permission.action || "Permission"}
+                                  </p>
+                                  <p className="mt-1 text-[12px] text-slate-500">
+                                    {permission.description ||
+                                      permission.resource ||
+                                      "Permission entry from backend"}
+                                  </p>
+                                </div>
+                                {active && (
+                                  <span className="rounded-full border border-indigo-200 bg-white px-2.5 py-1 text-[10px] font-semibold text-indigo-700">
+                                    Selected
+                                  </span>
+                                )}
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-3 border-t border-slate-100 bg-slate-50/70 px-6 py-5 md:flex-row md:items-center md:justify-between">
+                <div className="flex items-center gap-3 rounded-xl border border-slate-200/70 bg-white px-4 py-3 text-[12px] text-slate-500">
+                  <ShieldCheck size={15} className="text-emerald-600" />
+                  Role UI updated only. API behavior remains unchanged.
+                </div>
+                <div className="flex gap-3">
+                  <button
+                    type="button"
+                    onClick={closeModal}
+                    className="rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-[12px] font-semibold text-slate-600 transition-all hover:bg-slate-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-5 py-2.5 text-[12px] font-semibold text-white transition-all hover:bg-slate-800"
+                  >
+                    <ShieldCheck size={15} />
+                    {selectedRole ? "Save Changes" : "Create Role"}
+                  </button>
+                </div>
+              </div>
+            </form>
+          </ModalShell>
+        )}
+      </AnimatePresence>
+    </div>
+  );
 };
+
+const HeroTile = ({ icon: Icon, label, value }) => (
+  <div className="rounded-xl border border-slate-200/60 bg-white/50 p-4 shadow-sm">
+    <div className="flex items-center gap-3">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 shadow-inner">
+        <Icon size={18} />
+      </div>
+      <div>
+        <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-500">
+          {label}
+        </p>
+        <p className="mt-1 text-lg font-semibold text-slate-900">{value}</p>
+      </div>
+    </div>
+  </div>
+);
+
+const QuickInfoCard = ({ title, value, note }) => (
+  <div className="rounded-xl border border-slate-200/60 bg-white p-5 shadow-sm">
+    <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-500">
+      {title}
+    </p>
+    <p className="mt-1 text-lg font-semibold text-slate-900">{value}</p>
+    <p className="mt-2 text-[13px] leading-6 text-slate-500">{note}</p>
+  </div>
+);
+
+const SummaryCard = ({ label, value, tone }) => {
+  const toneClass =
+    tone === "emerald"
+      ? "border-emerald-100 bg-emerald-50 text-emerald-700"
+      : tone === "indigo"
+      ? "border-indigo-100 bg-indigo-50 text-indigo-700"
+      : tone === "amber"
+      ? "border-amber-100 bg-amber-50 text-amber-700"
+      : "border-slate-200 bg-slate-100 text-slate-700";
+
+  return (
+    <div className="overflow-hidden rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md">
+      <div className="mb-5 flex items-start justify-between">
+        <span
+          className={`rounded-full border px-3 py-1.5 text-[10px] font-semibold ${toneClass}`}
+        >
+          {label}
+        </span>
+      </div>
+      <h3 className="text-4xl font-semibold tracking-tight text-slate-900">{value}</h3>
+    </div>
+  );
+};
+
+const Field = ({ label, children }) => (
+  <div className="space-y-2">
+    <label className="ml-1 text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500">
+      {label}
+    </label>
+    {children}
+  </div>
+);
+
+const ModalShell = ({ children, onClose, maxWidth = "max-w-4xl" }) => (
+  <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+    <div onClick={onClose} className="absolute inset-0 bg-slate-900/45 backdrop-blur-sm" />
+    <div
+      className={`relative z-10 flex max-h-[90vh] w-full flex-col overflow-hidden rounded-[1.75rem] border border-slate-200/70 bg-white shadow-2xl ${maxWidth}`}
+    >
+      {children}
+    </div>
+  </div>
+);
 
 export default RoleManagement;

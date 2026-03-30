@@ -54,7 +54,7 @@ export default function NotificationBell() {
             {/* Bell Icon */}
             <button 
                 onClick={toggleDropdown}
-                className="relative p-2.5 text-gray-400 hover:text-indigo-600 hover:bg-gray-50 rounded-2xl transition-all"
+                className="relative rounded-2xl p-2.5 text-gray-400 transition-all hover:bg-gray-50 hover:text-indigo-600"
             >
                 <Bell size={20} />
                 {unreadCount > 0 && (
@@ -69,7 +69,7 @@ export default function NotificationBell() {
 
             {/* Dropdown Panel */}
             {isOpen && (
-                <div className="absolute right-0 mt-4 w-96 bg-white shadow-[0_20px_50px_-15px_rgba(0,0,0,0.2)] rounded-2xl border border-gray-100 overflow-hidden z-50 animate-in fade-in slide-in-from-top-4 duration-300">
+                <div className="absolute right-0 mt-4 w-[min(24rem,calc(100vw-1rem))] overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-[0_20px_50px_-15px_rgba(0,0,0,0.2)] z-50 animate-in fade-in slide-in-from-top-4 duration-300 sm:w-96">
                     {/* Header */}
                     <div className="px-5 py-4 border-b border-gray-50 flex items-center justify-between bg-white">
                         <h3 className="text-sm font-black text-gray-900 uppercase tracking-widest flex items-center gap-2">

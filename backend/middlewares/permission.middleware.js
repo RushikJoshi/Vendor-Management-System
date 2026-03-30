@@ -1,4 +1,5 @@
 const AppError = require("../utils/AppError");
+const { normalizeRole } = require("../config/roles");
 
 /**
  * Middleware to check if the user's custom role has specific permissions
@@ -7,7 +8,7 @@ const AppError = require("../utils/AppError");
 exports.checkPermission = (...requiredPermissions) => {
     return (req, res, next) => {
         // req.userRole was attached by protect middleware
-        if (req.user.role === "admin") return next(); // Full access for hardcoded admin
+        if (normalizeRole(req.user.role) === "admin") return next();
 
         if (!req.userRole || !req.userRole.permissions) {
             return next(new AppError("You do not have the permissions for this action", 403));
@@ -31,7 +32,7 @@ exports.checkPermission = (...requiredPermissions) => {
  */
 exports.checkModuleAccess = (moduleName) => {
     return (req, res, next) => {
-        if (req.user.role === "admin") return next(); 
+        if (normalizeRole(req.user.role) === "admin") return next();
 
         if (!req.userRole || !req.userRole.accessibleModules) {
             return next(new AppError("No module access defined for your role", 403));

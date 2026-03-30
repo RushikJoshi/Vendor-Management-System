@@ -16,13 +16,12 @@ const FormSeeder = require("./services/FormSeeder");
 const http = require("http");
 const socketUtil = require("./utils/socket");
 
-
 // Ensure all models are registered
 require("./models/Permission");
 require("./models/Role");
 require("./models/Admin");
-require("./models/User"); // Added User model registration
-require("./models/vendor.model"); // New professional vendor model
+require("./models/User");
+require("./models/vendor.model");
 // require("./models/Vendor"); // Commented out to avoid conflict
 require("./models/Category");
 require("./models/FormTemplate");
@@ -47,13 +46,13 @@ const app = express();
 connectDB();
 
 // 2) Security & Optimization Middlewares
-app.use(helmet()); // Set security HTTP headers
-app.use(cors()); // Enable CORS
-app.use(express.json({ limit: "10kb" })); // Body parser, reading data from body into req.body
-app.use(cookieParser()); // Cookie parser for HTTP-only cookies
-app.use(sanitizeRequest); // Data sanitization against NoSQL query injection
-// app.use(xss()); // Data sanitization against XSS
-app.use(compression()); // Compress responses
+app.use(helmet());
+app.use(cors());
+app.use(express.json({ limit: "10kb" }));
+app.use(cookieParser());
+app.use(sanitizeRequest);
+// app.use(xss());
+app.use(compression());
 
 // 3) Request Logging
 if (configs.NODE_ENV === "development") {
@@ -82,7 +81,7 @@ app.use("/api", apiLimiter);
 const API_V1 = "/api/v1";
 
 app.use(`${API_V1}/auth`, require("./routes/authRoutes"));
-app.use(`${API_V1}/vendors`, require("./routes/vendor.routes")); // Integrated new professional vendor routes
+app.use(`${API_V1}/vendors`, require("./routes/vendor.routes"));
 app.use(`${API_V1}/admin`, require("./routes/adminRoutes"));
 app.use(`${API_V1}/forms`, require("./routes/formRoutes"));
 app.use(`${API_V1}/applications`, require("./routes/applicationRoutes"));
@@ -100,14 +99,11 @@ app.use(`${API_V1}/departments`, require("./routes/departmentRoutes"));
 app.use(`${API_V1}/purchase-orders`, require("./routes/poRoutes"));
 app.use(`${API_V1}/users`, require("./routes/userManagement.routes"));
 app.use(`${API_V1}/roles`, require("./routes/role.routes"));
- // Added specifically for POST /api/category/generate-ai
 
-// Backward compatibility (optional, but requested to not break existing business logic)
-// I'll keep the /api prefix as well for now or redirect
-// Backward compatibility & Frontend aliases
+// Backward compatibility & frontend aliases
 app.use("/api/auth", require("./routes/authRoutes"));
-app.use("/api/vendors", require("./routes/vendor.routes")); // Integrated new professional vendor routes
-app.use("/api/vendor", require("./routes/vendor.routes")); // Integrated new professional vendor routes (alias)
+app.use("/api/vendors", require("./routes/vendor.routes"));
+app.use("/api/vendor", require("./routes/vendor.routes"));
 app.use("/api/admin", require("./routes/adminRoutes"));
 app.use("/api/forms", require("./routes/formRoutes"));
 app.use("/api/applications", require("./routes/applicationRoutes"));
@@ -122,7 +118,7 @@ app.use("/api/category", require("./routes/aiRoutes"));
 app.use("/api/rfqs", require("./routes/rfqRoutes"));
 app.use("/api/quotations", require("./routes/quotationRoutes"));
 app.use("/api/departments", require("./routes/departmentRoutes"));
-app.use("/api/purchase-orders", require("./routes/poRoutes")); // Added proxy for POST /api/category/generate-ai
+app.use("/api/purchase-orders", require("./routes/poRoutes"));
 app.use("/api/users", require("./routes/userManagement.routes"));
 app.use("/api/roles", require("./routes/role.routes"));
 
@@ -141,7 +137,17 @@ const server = http.createServer(app);
 // Initialize Socket.io
 socketUtil.init(server);
 
-console.log('🚀 Attempting to start server on port:', PORT);
+server.on("error", (err) => {
+    if (err.code === "EADDRINUSE") {
+        logger.error(`Port ${PORT} is already in use. Stop the existing process or use a different PORT.`);
+        process.exit(1);
+    }
+
+    logger.error(`Server startup failed: ${err.message}`);
+    process.exit(1);
+});
+
+console.log("Attempting to start server on port:", PORT);
 server.listen(PORT, () => {
     logger.info(`Server running in ${configs.NODE_ENV} mode on port ${PORT}`);
 
@@ -151,4 +157,3 @@ server.listen(PORT, () => {
     // Seed pre-configured forms
     FormSeeder.seedMasterForm();
 });
-

@@ -1,6 +1,7 @@
 const Notification = require("../models/Notification");
 const { emitNotification } = require("../utils/socket");
 const User = require("../models/User");
+const { normalizeRole } = require("../config/roles");
 
 /**
  * Send a notification to a specific user
@@ -50,8 +51,9 @@ const notifyAdminsByRole = async (role, data) => {
  */
 const notifyAllAdmins = async (data) => {
     try {
-        const admins = await User.find({ role: { $in: ["superadmin", "company_admin"] } });
-        for (const admin of admins) {
+        const admins = await User.find();
+        const adminUsers = admins.filter((user) => normalizeRole(user.role) === "admin");
+        for (const admin of adminUsers) {
             await sendNotification(admin._id, data);
         }
     } catch (error) {

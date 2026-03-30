@@ -62,7 +62,7 @@ const MonthlyVendorChart = ({ data }) => {
     };
 
     return (
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 h-80">
+        <div className="h-72 w-full">
             <Bar data={chartData} options={options} />
         </div>
     );

@@ -3,6 +3,7 @@ const Company = require("../models/Company");
 const jwt = require("jsonwebtoken");
 const asyncHandler = require("../utils/asyncHandler");
 const AppError = require("../utils/AppError");
+const { normalizeRole } = require("../config/roles");
 
 /**
  * @desc    Generate JWT tokens (Access & Refresh)
@@ -146,8 +147,9 @@ exports.login = asyncHandler(async (req, res, next) => {
 
   // Fetch Role Details for dynamic RBAC
   const Role = require("../models/Role");
+  const normalizedRole = normalizeRole(user.role);
   const roleDetails = await Role.findOne({
-    name: user.role,
+    name: normalizedRole,
     $or: [
         { tenantId: user.tenantId },
         { tenantId: { $exists: false } }
@@ -239,8 +241,9 @@ exports.getMe = asyncHandler(async (req, res, next) => {
   if (!user) return next(new AppError("User not found", 404));
 
   const Role = require("../models/Role");
+  const normalizedRole = normalizeRole(user.role);
   const roleDetails = await Role.findOne({
-    name: user.role,
+    name: normalizedRole,
     $or: [{ tenantId: user.tenantId }, { tenantId: { $exists: false } }]
   }).populate("permissions");
   const allowedModules = roleDetails?.accessibleModules || ["Dashboard"];

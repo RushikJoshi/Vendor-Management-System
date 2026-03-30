@@ -1,5 +1,6 @@
 const Company = require("../models/Company");
 const AppError = require("../utils/AppError");
+const { normalizeRole } = require("../config/roles");
 
 const PLAN_LIMITS = {
     free: { maxVendors: 5, maxRFQs: 2 },
@@ -10,7 +11,7 @@ const PLAN_LIMITS = {
 exports.checkLimit = (resource) => {
     return async (req, res, next) => {
         // Admins can bypass limits if not associated with a specific tenant
-        if (req.user.role === 'admin' && !req.user.tenantId) return next();
+        if (normalizeRole(req.user.role) === "admin" && !req.user.tenantId) return next();
 
         const company = await Company.findById(req.user.tenantId);
         if (!company) return next(new AppError("Company not found for usage check", 404));

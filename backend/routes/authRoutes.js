@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const { authLimiter } = require("../middleware/securityMiddleware");
 const {
     register,
     onboardCompany,
@@ -14,7 +15,7 @@ const { protect } = require("../middlewares/auth.middleware");
 // Authentication routes
 router.post("/register", register);
 router.post("/onboard", onboardCompany);
-router.post("/login", login);
+router.post("/login", authLimiter, login);
 router.post("/refresh", refreshToken);
 router.post("/logout", logout);
 

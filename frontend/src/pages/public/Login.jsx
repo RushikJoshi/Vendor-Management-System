@@ -62,7 +62,13 @@ export default function Login() {
       await login(email, password);
       toast.success("Welcome to VMS ERP", { id: toastId });
     } catch (err) {
-      toast.error("Access Denied. Check credentials.", { id: toastId });
+      const message =
+        err.response?.data?.message ||
+        (err.response?.status === 429
+          ? "Too many login attempts. Please wait and try again."
+          : "Access Denied. Check credentials.");
+
+      toast.error(message, { id: toastId });
     } finally {
       setLoading(false);
     }
@@ -224,7 +230,3 @@ export default function Login() {
     </div>
   );
 }
-
-
-
-

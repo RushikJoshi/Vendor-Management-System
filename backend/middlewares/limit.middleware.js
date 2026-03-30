@@ -1,4 +1,5 @@
 const AppError = require("../utils/AppError");
+const { normalizeRole } = require("../config/roles");
 
 /**
  * Middleware to check if the user is within their role's range limit
@@ -9,7 +10,7 @@ exports.checkRoleLimit = (amountField = "amount") => {
         // req.userRole is attached by 'protect' middleware after my recent update
         if (!req.userRole) {
             // If no custom role found, might be a default 'admin' or something that bypasses limits
-            if (req.user.role === "admin") return next();
+            if (normalizeRole(req.user.role) === "admin") return next();
             return next(new AppError("User role details not found. Action restricted.", 403));
         }
 

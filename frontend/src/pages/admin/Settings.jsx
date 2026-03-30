@@ -1,303 +1,566 @@
-import { useState, useContext } from "react";
-import { AuthContext } from "../../context/AuthContext";
-import { Save, Shield, Bell, Key, User, Globe, Lock, Cpu, Activity, Zap, Check, ChevronRight, Tablet } from "lucide-react";
+import { useContext, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import {
+  Activity,
+  Bell,
+  CheckCircle2,
+  ChevronRight,
+  Cpu,
+  Globe,
+  Key,
+  Lock,
+  Save,
+  Shield,
+  User,
+} from "lucide-react";
+
+import { AuthContext } from "../../context/AuthContext";
+
+const tabs = [
+  { id: "profile", label: "Profile", icon: User, desc: "Personal account details" },
+  { id: "security", label: "Security", icon: Shield, desc: "Password and access controls" },
+  { id: "notifications", label: "Notifications", icon: Bell, desc: "Alert preferences" },
+  { id: "advanced", label: "Advanced", icon: Cpu, desc: "System level references" },
+];
 
 export default function Settings() {
-    const { user } = useContext(AuthContext);
-    const [activeTab, setActiveTab] = useState("profile");
+  const { user } = useContext(AuthContext);
+  const [activeTab, setActiveTab] = useState("profile");
+  const [profile, setProfile] = useState({
+    name: user?.name || "",
+    email: user?.email || "",
+    department: "Administration",
+    timezone: "Asia/Kolkata",
+  });
+  const [security, setSecurity] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+  const [notifications, setNotifications] = useState({
+    emailAlerts: true,
+    dashboardAlerts: true,
+    vendorUpdates: false,
+    weeklySummary: true,
+  });
 
-    const tabs = [
-        { id: 'profile', label: 'Identity Matrix', icon: User, desc: 'Personal parameters' },
-        { id: 'security', label: 'Security Protocols', icon: Shield, desc: 'Access & Encryption' },
-        { id: 'notifications', label: 'Transmission Flux', icon: Bell, desc: 'Global alerts' },
-        { id: 'advanced', label: 'Core Engine', icon: Cpu, desc: 'API & Webhooks' }
-    ];
+  const userInitial = user?.name?.charAt(0)?.toUpperCase() || "A";
 
-    return (
-        <div className="space-y-12 fade-in pb-20">
-             {/* ── BREADCRUMB & HEADER ─────────────────────────────────────────── */}
-             <header className="flex flex-col xl:flex-row justify-between items-start xl:items-end gap-10 border-b border-slate-200 pb-12">
-                <div className="space-y-6">
-                    <div className="flex items-center gap-2">
-                        <span className="bg-slate-900 text-white px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-[0.2em]">Operational Console</span>
-                        <div className="h-1 w-6 bg-slate-200 rounded-full"></div>
-                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">System Configuration Terminal</span>
-                    </div>
-                    <div>
-                        <h1 className="text-5xl font-black text-slate-900 tracking-[-0.05em] uppercase leading-none mb-4">Control Hub</h1>
-                        <p className="text-sm font-medium text-slate-500 max-w-xl italic border-l-4 border-slate-900/10 pl-6">Configuring the underlying neural parameters of your VMS workspace. Adjusting identity, security authorizations, and global transmission relays.</p>
-                    </div>
-                </div>
-
-                <div className="flex items-center gap-4 relative z-10">
-                    <div className="px-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl flex items-center gap-4 shadow-subtle">
-                         <Activity size={18} className="text-emerald-500" />
-                         <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Core Sync: 100% Stable</span>
-                    </div>
-                </div>
-            </header>
-
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-12">
-                {/* ── SIDEBAR NAVIGATION ─────────────────────────────────────── */ }
-                <div className="lg:col-span-1 space-y-4">
-                    {tabs.map((tab) => (
-                        <button
-                            key={tab.id}
-                            onClick={() => setActiveTab(tab.id)}
-                            className={`w-full p-6 rounded-[2rem] border transition-all duration-500 flex items-center gap-5 group relative overflow-hidden active:scale-[0.98] ${
-                                activeTab === tab.id ? 'bg-slate-900 border-slate-900 text-white shadow-xl shadow-slate-200' : 
-                                'bg-white border-slate-100 text-slate-400 hover:border-slate-300'
-                            }`}
-                        >
-                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
-                                activeTab === tab.id ? 'bg-white/10 text-white' : 'bg-slate-50 text-slate-400'
-                            }`}>
-                                <tab.icon size={18} />
-                            </div>
-                            <div className="text-left">
-                                <p className="text-[10px] font-black uppercase tracking-[0.2em] leading-none mb-1">{tab.label}</p>
-                                <p className={`text-[8px] font-bold uppercase tracking-[0.1em] opacity-40 italic transition-colors ${activeTab === tab.id ? 'text-white' : 'text-slate-300'}`}>{tab.desc}</p>
-                            </div>
-                            {activeTab === tab.id && (
-                                <ChevronRight size={16} className="ml-auto text-white/40 group-hover:translate-x-1 transition-transform" />
-                            )}
-                        </button>
-                    ))}
-
-                    <div className="mt-12 p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100 space-y-6">
-                         <div className="flex items-center gap-3">
-                             <Lock size={16} className="text-slate-900" />
-                             <h4 className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Workspace Privacy</h4>
-                         </div>
-                         <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-relaxed italic">Encryption protocols are managed by enterprise policy. Session tokens auto-rotate every 120 minutes of inactivity.</p>
-                         <button className="w-full py-3 bg-white border border-slate-200 text-slate-400 rounded-xl text-[9px] font-black uppercase tracking-widest hover:border-slate-900 hover:text-slate-900 transition-all shadow-subtle">Rotate Session</button>
-                    </div>
-                </div>
-
-                {/* ── TAB CONTENT ────────────────────────────────────────────── */ }
-                <div className="lg:col-span-3">
-                     <div className="bg-white rounded-[3.5rem] border border-slate-100 shadow-premium p-12 lg:p-16 min-h-[600px] flex flex-col relative overflow-hidden">
-                        <AnimatePresence mode="wait">
-                            {activeTab === "profile" && (
-                                <motion.div 
-                                    key="profile" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
-                                    className="space-y-12 flex-1"
-                                >
-                                    <div className="flex items-center gap-8 border-b border-slate-50 pb-12">
-                                         <div className="w-24 h-24 bg-slate-900 rounded-[2.5rem] flex items-center justify-center text-white text-3xl font-black relative group cursor-pointer shadow-premium">
-                                              {user?.name?.charAt(0) || "A"}
-                                              <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-all rounded-[2.5rem] flex items-center justify-center">
-                                                   <Zap size={24} className="text-emerald-400" />
-                                              </div>
-                                         </div>
-                                         <div>
-                                              <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase leading-none mb-3">Identity Synthesis</h2>
-                                              <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] underline decoration-slate-200 underline-offset-8 decoration-2 italic">Global Actor Metadata Protocol</p>
-                                         </div>
-                                    </div>
-
-                                    <div className="grid grid-cols-2 gap-10">
-                                        <div className="space-y-4">
-                                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] ml-2">Actor Nomenclature</label>
-                                            <input
-                                                type="text" defaultValue={user?.name || "SYSTEM_ADMIN"}
-                                                className="vms-input h-16 shadow-inner"
-                                            />
-                                        </div>
-                                        <div className="space-y-4">
-                                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] ml-2">Transmission Link (Email)</label>
-                                            <input
-                                                type="email" defaultValue={user?.email || "ADMIN@ANTIGRAVITY.CORE"}
-                                                className="vms-input h-16 shadow-inner bg-slate-50/50 cursor-not-allowed opacity-60"
-                                                disabled
-                                            />
-                                        </div>
-                                        <div className="col-span-2 space-y-4">
-                                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] ml-2">Authorization Grade (Role)</label>
-                                            <div className="h-16 flex items-center px-8 bg-slate-900 text-white rounded-3xl text-xs font-black uppercase tracking-[0.3em] shadow-xl shadow-slate-200 group cursor-default">
-                                                <Shield size={16} className="mr-4 text-emerald-400 group-hover:rotate-12 transition-transform" /> {user?.role || "SUPER_USER_OMEGA"}
-                                            </div>
-                                            <p className="text-[9px] text-slate-300 font-bold uppercase tracking-widest italic ml-4">Grade level is immutable. Managed by the genesis system core.</p>
-                                        </div>
-                                    </div>
-
-                                    <div className="pt-12 mt-auto border-t border-slate-50 flex justify-end">
-                                        <button className="h-16 px-12 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] shadow-xl shadow-slate-200 hover:bg-black transition-all active:scale-95 flex items-center gap-3">
-                                            <Save size={18} /> Commit Identity Flux
-                                        </button>
-                                    </div>
-                                </motion.div>
-                            )}
-
-                            {activeTab === "security" && (
-                                <motion.div 
-                                    key="security" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
-                                    className="space-y-12 flex-1"
-                                >
-                                     <div className="flex items-center gap-6 border-b border-slate-50 pb-10">
-                                         <div className="w-14 h-14 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-900">
-                                              <Lock size={24} />
-                                         </div>
-                                         <h3 className="text-xl font-black text-slate-900 uppercase tracking-[0.2em]">Credential Rotation</h3>
-                                     </div>
-
-                                     <div className="space-y-10">
-                                         <div className="space-y-4">
-                                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] ml-2">Current Authorization Token (Password)</label>
-                                            <input type="password" placeholder="••••••••••••" className="vms-input h-16 shadow-inner" />
-                                         </div>
-                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                                             <div className="space-y-4">
-                                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] ml-2">New Protocol Sequence</label>
-                                                <input type="password" placeholder="••••••••••••" className="vms-input h-16 shadow-inner" />
-                                             </div>
-                                             <div className="space-y-4">
-                                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] ml-2">Confirm Protocol Sequence</label>
-                                                <input type="password" placeholder="••••••••••••" className="vms-input h-16 shadow-inner border-emerald-100" />
-                                             </div>
-                                         </div>
-                                     </div>
-
-                                     <div className="p-8 bg-slate-50 rounded-3xl border border-slate-100 flex items-center justify-between">
-                                          <div className="flex items-center gap-4">
-                                               <Shield size={20} className="text-slate-400" />
-                                               <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest italic">Multi-Factor Authentication Required for rotation commit.</p>
-                                          </div>
-                                          <div className="w-12 h-6 bg-slate-900 rounded-full relative">
-                                               <div className="absolute top-1 right-1 w-4 h-4 bg-white rounded-full"></div>
-                                          </div>
-                                     </div>
-
-                                     <div className="pt-12 mt-auto border-t border-slate-50 flex justify-end">
-                                        <button className="h-16 px-12 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] shadow-xl shadow-slate-200 hover:bg-black transition-all active:scale-95 flex items-center gap-3">
-                                            <Save size={18} /> Authorize Rotation
-                                        </button>
-                                    </div>
-                                </motion.div>
-                            )}
-
-                            {activeTab === "notifications" && (
-                                <motion.div 
-                                    key="notifications" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
-                                    className="space-y-12 flex-1"
-                                >
-                                     <div className="flex items-center gap-6 border-b border-slate-50 pb-10">
-                                         <div className="w-14 h-14 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-900">
-                                              <Bell size={24} />
-                                         </div>
-                                         <h3 className="text-xl font-black text-slate-900 uppercase tracking-[0.2em]">Signal Preference</h3>
-                                     </div>
-
-                                     <div className="space-y-6">
-                                          <SignalSwitch 
-                                            title="External Transmission (Email)" 
-                                            desc="Relay critical registry updates and contract maturity alerts to external link."
-                                            isActive={true}
-                                          />
-                                          <SignalSwitch 
-                                            title="Dashboard Ingress Alerts" 
-                                            desc="Broadcast high-priority system events directly to the operational UI terminal."
-                                            isActive={true}
-                                          />
-                                          <SignalSwitch 
-                                            title="Vendor Activity Flux" 
-                                            desc="Monitor real-time application submissions and profile update transmissions."
-                                            isActive={false}
-                                          />
-                                     </div>
-                                </motion.div>
-                            )}
-
-                            {activeTab === "advanced" && (
-                                <motion.div 
-                                    key="advanced" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
-                                    className="space-y-12 flex-1"
-                                >
-                                     <div className="p-10 bg-rose-50 border border-rose-100 rounded-[2.5rem] flex items-center gap-8 relative overflow-hidden group">
-                                          <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:scale-110 transition-transform"><Cpu size={120} /></div>
-                                          <div className="w-16 h-16 bg-rose-600 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-rose-200 relative z-10">
-                                               <Shield size={32} />
-                                          </div>
-                                          <div className="relative z-10">
-                                               <h3 className="text-[11px] font-black text-rose-900 uppercase tracking-[0.4em] mb-2">High-Frequency Zone</h3>
-                                               <p className="text-sm font-medium text-rose-800 italic leading-snug">Engineering access only. Modification of these nodes may cause cascading system decoupling.</p>
-                                          </div>
-                                     </div>
-
-                                     <div className="space-y-10">
-                                          <div className="space-y-4">
-                                               <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] ml-2">Webhook Relay Ingress URL</label>
-                                               <div className="flex items-center gap-4">
-                                                    <div className="flex-1 vms-input h-16 shadow-inner flex items-center bg-slate-50/50 font-mono lowercase tracking-normal text-slate-400 text-xs">
-                                                        HTTPS://API.GATEWAY.CORE/V1/WEBHOOK/SYNC_{user?._id?.slice(-8).toUpperCase()}
-                                                    </div>
-                                                    <button className="h-16 px-6 bg-slate-900 text-white rounded-2xl flex items-center justify-center shadow-xl shadow-slate-200">
-                                                        <Activity size={20} />
-                                                    </button>
-                                               </div>
-                                          </div>
-
-                                          <div className="space-y-4 pt-10 border-t border-slate-50 flex flex-col items-center">
-                                               <button className="h-20 w-full bg-white border-2 border-dashed border-slate-200 text-slate-400 hover:border-slate-900 hover:text-slate-900 rounded-[2.5rem] font-black text-xs uppercase tracking-[0.4em] transition-all flex items-center justify-center gap-6 group">
-                                                    Generate New RSA Cluster Token <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform" />
-                                               </button>
-                                               <p className="text-[9px] font-black text-slate-300 uppercase tracking-widest mt-6 italic">Protocol v4.1.0-beta-stable_build_20250612</p>
-                                          </div>
-                                     </div>
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
-                     </div>
-                </div>
+  return (
+    <div className="space-y-3 pb-10">
+      <section className="overflow-hidden rounded-2xl border border-slate-200/60 bg-white shadow-sm">
+        <div className="grid gap-0 xl:grid-cols-[1.2fr_0.8fr]">
+          <div className="border-b border-slate-100 p-5 xl:border-b-0 xl:border-r xl:p-6">
+            <div className="mb-5 flex flex-wrap gap-3">
+              <span className="rounded-full border border-indigo-100 bg-indigo-50/80 px-4 py-1.5 text-[10.5px] font-bold uppercase tracking-[0.15em] text-indigo-700 shadow-sm">
+                Admin Settings
+              </span>
+              <span className="rounded-full border border-slate-200/80 bg-white px-4 py-1.5 text-[10px] font-semibold uppercase tracking-[0.15em] text-slate-600 shadow-sm">
+                Admin / Settings
+              </span>
             </div>
 
-            <style>{`
-                .vms-input {
-                    width: 100%;
-                    padding: 0 1.5rem;
-                    background-color: #F8FAFC;
-                    border: 1px solid #F1F5F9;
-                    border-radius: 1.5rem;
-                    font-size: 0.8125rem;
-                    font-weight: 900;
-                    color: #0F172A;
-                    transition: all 0.3s;
-                    outline: none;
-                    text-transform: uppercase;
-                }
-                .vms-input:focus {
-                    background-color: #FFFFFF;
-                    border-color: #0F172A;
-                    box-shadow: 0 10px 30px -5px rgba(0,0,0,0.05);
-                }
-                .shadow-premium {
-                    box-shadow: 0 40px 100px -30px rgba(0, 0, 0, 0.08);
-                }
-                .shadow-subtle {
-                    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
-                }
-                .no-scrollbar::-webkit-scrollbar { display: none; }
-                .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-            `}</style>
+            <h1 className="max-w-3xl text-4xl font-semibold leading-tight tracking-[-0.03em] text-slate-900 md:text-5xl">
+              Clear Settings For A Smoother Admin Workflow.
+            </h1>
+            <p className="mt-4 max-w-2xl text-[16px] font-medium leading-relaxed tracking-wide text-slate-500 xl:text-[17px]">
+              Manage Profile Details, Security Controls, And Notification Preferences In A Clean
+              Layout That Feels Consistent With The Rest Of The Admin Dashboard.
+            </p>
+
+            <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
+              <HeroTile icon={User} label="Current Role" value={user?.role || "Admin"} />
+              <HeroTile icon={Shield} label="Security State" value="Protected" />
+              <HeroTile icon={Bell} label="Alert Status" value="Configured" />
+            </div>
+          </div>
+
+          <div className="grid gap-3 bg-slate-50/50 p-5 xl:p-6">
+            <QuickInfoCard
+              title="Workspace Health"
+              value="Stable"
+              note="Core admin preferences and settings are available from one place."
+            />
+            <QuickInfoCard
+              title="Session Status"
+              value="Active"
+              note="Profile details and visual controls can be reviewed without changing backend behavior."
+            />
+            <div className="mt-3 flex flex-wrap gap-3">
+              <button className="flex items-center gap-2 rounded-xl bg-slate-900 px-5 py-3 text-[11px] font-bold text-white shadow-sm transition-all hover:bg-slate-800 active:scale-95">
+                <Save size={16} />
+                Save Changes
+              </button>
+              <button className="flex items-center gap-2 rounded-xl border border-slate-200/80 bg-white px-5 py-3 text-[11px] font-bold text-slate-700 shadow-sm transition-all hover:bg-slate-50">
+                <Activity size={16} />
+                Review Status
+              </button>
+            </div>
+          </div>
         </div>
-    );
+      </section>
+
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
+        <SummaryCard label="Profile" value="Ready" tone="slate" />
+        <SummaryCard label="Security" value="MFA On" tone="emerald" />
+        <SummaryCard label="Alerts" value="3 Active" tone="indigo" />
+        <SummaryCard label="Environment" value="Admin" tone="amber" />
+      </div>
+
+      <div className="grid grid-cols-1 gap-3 xl:grid-cols-[18rem_1fr]">
+        <section className="overflow-hidden rounded-2xl border border-slate-200/60 bg-white shadow-sm">
+          <div className="border-b border-slate-100 p-4 xl:p-5">
+            <h2 className="text-base font-semibold text-slate-900">Setting Sections</h2>
+            <p className="mt-1 text-[12px] text-slate-500">
+              Move between core admin setting groups.
+            </p>
+          </div>
+
+          <div className="space-y-3 p-4">
+            {tabs.map((tab) => {
+              const Icon = tab.icon;
+              const active = activeTab === tab.id;
+
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex w-full items-center gap-4 rounded-2xl border px-4 py-4 text-left transition-all ${
+                    active
+                      ? "border-slate-900 bg-slate-900 text-white shadow-sm"
+                      : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                  }`}
+                >
+                  <div
+                    className={`flex h-11 w-11 items-center justify-center rounded-xl ${
+                      active ? "bg-white/10 text-white" : "bg-slate-50 text-slate-600"
+                    }`}
+                  >
+                    <Icon size={18} />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[12px] font-semibold">{tab.label}</p>
+                    <p className={`mt-1 text-[11px] ${active ? "text-slate-200" : "text-slate-500"}`}>
+                      {tab.desc}
+                    </p>
+                  </div>
+                  <ChevronRight size={16} className={active ? "text-white/70" : "text-slate-300"} />
+                </button>
+              );
+            })}
+
+            <div className="rounded-2xl border border-slate-200/70 bg-slate-50 p-5">
+              <div className="flex items-center gap-3">
+                <Lock size={16} className="text-slate-700" />
+                <h3 className="text-[12px] font-semibold text-slate-900">Privacy Note</h3>
+              </div>
+              <p className="mt-3 text-[12px] leading-6 text-slate-500">
+                Account access and protected policies are still controlled by existing admin
+                rules. This update is UI-only.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section className="overflow-hidden rounded-2xl border border-slate-200/60 bg-white shadow-sm">
+          <AnimatePresence mode="wait">
+            {activeTab === "profile" && (
+              <motion.div
+                key="profile"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="space-y-6 p-5 xl:p-6"
+              >
+                <SectionHeader
+                  icon={User}
+                  title="Profile Settings"
+                  note="Review basic account details used across the admin workspace."
+                />
+
+                <div className="grid gap-6 xl:grid-cols-[16rem_1fr]">
+                  <div className="rounded-2xl border border-slate-200/70 bg-slate-50 p-6">
+                    <div className="flex h-24 w-24 items-center justify-center rounded-[1.75rem] bg-slate-900 text-3xl font-semibold text-white shadow-sm">
+                      {userInitial}
+                    </div>
+                    <h3 className="mt-5 text-lg font-semibold text-slate-900">
+                      {user?.name || "Admin User"}
+                    </h3>
+                    <p className="mt-1 text-[12px] text-slate-500">{user?.email || "admin@example.com"}</p>
+                    <div className="mt-4 rounded-xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-[12px] font-medium text-emerald-700">
+                      Account status: Active
+                    </div>
+                  </div>
+
+                  <div className="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm">
+                    <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                      <Field label="Full Name">
+                        <input
+                          type="text"
+                          className="saas-input"
+                          value={profile.name}
+                          onChange={(e) => setProfile({ ...profile, name: e.target.value })}
+                        />
+                      </Field>
+                      <Field label="Email Address">
+                        <input
+                          type="email"
+                          className="saas-input"
+                          value={profile.email}
+                          onChange={(e) => setProfile({ ...profile, email: e.target.value })}
+                        />
+                      </Field>
+                      <Field label="Department">
+                        <input
+                          type="text"
+                          className="saas-input"
+                          value={profile.department}
+                          onChange={(e) => setProfile({ ...profile, department: e.target.value })}
+                        />
+                      </Field>
+                      <Field label="Timezone">
+                        <select
+                          className="saas-input"
+                          value={profile.timezone}
+                          onChange={(e) => setProfile({ ...profile, timezone: e.target.value })}
+                        >
+                          <option value="Asia/Kolkata">Asia/Kolkata</option>
+                          <option value="UTC">UTC</option>
+                          <option value="America/New_York">America/New_York</option>
+                        </select>
+                      </Field>
+                      <Field label="Role">
+                        <div className="rounded-2xl border border-slate-200 bg-slate-50 px-5 py-3.5 text-[13px] font-semibold text-slate-700">
+                          {user?.role || "Admin"}
+                        </div>
+                      </Field>
+                      <Field label="Workspace">
+                        <div className="rounded-2xl border border-slate-200 bg-slate-50 px-5 py-3.5 text-[13px] font-semibold text-slate-700">
+                          GT Vendor Management
+                        </div>
+                      </Field>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {activeTab === "security" && (
+              <motion.div
+                key="security"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="space-y-6 p-5 xl:p-6"
+              >
+                <SectionHeader
+                  icon={Shield}
+                  title="Security Settings"
+                  note="Password fields and protection controls stay in one simple panel."
+                />
+
+                <div className="grid gap-3 md:grid-cols-3">
+                  <InfoCard label="Password Policy" value="Strong" note="Enterprise standard applied" />
+                  <InfoCard label="MFA" value="Enabled" note="Recommended for admin access" />
+                  <InfoCard label="Session Rotation" value="120 min" note="Controlled by policy" />
+                </div>
+
+                <div className="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm">
+                  <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                    <Field label="Current Password">
+                      <input
+                        type="password"
+                        placeholder="Enter current password"
+                        className="saas-input"
+                        value={security.currentPassword}
+                        onChange={(e) =>
+                          setSecurity({ ...security, currentPassword: e.target.value })
+                        }
+                      />
+                    </Field>
+                    <div />
+                    <Field label="New Password">
+                      <input
+                        type="password"
+                        placeholder="Enter new password"
+                        className="saas-input"
+                        value={security.newPassword}
+                        onChange={(e) => setSecurity({ ...security, newPassword: e.target.value })}
+                      />
+                    </Field>
+                    <Field label="Confirm Password">
+                      <input
+                        type="password"
+                        placeholder="Confirm new password"
+                        className="saas-input"
+                        value={security.confirmPassword}
+                        onChange={(e) =>
+                          setSecurity({ ...security, confirmPassword: e.target.value })
+                        }
+                      />
+                    </Field>
+                  </div>
+
+                  <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-5">
+                    <div className="flex items-center justify-between gap-4">
+                      <div>
+                        <p className="text-[13px] font-semibold text-slate-900">
+                          Multi-factor authentication
+                        </p>
+                        <p className="mt-1 text-[12px] text-slate-500">
+                          Additional protection for admin sign-in and sensitive changes.
+                        </p>
+                      </div>
+                      <StaticToggle active />
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {activeTab === "notifications" && (
+              <motion.div
+                key="notifications"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="space-y-6 p-5 xl:p-6"
+              >
+                <SectionHeader
+                  icon={Bell}
+                  title="Notification Settings"
+                  note="Choose which admin alerts should remain visible and active."
+                />
+
+                <div className="space-y-3">
+                  <ToggleRow
+                    title="Email Alerts"
+                    desc="Receive important admin notifications on email."
+                    active={notifications.emailAlerts}
+                    onToggle={() =>
+                      setNotifications({
+                        ...notifications,
+                        emailAlerts: !notifications.emailAlerts,
+                      })
+                    }
+                  />
+                  <ToggleRow
+                    title="Dashboard Alerts"
+                    desc="Show high-priority updates inside the admin dashboard."
+                    active={notifications.dashboardAlerts}
+                    onToggle={() =>
+                      setNotifications({
+                        ...notifications,
+                        dashboardAlerts: !notifications.dashboardAlerts,
+                      })
+                    }
+                  />
+                  <ToggleRow
+                    title="Vendor Activity Updates"
+                    desc="Show new vendor profile and application activity updates."
+                    active={notifications.vendorUpdates}
+                    onToggle={() =>
+                      setNotifications({
+                        ...notifications,
+                        vendorUpdates: !notifications.vendorUpdates,
+                      })
+                    }
+                  />
+                  <ToggleRow
+                    title="Weekly Summary"
+                    desc="Receive a summary of admin activity and workspace changes."
+                    active={notifications.weeklySummary}
+                    onToggle={() =>
+                      setNotifications({
+                        ...notifications,
+                        weeklySummary: !notifications.weeklySummary,
+                      })
+                    }
+                  />
+                </div>
+              </motion.div>
+            )}
+
+            {activeTab === "advanced" && (
+              <motion.div
+                key="advanced"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="space-y-6 p-5 xl:p-6"
+              >
+                <SectionHeader
+                  icon={Cpu}
+                  title="Advanced Settings"
+                  note="Reference-only values and protected system information for admin review."
+                />
+
+                <div className="rounded-2xl border border-amber-200 bg-amber-50/70 p-5">
+                  <p className="text-[12px] font-semibold text-amber-800">Restricted area</p>
+                  <p className="mt-2 text-[12px] leading-6 text-amber-700">
+                    These items are shown for visibility only. Critical system configuration is
+                    still controlled by existing platform rules.
+                  </p>
+                </div>
+
+                <div className="grid gap-3 md:grid-cols-2">
+                  <ReferenceCard
+                    icon={Globe}
+                    label="Webhook Endpoint"
+                    value={`https://api.gateway.local/webhook/${user?._id || "admin-node"}`}
+                  />
+                  <ReferenceCard
+                    icon={Key}
+                    label="API Mode"
+                    value="Production workspace"
+                  />
+                  <ReferenceCard
+                    icon={Activity}
+                    label="System Version"
+                    value="v4.1 stable"
+                  />
+                  <ReferenceCard
+                    icon={CheckCircle2}
+                    label="Health Status"
+                    value="All services available"
+                  />
+                </div>
+
+                <div className="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm">
+                  <p className="text-[13px] font-semibold text-slate-900">Protected actions</p>
+                  <p className="mt-2 text-[12px] text-slate-500">
+                    Use these buttons as visual entry points only. No backend behavior was changed
+                    in this update.
+                  </p>
+                  <div className="mt-5 flex flex-wrap gap-3">
+                    <button className="rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-[12px] font-semibold text-slate-700 transition-all hover:bg-slate-50">
+                      Rotate API Key
+                    </button>
+                    <button className="rounded-xl bg-slate-900 px-5 py-2.5 text-[12px] font-semibold text-white transition-all hover:bg-slate-800">
+                      Generate New Token
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </section>
+      </div>
+    </div>
+  );
 }
 
-const SignalSwitch = ({ title, desc, isActive }) => (
-    <div className={`p-10 border rounded-[2.5rem] flex items-center justify-between transition-all duration-500 group cursor-pointer ${isActive ? 'bg-slate-50/50 border-slate-200 shadow-premium' : 'bg-white border-slate-100 grayscale hover:grayscale-0'}`}>
-         <div className="max-w-xl">
-             <h3 className={`text-sm font-black uppercase tracking-[0.2em] mb-2 ${isActive ? 'text-slate-900' : 'text-slate-400'}`}>{title}</h3>
-             <p className={`text-[10px] font-bold uppercase tracking-widest leading-relaxed italic ${isActive ? 'text-slate-500' : 'text-slate-300'}`}>{desc}</p>
-         </div>
-         <div className={`w-16 h-8 rounded-full transition-all relative shadow-inner ${isActive ? 'bg-slate-900' : 'bg-slate-100'}`}>
-              <div className={`absolute top-1.5 w-5 h-5 rounded-full transition-all shadow-xl ${isActive ? 'left-9 bg-white' : 'left-1.5 bg-white/40'}`}></div>
-         </div>
+const HeroTile = ({ icon: Icon, label, value }) => (
+  <div className="rounded-xl border border-slate-200/60 bg-white/50 p-4 shadow-sm">
+    <div className="flex items-center gap-3">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 shadow-inner">
+        <Icon size={18} />
+      </div>
+      <div>
+        <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-500">{label}</p>
+        <p className="mt-1 text-lg font-semibold text-slate-900">{value}</p>
+      </div>
     </div>
+  </div>
 );
 
-const ArrowRight = ({ size, className }) => (
-    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className={className}>
-        <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
-    </svg>
+const QuickInfoCard = ({ title, value, note }) => (
+  <div className="rounded-xl border border-slate-200/60 bg-white p-5 shadow-sm">
+    <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-500">{title}</p>
+    <p className="mt-1 text-lg font-semibold text-slate-900">{value}</p>
+    <p className="mt-2 text-[13px] leading-6 text-slate-500">{note}</p>
+  </div>
+);
+
+const SummaryCard = ({ label, value, tone }) => {
+  const toneClass =
+    tone === "emerald"
+      ? "border-emerald-100 bg-emerald-50 text-emerald-700"
+      : tone === "indigo"
+      ? "border-indigo-100 bg-indigo-50 text-indigo-700"
+      : tone === "amber"
+      ? "border-amber-100 bg-amber-50 text-amber-700"
+      : "border-slate-200 bg-slate-100 text-slate-700";
+
+  return (
+    <div className="overflow-hidden rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md">
+      <div className="mb-5 flex items-start justify-between">
+        <span className={`rounded-full border px-3 py-1.5 text-[10px] font-semibold ${toneClass}`}>
+          {label}
+        </span>
+      </div>
+      <h3 className="text-4xl font-semibold tracking-tight text-slate-900">{value}</h3>
+    </div>
+  );
+};
+
+const SectionHeader = ({ icon: Icon, title, note }) => (
+  <div className="flex items-center gap-4 border-b border-slate-100 pb-5">
+    <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600">
+      <Icon size={18} />
+    </div>
+    <div>
+      <h2 className="text-base font-semibold text-slate-900">{title}</h2>
+      <p className="mt-1 text-[12px] text-slate-500">{note}</p>
+    </div>
+  </div>
+);
+
+const Field = ({ label, children }) => (
+  <div className="space-y-2">
+    <label className="ml-1 text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500">
+      {label}
+    </label>
+    {children}
+  </div>
+);
+
+const InfoCard = ({ label, value, note }) => (
+  <div className="rounded-2xl border border-slate-200/70 bg-white p-5 shadow-sm">
+    <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-500">{label}</p>
+    <p className="mt-2 text-lg font-semibold text-slate-900">{value}</p>
+    <p className="mt-2 text-[12px] text-slate-500">{note}</p>
+  </div>
+);
+
+const ToggleRow = ({ title, desc, active, onToggle }) => (
+  <button
+    type="button"
+    onClick={onToggle}
+    className="flex w-full items-center justify-between gap-4 rounded-2xl border border-slate-200/70 bg-white p-5 text-left shadow-sm transition-all hover:bg-slate-50"
+  >
+    <div>
+      <p className="text-[14px] font-semibold text-slate-900">{title}</p>
+      <p className="mt-1 text-[12px] leading-6 text-slate-500">{desc}</p>
+    </div>
+    <StaticToggle active={active} />
+  </button>
+);
+
+const StaticToggle = ({ active }) => (
+  <div
+    className={`relative h-7 w-12 rounded-full transition-all ${
+      active ? "bg-slate-900" : "bg-slate-200"
+    }`}
+  >
+    <div
+      className={`absolute top-1 h-5 w-5 rounded-full bg-white transition-all ${
+        active ? "left-6" : "left-1"
+      }`}
+    />
+  </div>
+);
+
+const ReferenceCard = ({ icon: Icon, label, value }) => (
+  <div className="rounded-2xl border border-slate-200/70 bg-white p-5 shadow-sm">
+    <div className="flex items-center gap-3">
+      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-50 text-slate-700">
+        <Icon size={18} />
+      </div>
+      <div>
+        <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-500">{label}</p>
+        <p className="mt-1 text-[13px] font-semibold text-slate-900 break-all">{value}</p>
+      </div>
+    </div>
+  </div>
 );

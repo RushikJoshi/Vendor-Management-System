@@ -93,18 +93,18 @@ function App() {
             <Route path="rfq/create" element={<CreateRFQ />} />
             <Route path="purchase-orders" element={<div>Purchase Orders</div>} />
             <Route path="departments" element={<div>Departments</div>} />
-            <Route path="analytics" element={<Dashboard />} />
+            <Route path="analytics" element={<ProtectedRoute role="admin"><Dashboard /></ProtectedRoute>} />
             <Route path="vendors" element={<Vendors />} />
-            <Route path="categories" element={<Categories />} />
-            <Route path="invitations" element={<Invitations />} />
+            <Route path="categories" element={<ProtectedRoute role="admin"><Categories /></ProtectedRoute>} />
+            <Route path="invitations" element={<ProtectedRoute role="admin"><Invitations /></ProtectedRoute>} />
             <Route path="applications" element={<Applications />} />
             <Route path="contracts" element={<Contracts />} />
-            <Route path="form-builder" element={<FormBuilder />} />
+            <Route path="form-builder" element={<ProtectedRoute role="admin"><FormBuilder /></ProtectedRoute>} />
             <Route path="messages" element={<AdminMessages />} />
-            <Route path="audit-logs" element={<AuditLogs />} />
-            <Route path="users" element={<UserManagement />} />
-            <Route path="roles" element={<RoleManagement />} />
-            <Route path="settings" element={<Settings />} />
+            <Route path="audit-logs" element={<ProtectedRoute role="admin"><AuditLogs /></ProtectedRoute>} />
+            <Route path="users" element={<ProtectedRoute role="admin"><UserManagement /></ProtectedRoute>} />
+            <Route path="roles" element={<ProtectedRoute role="admin"><RoleManagement /></ProtectedRoute>} />
+            <Route path="settings" element={<ProtectedRoute role="admin"><Settings /></ProtectedRoute>} />
 
           </Route>
 
