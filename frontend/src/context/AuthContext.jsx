@@ -1,7 +1,7 @@
 import { createContext, useState, useEffect } from "react";
 import api from "../services/api";
 import { useNavigate } from "react-router-dom";
-import { normalizeRole, ROLE_HIERARCHY } from "../config/roles";
+import { normalizeRole, getAllowedModules } from "../config/roles";
 
 export const AuthContext = createContext();
 
@@ -26,10 +26,16 @@ export function AuthProvider({ children }) {
         if (res.data.success) {
           const userData = res.data.data;
           console.log("Session rehydrated. User:", userData);
-          setUser(userData);
-          setAllowedModules(userData.allowedModules || []);
-          localStorage.setItem("role", userData.role);
-          localStorage.setItem("user", JSON.stringify(userData));
+          const normalizedRole = normalizeRole(userData.role);
+          const computedModules =
+            Array.isArray(userData.allowedModules) && userData.allowedModules.length
+              ? userData.allowedModules
+              : getAllowedModules(normalizedRole);
+          const hydratedUser = { ...userData, allowedModules: computedModules };
+          setUser(hydratedUser);
+          setAllowedModules(computedModules);
+          localStorage.setItem("role", hydratedUser.role);
+          localStorage.setItem("user", JSON.stringify(hydratedUser));
         }
       } catch (err) {
         console.error("Rehydration failed:", err);
@@ -46,19 +52,24 @@ export function AuthProvider({ children }) {
     const res = await api.post("/auth/login", { email, password });
     const { token, user: userData } = res.data;
     const role = userData?.role || "vendor";
+    const normalizedRole = normalizeRole(role);
+    const computedModules =
+      Array.isArray(userData.allowedModules) && userData.allowedModules.length
+        ? userData.allowedModules
+        : getAllowedModules(normalizedRole);
+    const mergedUser = { ...userData, allowedModules: computedModules };
 
     console.log("Login successful. Role:", role, "User:", userData);
 
     localStorage.setItem("token", token);
     localStorage.setItem("role", role);
-    localStorage.setItem("user", JSON.stringify(userData));
+    localStorage.setItem("user", JSON.stringify(mergedUser));
 
     api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-    setUser(userData);
-    setAllowedModules(userData.allowedModules || []);
+    setUser(mergedUser);
+    setAllowedModules(computedModules);
 
     // Route based on role
-    const normalizedRole = normalizeRole(role);
     console.log("Normalized Role for routing:", normalizedRole);
 
     if (normalizedRole !== "vendor") {

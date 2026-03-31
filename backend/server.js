@@ -14,6 +14,7 @@ const JobProcessor = require("./jobs/JobProcessor");
 const { successResponse } = require("./utils/responseHandler");
 const FormSeeder = require("./services/FormSeeder");
 const http = require("http");
+const path = require("path");
 const socketUtil = require("./utils/socket");
 
 // Ensure all models are registered
@@ -25,7 +26,11 @@ require("./models/vendor.model");
 // require("./models/Vendor"); // Commented out to avoid conflict
 require("./models/Category");
 require("./models/FormTemplate");
+require("./models/Form");
+require("./models/TreeForm");
 require("./models/VendorApplication");
+require("./models/Submission");
+require("./models/TreeSubmission");
 require("./models/AuditLog");
 require("./models/Document");
 require("./models/Notification");
@@ -53,6 +58,7 @@ app.use(cookieParser());
 app.use(sanitizeRequest);
 // app.use(xss());
 app.use(compression());
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // 3) Request Logging
 if (configs.NODE_ENV === "development") {
@@ -99,6 +105,9 @@ app.use(`${API_V1}/departments`, require("./routes/departmentRoutes"));
 app.use(`${API_V1}/purchase-orders`, require("./routes/poRoutes"));
 app.use(`${API_V1}/users`, require("./routes/userManagement.routes"));
 app.use(`${API_V1}/roles`, require("./routes/role.routes"));
+app.use(`${API_V1}/submissions`, require("./routes/submissionRoutes"));
+app.use(`${API_V1}/form`, require("./routes/treeFormRoutes"));
+app.use(`${API_V1}/submission`, require("./routes/treeSubmissionRoutes"));
 
 // Backward compatibility & frontend aliases
 app.use("/api/auth", require("./routes/authRoutes"));
@@ -121,6 +130,9 @@ app.use("/api/departments", require("./routes/departmentRoutes"));
 app.use("/api/purchase-orders", require("./routes/poRoutes"));
 app.use("/api/users", require("./routes/userManagement.routes"));
 app.use("/api/roles", require("./routes/role.routes"));
+app.use("/api/submissions", require("./routes/submissionRoutes"));
+app.use("/api/form", require("./routes/treeFormRoutes"));
+app.use("/api/submission", require("./routes/treeSubmissionRoutes"));
 
 // 7) Handle Undefined Routes
 app.use((req, res, next) => {

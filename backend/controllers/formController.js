@@ -44,30 +44,22 @@ exports.getFormById = async (req, res) => {
 exports.getPublicFormByCategory = async (req, res) => {
     try {
         const catId = req.params.categoryId;
-
-        // Strategy 1: Look up category → get its assigned formTemplate
-        const category = await Category.findById(catId).populate("formTemplate");
-        if (category && category.formTemplate && category.formTemplate.status === "published") {
-            return res.status(200).json({ success: true, data: category.formTemplate });
-        }
-
-        // Strategy 2: Fallback — search FormTemplate by categoryId field
+        
+        // Find published form linked to this category
         const template = await FormTemplate.findOne({
             categoryId: catId,
             status: "published"
         });
-        if (template) {
-            return res.status(200).json({ success: true, data: template });
-        }
-
-        return res.status(404).json({ success: false, message: "No published form found for this category" });
+        
+        // Return 200 with null if not found
+        return res.status(200).json({ success: true, data: template || null });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
 };
 
 exports.saveForm = async (req, res) => {
-    const { name, title, description, categoryId, sections, status } = req.body;
+    const { name, title, description, categoryId, categoryName, sections, status } = req.body;
     let template;
 
     const formName = name || title;
@@ -77,12 +69,30 @@ exports.saveForm = async (req, res) => {
     }
 
     try {
+        let finalCategoryId = categoryId;
+
+        // Create category on the fly if categoryName is provided
+        if (!finalCategoryId && categoryName) {
+            let cat = await Category.findOne({ name: categoryName });
+            if (!cat) {
+                cat = await Category.create({ 
+                    name: categoryName, 
+                    description: `Automatically created for ${formName}` 
+                });
+            }
+            finalCategoryId = cat._id;
+        }
+
+        if (!finalCategoryId) {
+            return res.status(400).json({ success: false, message: "Category ID or name is required" });
+        }
+
         if (req.body._id) {
             const oldForm = await FormTemplate.findById(req.body._id);
             template = await FormTemplate.findByIdAndUpdate(req.body._id, {
                 name: formName,
                 description,
-                categoryId,
+                categoryId: finalCategoryId,
                 sections,
                 status: status || "draft",
                 version: (oldForm?.version || 1) + 1
@@ -91,16 +101,11 @@ exports.saveForm = async (req, res) => {
             template = await FormTemplate.create({
                 name: formName,
                 description,
-                categoryId,
+                categoryId: finalCategoryId,
                 sections,
                 status: status || "draft",
                 createdBy: req.user?._id
             });
-        }
-
-        // If published, auto-update the Category's formTemplate reference
-        if (status === "published" && categoryId) {
-            await Category.findByIdAndUpdate(categoryId, { formTemplate: template._id });
         }
 
         res.status(200).json({ success: true, data: template });
@@ -130,12 +135,6 @@ exports.publishForm = async (req, res) => {
             status: "published",
             publishedAt: Date.now()
         }, { new: true });
-
-        // Auto-update the Category's formTemplate reference
-        if (template.categoryId) {
-            await Category.findByIdAndUpdate(template.categoryId, { formTemplate: template._id });
-            console.log(`[FormPublish] Category ${template.categoryId} → formTemplate set to ${template._id}`);
-        }
 
         // Audit Log
         if (req.user) {

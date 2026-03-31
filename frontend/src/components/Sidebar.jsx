@@ -12,11 +12,11 @@ export default function Sidebar({
 
   return (
     <aside
-      className={`fixed left-0 top-0 bottom-0 z-50 flex w-[14.25rem] flex-col overflow-hidden border-r border-sky-900/20 bg-white shadow-[18px_0_40px_rgba(0,0,0,0.06)] transition-all duration-300 lg:translate-x-0 ${
+      className={`fixed left-0 top-0 bottom-0 z-50 flex w-[16rem] flex-col overflow-hidden border-r border-sky-200/70 bg-[linear-gradient(180deg,#f8fbff_0%,#f3f8ff_100%)] shadow-[18px_0_36px_rgba(15,76,129,0.08)] transition-all duration-300 lg:translate-x-0 ${
         isMobileOpen ? "translate-x-0" : "-translate-x-full"
-      } ${isCollapsed ? "lg:w-[5.5rem]" : "lg:w-[14.25rem]"}`}
+      } ${isCollapsed ? "lg:w-[6rem]" : "lg:w-[16rem]"}`}
     >
-      <div className="border-b border-sky-100 bg-white px-4 py-4">
+      <div className="border-b border-sky-100 bg-transparent px-4 py-4">
         <div className="mb-3 flex items-center justify-between">
           <button
             type="button"
@@ -34,33 +34,9 @@ export default function Sidebar({
             <X size={16} />
           </button>
         </div>
-        <div
-          className={`rounded-[1.4rem] border border-slate-200/80 bg-slate-50/80 px-3.5 py-3 shadow-sm ${
-            isCollapsed ? "lg:px-2.5" : ""
-          }`}
-        >
-          <div
-            className={`flex items-center gap-3 ${
-              isCollapsed ? "lg:justify-center" : ""
-            }`}
-          >
-            <div className="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#0f4c81_0%,#0f766e_100%)] text-white shadow-lg shadow-sky-100">
-              <span className="text-[15px] font-black uppercase tracking-[0.08em]">VM</span>
-              <div className="absolute -bottom-1 -right-1 h-4 w-4 rounded-full border-2 border-white bg-emerald-500" />
-            </div>
-            <div className={`min-w-0 ${isCollapsed ? "lg:hidden" : ""}`}>
-              <p className="text-[13px] font-black uppercase leading-none tracking-[0.08em] text-[#16324f]">
-                Vendor Management
-              </p>
-              <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-sky-700/75">
-                Admin Panel
-              </p>
-            </div>
-          </div>
-        </div>
       </div>
 
-      <nav className="sidebar-scroll flex-1 overflow-y-auto bg-white py-3">
+      <nav className="sidebar-scroll flex-1 overflow-y-auto bg-transparent py-3">
         {links.map((link) => {
           const Icon = link.icon || LayoutDashboard;
           const isActive = location.pathname === link.to;
@@ -71,10 +47,10 @@ export default function Sidebar({
               to={link.to}
               onClick={onClose}
               title={isCollapsed ? link.label : undefined}
-              className={`group mx-0.5 mb-1 flex items-center justify-between border-l-4 px-4 py-3 transition-all duration-200 ${
+              className={`group mx-1.5 mb-2 flex items-center justify-between rounded-xl border px-4 py-3 transition-all duration-200 ${
                 isActive
-                  ? "border-l-[#ff5a00] bg-[linear-gradient(90deg,#f03a00_0%,#ff5a00_100%)] text-white shadow-[0_8px_18px_rgba(240,58,0,0.25)]"
-                  : "border-l-transparent bg-[linear-gradient(90deg,#0e5d9d_0%,#136cae_100%)] text-white hover:bg-[linear-gradient(90deg,#0c568f_0%,#115f99_100%)]"
+                  ? "border-sky-200 bg-[linear-gradient(90deg,#d8efff_0%,#c9e7ff_100%)] text-sky-900 shadow-[0_8px_18px_rgba(59,130,246,0.18)]"
+                  : "border-sky-100 bg-white text-slate-700 hover:border-sky-200 hover:bg-sky-50/70"
               } ${isCollapsed ? "lg:justify-center lg:px-2 lg:py-3.5" : ""}`}
             >
               <div
@@ -84,16 +60,12 @@ export default function Sidebar({
               >
                 <div
                   className={`flex h-7 w-7 items-center justify-center rounded-md ${
-                    isActive ? "bg-white/18" : "bg-white/10"
+                    isActive ? "bg-sky-100 text-sky-700" : "bg-sky-50 text-sky-700/90"
                   }`}
                 >
                   <Icon size={15} strokeWidth={2.2} />
                 </div>
-                <span
-                  className={`text-[12px] font-semibold tracking-[0.01em] ${
-                    isCollapsed ? "lg:hidden" : ""
-                  }`}
-                >
+                <span className={`text-[14px] font-medium ${isCollapsed ? "lg:hidden" : ""}`}>
                   {link.label}
                 </span>
               </div>

@@ -1,11 +1,11 @@
 import { useContext, useState } from "react";
 import { AuthContext } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 import {
   Search,
   LogOut,
   UserCircle2,
   ChevronDown,
-  ShieldCheck,
   Settings,
   Globe,
   Activity,
@@ -23,11 +23,27 @@ export default function Navbar({
 }) {
   const { logout, user } = useContext(AuthContext);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const navigate = useNavigate();
+  const isVendor = String(user?.role || "").toLowerCase() === "vendor";
+
+  const handleProfileAction = (action) => {
+    if (isVendor) {
+      if (action === "profile") navigate("/vendor/change-password");
+      else navigate("/vendor/dashboard");
+      setIsProfileOpen(false);
+      return;
+    }
+
+    if (action === "profile") navigate("/admin/profile");
+    if (action === "settings") navigate("/admin/settings");
+    if (action === "activity") navigate("/admin/audit-logs");
+    setIsProfileOpen(false);
+  };
 
   return (
     <nav
       className={`fixed left-0 right-0 top-0 z-40 flex h-[4.25rem] items-center justify-between border-b border-white/60 bg-[#fbfaf7]/90 px-3 backdrop-blur-xl transition-all duration-500 sm:px-4 lg:h-[4.5rem] lg:px-6 ${
-        isSidebarCollapsed ? "lg:left-[5.5rem]" : "lg:left-[14.25rem]"
+        isSidebarCollapsed ? "lg:left-[6rem]" : "lg:left-[16rem]"
       }`}
     >
       <div className="flex items-center gap-3">
@@ -84,27 +100,30 @@ export default function Navbar({
 
         <div className="relative">
           <button
+            type="button"
             onClick={() => setIsProfileOpen(!isProfileOpen)}
-            className="flex items-center gap-2 rounded-[1.1rem] border border-white/70 bg-white/80 px-2.5 py-1.5 shadow-[0_18px_40px_-28px_rgba(15,23,42,0.45)] transition-all hover:shadow-[0_22px_55px_-25px_rgba(15,23,42,0.5)] sm:gap-3 sm:px-3"
+            className="flex items-center gap-2 rounded-2xl border border-sky-100 bg-white/95 px-2.5 py-1.5 shadow-[0_14px_32px_-24px_rgba(37,99,235,0.35)] transition-all hover:border-sky-200 hover:shadow-[0_20px_45px_-24px_rgba(37,99,235,0.4)] focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 sm:gap-3 sm:px-3.5"
           >
             <div className="hidden text-right sm:block">
-              <p className="text-[12px] font-bold leading-none tracking-tight text-slate-900">
+              <p className="text-[13px] font-semibold leading-none text-slate-900">
                 {user?.name || "System Admin"}
               </p>
-              <p className="mt-1 text-[8px] font-bold uppercase tracking-[0.22em] text-stone-400">
-                {user?.role || "Global Manager"}
-              </p>
+              <div className="mt-1 flex items-center justify-end gap-1.5">
+                <span className="inline-flex rounded-full bg-sky-50 px-2 py-0.5 text-[10px] font-medium text-sky-700">
+                  {user?.role || "admin"}
+                </span>
+              </div>
             </div>
 
             <div className="relative">
               <motion.div
                 whileHover={{ scale: 1.05 }}
-                className="flex h-9 w-9 items-center justify-center rounded-[0.95rem] bg-[linear-gradient(135deg,#1f2937_0%,#111827_100%)] text-sm font-bold text-white shadow-lg shadow-stone-300/60 ring-4 ring-[#f7f3eb] sm:h-10 sm:w-10 sm:rounded-[1rem]"
+                className="flex h-9 w-9 items-center justify-center rounded-xl bg-[linear-gradient(135deg,#1f78c1_0%,#2f9ae0_100%)] text-sm font-semibold text-white shadow-lg shadow-sky-200/80 ring-4 ring-[#f7f3eb] sm:h-10 sm:w-10"
               >
                 {user?.name?.charAt(0) || "S"}
               </motion.div>
-              <div className="absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full border-2 border-white bg-emerald-500 shadow-xl">
-                <div className="h-1 w-1 rounded-full bg-white" />
+              <div className="absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full border-2 border-white bg-emerald-500 shadow-sm">
+                <div className="h-1.5 w-1.5 rounded-full bg-white" />
               </div>
             </div>
           </button>
@@ -115,34 +134,36 @@ export default function Navbar({
                 initial={{ opacity: 0, y: 15, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 15, scale: 0.95 }}
-                className="absolute right-0 top-full z-50 mt-4 w-[min(18rem,calc(100vw-1rem))] overflow-hidden rounded-[2rem] border border-stone-200 bg-white p-5 shadow-[0_40px_100px_-20px_rgba(15,23,42,0.18)] sm:mt-5 sm:w-72 sm:p-6"
+                className="absolute right-0 top-full z-50 mt-3 w-[min(18rem,calc(100vw-1rem))] overflow-hidden rounded-2xl border border-sky-100 bg-white p-4 shadow-[0_24px_60px_-20px_rgba(37,99,235,0.24)] sm:mt-4 sm:w-72 sm:p-5"
               >
-                <div className="pointer-events-none absolute right-0 top-0 p-8 opacity-[0.03]">
-                  <ShieldCheck size={120} />
-                </div>
-
-                <div className="relative z-10 mb-6">
-                  <p className="mb-2 text-[10px] font-black uppercase tracking-[0.32em] text-stone-400">
+                <div className="mb-4">
+                  <p className="mb-1 text-[12px] font-medium text-slate-400">
                     Account
                   </p>
-                  <h4 className="text-lg font-black leading-none tracking-tight text-slate-900">
+                  <h4 className="text-[22px] font-semibold leading-none text-slate-900">
                     {user?.name}
                   </h4>
+                  <p className="mt-2 inline-flex rounded-full bg-sky-50 px-2.5 py-1 text-[11px] font-medium text-sky-700">
+                    {user?.role || "admin"}
+                  </p>
                 </div>
 
-                <div className="relative z-10 space-y-3">
-                  <ProfileLink icon={UserCircle2} label="View Profile Dossier" />
-                  <ProfileLink icon={Settings} label="System Protocols" />
-                  <ProfileLink icon={Activity} label="Access Logs" />
+                <div className="space-y-1.5">
+                  <ProfileLink icon={UserCircle2} label="My Profile" onClick={() => handleProfileAction("profile")} />
+                  <ProfileLink icon={Settings} label="Settings" onClick={() => handleProfileAction("settings")} />
+                  <ProfileLink icon={Activity} label="Activity Log" onClick={() => handleProfileAction("activity")} />
                 </div>
 
-                <div className="mx-2 my-6 h-px bg-stone-100" />
+                <div className="my-4 h-px bg-stone-100" />
 
                 <button
-                  className="group/logout relative z-10 flex w-full items-center justify-between rounded-2xl bg-rose-50 px-5 py-4 text-[10px] font-black uppercase tracking-[0.28em] text-rose-600 transition-all duration-500 hover:bg-rose-500 hover:text-white active:scale-95"
-                  onClick={logout}
+                  className="group/logout flex w-full items-center justify-between rounded-xl bg-rose-50 px-4 py-2.5 text-[13px] font-medium text-rose-600 transition-all duration-300 hover:bg-rose-500 hover:text-white active:scale-95"
+                  onClick={() => {
+                    setIsProfileOpen(false);
+                    logout();
+                  }}
                 >
-                  Terminate session
+                  Logout
                   <LogOut size={16} className="transition-transform group-hover/logout:translate-x-1" />
                 </button>
               </motion.div>
@@ -154,12 +175,12 @@ export default function Navbar({
   );
 }
 
-const ProfileLink = ({ icon: Icon, label }) => (
-  <button className="group flex w-full items-center gap-4 rounded-2xl px-4 py-3 text-[11px] font-black text-stone-500 transition-all duration-300 hover:bg-stone-50 hover:text-slate-900">
-    <div className="flex h-8 w-8 items-center justify-center rounded-xl border border-stone-100 bg-stone-50 text-stone-400 shadow-inner transition-all group-hover:bg-white group-hover:text-slate-900">
-      <Icon size={16} />
+const ProfileLink = ({ icon: Icon, label, onClick }) => (
+  <button type="button" onClick={onClick} className="group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-[14px] font-medium text-slate-600 transition-all duration-200 hover:bg-slate-50 hover:text-slate-900">
+    <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-stone-100 bg-stone-50 text-stone-400 transition-all group-hover:bg-white group-hover:text-slate-900">
+      <Icon size={15} />
     </div>
-    <span className="tracking-wide">{label}</span>
+    <span>{label}</span>
     <ChevronDown
       size={14}
       className="-rotate-90 ml-auto opacity-0 transition-all group-hover:translate-x-1 group-hover:opacity-100"

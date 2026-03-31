@@ -1,7 +1,16 @@
 import { Navigate } from "react-router-dom";
 import { useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
-import { normalizeRole, hasAccess } from "../config/roles";
+import { normalizeRole, hasAccess, canAccessModule } from "../config/roles";
+
+const MODULE_ALIASES = {
+  vendor_forms: ["vendor_forms", "form_builder", "vendors"],
+};
+
+const hasModuleAccess = (allowedModules, moduleKey) => {
+  const aliases = MODULE_ALIASES[moduleKey] || [moduleKey];
+  return aliases.some((key) => allowedModules.includes(key));
+};
 
 /**
  * ProtectedRoute — Role hierarchy based. 
@@ -11,7 +20,7 @@ import { normalizeRole, hasAccess } from "../config/roles";
  *  - module: module-level permission check
  */
 export default function ProtectedRoute({ children, requiredRole, role, module }) {
-  const { user, allowedModules } = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
 
   // Not logged in → redirect to login
   if (!user) return <Navigate to="/login" replace />;
@@ -26,34 +35,29 @@ export default function ProtectedRoute({ children, requiredRole, role, module })
     }
   }
 
-  // Role check: Admin routes usually allow any internal role
+  // Explicit role check
   if (role) {
     const allowed = Array.isArray(role) ? role : [role];
     const normalizedAllowed = allowed.map(r => normalizeRole(r));
-    
-    // If it's an internal route check (admin/hr/manager), 
-    // allow any user whose role is NOT vendor and has some allowedModules,
-    // OR if their specific role is in the list.
-    const isInternalRoute = normalizedAllowed.includes("admin") || normalizedAllowed.includes("hr");
-    
-    if (isInternalRoute) {
-        if (userRole === "vendor") return <Navigate to="/access-denied" replace />;
-    } else {
-        // Strict check for single roles (like specific vendor routes)
-        if (!normalizedAllowed.includes(userRole)) {
-            return <Navigate to="/access-denied" replace />;
-        }
+
+    if (!normalizedAllowed.includes(userRole)) {
+      const userAllowedModules = Array.isArray(user?.allowedModules) ? user.allowedModules : [];
+      const isInternalCustomRole = userRole !== "vendor" && userAllowedModules.length > 0;
+      if (!isInternalCustomRole) {
+        return <Navigate to="/access-denied" replace />;
+      }
     }
   }
 
 
   // Module-level access check
-  if (module && allowedModules) {
-    const adminRoles = ["admin"]; // hr and manager are checking against hierarchy mostly
-    if (!adminRoles.includes(userRole)) {
-      if (!allowedModules.includes(module)) {
-        return <Navigate to="/access-denied" replace />;
-      }
+  if (module) {
+    const userAllowedModules = Array.isArray(user?.allowedModules) ? user.allowedModules : [];
+    const hasDynamicModuleAccess =
+      userAllowedModules.includes("*") || hasModuleAccess(userAllowedModules, module);
+
+    if (!hasDynamicModuleAccess && !canAccessModule(userRole, module)) {
+      return <Navigate to="/access-denied" replace />;
     }
   }
 

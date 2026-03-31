@@ -23,14 +23,15 @@ exports.getRoles = asyncHandler(async (req, res, next) => {
 // @access  Private/Admin
 exports.createRole = asyncHandler(async (req, res, next) => {
     const { name, permissions, minLimit, maxLimit, accessibleModules, description } = req.body;
+    const normalizedName = String(name || "").trim().toLowerCase();
 
-    const existingRole = await Role.findOne({ name, tenantId: req.user.tenantId });
+    const existingRole = await Role.findOne({ name: normalizedName, tenantId: req.user.tenantId });
     if (existingRole) {
         return next(new AppError("Role name already exists for this company", 400));
     }
 
     const role = await Role.create({
-        name,
+        name: normalizedName,
         tenantId: req.user.tenantId,
         permissions,
         minLimit,
@@ -46,6 +47,9 @@ exports.createRole = asyncHandler(async (req, res, next) => {
 // @route   PUT /api/v1/roles/:id
 // @access  Private/Admin
 exports.updateRole = asyncHandler(async (req, res, next) => {
+    if (req.body?.name) {
+        req.body.name = String(req.body.name).trim().toLowerCase();
+    }
     const role = await Role.findByIdAndUpdate(
         req.params.id,
         req.body,

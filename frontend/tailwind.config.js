@@ -24,9 +24,9 @@ export default {
         'corp-border': '#E5E7EB',
       },
       fontFamily: {
-        inter: ['Inter', 'sans-serif'],
+        inter: ['ui-sans-serif', 'system-ui', 'sans-serif'],
         poppins: ['Poppins', 'sans-serif'],
-        sans: ['Inter', 'sans-serif'],
+        sans: ['ui-sans-serif', 'system-ui', 'sans-serif'],
       },
       borderRadius: {
         'vms': '0.75rem',    
@@ -42,4 +42,4 @@ export default {
   plugins: [],
 };
 
-
+

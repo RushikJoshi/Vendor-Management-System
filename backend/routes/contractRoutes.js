@@ -1,7 +1,6 @@
 const router = require("express").Router();
 const { protect } = require("../middlewares/auth.middleware");
 
-const { checkPermission } = require("../middleware/permissionMiddleware");
 const {
     getContracts,
     getContractStats,
@@ -12,20 +11,17 @@ const {
     deleteContract
 } = require("../controllers/ContractController");
 
-const { authorizeRoles } = require("../middlewares/role.middleware");
+const { authorizeModules } = require("../middlewares/role.middleware");
 
-// Vendor endpoints 
-router.get("/vendor/:vendorId", protect, authorizeRoles("admin", "manager", "vendor"), getVendorContracts);
-
-// Admin / Manager endpoints
 router.use(protect);
 
-router.get("/stats", authorizeRoles("admin", "manager"), getContractStats);
-router.get("/", authorizeRoles("admin", "manager"), getContracts);
-router.post("/", authorizeRoles("admin", "manager"), createContract);
-router.patch("/:id", authorizeRoles("admin", "manager"), updateContract);
-router.patch("/:id/terminate", authorizeRoles("admin", "manager"), terminateContract);
-router.delete("/:id", authorizeRoles("admin", "manager"), deleteContract);
+router.get("/vendor/:vendorId", authorizeModules("contracts"), getVendorContracts);
+router.get("/stats", authorizeModules("contracts"), getContractStats);
+router.get("/", authorizeModules("contracts"), getContracts);
+router.post("/", authorizeModules("contracts"), createContract);
+router.patch("/:id", authorizeModules("contracts"), updateContract);
+router.patch("/:id/terminate", authorizeModules("contracts"), terminateContract);
+router.delete("/:id", authorizeModules("contracts"), deleteContract);
 
 
 module.exports = router;

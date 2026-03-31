@@ -128,16 +128,16 @@ const hasRenderableSections = (formTemplate) =>
     );
 
 export default function RegistrationWizard() {
-    const { categoryId: urlCategoryId } = useParams();
+    const { categoryId: urlCategoryId, formId: urlFormId } = useParams();
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
     const location = useLocation();
     const token = searchParams.get("token");
-    const shouldOpenDirectForm = location.pathname === "/onboarding";
+    const shouldOpenDirectForm = location.pathname.includes("/onboarding") || urlFormId;
 
     // ── Public 3-step state ──────────────────────────
     const [publicStep, setPublicStep] = useState(
-        urlCategoryId || token || shouldOpenDirectForm ? "form" : "pick-category"
+        urlCategoryId || urlFormId || token || shouldOpenDirectForm ? "form" : "pick-category"
     ); // "pick-category" | "category-detail" | "form"
     const [allCategories, setAllCategories] = useState([]);
     const [searchQuery, setSearchQuery] = useState("");
@@ -147,7 +147,7 @@ export default function RegistrationWizard() {
 
     const [categoryDetails, setCategoryDetails] = useState(null);
     const [loading, setLoading] = useState(
-        urlCategoryId || token || shouldOpenDirectForm ? true : false
+        urlCategoryId || urlFormId || token || shouldOpenDirectForm ? true : false
     );
     const [currentStep, setCurrentStep] = useState(0);
     const [formValues, setFormValues] = useState({});
@@ -181,6 +181,7 @@ export default function RegistrationWizard() {
             setLoading(true);
             try {
                 let catIdToFetch = urlCategoryId || selectedCat?._id;
+                let specificFormToFetch = urlFormId;
 
                 if (token) {
                     // Invitation token verification IS authenticated
@@ -189,7 +190,16 @@ export default function RegistrationWizard() {
                     setFormValues({ email: res.data.data.email });
                 }
 
-                if (catIdToFetch) {
+                if (specificFormToFetch) {
+                    // 1. Fetch specific form directly from shareable link
+                    const formRes = await publicApi.get(`/forms/single/public/${specificFormToFetch}`);
+                    if (!hasRenderableSections(formRes.data.data)) {
+                        throw new Error("This registration link is not currently active.");
+                    }
+                    setCategoryDetails({ formTemplate: formRes.data.data });
+                    if (formRes.data.data.categoryId) setSelectedCat(formRes.data.data.categoryId);
+                } else if (catIdToFetch) {
+                    // 2. Fetch via Category selection
                     // Use publicApi — no auth header, won't trigger 401 redirect
                     const formRes = await publicApi.get(`/forms/public/${catIdToFetch}`);
                     if (!hasRenderableSections(formRes.data.data)) {
@@ -197,6 +207,7 @@ export default function RegistrationWizard() {
                     }
                     setCategoryDetails({ formTemplate: formRes.data.data });
                 } else {
+                    // 3. Fallback to master or automatic discovery
                     try {
                         const formRes = await publicApi.get(`/forms/master/public`);
                         if (!hasRenderableSections(formRes.data.data)) {
@@ -204,7 +215,7 @@ export default function RegistrationWizard() {
                         }
                         setCategoryDetails({ formTemplate: formRes.data.data });
                     } catch (masterErr) {
-                        if (shouldOpenDirectForm) {
+                        if (shouldOpenDirectForm && !urlFormId) {
                             const categoriesRes = await publicApi.get("/categories/public-list");
                             const openCategories = (categoriesRes.data.data || []).filter(
                                 (category) => category.hasPublishedForm
@@ -245,7 +256,7 @@ export default function RegistrationWizard() {
                     err.response?.data?.message ||
                     err.message ||
                     "Registration form not available for this category.";
-                if (token || urlCategoryId || selectedCat || shouldOpenDirectForm) {
+                if (token || urlCategoryId || urlFormId || selectedCat || shouldOpenDirectForm) {
                     toast.error(msg);
                 }
                 setCategoryDetails(null);
