@@ -9,21 +9,21 @@ const {
   deleteUser
 } = require("../controllers/userManagement.controller");
 const { protect } = require("../middlewares/auth.middleware");
-const { authorizeRoles } = require("../middlewares/role.middleware");
+const { authorizeModules } = require("../middlewares/role.middleware");
+const { checkActionAccess } = require("../middlewares/permission.middleware");
 
-// All routes here are admin only
 router.use(protect);
-router.use(authorizeRoles("admin")); // Restrict to admin role globally here
+router.use(authorizeModules("users"));
 
 router.route("/")
-  .get(getUsers)
-  .post(createUser);
+  .get(checkActionAccess("users.view"), getUsers)
+  .post(checkActionAccess("users.create"), createUser);
 
-router.patch("/:id/role", updateUserRole);
-router.patch("/:id/status", updateUserStatus);
+router.patch("/:id/role", checkActionAccess("users.edit"), updateUserRole);
+router.patch("/:id/status", checkActionAccess("users.edit"), updateUserStatus);
 
 router.route("/:id")
-  .put(updateUser)
-  .delete(deleteUser);
+  .put(checkActionAccess("users.edit"), updateUser)
+  .delete(checkActionAccess("users.delete"), deleteUser);
 
 module.exports = router;

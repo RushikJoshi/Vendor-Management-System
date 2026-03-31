@@ -6,6 +6,15 @@ import Sidebar from "../components/Sidebar";
 import { sidebarItems } from "../config/SidebarConfig";
 import { normalizeRole, hasAccess } from "../config/roles";
 
+const MODULE_ALIASES = {
+  vendor_forms: ["vendor_forms", "form_builder", "vendors"],
+};
+
+const hasModuleAccess = (allowedModules = [], moduleKey) => {
+  const aliases = MODULE_ALIASES[moduleKey] || [moduleKey];
+  return aliases.some((key) => allowedModules.includes(key));
+};
+
 export default function AdminLayout() {
   const { user, allowedModules } = useContext(AuthContext);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -13,11 +22,11 @@ export default function AdminLayout() {
 
   const filteredLinks = sidebarItems
     .filter((item) => {
-      if (user?.role === "admin") return true;
-      if (allowedModules && allowedModules.length > 0) {
-        return allowedModules.includes(item.label) || allowedModules.includes(item.key);
-      }
       const userRole = normalizeRole(user?.role || "");
+      if (userRole === "admin") return true;
+      if (allowedModules && allowedModules.length > 0) {
+        return allowedModules.includes("*") || hasModuleAccess(allowedModules, item.key);
+      }
       return item.allowedRoles
         ? item.allowedRoles.includes(userRole)
         : hasAccess(userRole, item.requiredRole || "admin");
@@ -29,7 +38,7 @@ export default function AdminLayout() {
     }));
 
   return (
-    <div className="relative flex min-h-screen overflow-hidden bg-[linear-gradient(180deg,#f7f3eb_0%,#f4efe6_26%,#f8f7f3_58%,#fbfaf7_100%)] text-slate-900 selection:bg-amber-200 selection:text-slate-950">
+    <div className="admin-readable relative flex min-h-screen overflow-hidden bg-[linear-gradient(180deg,#f7f3eb_0%,#f4efe6_26%,#f8f7f3_58%,#fbfaf7_100%)] text-slate-900 selection:bg-amber-200 selection:text-slate-950">
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute left-[-8rem] top-[-5rem] h-72 w-72 rounded-full bg-amber-200/30 blur-3xl" />
         <div className="absolute right-[-6rem] top-20 h-80 w-80 rounded-full bg-orange-100/40 blur-3xl" />
@@ -53,7 +62,7 @@ export default function AdminLayout() {
 
       <div
         className={`relative z-10 flex min-h-screen flex-1 flex-col pl-0 transition-all duration-300 ${
-          isSidebarCollapsed ? "lg:pl-[5.5rem]" : "lg:pl-[14.25rem]"
+          isSidebarCollapsed ? "lg:pl-[6rem]" : "lg:pl-[16rem]"
         }`}
       >
         <Navbar

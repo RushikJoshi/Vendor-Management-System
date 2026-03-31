@@ -1,5 +1,6 @@
 const AppError = require("../utils/AppError");
-const { normalizeRole } = require("../config/roles");
+const { normalizeRole, canAccessModule } = require("../config/roles");
+const { deriveAllowedModulesFromPermissions } = require("../config/userPermissions");
 
 /**
  * Middleware to restrict access to specific roles
@@ -22,6 +23,27 @@ exports.authorizeRoles = (...roles) => {
                     403
                 )
             );
+        }
+
+        next();
+    };
+};
+
+exports.authorizeModules = (...moduleKeys) => {
+    return (req, res, next) => {
+        if (!req.user || !req.user.role) {
+            return next(new AppError("User context not established. Please login again.", 401));
+        }
+
+        const role = normalizeRole(req.user.role);
+        const directPermissions = Array.isArray(req.user.permissions) ? req.user.permissions : [];
+        const directModules = deriveAllowedModulesFromPermissions(directPermissions);
+        const allowed =
+            moduleKeys.some((key) => directModules.includes(key)) ||
+            moduleKeys.some((key) => canAccessModule(role, key));
+
+        if (!allowed) {
+            return next(new AppError(`Unauthorized: role [${role}] cannot access requested module.`, 403));
         }
 
         next();

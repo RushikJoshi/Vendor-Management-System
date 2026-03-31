@@ -3,37 +3,28 @@ const router = express.Router();
 const {
     createCategory,
     getCategories,
+    getCategoryById,
     updateCategory,
     deleteCategory,
 } = require("../controllers/categoryController");
 const { protect } = require("../middlewares/auth.middleware");
-const { checkPermission } = require("../middleware/permissionMiddleware");
 
-// ── Public Routes (no auth needed) ──────────────────
-router.get("/public/:categoryId", require("../controllers/categoryController").getPublicCategory);
-
-// Public list of ACTIVE categories for vendor registration page
+// ── Public Routes (For registration page) ─────────────
 router.get("/public-list", async (req, res) => {
     try {
         const Category = require("../models/Category");
-        const categories = await Category.find({ isActive: true })
-            .select("name code slug description isActive approvalType formTemplate")
-            .populate("formTemplate", "name status categoryId");
-
-        const enriched = categories.map(cat => {
+        const FormTemplate = require("../models/FormTemplate");
+        
+        // Only show active categories
+        const categories = await Category.find({ status: "active" }).sort({ name: 1 });
+        
+        // Enrich with information if a form exists (for registration button state)
+        const enriched = await Promise.all(categories.map(async (cat) => {
+            const form = await FormTemplate.findOne({ categoryId: cat._id, status: "published" });
             const obj = cat.toObject();
-            const ft = cat.formTemplate;
-
-            // hasPublishedForm = true ONLY if:
-            // 1. formTemplate exists and is published
-            // 2. formTemplate.categoryId matches this category (OWN form, not shared)
-            const formCatId = ft?.categoryId?.toString();
-            const catId = cat._id.toString();
-            const isOwnPublishedForm = ft && ft.status === "published" && formCatId === catId;
-
-            obj.hasPublishedForm = isOwnPublishedForm;
+            obj.hasPublishedForm = !!form;
             return obj;
-        });
+        }));
 
         res.status(200).json({ success: true, data: enriched });
     } catch (err) {
@@ -41,18 +32,17 @@ router.get("/public-list", async (req, res) => {
     }
 });
 
-// ── Protected Routes (auth required) ────────────────
+// ── Protected Admin Routes ───────────────────────────
 router.use(protect);
 
-router
-    .route("/")
+router.route("/")
     .get(getCategories)
-    .post(checkPermission("MANAGE_CATEGORIES"), createCategory);
+    .post(createCategory);
 
-router
-    .route("/:id")
-    .put(checkPermission("MANAGE_CATEGORIES"), updateCategory)
-    .delete(checkPermission("MANAGE_CATEGORIES"), deleteCategory);
+router.route("/:id")
+    .get(getCategoryById)
+    .put(updateCategory)
+    .delete(deleteCategory);
 
 module.exports = router;
 

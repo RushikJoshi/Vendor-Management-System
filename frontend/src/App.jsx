@@ -9,37 +9,26 @@ import Landing from "./pages/public/Landing";
 import Login from "./pages/public/Login";
 // Legacy Register removed in favor of RegistrationWizard
 
-import Dashboard from "./pages/Dashboard";
-import Vendors from "./pages/admin/Vendors";
-import Applications from "./pages/admin/Applications";
-import FormBuilder from "./pages/admin/FormBuilder";
-import AdminMessages from "./pages/admin/Messages";
-import AuditLogs from "./pages/admin/AuditLogs";
-import UserManagement from "./pages/admin/UserManagement";
-import RoleManagement from "./pages/admin/RoleManagement";
-
-
 import VendorDashboard from "./pages/vendor/Dashboard";
-import VendorProfile from "./pages/vendor/Profile";
-import VendorDocuments from "./pages/vendor/Documents";
-import VendorMessages from "./pages/vendor/Messages";
-import VendorApplications from "./pages/vendor/MyApplications";
-import VendorFillForm from "./pages/vendor/FillForm";
-import VendorRFQResponse from "./pages/vendor/RFQResponse";
-import VendorContracts from "./pages/vendor/Contracts";
 import ChangePassword from "./pages/vendor/ChangePassword";
 
 
 import RegistrationWizard from "./pages/public/RegistrationWizard";
 import RegistrationSuccess from "./pages/public/RegistrationSuccess";
-import Categories from "./pages/admin/Categories";
-import Invitations from "./pages/admin/Invitations";
-import Contracts from "./pages/admin/Contracts";
-import Settings from "./pages/admin/Settings";
-import RFQs from "./pages/admin/RFQs";
-import CreateRFQ from "./pages/admin/CreateRFQ";
+import PublicFormPage from "./pages/public/PublicFormPage";
 import SaaSDashboard from "./pages/admin/SaaSDashboard";
+import RFQs from "./pages/admin/RFQs";
+import Contracts from "./pages/admin/Contracts";
+import DashboardAnalytics from "./pages/admin/DashboardAnalytics";
+import UserManagement from "./pages/admin/UserManagement";
+import RoleManagement from "./pages/admin/RoleManagement";
+import Settings from "./pages/admin/Settings";
+import AuditLogs from "./pages/admin/AuditLogs";
 import AccessDenied from "./pages/AccessDenied";
+import TreeFormBuilder from "./pages/admin/TreeFormBuilder";
+import TreeSubmissions from "./pages/admin/TreeSubmissions";
+import TreeSubmissionDetail from "./pages/admin/TreeSubmissionDetail";
+import TreeFormRenderer from "./pages/public/TreeFormRenderer";
 
 
 import { NotificationProvider } from "./context/NotificationContext";
@@ -72,10 +61,14 @@ function App() {
             <Route path="/" element={<Landing />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<RegistrationWizard />} />
+            <Route path="/register/:formId" element={<RegistrationWizard />} />
             <Route path="/vendor/register" element={<RegistrationWizard />} />
             <Route path="/vendor/register/:categoryId" element={<RegistrationWizard />} />
             <Route path="/onboarding" element={<RegistrationWizard />} />
+            <Route path="/onboarding/:formId" element={<RegistrationWizard />} />
             <Route path="/success" element={<RegistrationSuccess />} />
+            <Route path="/form/:id" element={<PublicFormPage />} />
+            <Route path="/tree-form/:id" element={<TreeFormRenderer />} />
           </Route>
 
           {/* admin / internal — requires 'manager' level or higher to enter the layout */}
@@ -83,28 +76,32 @@ function App() {
           <Route
             path="/admin/*"
             element={
-              <ProtectedRoute role={["admin", "hr", "manager"]}>
+              <ProtectedRoute role={["admin", "hr", "sales", "finance", "procurement", "viewer"]}>
                 <AdminLayout />
               </ProtectedRoute>
             }
           >
-            <Route path="dashboard" element={<SaaSDashboard />} />
-            <Route path="rfqs" element={<RFQs />} />
-            <Route path="rfq/create" element={<CreateRFQ />} />
-            <Route path="purchase-orders" element={<div>Purchase Orders</div>} />
-            <Route path="departments" element={<div>Departments</div>} />
-            <Route path="analytics" element={<ProtectedRoute role="admin"><Dashboard /></ProtectedRoute>} />
-            <Route path="vendors" element={<Vendors />} />
-            <Route path="categories" element={<ProtectedRoute role="admin"><Categories /></ProtectedRoute>} />
-            <Route path="invitations" element={<ProtectedRoute role="admin"><Invitations /></ProtectedRoute>} />
-            <Route path="applications" element={<Applications />} />
-            <Route path="contracts" element={<Contracts />} />
-            <Route path="form-builder" element={<ProtectedRoute role="admin"><FormBuilder /></ProtectedRoute>} />
-            <Route path="messages" element={<AdminMessages />} />
-            <Route path="audit-logs" element={<ProtectedRoute role="admin"><AuditLogs /></ProtectedRoute>} />
-            <Route path="users" element={<ProtectedRoute role="admin"><UserManagement /></ProtectedRoute>} />
-            <Route path="roles" element={<ProtectedRoute role="admin"><RoleManagement /></ProtectedRoute>} />
-            <Route path="settings" element={<ProtectedRoute role="admin"><Settings /></ProtectedRoute>} />
+            <Route path="dashboard" element={<ProtectedRoute module="dashboard"><SaaSDashboard /></ProtectedRoute>} />
+            <Route path="vendor-forms" element={<ProtectedRoute module="vendor_forms"><TreeFormBuilder /></ProtectedRoute>} />
+            <Route path="submissions" element={<ProtectedRoute module="submissions"><TreeSubmissions /></ProtectedRoute>} />
+            <Route path="submissions/:id" element={<ProtectedRoute module="submissions"><TreeSubmissionDetail /></ProtectedRoute>} />
+            <Route path="rfqs" element={<ProtectedRoute module="rfq"><RFQs /></ProtectedRoute>} />
+            <Route path="contracts" element={<ProtectedRoute module="contracts"><Contracts /></ProtectedRoute>} />
+            <Route path="analytics" element={<ProtectedRoute module="analytics"><DashboardAnalytics /></ProtectedRoute>} />
+            <Route path="users" element={<ProtectedRoute module="users"><UserManagement /></ProtectedRoute>} />
+            <Route path="roles" element={<ProtectedRoute module="roles"><RoleManagement /></ProtectedRoute>} />
+            <Route path="profile" element={<ProtectedRoute module="users"><Settings /></ProtectedRoute>} />
+            <Route path="settings" element={<ProtectedRoute module="settings"><Settings /></ProtectedRoute>} />
+            <Route path="audit-logs" element={<ProtectedRoute module="analytics"><AuditLogs /></ProtectedRoute>} />
+            <Route path="vrs/form-builder" element={<Navigate to="/admin/vendor-forms" replace />} />
+            <Route path="vrs/submissions" element={<Navigate to="/admin/submissions" replace />} />
+            <Route path="vrs/submissions/:id" element={<Navigate to="/admin/submissions" replace />} />
+            <Route path="tree-form-builder" element={<Navigate to="/admin/vendor-forms" replace />} />
+            <Route path="tree-submissions" element={<Navigate to="/admin/submissions" replace />} />
+            <Route path="tree-submissions/:id" element={<Navigate to="/admin/submissions" replace />} />
+            <Route path="categories" element={<Navigate to="/admin/vendor-forms" replace />} />
+            <Route path="form-builder" element={<Navigate to="/admin/vendor-forms" replace />} />
+            <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
 
           </Route>
 
@@ -120,13 +117,7 @@ function App() {
           >
 
             <Route path="dashboard" element={<VendorDashboard />} />
-            <Route path="applications" element={<VendorApplications />} />
-            <Route path="fill-form" element={<VendorFillForm />} />
-            <Route path="rfqs" element={<VendorRFQResponse />} />
-            <Route path="contracts" element={<VendorContracts />} />
-            <Route path="profile" element={<VendorProfile />} />
-            <Route path="documents" element={<VendorDocuments />} />
-            <Route path="messages" element={<VendorMessages />} />
+            <Route path="*" element={<Navigate to="/vendor/dashboard" replace />} />
 
           </Route>
 

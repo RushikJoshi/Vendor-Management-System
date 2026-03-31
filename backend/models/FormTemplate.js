@@ -12,6 +12,7 @@ const formTemplateSchema = new mongoose.Schema(
         categoryId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Category",
+            required: true,
         },
         sections: [
             {

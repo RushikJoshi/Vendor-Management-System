@@ -45,3 +45,26 @@ exports.checkModuleAccess = (moduleName) => {
         next();
     };
 };
+
+/**
+ * Action-level guard using role.accessibleModules string keys.
+ * Example keys: users.view, users.create, rfq.approve, settings.access
+ */
+exports.checkActionAccess = (...actionKeys) => {
+    return (req, res, next) => {
+        if (normalizeRole(req.user?.role) === "admin") return next();
+
+        const userActions = Array.isArray(req.user?.permissions) && req.user.permissions.length > 0
+            ? req.user.permissions
+            : Array.isArray(req.userRole?.accessibleModules)
+            ? req.userRole.accessibleModules
+            : [];
+
+        const hasAccess = actionKeys.every((key) => userActions.includes(key));
+        if (!hasAccess) {
+            return next(new AppError("You do not have required action permissions for this endpoint", 403));
+        }
+
+        next();
+    };
+};

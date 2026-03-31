@@ -2201,3 +2201,192 @@
 2026-03-30 10:21:20:2120 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
 2026-03-30 10:21:20:2120 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
 2026-03-30 10:21:20:2120 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-30 15:17:33:1733 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-30 15:17:33:1733 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-30 15:17:33:1733 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-30 17:54:04:544 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-30 17:54:04:544 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-30 17:54:04:544 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-30 18:23:06:236 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-30 18:23:08:238 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-30 18:23:08:238 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-30 18:27:50:2750 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-30 18:27:50:2750 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-30 18:27:50:2750 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-30 18:28:19:2819 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-30 18:28:19:2819 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-30 18:28:19:2819 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-30 18:28:41:2841 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-30 18:28:41:2841 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-30 18:28:41:2841 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-30 18:41:38:4138 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-30 18:41:38:4138 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-30 18:41:38:4138 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-30 18:41:58:4158 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-30 18:41:58:4158 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-30 18:41:58:4158 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-30 18:44:42:4442 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-30 18:44:42:4442 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-30 18:44:42:4442 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-30 18:45:03:453 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-30 18:45:03:453 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-30 18:45:03:453 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-30 22:18:33:1833 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-30 22:18:33:1833 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-30 22:18:33:1833 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-30 22:18:43:1843 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-30 22:18:43:1843 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-30 22:18:43:1843 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-30 22:19:17:1917 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-30 22:19:17:1917 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-30 22:19:17:1917 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-30 22:19:42:1942 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-30 22:19:42:1942 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-30 22:19:42:1942 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-30 22:19:54:1954 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-30 22:19:54:1954 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-30 22:19:54:1954 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-30 22:20:01:201 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-30 22:20:01:201 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-30 22:20:01:201 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-30 22:20:10:2010 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-30 22:20:10:2010 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-30 22:20:10:2010 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-30 22:36:07:367 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-30 22:36:07:367 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-30 22:36:07:367 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-30 22:37:32:3732 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-30 22:37:32:3732 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-30 22:37:32:3732 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-30 22:37:41:3741 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-30 22:37:41:3741 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-30 22:37:41:3741 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-30 22:38:23:3823 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-30 22:38:23:3823 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-30 22:38:23:3823 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-30 22:38:47:3847 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-30 22:38:47:3847 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-30 22:38:47:3847 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-30 22:48:26:4826 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-30 22:48:26:4826 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-30 22:48:26:4826 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-30 22:48:37:4837 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-30 22:48:37:4837 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-30 22:48:37:4837 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-30 22:49:32:4932 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-30 22:49:32:4932 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-30 22:49:32:4932 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-30 22:49:43:4943 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-30 22:49:43:4943 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-30 22:49:43:4943 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-30 22:49:50:4950 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-30 22:49:50:4950 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-30 22:49:50:4950 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-30 22:49:56:4956 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-30 22:49:56:4956 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-30 22:49:56:4956 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-30 23:11:56:1156 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-30 23:11:56:1156 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-30 23:11:56:1156 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-30 23:12:49:1249 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-30 23:12:49:1249 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-30 23:12:49:1249 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-30 23:13:13:1313 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-30 23:13:13:1313 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-30 23:13:13:1313 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-30 23:14:26:1426 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-30 23:14:26:1426 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-30 23:14:26:1426 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-30 23:16:32:1632 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-30 23:16:32:1632 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-30 23:16:32:1632 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-30 23:20:57:2057 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-30 23:20:57:2057 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-30 23:20:57:2057 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-30 23:21:09:219 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-30 23:21:09:219 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-30 23:21:09:219 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-30 23:21:23:2123 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-30 23:21:23:2123 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-30 23:21:23:2123 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-30 23:27:54:2754 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-30 23:27:54:2754 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-30 23:27:54:2754 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-30 23:28:05:285 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-30 23:28:05:285 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-30 23:28:05:285 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-30 23:28:15:2815 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-30 23:28:15:2815 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-30 23:28:15:2815 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-30 23:28:23:2823 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-30 23:28:23:2823 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-30 23:28:23:2823 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-30 23:28:32:2832 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-30 23:28:32:2832 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-30 23:28:32:2832 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-30 23:28:51:2851 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-30 23:28:51:2851 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-30 23:28:51:2851 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-30 23:32:38:3238 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-30 23:32:38:3238 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-30 23:32:38:3238 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-30 23:32:58:3258 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-30 23:32:58:3258 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-30 23:32:58:3258 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-30 23:33:11:3311 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-30 23:33:11:3311 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-30 23:33:11:3311 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-30 23:33:24:3324 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-30 23:33:24:3324 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-30 23:33:24:3324 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-30 23:33:39:3339 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-30 23:33:39:3339 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-30 23:33:39:3339 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-30 23:33:54:3354 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-30 23:33:54:3354 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-30 23:33:54:3354 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-31 10:28:58:2858 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-31 10:28:58:2858 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-31 10:28:58:2858 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-31 15:24:04:244 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-31 15:24:04:244 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-31 15:24:04:244 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-31 15:27:48:2748 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-31 15:27:48:2748 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-31 15:27:48:2748 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-31 15:40:12:4012 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-31 15:40:12:4012 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-31 15:40:12:4012 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-31 15:40:20:4020 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-31 15:40:20:4020 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-31 15:40:20:4020 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-31 15:40:31:4031 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-31 15:40:31:4031 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-31 15:40:31:4031 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-31 15:40:44:4044 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-31 15:40:44:4044 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-31 15:40:44:4044 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-31 15:43:58:4358 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-31 15:43:58:4358 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-31 15:43:58:4358 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-31 15:44:37:4437 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-31 15:44:37:4437 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-31 15:44:37:4437 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-31 15:53:12:5312 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-31 15:53:12:5312 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-31 15:53:12:5312 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-31 15:53:26:5326 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-31 15:53:26:5326 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-31 15:53:26:5326 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-31 15:53:46:5346 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-31 15:53:46:5346 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-31 15:53:46:5346 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-31 15:53:52:5352 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-31 15:53:52:5352 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-31 15:53:52:5352 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-31 15:54:03:543 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
+2026-03-31 15:54:03:543 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-31 15:54:03:543 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-31 15:54:22:5422 [33mwarn[39m: [33mBackground Job system (Scheduler) is offline (No local Redis detected).[39m
+2026-03-31 15:54:22:5422 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
+2026-03-31 15:54:22:5422 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
