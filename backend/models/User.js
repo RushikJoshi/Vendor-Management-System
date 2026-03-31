@@ -26,6 +26,12 @@ const userSchema = new mongoose.Schema(
             type: String,
             default: "vendor",
         },
+        permissions: [
+            {
+                type: String,
+                trim: true,
+            },
+        ],
         status: {
             type: String,
             enum: ["active", "inactive"],

@@ -3,7 +3,40 @@ const Company = require("../models/Company");
 const jwt = require("jsonwebtoken");
 const asyncHandler = require("../utils/asyncHandler");
 const AppError = require("../utils/AppError");
-const { normalizeRole } = require("../config/roles");
+const { normalizeRole, getAllowedModules } = require("../config/roles");
+const { deriveAllowedModulesFromPermissions, sanitizePermissionKeys } = require("../config/userPermissions");
+
+const MODULE_ALIAS_MAP = {
+  dashboard: "dashboard",
+  "vendor forms": "vendor_forms",
+  "form builder": "vendor_forms",
+  submissions: "submissions",
+  rfqs: "rfq",
+  rfq: "rfq",
+  contracts: "contracts",
+  analytics: "analytics",
+  users: "users",
+  roles: "roles",
+  settings: "settings",
+  vendors: "vendor_forms",
+  "users.view": "users.view",
+  "users.create": "users.create",
+  "users.edit": "users.edit",
+  "users.delete": "users.delete",
+  "vendors.view": "vendors.view",
+  "vendors.add": "vendors.add",
+  "rfq.view": "rfq.view",
+  "rfq.create": "rfq.create",
+  "rfq.approve": "rfq.approve",
+  "contracts.view": "contracts.view",
+  "contracts.manage": "contracts.manage",
+  "settings.access": "settings.access",
+};
+
+const normalizeModules = (modules = []) =>
+  modules
+    .map((m) => String(m || "").trim().toLowerCase())
+    .map((m) => MODULE_ALIAS_MAP[m] || m.replace(/\s+/g, "_"));
 
 /**
  * @desc    Generate JWT tokens (Access & Refresh)
@@ -145,7 +178,9 @@ exports.login = asyncHandler(async (req, res, next) => {
     tenantId: user.tenantId,
   };
 
-  // Fetch Role Details for dynamic RBAC
+  const directPermissions = sanitizePermissionKeys(user.permissions || []);
+
+  // Fetch Role Details for dynamic RBAC (legacy fallback)
   const Role = require("../models/Role");
   const normalizedRole = normalizeRole(user.role);
   const roleDetails = await Role.findOne({
@@ -156,7 +191,12 @@ exports.login = asyncHandler(async (req, res, next) => {
     ]
   }).populate("permissions");
 
-  const allowedModules = roleDetails?.accessibleModules || ["Dashboard"];
+  const allowedModules =
+    directPermissions.length > 0
+      ? deriveAllowedModulesFromPermissions(directPermissions)
+      : roleDetails?.accessibleModules?.length
+      ? normalizeModules(roleDetails.accessibleModules)
+      : getAllowedModules(normalizedRole);
 
   res.status(200).json({
     success: true,
@@ -169,6 +209,7 @@ exports.login = asyncHandler(async (req, res, next) => {
       role: user.role,
       tenantId: user.tenantId,
       allowedModules,
+      permissions: directPermissions,
       roleDetails
     },
   });
@@ -240,20 +281,27 @@ exports.getMe = asyncHandler(async (req, res, next) => {
   const user = await User.findById(req.user.id);
   if (!user) return next(new AppError("User not found", 404));
 
+  const directPermissions = sanitizePermissionKeys(user.permissions || []);
   const Role = require("../models/Role");
   const normalizedRole = normalizeRole(user.role);
   const roleDetails = await Role.findOne({
     name: normalizedRole,
     $or: [{ tenantId: user.tenantId }, { tenantId: { $exists: false } }]
   }).populate("permissions");
-  const allowedModules = roleDetails?.accessibleModules || ["Dashboard"];
+  const allowedModules =
+    directPermissions.length > 0
+      ? deriveAllowedModulesFromPermissions(directPermissions)
+      : roleDetails?.accessibleModules?.length
+      ? normalizeModules(roleDetails.accessibleModules)
+      : getAllowedModules(normalizedRole);
 
   res.status(200).json({
     success: true,
     data: {
         ...user.toObject(),
         roleDetails,
-        allowedModules
+        allowedModules,
+        permissions: directPermissions,
     },
   });
 });
@@ -262,9 +310,19 @@ exports.getMe = asyncHandler(async (req, res, next) => {
 // @route   GET /api/auth/permissions
 // @access  Private
 exports.getPermissions = asyncHandler(async (req, res, next) => {
-  const allowedModules = ["dashboard", "analytics", "vendors", "categories", "invitations", "applications", "contracts", "form-builder", "audit-logs", "settings"];
+  const directPermissions = sanitizePermissionKeys(req.user?.permissions || []);
+  if (directPermissions.length > 0) {
+    return res.status(200).json({
+      success: true,
+      allowedModules: deriveAllowedModulesFromPermissions(directPermissions),
+      permissions: directPermissions,
+    });
+  }
+  const role = normalizeRole(req.user?.role);
+  const allowedModules = getAllowedModules(role);
   res.status(200).json({
     success: true,
     allowedModules,
+    permissions: [],
   });
 });

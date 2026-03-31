@@ -2,6 +2,7 @@ const User = require("../models/User");
 const asyncHandler = require("../utils/asyncHandler");
 const AppError = require("../utils/AppError");
 const { successResponse } = require("../utils/responseHandler");
+const { sanitizePermissionKeys } = require("../config/userPermissions");
 
 // @desc    Get all users
 // @route   GET /api/users
@@ -16,7 +17,7 @@ exports.getUsers = asyncHandler(async (req, res, next) => {
 // @route   POST /api/users
 // @access  Private (Admin only)
 exports.createUser = asyncHandler(async (req, res, next) => {
-    const { name, email, password, role, tenantId } = req.body;
+    const { name, email, password, tenantId, permissions = [] } = req.body;
 
     // Check if user already exists
     const existingUser = await User.findOne({ email });
@@ -24,15 +25,16 @@ exports.createUser = asyncHandler(async (req, res, next) => {
         return next(new AppError("Email already in use", 400));
     }
 
-    // Role-based tenant logic:
-    // If it's an admin, tenantId is optional. 
-    // If not admin and not provided, inherit from current user's tenantId.
+    const sanitizedPermissions = sanitizePermissionKeys(permissions);
+
+    // Keep role for backward compatibility, but permissions drive access control.
     const userToCreate = {
         name,
         email,
         password,
-        role,
-        tenantId: tenantId || (role !== 'admin' ? req.user.tenantId : undefined)
+        role: "viewer",
+        permissions: sanitizedPermissions,
+        tenantId: tenantId || req.user.tenantId
     };
 
     const user = await User.create(userToCreate);
@@ -42,7 +44,7 @@ exports.createUser = asyncHandler(async (req, res, next) => {
         id: user._id,
         name: user.name,
         email: user.email,
-        role: user.role,
+        permissions: user.permissions || [],
         status: user.status
     }, 201);
 });
@@ -51,23 +53,13 @@ exports.createUser = asyncHandler(async (req, res, next) => {
 // @route   PATCH /api/users/:id/role
 // @access  Private (Admin only)
 exports.updateUserRole = asyncHandler(async (req, res, next) => {
-    const { role } = req.body;
-    
-    if (!["admin", "hr", "manager", "vendor"].includes(role)) {
-        return next(new AppError("Invalid role", 400));
-    }
-
-    const user = await User.findByIdAndUpdate(
-        req.params.id,
-        { role },
-        { new: true, runValidators: true }
-    );
+    const user = await User.findById(req.params.id);
 
     if (!user) {
         return next(new AppError("User not found", 404));
     }
 
-    successResponse(res, "User role updated successfully", user);
+    successResponse(res, "Role-based assignment is disabled. Use permissions instead.", user);
 });
 
 // @desc    Update user status (activate/deactivate)
@@ -97,7 +89,7 @@ exports.updateUserStatus = asyncHandler(async (req, res, next) => {
 // @route   PUT /api/users/:id
 // @access  Private (Admin only)
 exports.updateUser = asyncHandler(async (req, res, next) => {
-    const { name, email, role } = req.body;
+    const { name, email, permissions = [] } = req.body;
 
     const user = await User.findById(req.params.id);
     if (!user) {
@@ -114,7 +106,8 @@ exports.updateUser = asyncHandler(async (req, res, next) => {
 
     user.name = name || user.name;
     user.email = email || user.email;
-    if (role) user.role = role;
+    user.permissions = sanitizePermissionKeys(permissions);
+    user.role = "viewer";
 
     await user.save();
 

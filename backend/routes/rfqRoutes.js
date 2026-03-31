@@ -11,20 +11,20 @@ const { protect } = require("../middlewares/auth.middleware");
 const { restrictToTenant } = require("../middlewares/tenant.middleware");
 const { checkLimit } = require("../middlewares/usage.middleware");
 
-const { authorizeRoles } = require("../middlewares/role.middleware");
+const { authorizeModules } = require("../middlewares/role.middleware");
 
 router.use(protect);
 router.use(restrictToTenant);
 
 router.route("/")
-    .get(authorizeRoles("admin", "manager", "vendor"), getRFQs)
-    .post(authorizeRoles("admin", "manager"), checkLimit("rfqCount"), createRFQ);
+    .get(authorizeModules("rfq"), getRFQs)
+    .post(authorizeModules("rfq"), checkLimit("rfqCount"), createRFQ);
 
 router.route("/:id")
-    .get(authorizeRoles("admin", "manager", "vendor"), getRFQ)
-    .patch(authorizeRoles("admin", "manager"), updateRFQ);
+    .get(authorizeModules("rfq"), getRFQ)
+    .patch(authorizeModules("rfq"), updateRFQ);
 
-router.patch("/:id/status", authorizeRoles("admin", "manager"), updateRFQStatus);
+router.patch("/:id/status", authorizeModules("rfq"), updateRFQStatus);
 
 
 module.exports = router;

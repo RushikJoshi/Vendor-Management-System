@@ -1,17 +1,12 @@
 import { Outlet } from "react-router-dom";
 import { useState } from "react";
-import { ClipboardCheck, FileSignature, FileText, LayoutDashboard, User, Zap } from "lucide-react";
+import { LayoutDashboard } from "lucide-react";
 
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 
 const vendorLinks = [
   { to: "/vendor/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/vendor/applications", label: "My Applications", icon: FileText },
-  { to: "/vendor/fill-form", label: "Protocol Fill", icon: ClipboardCheck },
-  { to: "/vendor/rfqs", label: "RFQ Sync", icon: Zap },
-  { to: "/vendor/contracts", label: "Commit Documents", icon: FileSignature },
-  { to: "/vendor/profile", label: "Entity Profile", icon: User },
 ];
 
 export default function VendorLayout() {
@@ -19,7 +14,7 @@ export default function VendorLayout() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   return (
-    <div className="relative flex min-h-screen overflow-hidden bg-white text-slate-900 selection:bg-slate-900 selection:text-white">
+    <div className="vendor-readable relative flex min-h-screen overflow-hidden bg-white text-slate-900 selection:bg-slate-900 selection:text-white">
       <div
         onClick={() => setIsSidebarOpen(false)}
         className={`fixed inset-0 z-40 bg-slate-900/35 backdrop-blur-[2px] transition-opacity duration-300 lg:hidden ${
@@ -37,7 +32,7 @@ export default function VendorLayout() {
 
       <div
         className={`relative z-10 flex min-h-screen flex-1 flex-col pl-0 transition-all duration-300 ${
-          isSidebarCollapsed ? "lg:pl-[5.5rem]" : "lg:pl-[14.25rem]"
+          isSidebarCollapsed ? "lg:pl-[6rem]" : "lg:pl-[16rem]"
         }`}
       >
         <Navbar
