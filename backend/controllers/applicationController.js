@@ -100,11 +100,13 @@ exports.submitApplication = async (req, res) => {
         } else if (!application && categoryId && categoryId !== 'null') {
             // New application from public category registration
             const category = await Category.findById(categoryId);
-            if (!category || !category.isActive) throw new Error("Invalid or inactive category.");
-            if (!category.formTemplate) throw new Error("Category configuration missing form template.");
+            if (!category || category.status !== "active") throw new Error("Invalid or inactive category.");
+
+            const effectiveFormTemplateId = req.body.formTemplateId || category.formTemplate;
+            if (!effectiveFormTemplateId) throw new Error("Category configuration missing form template.");
 
             application = await VendorApplication.create({
-                formTemplate: req.body.formTemplateId || category.formTemplate,
+                formTemplate: effectiveFormTemplateId,
                 formVersion: req.body.formVersion || 1,
                 category: category._id,
                 email: email,

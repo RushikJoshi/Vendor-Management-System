@@ -46,42 +46,6 @@ const LoadingSpinner = () => (
     </div>
 );
 
-const FloatingLabelInput = ({ label, name, value, onChange, onBlur, type = "text", required, placeholder, icon: Icon }) => {
-    const [focused, setFocused] = useState(false);
-
-    return (
-        <div className="relative group">
-            <div className={`
-                absolute left-4 transition-all duration-200 pointer-events-none flex items-center gap-2
-                ${(focused || value) ? '-top-2.5 z-10 bg-white px-2 text-xs font-bold text-indigo-600' : 'top-4 text-slate-400'}
-            `}>
-                {focused && Icon && <Icon size={12} />}
-                {label} {required && <span className="text-indigo-600">*</span>}
-            </div>
-            <input
-                type={type}
-                name={name}
-                value={value}
-                onChange={onChange}
-                onFocus={() => setFocused(true)}
-                onBlur={(e) => { setFocused(false); onBlur && onBlur(e); }}
-                className={`
-                    w-full rounded-xl border bg-white px-4 py-4 font-medium text-slate-700 outline-none transition-all
-                    ${focused ? 'border-indigo-300 ring-4 ring-indigo-100 shadow-sm' : 'border-slate-200'}
-                    ${value && !focused ? 'border-slate-200' : ''}
-                `}
-                placeholder={focused ? placeholder : ""}
-                required={required}
-            />
-            {value && !focused && (
-                <div className="absolute right-4 top-4 animate-in fade-in zoom-in text-indigo-600 duration-300">
-                    <CheckCircle size={18} />
-                </div>
-            )}
-        </div>
-    );
-};
-
 const FileUploadField = ({ label, file, onChange, required, fieldId }) => {
     const fileInputRef = useRef(null);
 
@@ -96,16 +60,16 @@ const FileUploadField = ({ label, file, onChange, required, fieldId }) => {
             <div
                 onClick={() => fileInputRef.current.click()}
                 className={`
-                    flex items-center gap-2 h-9 px-2 border-2 border-dashed rounded-sm transition-all cursor-pointer bg-slate-50
-                    ${file ? 'border-blue-700 bg-blue-50/50' : 'border-slate-300 hover:border-blue-400 hover:bg-slate-100'}
+                    flex items-center gap-2 h-11 px-4 border-2 border-dashed rounded-sm transition-all cursor-pointer bg-slate-50/30
+                    ${file ? 'border-blue-700 bg-blue-50/50' : 'border-slate-200 hover:border-blue-400 hover:bg-slate-100'}
                 `}
             >
-                <div className={`flex h-5 w-5 items-center justify-center rounded-sm ${file ? 'bg-blue-700 text-white' : 'bg-slate-200 text-slate-400'}`}>
-                    {file ? <CheckCircle size={12} strokeWidth={3} /> : <Upload size={12} />}
+                <div className={`flex h-6 w-6 items-center justify-center rounded-sm ${file ? 'bg-blue-700 text-white' : 'bg-slate-200 text-slate-400'}`}>
+                    {file ? <CheckCircle size={14} strokeWidth={3} /> : <Upload size={14} />}
                 </div>
                 <div className="flex-1 min-w-0">
-                    <p className={`text-[11px] font-bold truncate ${file ? 'text-blue-900' : 'text-slate-500'}`}>
-                        {file ? file.name : "ATTACH DOCUMENT"}
+                    <p className={`text-[12px] font-bold truncate ${file ? 'text-blue-900' : 'text-slate-500'}`}>
+                        {file ? file.name : "ATTACH REQUIRED DOCUMENT"}
                     </p>
                 </div>
                 {file && (
@@ -113,7 +77,7 @@ const FileUploadField = ({ label, file, onChange, required, fieldId }) => {
                         onClick={(e) => { e.stopPropagation(); onChange(fieldId, null); }}
                         className="text-red-500 hover:text-red-700 transition-colors p-1"
                     >
-                        <X size={12} strokeWidth={3} />
+                        <X size={14} strokeWidth={3} />
                     </button>
                 )}
             </div>
@@ -127,6 +91,427 @@ const hasRenderableSections = (formTemplate) =>
         (section) => Array.isArray(section?.fields) && section.fields.length > 0
     );
 
+const STATUTORY_SECTION_PATTERN = /statutory compliances/i;
+const PAN_DEPENDENCY_FIELD = "panStatus";
+const PAN_DEPENDENCY_VALUE = "Available";
+const TURNOVER_DEPENDENCY_FIELD = "eInvoiceApplicable";
+const TURNOVER_DEPENDENCY_VALUE = "Yes";
+const TURNOVER_FIELD_IDS = ["ly1Turnover", "ly2Turnover", "ly3Turnover", "ly4Turnover", "ly5Turnover", "ly6Turnover"];
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const MOBILE_REGEX = /^\d{10}$/;
+const STATUTORY_FIELD_CODES = {
+    panStatus: "1.1.1.3.1.1",
+    panNum: "1.1.1.3.1.2",
+    panHolderName: "1.1.1.3.1.3",
+    aadhaarCardNo: "1.1.1.3.1.5",
+    tanStatus: "1.1.1.3.1.6",
+    tanNo: "1.1.1.3.1.7",
+    tanHolderName: "1.1.1.3.1.8",
+    msmeRegistrationStatus: "1.1.1.3.1.9",
+    msmeNo: "1.1.1.3.1.10",
+    gstRegistrationStatus: "1.1.1.3.1.14",
+    gstState: "1.1.1.3.1.15",
+    gstStatus: "1.1.1.3.1.55",
+    gstRegisteredEmail: "1.1.1.3.1.56",
+    gstRegisteredMobile: "1.1.1.3.1.57",
+    gstFilingStatus: "1.1.1.3.1.58",
+    pfStatus: "1.1.1.3.1.59",
+    pfNo: "1.1.1.3.1.60",
+    esiStatus: "1.1.1.3.1.61",
+    esiNo: "1.1.1.3.1.62",
+    eInvoiceApplicable: "1.1.1.3.1.63",
+    turnoverHeading: "1.1.1.3.1.65",
+    ly1Turnover: "1.1.1.3.1.65.1",
+    ly2Turnover: "1.1.1.3.1.65.2",
+    ly3Turnover: "1.1.1.3.1.65.3",
+    ly4Turnover: "1.1.1.3.1.65.4",
+    ly5Turnover: "1.1.1.3.1.65.5",
+    ly6Turnover: "1.1.1.3.1.65.6",
+};
+
+const REQUIRED_STATUTORY_FIELDS = [
+    {
+        fieldId: "panStatus",
+        label: "PAN Status",
+        type: "dropdown",
+        required: true,
+        options: ["Available", "Not Available"],
+        order: 1,
+    },
+    {
+        fieldId: "panNum",
+        label: "PAN No.",
+        type: "text",
+        required: true,
+        order: 2,
+        dependsOn: PAN_DEPENDENCY_FIELD,
+        dependsOnValue: PAN_DEPENDENCY_VALUE,
+    },
+    {
+        fieldId: "panHolderName",
+        label: "PAN Holder Name",
+        type: "text",
+        required: true,
+        order: 3,
+        dependsOn: PAN_DEPENDENCY_FIELD,
+        dependsOnValue: PAN_DEPENDENCY_VALUE,
+    },
+    {
+        fieldId: "aadhaarCardNo",
+        label: "Aadhaar Card No",
+        type: "text",
+        required: false,
+        order: 4,
+        dependsOn: PAN_DEPENDENCY_FIELD,
+        dependsOnValue: PAN_DEPENDENCY_VALUE,
+    },
+    {
+        fieldId: "tanStatus",
+        label: "TAN Status",
+        type: "dropdown",
+        required: true,
+        options: ["Available", "Not Available"],
+        order: 5,
+        dependsOn: PAN_DEPENDENCY_FIELD,
+        dependsOnValue: PAN_DEPENDENCY_VALUE,
+    },
+    {
+        fieldId: "msmeRegistrationStatus",
+        label: "MSME Registration Status",
+        type: "dropdown",
+        required: true,
+        options: ["Registered", "Not Registered"],
+        order: 8,
+        dependsOn: PAN_DEPENDENCY_FIELD,
+        dependsOnValue: PAN_DEPENDENCY_VALUE,
+    },
+    {
+        fieldId: "gstRegistrationStatus",
+        label: "GST Registration Status",
+        type: "dropdown",
+        required: true,
+        options: ["Registered", "Not Registered"],
+        order: 10,
+        dependsOn: PAN_DEPENDENCY_FIELD,
+        dependsOnValue: PAN_DEPENDENCY_VALUE,
+    },
+    {
+        fieldId: "tanNo",
+        label: "Enter TAN No.",
+        type: "text",
+        required: true,
+        order: 6,
+        dependsOn: "tanStatus",
+        dependsOnValue: "Available",
+    },
+    {
+        fieldId: "tanHolderName",
+        label: "TAN Holder Name",
+        type: "text",
+        required: true,
+        order: 7,
+        dependsOn: "tanStatus",
+        dependsOnValue: "Available",
+    },
+    {
+        fieldId: "msmeNo",
+        label: "Enter MSME No.",
+        type: "text",
+        required: true,
+        order: 9,
+        dependsOn: "msmeRegistrationStatus",
+        dependsOnValue: "Registered",
+    },
+    {
+        fieldId: "gstState",
+        label: "State",
+        type: "dropdown",
+        required: true,
+        options: [
+            "Andhra Pradesh",
+            "Arunachal Pradesh",
+            "Assam",
+            "Bihar",
+            "Chhattisgarh",
+            "Goa",
+            "Gujarat",
+            "Haryana",
+            "Himachal Pradesh",
+            "Jharkhand",
+            "Karnataka",
+            "Kerala",
+            "Madhya Pradesh",
+            "Maharashtra",
+            "Manipur",
+            "Meghalaya",
+            "Mizoram",
+            "Nagaland",
+            "Odisha",
+            "Punjab",
+            "Rajasthan",
+            "Sikkim",
+            "Tamil Nadu",
+            "Telangana",
+            "Tripura",
+            "Uttar Pradesh",
+            "Uttarakhand",
+            "West Bengal",
+            "Andaman and Nicobar Islands",
+            "Chandigarh",
+            "Dadra and Nagar Haveli and Daman and Diu",
+            "Delhi",
+            "Jammu and Kashmir",
+            "Ladakh",
+            "Lakshadweep",
+            "Puducherry",
+        ],
+        order: 11,
+        dependsOn: "gstRegistrationStatus",
+        dependsOnValue: "Registered",
+    },
+    {
+        fieldId: "gstStatus",
+        label: "GST Status",
+        type: "dropdown",
+        required: false,
+        options: ["Active", "Inactive", "Cancelled", "Suspended"],
+        order: 12,
+        dependsOn: "gstRegistrationStatus",
+        dependsOnValue: "Registered",
+    },
+    {
+        fieldId: "gstRegisteredEmail",
+        label: "Email ID Registered with GST No.",
+        type: "email",
+        required: false,
+        order: 13,
+        dependsOn: "gstRegistrationStatus",
+        dependsOnValue: "Registered",
+    },
+    {
+        fieldId: "gstRegisteredMobile",
+        label: "Mobile No. Registered with GST No.",
+        type: "text",
+        required: false,
+        order: 14,
+        dependsOn: "gstRegistrationStatus",
+        dependsOnValue: "Registered",
+    },
+    {
+        fieldId: "gstFilingStatus",
+        label: "GST Filling Status",
+        type: "dropdown",
+        required: false,
+        options: ["Regular", "Composition", "Nil Filing", "Inactive"],
+        order: 15,
+        dependsOn: "gstRegistrationStatus",
+        dependsOnValue: "Registered",
+    },
+    {
+        fieldId: "pfStatus",
+        label: "PF Status",
+        type: "radio",
+        required: true,
+        options: ["Yes", "No"],
+        order: 16,
+    },
+    {
+        fieldId: "pfNo",
+        label: "PF No.",
+        type: "text",
+        required: true,
+        order: 17,
+        dependsOn: "pfStatus",
+        dependsOnValue: "Yes",
+    },
+    {
+        fieldId: "esiStatus",
+        label: "ESI Status",
+        type: "radio",
+        required: true,
+        options: ["Yes", "No"],
+        order: 18,
+    },
+    {
+        fieldId: "esiNo",
+        label: "ESI No.",
+        type: "text",
+        required: true,
+        order: 19,
+        dependsOn: "esiStatus",
+        dependsOnValue: "Yes",
+    },
+    {
+        fieldId: "eInvoiceApplicable",
+        label: "Is E-Invoice applicable to you?",
+        type: "radio",
+        required: true,
+        options: ["Yes", "No"],
+        order: 20,
+    },
+    {
+        fieldId: "ly1Turnover",
+        label: "LY1",
+        type: "number",
+        required: true,
+        order: 21,
+        dependsOn: TURNOVER_DEPENDENCY_FIELD,
+        dependsOnValue: TURNOVER_DEPENDENCY_VALUE,
+    },
+    {
+        fieldId: "ly2Turnover",
+        label: "LY2",
+        type: "number",
+        required: true,
+        order: 22,
+        dependsOn: TURNOVER_DEPENDENCY_FIELD,
+        dependsOnValue: TURNOVER_DEPENDENCY_VALUE,
+    },
+    {
+        fieldId: "ly3Turnover",
+        label: "LY3",
+        type: "number",
+        required: true,
+        order: 23,
+        dependsOn: TURNOVER_DEPENDENCY_FIELD,
+        dependsOnValue: TURNOVER_DEPENDENCY_VALUE,
+    },
+    {
+        fieldId: "ly4Turnover",
+        label: "LY4",
+        type: "number",
+        required: true,
+        order: 24,
+        dependsOn: TURNOVER_DEPENDENCY_FIELD,
+        dependsOnValue: TURNOVER_DEPENDENCY_VALUE,
+    },
+    {
+        fieldId: "ly5Turnover",
+        label: "LY5",
+        type: "number",
+        required: true,
+        order: 25,
+        dependsOn: TURNOVER_DEPENDENCY_FIELD,
+        dependsOnValue: TURNOVER_DEPENDENCY_VALUE,
+    },
+    {
+        fieldId: "ly6Turnover",
+        label: "LY6",
+        type: "number",
+        required: true,
+        order: 26,
+        dependsOn: TURNOVER_DEPENDENCY_FIELD,
+        dependsOnValue: TURNOVER_DEPENDENCY_VALUE,
+    },
+];
+
+const enrichStatutoryComplianceSection = (section) => {
+    if (!STATUTORY_SECTION_PATTERN.test(section?.sectionTitle || "")) {
+        return section;
+    }
+
+    const existingFields = Array.isArray(section.fields) ? section.fields : [];
+    const existingById = new Map(existingFields.map((field) => [field.fieldId || field.name, field]));
+    const reservedIds = new Set(REQUIRED_STATUTORY_FIELDS.map((field) => field.fieldId));
+
+    const mergedPriorityFields = REQUIRED_STATUTORY_FIELDS
+        .map((field) => {
+            const existing = existingById.get(field.fieldId);
+            return existing ? { ...existing, ...field } : { ...field };
+        })
+        .sort((a, b) => (a.order || 0) - (b.order || 0));
+
+    const remainingFields = existingFields
+        .filter((field) => !reservedIds.has(field.fieldId || field.name))
+        .sort((a, b) => (a.order || 0) - (b.order || 0))
+        .map((field, index) => ({
+            ...field,
+            order: mergedPriorityFields.length + index + 1,
+        }));
+
+    return {
+        ...section,
+        fields: [...mergedPriorityFields, ...remainingFields],
+    };
+};
+
+const enrichRegistrationTemplate = (formTemplate) => ({
+    ...formTemplate,
+    sections: Array.isArray(formTemplate?.sections)
+        ? formTemplate.sections.map(enrichStatutoryComplianceSection)
+        : [],
+});
+
+const SuggestSearchField = ({ value, onChange, required, mockData, placeholder }) => {
+    const [query, setQuery] = useState(value);
+    const [results, setResults] = useState([]);
+    const [showResults, setShowResults] = useState(false);
+    const containerRef = useRef(null);
+
+    useEffect(() => {
+        if (query.length > 0) {
+            const matches = mockData.filter(c => c.toLowerCase().includes(query.toLowerCase()));
+            setResults(matches);
+            setShowResults(true);
+        } else {
+            setResults(mockData);
+            setShowResults(true);
+        }
+    }, [query, mockData]);
+
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (containerRef.current && !containerRef.current.contains(e.target)) setShowResults(false);
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    return (
+        <div className="relative group w-full" ref={containerRef}>
+            <div className="relative flex items-center">
+                <input
+                    type="text"
+                    required={required}
+                    value={query}
+                    onFocus={() => setShowResults(true)}
+                    onChange={(e) => { setQuery(e.target.value); if (!e.target.value) onChange(""); }}
+                    placeholder={placeholder}
+                    className="w-full h-12 border border-slate-300 bg-white pl-5 pr-12 text-[12px] font-bold text-slate-900 outline-none transition-all focus:border-blue-700 focus:ring-4 focus:ring-blue-100"
+                />
+                <div className="absolute right-0 h-full w-12 flex items-center justify-center border-l border-slate-200 bg-slate-50 group-hover:bg-slate-100 cursor-pointer">
+                    <Search size={16} className="text-slate-400 group-hover:text-blue-700 transition-colors" />
+                </div>
+            </div>
+            
+            {showResults && results.length > 0 && (
+                <div className="absolute top-full left-0 w-full md:w-[150%] bg-white border border-slate-300 shadow-2xl z-[1000] max-h-[400px] overflow-y-auto mt-1 animate-in fade-in slide-in-from-top-1">
+                    {results.map((res, idx) => {
+                        const parts = res.split(' > ');
+                        const mainPath = parts.slice(0, -1).join(' > ');
+                        const endTerm = parts[parts.length - 1];
+
+                        return (
+                            <div 
+                                key={idx}
+                                onClick={() => { setQuery(res); onChange(res); setShowResults(false); }}
+                                className="px-5 py-4 hover:bg-slate-50 cursor-pointer border-b border-slate-100 transition-colors group flex flex-col gap-0.5"
+                            >
+                                <p className="text-[10px] font-medium text-slate-400 uppercase tracking-wider flex items-center gap-2">
+                                    {mainPath} {parts.length > 1 ? '>' : ''}
+                                </p>
+                                <p className="text-[12px] font-black text-blue-700 uppercase tracking-tight">
+                                    {endTerm}
+                                </p>
+                            </div>
+                        );
+                    })}
+                </div>
+            )}
+        </div>
+    );
+};
+
 export default function RegistrationWizard() {
     const { categoryId: urlCategoryId, formId: urlFormId } = useParams();
     const [searchParams] = useSearchParams();
@@ -135,15 +520,13 @@ export default function RegistrationWizard() {
     const token = searchParams.get("token");
     const shouldOpenDirectForm = location.pathname.includes("/onboarding") || urlFormId;
 
-    // ── Public 3-step state ──────────────────────────
     const [publicStep, setPublicStep] = useState(
         urlCategoryId || urlFormId || token || shouldOpenDirectForm ? "form" : "pick-category"
-    ); // "pick-category" | "category-detail" | "form"
+    );
     const [allCategories, setAllCategories] = useState([]);
     const [searchQuery, setSearchQuery] = useState("");
     const [catLoading, setCatLoading] = useState(true);
     const [selectedCat, setSelectedCat] = useState(null);
-    // ─────────────────────────────────────────────────
 
     const [categoryDetails, setCategoryDetails] = useState(null);
     const [loading, setLoading] = useState(
@@ -154,18 +537,11 @@ export default function RegistrationWizard() {
     const [files, setFiles] = useState({});
     const [submitting, setSubmitting] = useState(false);
     const [isReviewStep, setIsReviewStep] = useState(false);
-    const [emailWarning, setEmailWarning] = useState("");
     const [emailError, setEmailError] = useState("");
+    const [expanded, setExpanded] = useState({});
+    const [validationErrors, setValidationErrors] = useState({});
 
-    const STEPS = [
-        { name: "Basic Info", desc: "General information", icon: Building2 },
-        { name: "Business Details", desc: "Organization & ownership", icon: CheckSquare },
-        { name: "Financial Details", desc: "Banking & financial info", icon: CreditCard },
-        { name: "Documents", desc: "Upload required files", icon: FileStack },
-        { name: "Review & Submit", desc: "Verify & finalize", icon: ShieldCheck },
-    ];
-
-    // Fetch all active categories for Step 1 — public endpoint (NO auth token)
+    // Fetch categories for Step 1
     useEffect(() => {
         if (publicStep === "pick-category") {
             publicApi.get("/categories/public-list")
@@ -175,7 +551,7 @@ export default function RegistrationWizard() {
         }
     }, [publicStep]);
 
-    // Fetch form when entering form step — public endpoints use publicApi (no auth)
+    // Fetch form when entering form step
     useEffect(() => {
         const fetchDetails = async () => {
             setLoading(true);
@@ -184,84 +560,33 @@ export default function RegistrationWizard() {
                 let specificFormToFetch = urlFormId;
 
                 if (token) {
-                    // Invitation token verification IS authenticated
                     const res = await api.get(`/invitations/verify/${token}`);
                     catIdToFetch = res.data.data.categoryId || res.data.data.category._id;
                     setFormValues({ email: res.data.data.email });
                 }
 
                 if (specificFormToFetch) {
-                    // 1. Fetch specific form directly from shareable link
                     const formRes = await publicApi.get(`/forms/single/public/${specificFormToFetch}`);
                     if (!hasRenderableSections(formRes.data.data)) {
                         throw new Error("This registration link is not currently active.");
                     }
-                    setCategoryDetails({ formTemplate: formRes.data.data });
-                    if (formRes.data.data.categoryId) setSelectedCat(formRes.data.data.categoryId);
+                    setCategoryDetails({ formTemplate: enrichRegistrationTemplate(formRes.data.data) });
                 } else if (catIdToFetch) {
-                    // 2. Fetch via Category selection
-                    // Use publicApi — no auth header, won't trigger 401 redirect
                     const formRes = await publicApi.get(`/forms/public/${catIdToFetch}`);
                     if (!hasRenderableSections(formRes.data.data)) {
                         throw new Error("Selected registration form is not published yet.");
                     }
-                    setCategoryDetails({ formTemplate: formRes.data.data });
+                    setCategoryDetails({ formTemplate: enrichRegistrationTemplate(formRes.data.data) });
                 } else {
-                    // 3. Fallback to master or automatic discovery
-                    try {
-                        const formRes = await publicApi.get(`/forms/master/public`);
-                        if (!hasRenderableSections(formRes.data.data)) {
-                            throw new Error("Master registration form is not published yet.");
-                        }
-                        setCategoryDetails({ formTemplate: formRes.data.data });
-                    } catch (masterErr) {
-                        if (shouldOpenDirectForm && !urlFormId) {
-                            const categoriesRes = await publicApi.get("/categories/public-list");
-                            const openCategories = (categoriesRes.data.data || []).filter(
-                                (category) => category.hasPublishedForm
-                            );
-
-                            let fallbackCategory = null;
-                            let fallbackTemplate = null;
-
-                            for (const category of openCategories) {
-                                try {
-                                    const fallbackFormRes = await publicApi.get(
-                                        `/forms/public/${category._id}`
-                                    );
-
-                                    if (hasRenderableSections(fallbackFormRes.data.data)) {
-                                        fallbackCategory = category;
-                                        fallbackTemplate = fallbackFormRes.data.data;
-                                        break;
-                                    }
-                                } catch {
-                                    // Try the next open category until we find a usable form.
-                                }
-                            }
-
-                            if (!fallbackCategory || !fallbackTemplate) {
-                                throw masterErr;
-                            }
-
-                            setSelectedCat(fallbackCategory);
-                            setCategoryDetails({ formTemplate: fallbackTemplate });
-                        } else {
-                            throw masterErr;
-                        }
+                    const formRes = await publicApi.get(`/forms/master/public`);
+                    if (!hasRenderableSections(formRes.data.data)) {
+                        throw new Error("Master registration form is not published yet.");
                     }
+                    setCategoryDetails({ formTemplate: enrichRegistrationTemplate(formRes.data.data) });
                 }
             } catch (err) {
-                const msg =
-                    err.response?.data?.message ||
-                    err.message ||
-                    "Registration form not available for this category.";
-                if (token || urlCategoryId || urlFormId || selectedCat || shouldOpenDirectForm) {
-                    toast.error(msg);
-                }
-                setCategoryDetails(null);
-                setCurrentStep(0);
-                setIsReviewStep(false);
+                const msg = err.response?.data?.message || err.message || "Registration form not available.";
+                toast.error(msg);
                 setPublicStep("pick-category");
             } finally {
                 setLoading(false);
@@ -271,747 +596,736 @@ export default function RegistrationWizard() {
         if (publicStep === "form") {
             fetchDetails();
         }
-    }, [publicStep, token, urlCategoryId, selectedCat, shouldOpenDirectForm]);
+    }, [publicStep, token, urlCategoryId, selectedCat]);
 
-    // ── STEP 1: Category Card Selection (REDESIGNED) ──────────────
     if (publicStep === "pick-category") {
         return (
-            <div className="min-h-screen bg-[#f8fafc] font-sans selection:bg-indigo-100 selection:text-indigo-900">
-                {/* Refined Header */}
-                <header className="sticky top-0 z-40 border-b border-slate-200 bg-white shadow-sm">
-                    <div className="mx-auto flex max-w-[1800px] items-center justify-between px-6 py-3">
-                        <div className="flex items-center gap-4">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-900 text-white shadow-xl shadow-slate-200">
-                                <ShieldCheck size={20} strokeWidth={2.5} />
-                            </div>
+            <div className="registration-readable registration-page min-h-screen font-sans">
+                 <header className="registration-header sticky top-0 z-40">
+                    <div className="mx-auto flex w-full max-w-[1320px] items-center justify-between px-2 md:px-0">
+                        <div className="flex items-center gap-6">
                             <div>
-                                <h1 className="text-xl font-bold tracking-tight text-slate-900 leading-none">VMS PRO</h1>
-                                <p className="text-[12px] font-semibold text-slate-500 mt-1">Enterprise Registry</p>
+                                <h1 className="text-lg font-bold leading-none tracking-tight text-slate-900">Registry Portal</h1>
+                                <p className="mt-1 text-[11px] font-semibold tracking-[0.16em] text-blue-700">GT VENDOR MANAGEMENT</p>
                             </div>
+                        </div>
+                        <div className="hidden rounded-full border border-slate-200 bg-white/80 px-4 py-2 text-[12px] font-medium text-slate-500 md:block">
+                            Vendor onboarding directory
                         </div>
                     </div>
                 </header>
 
-                <main className="mx-auto max-w-[1800px] px-6 py-6 lg:py-8">
-                    {/* Minimal Section Header */}
-                    <div className="mb-4">
-                        <div className="flex items-center gap-3 mb-4">
-                            <span className="flex items-center gap-2 rounded-full bg-slate-900 px-3 py-1 text-[9px] font-black uppercase tracking-[0.2em] text-white">
-                                Selection Portal
+                <main className="mx-auto flex w-full max-w-[1320px] flex-col gap-8 px-4 py-8 md:px-6 md:py-10">
+                   <section className="grid gap-5 xl:grid-cols-[minmax(0,1.7fr)_360px]">
+                        <div className="registration-surface p-6 md:p-8">
+                            <span className="mb-4 inline-flex rounded-full bg-blue-50 px-3 py-1 text-[11px] font-semibold text-blue-700">
+                                Registration Directory
                             </span>
+                            <h1 className="mb-4 max-w-3xl text-3xl font-bold tracking-tight text-slate-900 md:text-5xl">
+                                Select your onboarding vertical and start the supplier registration flow.
+                            </h1>
+                            <p className="max-w-2xl text-[15px] font-medium leading-7 text-slate-600 md:text-lg">
+                                Choose the most relevant business category below. We&apos;ll open the matching registration journey and required compliance details for that vertical.
+                            </p>
                         </div>
-                        <h1 className="text-3xl font-black tracking-tight text-slate-900 sm:text-4xl md:leading-[1.1]">
-                            Select Your <span className="text-indigo-600">Onboarding Vertical.</span>
-                        </h1>
-                        <p className="mt-4 max-w-2xl text-base font-medium leading-relaxed text-slate-600">
-                            Our architecture uses specialized workflows for different industry domains. Select your business vertical below to initiate the secure registration process.
-                        </p>
-                    </div>
 
-                    <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                        <div className="flex items-center gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-50 text-slate-700 border border-slate-100 shadow-inner">
-                                <Building2 size={18} />
-                            </div>
-                            <div>
-                                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Total Portals</p>
-                                <p className="text-lg font-bold text-slate-900">{(allCategories || []).length} Categories</p>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-100 shadow-inner">
-                                <ShieldCheck size={18} />
-                            </div>
-                            <div>
-                                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Published Status</p>
-                                <p className="text-lg font-bold text-slate-900">{(allCategories || []).filter(c => c.hasPublishedForm).length} Active</p>
+                        <div className="rounded-[24px] border border-slate-200 bg-white/85 p-6 shadow-[0_18px_45px_rgba(15,23,42,0.06)]">
+                            <p className="text-[12px] font-semibold tracking-[0.14em] text-slate-500">AVAILABLE CATEGORIES</p>
+                            <p className="mt-3 text-4xl font-bold tracking-tight text-slate-900">{allCategories.filter(cat => cat.hasPublishedForm).length}</p>
+                            <p className="mt-3 text-sm leading-6 text-slate-600">
+                                Pick an active category to continue. Locked cards indicate forms that are not published yet.
+                            </p>
+                            <div className="mt-6 rounded-2xl bg-slate-50 px-4 py-4 text-sm text-slate-600">
+                                Review tip: keep your business profile, email, mobile number, and statutory details ready before entering the form.
                             </div>
                         </div>
-                    </div>
+                   </section>
 
-                    <div className="mt-6">
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-6">
-                            <div>
-                                <h3 className="text-xs font-bold uppercase tracking-[0.3em] text-slate-900">Strategic Business Portals</h3>
-                            </div>
-                            <div className="flex-1 max-w-sm">
-                                <div className="relative">
-                                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500">
-                                        <Search size={16} strokeWidth={2.5} />
+                   {catLoading ? (
+                        <div className="registration-surface flex justify-center py-24"><LoadingSpinner /></div>
+                    ) : (
+                        <section className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+                            {allCategories.map(cat => (
+                                <button
+                                    key={cat._id}
+                                    disabled={!cat.hasPublishedForm}
+                                    onClick={() => { setSelectedCat(cat); setPublicStep("category-detail"); }}
+                                    className={`group flex min-h-[320px] flex-col justify-between rounded-[28px] border p-7 text-left transition-all duration-300
+                                        ${cat.hasPublishedForm
+                                            ? "border-slate-200 bg-white/95 shadow-[0_16px_40px_rgba(15,23,42,0.06)] hover:-translate-y-1 hover:border-blue-200 hover:shadow-[0_24px_50px_rgba(37,99,235,0.12)] cursor-pointer"
+                                            : "border-slate-200 bg-white/70 opacity-60 cursor-not-allowed"}`}
+                                >
+                                    <div>
+                                        <div className={`mb-6 flex h-14 w-14 items-center justify-center rounded-2xl border transition-all ${cat.hasPublishedForm ? "border-blue-100 bg-blue-50 text-blue-700 group-hover:bg-blue-700 group-hover:text-white" : "border-slate-200 bg-slate-100 text-slate-400"}`}>
+                                            <Building2 size={28} />
+                                        </div>
+
+                                        <div className="mb-5 flex items-center justify-between gap-3">
+                                            <span className="rounded-full bg-slate-100 px-3 py-1 text-[11px] font-semibold text-slate-600">
+                                                {cat.code || "Category"}
+                                            </span>
+                                            <span className={`rounded-full px-3 py-1 text-[11px] font-semibold ${cat.hasPublishedForm ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-500"}`}>
+                                                {cat.hasPublishedForm ? "Active" : "Locked"}
+                                            </span>
+                                        </div>
+
+                                        <h3 className="mb-3 text-[28px] font-bold leading-tight tracking-tight text-slate-900">{cat.name}</h3>
+                                        <p className="text-[15px] font-medium leading-7 text-slate-600 line-clamp-4">
+                                            {cat.description || "Establish your business credentials within our strategic procurement network."}
+                                        </p>
                                     </div>
-                                    <input 
-                                        type="text"
-                                        placeholder="Search portals by name or code..."
-                                        value={searchQuery}
-                                        onChange={(e) => setSearchQuery(e.target.value)}
-                                        className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-11 pr-6 text-[13px] font-bold text-slate-900 outline-none transition-all focus:border-slate-900 focus:ring-2 focus:ring-slate-100 placeholder:text-slate-400"
-                                    />
-                                </div>
-                            </div>
-                        </div>
 
-                        {catLoading ? (
-                            <div className="flex justify-center py-32"><LoadingSpinner /></div>
-                        ) : (allCategories || []).filter(c => 
-                            c.name?.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                            c.code?.toLowerCase().includes(searchQuery.toLowerCase())
-                        ).length === 0 ? (
-                            <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-20 text-center">
-                                <Search size={48} className="mx-auto text-slate-200 mb-6" />
-                                <h3 className="text-2xl font-bold text-slate-900">No matching categories found.</h3>
-                                <p className="mt-2 text-slate-500 text-lg font-medium italic">Try checking the spelling or contact administration.</p>
-                            </div>
-                        ) : (
-                            <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 pb-20">
-                                {(allCategories || [])
-                                    .filter(c => 
-                                        c.name?.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                                        c.code?.toLowerCase().includes(searchQuery.toLowerCase())
-                                    )
-                                    .map((cat) => {
-                                    if (!cat) return null;
-                                    const hasForm = cat.hasPublishedForm;
-                                    return (
-                                        <button
-                                            key={cat._id}
-                                            disabled={!hasForm}
-                                            onClick={() => {
-                                                setSelectedCat(cat);
-                                                setPublicStep("category-detail");
-                                            }}
-                                            className={`group relative flex flex-col justify-between rounded-2xl border bg-white p-7 text-left transition-all duration-200
-                                                ${hasForm
-                                                    ? "border-slate-200 hover:border-slate-900 hover:shadow-xl hover:shadow-slate-200/50 cursor-pointer"
-                                                    : "border-slate-100 opacity-60 cursor-not-allowed shadow-none"
-                                                }`}
-                                        >
-                                            <div className="relative z-10 w-full">
-                                                <div className="flex items-start justify-between mb-8">
-                                                    <div className={`flex h-12 w-12 items-center justify-center rounded-xl border transition-all
-                                                        ${hasForm ? "bg-slate-50 text-slate-900 border-slate-200 group-hover:bg-slate-900 group-hover:text-white" : "bg-slate-50 text-slate-300 border-slate-100"}`}>
-                                                        <Building2 size={24} />
-                                                    </div>
-                                                    <div className={`flex items-center gap-2 rounded-lg px-2.5 py-1 text-[9px] font-black uppercase tracking-widest transition-all
-                                                        ${hasForm 
-                                                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-100 shadow-sm' 
-                                                            : 'bg-slate-50 text-slate-400 border border-slate-100'}`}>
-                                                        {hasForm ? (
-                                                            <>
-                                                                <span className="relative flex h-2 w-2">
-                                                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                                                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                                                                </span>
-                                                                <span className="tracking-[0.1em]">ACTIVE PORTAL</span>
-                                                            </>
-                                                        ) : (
-                                                            <>
-                                                                <ShieldCheck size={10} strokeWidth={3} />
-                                                                <span className="tracking-[0.1em]">LOCKED</span>
-                                                            </>
-                                                        )}
-                                                    </div>
-                                                </div>
-
-                                                <h3 className="text-xl font-black tracking-tight text-slate-900">
-                                                    {cat.name}
-                                                </h3>
-                                                <p className="mt-1 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
-                                                    Code: {cat.code || "REG-X"}
-                                                </p>
-                                                
-                                                <p className="mt-6 line-clamp-3 text-[13px] font-medium leading-relaxed text-slate-500 italic">
-                                                    {cat.description || "Established vertical protocol for industrial procurement and vendor management registry."}
-                                                </p>
-                                            </div>
-
-                                            <div className="mt-8 flex items-center justify-between border-t border-slate-100 pt-6">
-                                                {!hasForm ? (
-                                                    <span className="text-[11px] font-bold uppercase tracking-widest text-slate-300">Registration Locked</span>
-                                                ) : (
-                                                    <span className="text-[11px] font-bold uppercase tracking-widest text-slate-900">Select Portal</span>
-                                                )}
-                                            </div>
-                                        </button>
-                                    );
-                                })}
-                            </div>
-                        )}
-                    </div>
-
-                    <footer className="mt-auto py-12 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-8">
-                        <div className="flex items-center gap-5">
-                            <ShieldCheck size={22} strokeWidth={2.5} className="text-slate-900" />
-                            <p className="text-sm font-bold tracking-tight text-slate-800">
-                                GT Global Procurement Registry &copy; 2026
-                            </p>
-                        </div>
-                        <div className="flex items-center gap-10">
-                            <p className="text-sm font-bold text-slate-600">
-                                Already registered?
-                            </p>
-                            <a href="/login" className="px-6 py-3 rounded-2xl bg-slate-900 text-xs font-black uppercase tracking-widest text-white hover:bg-slate-800 transition-all shadow-xl shadow-slate-200 active:scale-95">
-                                Sign In Portal
-                            </a>
-                        </div>
-                    </footer>
+                                    <div className="mt-8 border-t border-slate-100 pt-5">
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-sm font-semibold text-slate-900">
+                                                {cat.hasPublishedForm ? "Enter Portal" : "Portal Locked"}
+                                            </span>
+                                            <ArrowRight size={18} className="transition-transform group-hover:translate-x-1.5" />
+                                        </div>
+                                    </div>
+                                </button>
+                            ))}
+                        </section>
+                    )}
                 </main>
             </div>
         );
     }
 
-    // ── STEP 2: Category Detail ────────────────────────
     if (publicStep === "category-detail" && selectedCat) {
         return (
-            <div className="min-h-screen bg-[#f8fafc] font-sans selection:bg-indigo-100 selection:text-indigo-900 flex flex-col">
-                {/* Simple Header */}
-                <header className="sticky top-0 z-40 border-b border-slate-200 bg-white shadow-sm">
-                    <div className="mx-auto flex max-w-[1200px] items-center justify-between px-6 py-5">
-                        <div className="flex items-center gap-4">
-                            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-900 text-white shadow-xl shadow-slate-200">
-                                <ShieldCheck size={22} strokeWidth={2.5} />
-                            </div>
-                            <div>
-                                <h1 className="text-xl font-bold tracking-tight text-slate-900 leading-none">VMS PRO</h1>
-                                <p className="text-[12px] font-semibold text-slate-500 mt-1">Enterprise Registry</p>
+            <div className="registration-readable registration-page min-h-screen flex flex-col">
+                <header className="registration-header">
+                    <button onClick={() => setPublicStep("pick-category")} className="flex items-center gap-2 text-sm font-medium text-slate-500 transition-colors hover:text-slate-900">
+                        <ArrowLeft size={16} /> Back to Directory
+                    </button>
+                </header>
+                <main className="mx-auto flex w-full max-w-[1180px] flex-1 items-center px-4 py-8 md:px-6 md:py-12">
+                    <div className="grid w-full overflow-hidden rounded-[30px] border border-slate-200 bg-white/95 shadow-[0_28px_80px_rgba(15,23,42,0.10)] md:grid-cols-[minmax(0,1.4fr)_420px]">
+                        <div className="p-8 md:p-12">
+                            <span className="mb-4 inline-flex rounded-full bg-blue-50 px-3 py-1 text-[11px] font-semibold text-blue-700">
+                                {selectedCat.code || "Onboarding Vertical"}
+                            </span>
+                            <h2 className="mb-4 text-4xl font-bold leading-tight tracking-tight text-slate-900">{selectedCat.name}</h2>
+                            <p className="max-w-2xl text-[16px] font-medium leading-8 text-slate-600">
+                                {selectedCat.description || "Initiate the official verification process for this strategic vertical."}
+                            </p>
+
+                            <div className="mt-8 grid gap-4 md:grid-cols-2">
+                                <div className="rounded-2xl border border-slate-200 bg-slate-50 px-5 py-4">
+                                    <p className="text-[12px] font-semibold tracking-[0.14em] text-slate-500">WHAT YOU&apos;LL NEED</p>
+                                    <p className="mt-2 text-sm leading-6 text-slate-600">Company details, primary contact info, and mandatory statutory information.</p>
+                                </div>
+                                <div className="rounded-2xl border border-slate-200 bg-slate-50 px-5 py-4">
+                                    <p className="text-[12px] font-semibold tracking-[0.14em] text-slate-500">PROCESS</p>
+                                    <p className="mt-2 text-sm leading-6 text-slate-600">Fill the required sections, validate the form, and submit for admin review.</p>
+                                </div>
                             </div>
                         </div>
-                        <button
-                            onClick={() => setPublicStep("pick-category")}
-                            className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-bold text-slate-600 hover:bg-slate-50 transition-all"
-                        >
-                            <ArrowLeft size={16} /> Back to Portals
-                        </button>
-                    </div>
-                </header>
+                        <div className="flex flex-col justify-center border-t border-slate-100 bg-slate-50/80 p-8 md:border-l md:border-t-0 md:p-10">
+                            <h3 className="text-2xl font-bold tracking-tight text-slate-900">Ready to begin?</h3>
+                            <p className="mt-3 text-sm leading-6 text-slate-600">
+                                Open the registration form for this vertical and continue with the onboarding process.
+                            </p>
+                            <button
+                                onClick={() => setPublicStep("form")}
+                                className="mt-8 flex w-full items-center justify-center gap-3 rounded-2xl bg-blue-700 py-4 text-sm font-semibold text-white shadow-lg shadow-blue-100 transition-all hover:bg-blue-800"
+                            >
+                                Start Registration <ArrowRight size={18} />
+                            </button>
 
-                <main className="mx-auto max-w-[1200px] w-full px-6 py-12 lg:py-20 flex-1 flex flex-col items-center justify-center">
-                    <div className="w-full bg-white rounded-[2.5rem] border border-slate-200 overflow-hidden shadow-xl shadow-slate-200/50">
-                        <div className="grid grid-cols-1 md:grid-cols-2">
-                            {/* Left: Info */}
-                            <div className="p-8 lg:p-12 border-b md:border-b-0 md:border-r border-slate-100">
-                                <div className="flex items-center gap-3 mb-8">
-                                    <span className="flex items-center gap-2 rounded-full bg-slate-900 px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest text-white border border-slate-900 shadow-sm">
-                                        Registry Selection
-                                    </span>
-                                </div>
-                                <h2 className="text-4xl font-black text-slate-900 tracking-tight leading-tight">
-                                    {selectedCat.name}
-                                </h2>
-                                <p className="mt-4 text-[12px] font-black uppercase tracking-widest text-slate-400">
-                                    Official Index: {selectedCat.code}
-                                </p>
-                                
-                                <div className="mt-10 p-6 rounded-2xl bg-slate-50 border border-slate-200/60">
-                                    <p className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3">Service Scope</p>
-                                    <p className="text-[15px] font-semibold text-slate-600 leading-relaxed italic">
-                                        {selectedCat.description || "This portal facilitates the formal onboarding of business entities within this industrial category."}
-                                    </p>
-                                </div>
-                            </div>
-
-                            {/* Right: Actions */}
-                            <div className="p-8 lg:p-12 bg-slate-50/50 flex flex-col justify-center">
-                                <div className="mb-10">
-                                    <h3 className="text-xl font-bold text-slate-900 uppercase tracking-tight">Initiate Official Enrollment</h3>
-                                    <p className="mt-3 text-[14px] font-medium text-slate-500 leading-relaxed">
-                                        By proceeding, you will begin the official onboarding process. Please ensure you have all legal and financial credentials ready for submission.
-                                    </p>
-                                </div>
-
-                                <div className="space-y-4 mb-10">
-                                    {['Electronic Document Submission', 'Compliance Validation (SLA)', 'Departmental Review Cycle'].map((item, i) => (
-                                        <div key={i} className="flex items-center gap-3 text-sm font-bold text-slate-700">
-                                            <div className="flex h-5 w-5 items-center justify-center rounded-full bg-slate-900 text-white">
-                                                <CheckCircle size={12} />
-                                            </div>
-                                            {item}
-                                        </div>
-                                    ))}
-                                </div>
-
-                                <button
-                                    onClick={() => {
-                                        setLoading(true);
-                                        setPublicStep("form");
-                                    }}
-                                    className="w-full flex items-center justify-center gap-3 rounded-xl bg-slate-900 py-5 text-[12px] font-black uppercase tracking-widest text-white shadow-xl shadow-slate-200 hover:bg-black transition-all hover:-translate-y-1 active:translate-y-0"
-                                >
-                                    Proceed to Enrollment dossier
-                                    <ArrowRight size={18} />
-                                </button>
-                                
-                                <p className="mt-6 text-center text-[10px] font-black uppercase tracking-widest text-slate-400">
-                                    Processing time: 10-15 Minutes
-                                </p>
+                            <div className="mt-6 rounded-2xl border border-slate-200 bg-white px-5 py-4 text-sm text-slate-600">
+                                You can review and edit your details before the final submission step.
                             </div>
                         </div>
                     </div>
                 </main>
-
-                <footer className="mt-auto py-10 border-t border-slate-200 bg-white flex justify-center">
-                     <p className="text-sm font-bold tracking-tight text-slate-800">
-                        GT Global Procurement Registry &copy; 2026
-                    </p>
-                </footer>
             </div>
         );
     }
 
-    if (loading) return (
-        <div className="min-h-screen flex items-center justify-center bg-[#f8fafc]">
-            <LoadingSpinner />
-        </div>
-    );
+    if (loading) return <div className="registration-readable min-h-screen flex items-center justify-center bg-[#f8fafc]"><LoadingSpinner /></div>;
+
+    const MOCK_CATEGORIES = [
+        "ALL (ALL) > Material (Material) > GENERAL CONSUMABLES (ZCON) > IT CONSUMABLE (120004) > CABLE MANAGER (13004011)",
+        "ALL (ALL) > Material (Material) > ASSET MATERIAL (ZAST) > IT EQUIPMENT (130002) > MANAGED SWITCH 24 PORT (12000935)",
+        "ALL (ALL) > Material (Material) > ASSET MATERIAL (ZAST) > IT EQUIPMENT (130002) > MANAGED SWITCH 48 PORT (12000936)",
+        "ALL (ALL) > Material (Material) > GENERAL CONSUMABLES (ZCON) > IT CONSUMABLE (120004) > WIRE MANAGEMENT BOX (13006717)",
+        "ALL (ALL) > Civil (Civil) > ROAD UTILITY > PAVEMENT > BITUMINOUS MIX",
+        "ALL (ALL) > Civil (Civil) > ROAD UTILITY > EARTHWORK > EMBANKMENT",
+        "ALL (ALL) > Civil (Civil) > ROAD UTILITY > DRAINAGE > RCC PIPES",
+        "ALL (ALL) > Civil (Civil) > INFRASTRUCTURE > BRIDGE > STEEL STRUCTURES",
+        "ALL (ALL) > Civil (Civil) > INFRASTRUCTURE > BRIDGE > EXPANSION JOINT",
+        "ALL (ALL) > Civil (Civil) > BULK MATERIAL > AGGREGATES > CRUSHED STONE",
+        "ALL (ALL) > Civil (Civil) > BULK MATERIAL > REINFORCEMENT > TMT BARS",
+        "ALL (ALL) > Mechanical (Mech) > PLANT & MACHINERY > SPARES > HYDRAULIC PUMP",
+        "ALL (ALL) > Mechanical (Mech) > PLANT & MACHINERY > CONSUMABLES > ENGINE OIL",
+        "ALL (ALL) > Electrical (Elec) > SUBSTATION > SWITCHGEAR > TRANSFORMER",
+        "ALL (ALL) > Electrical (Elec) > WIRING > CABLES > ARMOURED CABLE",
+        "ALL (ALL) > Services (Services) > CONSULTANCY > DESIGN > ARCHITECTURAL",
+        "ALL (ALL) > Services (Services) > LOGISTICS > FREIGHT > INTERNATIONAL",
+        "ALL (ALL) > Services (Services) > LOGISTICS > TRANSPORT > LOCAL TRUCKING",
+        "ALL (ALL) > Services (Services) > MANPOWER > SKILLED > ROAD CONSTRUCTION",
+        "ALL (ALL) > Services (Services) > TESTING > LAB > SOIL TESTING",
+        "ALL (ALL) > Material (Material) > FUEL & LUBRICANTS > DIESEL > BULK SUPPLY",
+        "ALL (ALL) > Material (Material) > CONSTRUCTION MATERIAL > CEMENT > OPC 43 GRADE",
+        "ALL (ALL) > Material (Material) > CONSTRUCTION MATERIAL > CEMENT > PPC GRADE",
+        "ALL (ALL) > Safety (HSE) > PPE > FOOTWEAR > SAFETY SHOES",
+        "ALL (ALL) > Safety (HSE) > FIRE FIGHTING > EXTINGUISHER > CO2 TYPE"
+    ];
+
+    const MOCK_REGIONS = [
+        "INDIA (IN) > Rajasthan > Jaipur",
+        "INDIA (IN) > Rajasthan > Udaipur",
+        "INDIA (IN) > Rajasthan > Jodhpur",
+        "INDIA (IN) > Rajasthan > Ajmer",
+        "INDIA (IN) > Rajasthan > Kota",
+        "INDIA (IN) > Maharashtra > Mumbai",
+        "INDIA (IN) > Maharashtra > Pune",
+        "INDIA (IN) > Maharashtra > Nagpur",
+        "INDIA (IN) > Maharashtra > Nashik",
+        "INDIA (IN) > Gujarat > Ahmedabad",
+        "INDIA (IN) > Gujarat > Surat",
+        "INDIA (IN) > Gujarat > Vadodara",
+        "INDIA (IN) > Delhi > NCR",
+        "INDIA (IN) > Haryana > Gurugram",
+        "INDIA (IN) > Haryana > Faridabad",
+        "INDIA (IN) > Haryana > Panipat",
+        "INDIA (IN) > Uttar Pradesh > Noida",
+        "INDIA (IN) > Uttar Pradesh > Ghaziabad",
+        "INDIA (IN) > Uttar Pradesh > Lucknow",
+        "INDIA (IN) > Uttar Pradesh > Kanpur",
+        "INDIA (IN) > Karnataka > Bengaluru",
+        "INDIA (IN) > Karnataka > Mysuru",
+        "INDIA (IN) > Telangana > Hyderabad",
+        "INDIA (IN) > Tamil Nadu > Chennai",
+        "INDIA (IN) > Tamil Nadu > Coimbatore",
+        "INDIA (IN) > West Bengal > Kolkata",
+        "INDIA (IN) > Madhya Pradesh > Indore",
+        "INDIA (IN) > Madhya Pradesh > Bhopal",
+        "INDIA (IN) > Punjab > Ludhiana",
+        "INDIA (IN) > Punjab > Mohali",
+        "INDIA (IN) > Andhra Pradesh > Vijayawada",
+        "INDIA (IN) > Bihar > Patna"
+    ];
+
+    const MOCK_DEPARTMENTS = [
+        "Operations > Site Engineering",
+        "Operations > Project Management",
+        "Operations > Surveying",
+        "Procurement > Bulk Material",
+        "Procurement > Plant & Machinery",
+        "Procurement > IT & Assets",
+        "Finance > Accounts Payable",
+        "Finance > Taxation & Audit",
+        "Quality (QA/QC) > Lab Testing",
+        "Quality (QA/QC) > Field Inspection",
+        "HR & Admin > Personnel Management",
+        "HR & Admin > Industrial Relations",
+        "HSE & Safety > Site Safety",
+        "HSE & Safety > Environmental Compliance",
+        "Legal > Contract Management",
+        "IT > Infrastructure & Support"
+    ];
 
     const sections = categoryDetails?.formTemplate?.sections || [];
-    const hasVisibleSections = hasRenderableSections(categoryDetails?.formTemplate);
-
-    if (!hasVisibleSections) {
-        return (
-            <div className="min-h-screen bg-[#f8fafc] flex items-center justify-center px-6">
-                <div className="max-w-xl w-full bg-white border border-slate-200 rounded-[2.5rem] shadow-xl p-10 md:p-14 text-center">
-                    <div className="w-20 h-20 mx-auto mb-8 rounded-3xl bg-slate-50 border border-slate-100 text-slate-300 flex items-center justify-center shadow-inner">
-                        <AlertCircle size={40} />
-                    </div>
-                    <p className="text-[11px] font-black uppercase tracking-[0.3em] text-slate-400 mb-4">
-                        Status Unavailable
-                    </p>
-                    <h1 className="text-3xl font-black text-slate-900 tracking-tight leading-tight mb-4">
-                        Official form is not yet published.
-                    </h1>
-                    <p className="text-slate-500 font-medium text-lg leading-relaxed mb-10 italic">
-                        The registration portal for this category is under configuration. Please select another vertical.
-                    </p>
-                    <div className="flex flex-col gap-3">
-                        <button
-                            onClick={() => setPublicStep("pick-category")}
-                            className="w-full rounded-2xl bg-slate-900 px-6 py-5 text-[12px] font-black uppercase tracking-widest text-white shadow-xl shadow-slate-200 transition-all hover:-translate-y-1 active:translate-y-0"
-                        >
-                            Back to portal directory
-                        </button>
-                        <button
-                            onClick={() => navigate("/login")}
-                            className="w-full rounded-2xl border border-slate-200 px-6 py-5 text-[12px] font-black uppercase tracking-widest text-slate-600 hover:bg-slate-50 transition-all"
-                        >
-                            Return to Login
-                        </button>
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
-    const currentSection = sections[currentStep] || { sectionTitle: "Loading...", fields: [] };
-
-    const mapSectionToStepIndex = (section, idx) => {
-        if (!section || sections.length === 0) return 0;
-        const title = (section.sectionTitle || "").toLowerCase();
-        if (title.includes("bank") || title.includes("financial") || title.includes("tax") || title.includes("payment") || title.includes("accounting") || title.includes("recon")) return 2;
-        if (idx === sections.length - 1 && sections.length > 3) {
-            // If it's the last section and has many, check if it fits in documents
-            if (section.fields.some(f => f.type === 'file')) return 3;
-        }
-        if (title.includes("attachment") || title.includes("document") || title.includes("upload") || title.includes("signature") || title.includes("stamp")) return 3;
-        if (title.includes("business") || title.includes("classification") || title.includes("statutory") || title.includes("industry") || title.includes("msme")) return 1;
-        if (title.includes("contact") || title.includes("identification") || title.includes("address") || title.includes("location") || title.includes("vendor")) return 0;
-
-        // Dynamic distribution if no keywords match
-        const progress = idx / Math.max(sections.length, 1);
-        if (progress < 0.25) return 0;
-        if (progress < 0.5) return 1;
-        if (progress < 0.75) return 2;
-        return 3;
-    };
-
-    const activeMajorStep = isReviewStep ? 4 : mapSectionToStepIndex(currentSection, currentStep);
 
     const handleInputChange = (name, value) => {
-        setFormValues(prev => {
-            const updatedValues = { ...prev, [name]: value };
-
-            // Auto-fetch City and State if pincode is exactly 6 digits (Indian Pincode format)
-            if ((name === 'pincode' || name === 'co_pincode') && value.length === 6) {
-                fetchPincodeDetails(value, updatedValues);
-            }
-
-            return updatedValues;
+        setValidationErrors(prev => {
+            if (!prev[name]) return prev;
+            const next = { ...prev };
+            delete next[name];
+            return next;
         });
-    };
-
-    const fetchPincodeDetails = async (pincode, currentFormValues) => {
-        try {
-            const response = await fetch(`https://api.postalpincode.in/pincode/${pincode}`);
-            const data = await response.json();
-
-            if (data && data[0] && data[0].Status === 'Success') {
-                const postOffice = data[0].PostOffice[0];
-                const cityField = Object.prototype.hasOwnProperty.call(currentFormValues, 'city') ? 'city' : 'co_city';
-                const stateField = Object.prototype.hasOwnProperty.call(currentFormValues, 'state') ? 'state' : 'co_state';
-                const countryField = Object.prototype.hasOwnProperty.call(currentFormValues, 'country') ? 'country' : 'co_country';
-
-                setFormValues(prev => ({
-                    ...prev,
-                    [cityField]: postOffice.District || postOffice.Block,
-                    [stateField]: postOffice.State,
-                    [countryField]: postOffice.Country || "India"
-                }));
-                toast.success("Location details auto-filled successfully!");
-            }
-        } catch (error) {
-            console.error("Error fetching pincode details:", error);
-        }
+        setFormValues(prev => ({ ...prev, [name]: value }));
     };
 
     const handleFileChange = (name, file) => {
+        setValidationErrors(prev => {
+            if (!prev[name]) return prev;
+            const next = { ...prev };
+            delete next[name];
+            return next;
+        });
         setFiles(prev => ({ ...prev, [name]: file }));
     };
 
-    // Email validation and duplicate check
-    const validateEmailFormat = (email) => {
-        const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return regex.test(email);
+    const getStatutoryFieldCode = (section, field) => {
+        const fieldName = field?.name || field?.fieldId;
+        if (fieldName && STATUTORY_FIELD_CODES[fieldName]) {
+            return STATUTORY_FIELD_CODES[fieldName];
+        }
+        const sectionPrefix = (section?.sectionTitle || "").match(/^(\d+(?:\.\d+)*)/)?.[1];
+        if (!sectionPrefix) return null;
+        return `${sectionPrefix}.1.${field.order ?? 0}`;
     };
 
-    const handleEmailBlur = async (fieldName, value) => {
-        if (!value) return;
-        if (!validateEmailFormat(value)) {
-            setEmailError("Please enter a valid email address.");
-            setEmailWarning("");
-            return;
+    const isTurnoverField = (fieldName) => TURNOVER_FIELD_IDS.includes(fieldName);
+    const isEmailField = (field, fieldName) =>
+        field?.type === "email" || /email/i.test(fieldName || "") || /email/i.test(field?.label || "");
+    const isMobileField = (field, fieldName) =>
+        /mobile|phone/i.test(fieldName || "") || /mobile|phone/i.test(field?.label || "");
+
+    const isFieldVisible = (section, field) => {
+        const fieldName = field?.name || field?.fieldId;
+        if (STATUTORY_SECTION_PATTERN.test(section?.sectionTitle || "") &&
+            isTurnoverField(fieldName) &&
+            formValues[TURNOVER_DEPENDENCY_FIELD] !== TURNOVER_DEPENDENCY_VALUE) {
+            return false;
         }
-        setEmailError("");
-        try {
-            const res = await api.get(`/applications/check-email?email=${encodeURIComponent(value)}`);
-            if (res.data.data.exists) {
-                setEmailWarning("This email has already submitted a registration. You may update your existing application.");
-            } else {
-                setEmailWarning("");
-            }
-        } catch {
-            // Silently ignore duplicate check errors
+
+        if (field?.dependsOn && formValues[field.dependsOn] !== field.dependsOnValue) {
+            return false;
         }
+
+        return true;
     };
 
-    const nextStep = () => {
-        if (currentStep < sections.length - 1) {
-            setCurrentStep(prev => prev + 1);
-            window.scrollTo(0, 0);
-        } else if (!isReviewStep) {
-            setIsReviewStep(true);
-            window.scrollTo(0, 0);
-        } else {
-            handleSubmit();
+    const sanitizeFieldValue = (field, fieldName, value) => {
+        if (typeof value !== "string") return value;
+        if (isMobileField(field, fieldName)) {
+            return value.replace(/\D/g, "").slice(0, 10);
         }
+        return value;
     };
 
-    const prevStep = () => {
-        if (isReviewStep) {
-            setIsReviewStep(false);
-            window.scrollTo(0, 0);
-        } else if (currentStep > 0) {
-            setCurrentStep(prev => prev - 1);
-            window.scrollTo(0, 0);
+    const isSectionVisible = (section) => {
+        if (section?.dependsOn && formValues[section.dependsOn] !== section.dependsOnValue) {
+            return false;
         }
+        return true;
+    };
+
+    const isFieldFilled = (field, fieldName) => {
+        if (field.type === "file") {
+            return !!files[fieldName];
+        }
+
+        const value = formValues[fieldName];
+        if (value === undefined || value === null) return false;
+        if (typeof value === "boolean") return value;
+        return String(value).trim() !== "";
+    };
+
+    const getFieldValidationIssue = (field, fieldName) => {
+        const value = formValues[fieldName];
+        const normalizedValue = typeof value === "string" ? value.trim() : value;
+
+        if (!isFieldFilled(field, fieldName)) return null;
+
+        if (isEmailField(field, fieldName) && !EMAIL_REGEX.test(String(normalizedValue))) {
+            return "Please enter a valid email address";
+        }
+
+        if (isMobileField(field, fieldName) && !MOBILE_REGEX.test(String(normalizedValue))) {
+            return "Mobile number must be exactly 10 digits";
+        }
+
+        return null;
+    };
+
+    const collectValidationIssues = (sectionsToValidate) => {
+        const issues = [];
+
+        sectionsToValidate.forEach((section, sectionIndex) => {
+            if (!isSectionVisible(section)) return;
+
+            (section.fields || []).forEach((field) => {
+                const fieldName = field?.name || field?.fieldId;
+                if (!fieldName || !field.required) return;
+                if (!isFieldVisible(section, field)) return;
+                if (!isFieldFilled(field, fieldName)) {
+                    issues.push({
+                        fieldName,
+                        label: field.label,
+                        sectionIndex,
+                        sectionTitle: section.sectionTitle,
+                        message: `Please fill required field: ${field.label}`,
+                    });
+                    return;
+                }
+
+                const fieldValidationIssue = getFieldValidationIssue(field, fieldName);
+                if (fieldValidationIssue) {
+                    issues.push({
+                        fieldName,
+                        label: field.label,
+                        sectionIndex,
+                        sectionTitle: section.sectionTitle,
+                        message: fieldValidationIssue,
+                    });
+                }
+            });
+        });
+
+        sectionsToValidate.forEach((section, sectionIndex) => {
+            if (!isSectionVisible(section)) return;
+
+            (section.fields || []).forEach((field) => {
+                const fieldName = field?.name || field?.fieldId;
+                if (!fieldName || field.required) return;
+                if (!isFieldVisible(section, field)) return;
+
+                const fieldValidationIssue = getFieldValidationIssue(field, fieldName);
+                if (fieldValidationIssue) {
+                    issues.push({
+                        fieldName,
+                        label: field.label,
+                        sectionIndex,
+                        sectionTitle: section.sectionTitle,
+                        message: fieldValidationIssue,
+                    });
+                }
+            });
+        });
+
+        return issues;
+    };
+
+    const focusOnFirstInvalidSection = (issues) => {
+        if (!issues.length) return;
+        const firstInvalid = issues[0];
+        setExpanded(prev => ({ ...prev, [`section-${firstInvalid.sectionIndex}`]: true }));
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+
+    const applyValidationErrors = (issues) => {
+        setValidationErrors(
+            issues.reduce((acc, item) => {
+                acc[item.fieldName] = true;
+                return acc;
+            }, {})
+        );
+    };
+
+    const validateSections = (sectionsToValidate) => {
+        const issues = collectValidationIssues(sectionsToValidate);
+        if (!issues.length) {
+            setValidationErrors({});
+            return true;
+        }
+
+        applyValidationErrors(issues);
+        focusOnFirstInvalidSection(issues);
+        toast.error(issues[0].message);
+        return false;
+    };
+
+    const renderFieldControl = (field, fieldName, compact = false) => {
+        const hasError = !!validationErrors[fieldName];
+        const isEmailLike = isEmailField(field, fieldName);
+        const isMobileLike = isMobileField(field, fieldName);
+        const effectiveType = isEmailLike ? "email" : isMobileLike ? "tel" : field.type;
+        const controlClass = compact
+            ? `w-full h-10 rounded-xl border px-4 text-[13px] font-semibold text-slate-900 outline-none transition-all ${hasError ? "border-rose-400 bg-rose-50/50 focus:border-rose-500 focus:ring-4 focus:ring-rose-100" : "border-slate-200 bg-white focus:border-blue-600 focus:ring-4 focus:ring-blue-50"}`
+            : `w-full h-12 rounded-xl border px-4 text-[14px] font-semibold text-slate-900 outline-none transition-all ${hasError ? "border-rose-400 bg-rose-50/50 focus:border-rose-500 focus:ring-4 focus:ring-rose-100" : "border-slate-200 bg-white focus:border-blue-600 focus:ring-4 focus:ring-blue-50"}`;
+
+        const textareaClass = compact
+            ? `w-full h-28 rounded-xl border px-4 py-3 text-[13px] font-semibold text-slate-900 outline-none transition-all ${hasError ? "border-rose-400 bg-rose-50/50 focus:border-rose-500 focus:ring-4 focus:ring-rose-100" : "border-slate-200 bg-white focus:border-blue-600 focus:ring-4 focus:ring-blue-50"}`
+            : `w-full h-32 rounded-xl border px-4 py-3 text-[14px] font-semibold text-slate-900 outline-none transition-all ${hasError ? "border-rose-400 bg-rose-50/50 focus:border-rose-500 focus:ring-4 focus:ring-rose-100" : "border-slate-200 bg-white focus:border-blue-600 focus:ring-4 focus:ring-blue-50"}`;
+
+        if (fieldName === "serviceCategory" || fieldName === "region" || fieldName === "department") {
+            return (
+                <SuggestSearchField
+                    value={formValues[fieldName] || ""}
+                    onChange={(val) => handleInputChange(fieldName, val)}
+                    required={field.required}
+                    mockData={fieldName === "serviceCategory" ? MOCK_CATEGORIES : fieldName === "region" ? MOCK_REGIONS : MOCK_DEPARTMENTS}
+                    placeholder={fieldName === "serviceCategory" ? "Search Category..." : fieldName === "region" ? "Search Region..." : "Search Department..."}
+                />
+            );
+        }
+
+        if (field.type === "text" || field.type === "number" || field.type === "date" || field.type === "email") {
+            return (
+                <input
+                    type={effectiveType}
+                    required={field.required}
+                    value={formValues[fieldName] || ""}
+                    inputMode={isMobileLike ? "numeric" : undefined}
+                    maxLength={isMobileLike ? 10 : undefined}
+                    autoComplete={isEmailLike ? "email" : isMobileLike ? "tel" : undefined}
+                    placeholder={isEmailLike ? "name@company.com" : isMobileLike ? "10 digit mobile number" : undefined}
+                    onChange={(e) => handleInputChange(fieldName, sanitizeFieldValue(field, fieldName, e.target.value))}
+                    className={controlClass}
+                />
+            );
+        }
+
+        if (field.type === "textarea") {
+            return (
+                <textarea
+                    required={field.required}
+                    value={formValues[fieldName] || ""}
+                    onChange={(e) => handleInputChange(fieldName, e.target.value)}
+                    className={textareaClass}
+                />
+            );
+        }
+
+        if (field.type === "dropdown") {
+            return (
+                <select
+                    required={field.required}
+                    value={formValues[fieldName] || ""}
+                    onChange={(e) => handleInputChange(fieldName, e.target.value)}
+                    className={`${controlClass} appearance-none cursor-pointer`}
+                >
+                    <option value=""></option>
+                    {field.options?.map((opt, oIdx) => <option key={oIdx} value={opt}>{opt}</option>)}
+                </select>
+            );
+        }
+
+        if (field.type === "radio") {
+            return (
+                <div className={`flex items-center gap-6 ${compact ? "h-10" : "h-12"}`}>
+                    {field.options?.map((opt) => (
+                        <label key={opt} className={`inline-flex items-center gap-2 cursor-pointer ${compact ? "text-[11px] font-bold text-slate-700" : "text-[10px] font-medium text-slate-700"}`}>
+                            <input
+                                type="radio"
+                                name={fieldName}
+                                value={opt}
+                                checked={(formValues[fieldName] || "") === opt}
+                                onChange={(e) => handleInputChange(fieldName, e.target.value)}
+                                className="h-3.5 w-3.5 border-slate-300 text-blue-600 focus:ring-blue-500"
+                                required={field.required && !formValues[fieldName]}
+                            />
+                            <span>{opt}</span>
+                        </label>
+                    ))}
+                </div>
+            );
+        }
+
+        if (field.type === "file") {
+            return (
+                <FileUploadField
+                    label={field.label}
+                    required={field.required}
+                    file={files[fieldName]}
+                    fieldId={fieldName}
+                    onChange={handleFileChange}
+                />
+            );
+        }
+
+        return null;
     };
 
     const handleSubmit = async () => {
+        if (!validateSections(sections)) return;
         setSubmitting(true);
-        const toastId = toast.loading("Processing your application dossier...");
+        const toastId = toast.loading("Executing final transmission...");
         try {
-            // Extract email from all possible field names the master form may use
-            const resolvedEmail =
-                formValues.email ||
-                formValues.co_email ||
-                formValues.contactEmail ||
-                formValues.businessEmail ||
-                formValues.vendorEmail ||
-                formValues.emailAddress ||
-                "";
-
-            if (!resolvedEmail) {
-                toast.error("Please fill in your Email address before submitting.", { id: toastId });
-                setSubmitting(false);
-                return;
-            }
-
-            // Merge the resolved email back into formValues so the backend always finds it
-            const enrichedFormValues = { ...formValues, email: resolvedEmail, co_email: resolvedEmail };
+            const resolvedEmail = formValues.email || Object.values(formValues).find(v => typeof v === 'string' && v.includes('@'));
+            if (!resolvedEmail) throw new Error("A valid Email address is required for submission.");
 
             const formData = new FormData();
             if (token) formData.append("invitationToken", token);
-            const catId = urlCategoryId || selectedCat?._id;
-            if (catId) formData.append("categoryId", catId);
+            if (selectedCat?._id) formData.append("categoryId", selectedCat._id);
             formData.append("email", resolvedEmail);
-            formData.append("companyName",
-                formValues.companyName ||
-                formValues.co_name ||
-                formValues.vendorName ||
-                formValues.company_name ||
-                "Dynamic Vendor"
-            );
+            formData.append("companyName", formValues.companyName || formValues.vendorName || "Dossier Submission");
             formData.append("formTemplateId", categoryDetails.formTemplate._id);
-            formData.append("formVersion", categoryDetails.formTemplate.version || 1);
-            formData.append("data", JSON.stringify(enrichedFormValues));
+            formData.append("data", JSON.stringify(formValues));
 
-            Object.keys(files).forEach(key => {
-                if (files[key]) {
-                    formData.append(key, files[key]);
-                }
-            });
+            Object.keys(files).forEach(key => { if (files[key]) formData.append(key, files[key]); });
 
-            const res = await api.post("/applications/submit", formData, {
-                headers: { "Content-Type": "multipart/form-data" }
-            });
-
-            const appId = res.data.data._id;
-            if (appId) {
-                await api.post(`/applications/${appId}/finalize`);
-            }
-
-            toast.success("Application submitted successfully!", { id: toastId });
-            navigate("/success", { state: { appId, email: resolvedEmail } });
+            await api.post("/applications/submit", formData, { headers: { "Content-Type": "multipart/form-data" } });
+            toast.success("Application successfully registered!", { id: toastId });
+            navigate("/success", { state: { email: resolvedEmail } });
         } catch (err) {
-            toast.error(err.response?.data?.message || "Submission failed. Please try again.", { id: toastId });
+            toast.error(err.message || "Transmission error.", { id: toastId });
         } finally {
             setSubmitting(false);
         }
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 text-slate-800 font-sans selection:bg-blue-100">
-            {/* Main Content Area - Now Full Width */}
-            <main className="min-h-screen flex flex-col items-center">
+        <div className="registration-readable registration-page min-h-screen font-sans">
+            {/* Ariba Style UI Structure */}
+            <main className="w-full flex flex-col min-h-screen">
                 
-                {/* Horizontal Top Stepper - Edge to Edge */}
-                <div className="w-full bg-white border-b border-slate-200 py-4 px-2 sticky top-0 z-20 shadow-sm">
-                    <div className="w-full mx-auto">
-                        <div className="flex items-center justify-between gap-1">
-                            {STEPS.map((step, idx) => {
-                                const isCompleted = idx < activeMajorStep;
-                                const isActive = idx === activeMajorStep;
-                                const Icon = step.icon;
-
-                                return (
-                                    <div key={idx} className="flex-1 flex flex-col items-center group relative">
-                                        {/* Horizontal Progress Line */}
-                                        {idx !== STEPS.length - 1 && (
-                                            <div className="absolute left-[50%] right-[-50%] top-5 h-0.5 border-t-2 border-dotted border-slate-200 z-0">
-                                            </div>
-                                        )}
-
-                                        {/* Icon Circle */}
-                                        <div className={`
-                                            relative z-10 w-10 min-w-[40px] h-10 rounded-full flex items-center justify-center transition-all border-2
-                                            ${isActive ? 'bg-blue-700 border-blue-700 text-white shadow shadow-blue-100 scale-105' : ''}
-                                            ${isCompleted ? 'bg-white border-blue-700 text-blue-700' : ''}
-                                            ${!isActive && !isCompleted ? 'bg-slate-50 border-slate-200 text-slate-300' : ''}
-                                        `}>
-                                            {isCompleted ? <CheckCircle size={16} strokeWidth={3} /> : <Icon size={16} strokeWidth={isActive ? 2.5 : 2} />}
-                                        </div>
-
-                                        {/* Text Labels */}
-                                        <div className="mt-2 text-center hidden md:block">
-                                            <p className={`text-[10px] font-black uppercase tracking-tight leading-none ${isActive ? 'text-blue-700' : 'text-slate-900'}`}>
-                                                {step.name}
-                                            </p>
-                                        </div>
-                                    </div>
-                                );
-                            })}
-                        </div>
+                {/* Header Bar */}
+                <header className="registration-header sticky top-0 z-50">
+                    <div className="flex items-center gap-6">
+                        <h2 className="text-lg font-bold text-slate-900 tracking-tight">Supplier Self-Registration Request Form</h2>
                     </div>
-                </div>
+                    <div className="flex items-center gap-4">
+                         <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.25em]">Portal Active • v3.0</span>
+                    </div>
+                </header>
 
-                {/* Form Workspace - Zero Space Left */}
-                <div className="w-full p-2 lg:p-3 flex flex-col">
-                    <div className="w-full py-2">
-                        {/* Form Header */}
-                        <header className="mb-4 pb-3 border-b border-slate-300">
-                        <div className="flex items-center justify-between mb-2">
-                            <span className="px-2 py-0.5 bg-slate-200 border border-slate-300 rounded-sm text-[9px] font-bold uppercase tracking-wider text-slate-700">
-                                {isReviewStep ? "REVIEW" : `PHASE ${currentStep + 1}/${sections.length}`}
-                            </span>
+                <div className="mx-auto w-full max-w-[1320px] px-4 py-8 md:px-6 md:py-10 flex-1">
+                    
+                    {/* Main Container */}
+                    <div className="registration-surface mb-10 overflow-hidden">
+                        
+                        {/* Section 1 Header */}
+                        <div className="flex items-center gap-3 border-b border-slate-200 bg-slate-100/90 px-5 py-4 md:px-6">
+                            <ArrowRight size={18} className="text-slate-500 rotate-90" />
+                            <span className="text-[16px] font-bold text-slate-900 tracking-tight">1 Supplier Information</span>
                         </div>
-                        <h2 className="text-xl font-bold text-slate-900 tracking-tight mb-1 uppercase">
-                            {isReviewStep ? "Verify registry" : currentSection.sectionTitle}
-                        </h2>
-                    </header>
 
-                    {/* Max Density Form Content */}
-                    <div className="bg-white border border-slate-200 p-3 shadow-none rounded-none">
-                        {!isReviewStep ? (
-                            <div className="space-y-4">
-                                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-x-2 gap-y-3 items-end">
-                                    {currentSection.fields.map((field, fIdx) => {
-                                        const fieldName = field.name || field.fieldId;
-                                        
-                                        // Dynamic Column Spans for Ultimate High Density
-                                        let colSpan = "col-span-1";
-                                        if (field.type === 'textarea') {
-                                            colSpan = "col-span-full"; // Full width for comments
-                                        } else if (field.type === 'file' || field.label.toLowerCase().includes('email')) {
-                                            colSpan = "sm:col-span-2"; // Double wide for files/emails
-                                        }
-
-                                        return (
-                                            <div key={fIdx} className={`${colSpan}`}>
-                                                <label className="block text-[9px] font-bold uppercase tracking-tight text-slate-500 mb-[1px] leading-none">
-                                                    {field.label} {field.required && <span className="text-red-500">*</span>}
-                                                </label>
-                                                
-                                                {field.type === "text" || field.type === "number" || field.type === "date" || field.type === "textarea" || field.type === "email" ? (
-                                                    <div className="relative">
-                                                        {field.type === "textarea" ? (
-                                                            <textarea
-                                                                required={field.required}
-                                                                placeholder={field.placeholder}
-                                                                value={formValues[fieldName] || ""}
-                                                                onChange={(e) => handleInputChange(fieldName, e.target.value)}
-                                                                className="w-full h-24 rounded-sm border border-slate-300 bg-white p-2 text-[13px] font-medium text-slate-900 outline-none focus:border-blue-700 focus:ring-0 placeholder:text-slate-300 shadow-none mx-0"
-                                                            />
-                                                        ) : (
-                                                            <input
-                                                                type={field.type}
-                                                                required={field.required}
-                                                                placeholder={field.placeholder}
-                                                                value={formValues[fieldName] || ""}
-                                                                onChange={(e) => handleInputChange(fieldName, e.target.value)}
-                                                                onBlur={field.type === "email" ? (e) => handleEmailBlur(fieldName, e.target.value) : undefined}
-                                                                className="w-full h-9 rounded-sm border border-slate-300 bg-white px-2 text-[13px] font-medium text-slate-900 outline-none focus:border-blue-700 focus:ring-0 placeholder:text-slate-300 shadow-none"
-                                                            />
-                                                        )}
-                                                        {field.type === "email" && emailError && (
-                                                            <p className="mt-1 text-[9px] font-bold text-red-600 uppercase flex items-center gap-1">
-                                                                <AlertCircle size={10} /> {emailError}
-                                                            </p>
-                                                        )}
-                                                    </div>
-                                                ) : field.type === "dropdown" ? (
-                                                    <div className="relative">
-                                                        <select
-                                                            required={field.required}
-                                                            className="w-full h-9 rounded-sm border border-slate-300 bg-white px-2 text-[13px] font-medium text-slate-900 outline-none focus:border-blue-700 focus:ring-0 cursor-pointer shadow-none appearance-none"
-                                                            value={formValues[fieldName] || ""}
-                                                            onChange={(e) => handleInputChange(fieldName, e.target.value)}
-                                                        >
-                                                            <option value="">SELECT</option>
-                                                            {field.options && field.options.map((opt, oIdx) => (
-                                                                <option key={oIdx} value={opt}>{opt}</option>
-                                                            ))}
-                                                        </select>
-                                                    </div>
-                                                ) : field.type === "file" ? (
-                                                    <FileUploadField
-                                                        label={field.label}
-                                                        required={field.required}
-                                                        fieldId={fieldName}
-                                                        file={files[fieldName]}
-                                                        onChange={handleFileChange}
-                                                    />
-                                                ) : field.type === "checkbox" ? (
-                                                    <div className="flex items-center gap-2 p-1 pt-3">
-                                                        <input
-                                                            type="checkbox"
-                                                            required={field.required}
-                                                            checked={formValues[fieldName] || false}
-                                                            onChange={(e) => handleInputChange(fieldName, e.target.checked)}
-                                                            className="h-4 w-4 rounded-sm border-slate-400 text-blue-700 focus:ring-0"
-                                                        />
-                                                        <span className="text-[11px] font-bold text-slate-700 uppercase tracking-tight">{field.label}</span>
-                                                    </div>
-                                                ) : null}
-                                            </div>
-                                        )
-                                    })}
+                        <div className="bg-slate-50/80 p-4 md:p-6">
+                             {/* Section 1.1 Header */}
+                             <div className="mb-4 rounded-2xl border border-slate-200 bg-white shadow-sm">
+                                <div className="flex items-center gap-3 border-b border-slate-200 bg-slate-50 px-5 py-4 md:px-6">
+                                    <ArrowRight size={16} className="text-slate-500 rotate-90" />
+                                    <span className="text-[15px] font-semibold text-slate-800 tracking-tight">1.1 Please Fill Below Supplier Information</span>
                                 </div>
-                            </div>
-                        ) : (
-                            <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-                                {sections.map((section, sIdx) => (
-                                    <div key={sIdx} className="border-b last:border-0 border-slate-200 pb-8 last:pb-0">
-                                        <div className="flex items-center gap-3 mb-4">
-                                            <div className="flex h-6 w-6 items-center justify-center rounded-sm bg-slate-200 text-slate-700 font-bold text-[10px] border border-slate-300">
-                                                {sIdx + 1}
-                                            </div>
-                                            <h3 className="text-sm font-bold text-slate-800 uppercase tracking-tight">{section.sectionTitle}</h3>
-                                        </div>
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                            {section.fields.map((field, fIdx) => {
-                                                const fieldName = field.name || field.fieldId;
-                                                const value = formValues[fieldName];
 
-                                                return (
-                                                    <div key={fIdx} className="p-3 border border-slate-300 bg-white">
-                                                        <p className="text-[10px] font-bold uppercase tracking-tight text-slate-500 mb-1">{field.label}</p>
-                                                        {field.type === "file" ? (
-                                                            <div className="flex items-center gap-2 text-blue-700 font-bold text-xs uppercase tracking-tight">
-                                                                <FileText size={14} />
-                                                                <span>{files[fieldName] ? files[fieldName].name : "No file attached"}</span>
+                                <div className="space-y-4 p-4 md:p-6">
+                                    {!isReviewStep ? (
+                                        sections.map((section, sIdx) => {
+                                            // Section Visibility Logic
+                                            if (!isSectionVisible(section)) {
+                                                return null;
+                                            }
+
+                                            const sectionKey = `section-${sIdx}`;
+                                            const isOpen = !!expanded[sectionKey];
+                                            const isStatutorySection = STATUTORY_SECTION_PATTERN.test(section.sectionTitle || "");
+
+                                            return (
+                                                <div key={sectionKey} className="registration-subsection-card overflow-hidden transition-all duration-300">
+                                                    <div 
+                                                        onClick={() => {
+                                                            if (!isOpen && sIdx > 0 && !validateSections(sections.slice(0, sIdx))) {
+                                                                return;
+                                                            }
+                                                            setExpanded(prev => {
+                                                            const willBeOpen = !prev[sectionKey];
+                                                            const newState = { ...prev, [sectionKey]: willBeOpen };
+                                                            
+                                                            // Master Toggle: If toggling 1.1.1.1 (sIdx 0), apply same state to 1-6
+                                                            if (sIdx === 0) {
+                                                                for (let i = 1; i <= 6; i++) {
+                                                                    newState[`section-${i}`] = willBeOpen;
+                                                                }
+                                                            }
+                                                            return newState;
+                                                        });
+                                                        }}
+                                                        className="registration-subsection-header cursor-pointer group"
+                                                    >
+                                                        <div className="flex items-center gap-4">
+                                                            <div className={`transition-all duration-300 ${isOpen ? 'rotate-90' : ''}`}>
+                                                                <ArrowRight size={14} className="text-slate-400 group-hover:text-blue-600" />
                                                             </div>
-                                                        ) : (
-                                                            <p className="font-bold text-slate-900 text-sm uppercase tracking-tight break-words">{value === true ? "YES" : value === false ? "NO" : (value ? value.toString() : "-")}</p>
-                                                        )}
+                                                            <div className="flex flex-wrap items-center gap-3">
+                                                                <span className="rounded-full bg-blue-50 px-2.5 py-1 text-[11px] font-semibold text-blue-700">{section.sectionTitle.split(' ')[0]}</span>
+                                                                <h3 className="border-l border-slate-200 pl-3 text-[14px] font-semibold text-slate-800 tracking-tight">{section.sectionTitle.split(' ').slice(1).join(' ')}</h3>
+                                                            </div>
+                                                        </div>
                                                     </div>
-                                                );
-                                            })}
-                                        </div>
-                                    </div>
-                                ))}
 
-                                <div className="col-span-full mt-6 p-4 border border-blue-200 bg-blue-50/30 rounded-sm">
-                                    <div className="flex items-start gap-4">
-                                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-sm bg-blue-700 text-white shadow-sm">
-                                            <ShieldCheck size={20} strokeWidth={2.5} />
+                                                    {isOpen && (
+                                                        <div className="animate-in fade-in slide-in-from-top-4 duration-500 p-5 md:p-8">
+                                                            <div className={isStatutorySection
+                                                                ? "grid grid-cols-1 gap-y-6"
+                                                                : "grid grid-cols-1 gap-x-6 gap-y-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+                                                            }>
+                                                                {section.fields.map((field, fIdx) => {
+                                                                    const fieldName = field.name || field.fieldId;
+
+                                                                    // Dynamic Visibility Logic
+                                                                    if (!isFieldVisible(section, field)) {
+                                                                        return null;
+                                                                    }
+
+                                                                    let colSpan = "col-span-1";
+                                                                    if (field.type === 'textarea') colSpan = "col-span-full";
+                                                                    else if (field.label.toLowerCase().includes('email') || field.label.toLowerCase().includes('name')) colSpan = "md:col-span-1 lg:col-span-2";
+
+                                                                    if (isStatutorySection) {
+                                                                        const fieldCode = getStatutoryFieldCode(section, field);
+                                                                        const showTurnoverHeading =
+                                                                            fieldName === "ly1Turnover" &&
+                                                                            formValues[TURNOVER_DEPENDENCY_FIELD] === TURNOVER_DEPENDENCY_VALUE;
+
+                                                                return (
+                                                                            <div key={fIdx} className="contents">
+                                                                                {showTurnoverHeading && (
+                                                                                    <div className="mx-0 grid grid-cols-1 items-center gap-x-8 gap-y-2 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 md:grid-cols-[260px_minmax(0,1fr)]">
+                                                                                        <div>
+                                                                                            <p className="mb-1 text-[11px] font-semibold text-blue-700">{STATUTORY_FIELD_CODES.turnoverHeading}</p>
+                                                                                            <p className="text-[14px] font-semibold text-slate-800">Please enter Previous Years Turnover</p>
+                                                                                        </div>
+                                                                                        <div></div>
+                                                                                    </div>
+                                                                                )}
+                                                                                <div className="grid grid-cols-1 items-start gap-x-8 gap-y-2 border-b border-slate-100 py-3 last:border-b-0 md:grid-cols-[260px_minmax(0,1fr)] md:items-center">
+                                                                                    <label className="block">
+                                                                                        {fieldCode && <span className="mb-1 block text-[11px] font-semibold text-blue-700">{fieldCode}</span>}
+                                                                                        <span className={`text-[13px] font-medium leading-5 ${validationErrors[fieldName] ? "text-rose-700" : "text-slate-700"}`}>
+                                                                                            {field.label} {field.required && <span className={validationErrors[fieldName] ? "text-rose-600" : "text-blue-700"}>*</span>}
+                                                                                        </span>
+                                                                                    </label>
+                                                                                    <div className="min-w-0">
+                                                                                        {isTurnoverField(fieldName) ? (
+                                                                                            <div className="grid grid-cols-[minmax(0,1fr)_110px] items-center gap-4">
+                                                                                                {renderFieldControl(field, fieldName, true)}
+                                                                                                <span className="whitespace-nowrap text-right text-[11px] font-medium text-slate-500">Indian Rupee</span>
+                                                                                            </div>
+                                                                                        ) : (
+                                                                                            renderFieldControl(field, fieldName, true)
+                                                                                        )}
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        );
+                                                                    }
+
+                                                                    return (
+                                                                        <div key={fIdx} className={colSpan}>
+                                                                            <label className={`mb-2 block text-[12px] font-medium tracking-normal ${validationErrors[fieldName] ? "text-rose-600" : "text-slate-600"}`}>
+                                                                                {field.label} {field.required && <span className={validationErrors[fieldName] ? "text-rose-600" : "text-blue-700"}>*</span>}
+                                                                            </label>
+                                                                            {renderFieldControl(field, fieldName)}
+                                                                        </div>
+                                                                    );
+                                                                })}
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )
+                                        })
+                                    ) : (
+                                        <div className="p-12 text-center md:p-16">
+                                            <CheckCircle size={80} className="mx-auto text-blue-700 mb-8" />
+                                            <h3 className="mb-3 text-3xl font-bold text-slate-900 tracking-tight">Verification Phase Success</h3>
+                                            <p className="mb-10 text-sm font-medium text-slate-500">Submit the form below to complete enrollment.</p>
+                                            <button onClick={() => setIsReviewStep(false)} className="rounded-xl border border-slate-300 px-8 py-3 text-sm font-semibold text-slate-700 transition-all hover:border-slate-400 hover:bg-slate-50">Modify Details</button>
                                         </div>
-                                        <div className="flex-1">
-                                            <h4 className="text-[11px] font-black text-blue-900 tracking-wider uppercase mb-1 flex items-center gap-2">
-                                                Official Declaration of Accuracy
-                                            </h4>
-                                            <p className="text-[10px] font-bold text-blue-800/70 leading-relaxed uppercase tracking-tight mb-4 max-w-3xl">
-                                                I hereby certify that the information provided in this registration dossier is true, complete, and accurate. I understand that any deliberate omissions or falsifications may result in disqualification.
-                                            </p>
-                                            <label className="inline-flex items-center gap-3 cursor-pointer group bg-white border border-blue-200 px-4 py-2 hover:bg-blue-50 transition-colors">
-                                                <input type="checkbox" required className="h-4 w-4 rounded-sm border-blue-400 text-blue-700 focus:ring-0 cursor-pointer" />
-                                                <span className="text-[11px] font-black text-blue-900 uppercase tracking-widest">Acknowledge & Verify Registry</span>
-                                            </label>
-                                        </div>
-                                    </div>
+                                    )}
                                 </div>
-                            </div>
-                        )}
-
-                        {/* Navigation Buttons */}
-                        <div className="flex items-center justify-between mt-8 pt-8 border-t border-slate-300 gap-4">
-                            <button
-                                onClick={prevStep}
-                                disabled={currentStep === 0 && !isReviewStep}
-                                className={`
-                                    flex items-center gap-2 font-bold text-[11px] uppercase tracking-wider px-6 py-3 rounded-sm transition-colors border
-                                    ${(currentStep === 0 && !isReviewStep) ? 'opacity-30 cursor-not-allowed text-slate-400 border-slate-200 bg-slate-50' : 'bg-white border-slate-300 text-slate-700 hover:bg-slate-50 active:bg-slate-100'}
-                                `}
-                            >
-                                <ArrowLeft size={16} />
-                                Back
-                            </button>
-
-                            <button
-                                onClick={nextStep}
-                                disabled={submitting}
-                                className="flex-1 max-w-[240px] flex items-center justify-center gap-2 rounded-sm bg-blue-700 px-8 py-3 text-[11px] font-bold uppercase tracking-wider text-white shadow-none hover:bg-blue-800 active:bg-blue-900 disabled:opacity-50"
-                            >
-                                {submitting ? "Processing..." : isReviewStep ? "Finalize Submission" : currentStep === sections.length - 1 ? "Review Entry" : "Continue Phase"}
-                                {!submitting && <ArrowRight size={16} />}
-                            </button>
+                             </div>
                         </div>
                     </div>
 
-                    {/* Footer Progress Bar for Mobile */}
-                    <div className="lg:hidden mt-8 grid grid-cols-5 gap-2 px-2">
-                        {[0, 1, 2, 3, 4].map(i => (
-                            <div key={i} className={`h-1 rounded-sm transition-all duration-500 ${i <= activeMajorStep ? 'bg-blue-700' : 'bg-slate-200'}`}></div>
-                        ))}
+                    {/* Footer Actions */}
+                    <div className="registration-action-bar">
+                        <button 
+                            onClick={() => navigate(-1)}
+                            className="rounded-xl px-6 py-3 text-sm font-medium text-slate-500 transition-all hover:bg-slate-100 hover:text-rose-600"
+                        >
+                            Abort Process
+                        </button>
+                        <button 
+                            onClick={isReviewStep ? handleSubmit : () => {
+                                if (!validateSections(sections)) return;
+                                window.scrollTo({ top: 0, behavior: 'smooth' });
+                                setIsReviewStep(true);
+                            }}
+                            disabled={submitting}
+                            className="flex items-center gap-3 rounded-xl bg-blue-700 px-8 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-100 transition-all hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-70"
+                        >
+                            {submitting ? "Transmitting..." : isReviewStep ? "Execute Submission" : "Validate & Review"}
+                            <ArrowRight size={18} />
+                        </button>
                     </div>
-                </div>
                 </div>
             </main>
         </div>
