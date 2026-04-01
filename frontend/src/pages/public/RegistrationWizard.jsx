@@ -91,6 +91,90 @@ const hasRenderableSections = (formTemplate) =>
         (section) => Array.isArray(section?.fields) && section.fields.length > 0
     );
 
+const CategorySearchField = ({ value, onChange, required }) => {
+    const [query, setQuery] = useState(value);
+    const [results, setResults] = useState([]);
+    const [showResults, setShowResults] = useState(false);
+    const containerRef = useRef(null);
+
+    const MOCK_CATEGORIES = [
+        "ALL (ALL) > Material (Material) > GENERAL CONSUMABLES (ZCON) > IT CONSUMABLE (120004) > CABLE MANAGER (13004011)",
+        "ALL (ALL) > Material (Material) > ASSET MATERIAL (ZAST) > IT EQUIPMENT (130002) > MANAGED SWITCH 24 PORT (12000935)",
+        "ALL (ALL) > Material (Material) > ASSET MATERIAL (ZAST) > IT EQUIPMENT (130002) > MANAGED SWITCH 48 PORT (12000936)",
+        "ALL (ALL) > Civil (Civil) > ROAD UTILITY > PAVEMENT > BITUMINOUS MIX",
+        "ALL (ALL) > Civil (Civil) > ROAD UTILITY > EARTHWORK > EMBANKMENT",
+        "ALL (ALL) > Civil (Civil) > ROAD UTILITY > DRAINAGE > RCC PIPES",
+        "ALL (ALL) > Civil (Civil) > INFRASTRUCTURE > BRIDGE > STEEL STRUCTURES",
+        "ALL (ALL) > Civil (Civil) > INFRASTRUCTURE > BRIDGE > EXPANSION JOINT",
+        "ALL (ALL) > Services (Services) > CONSULTANCY > DESIGN > ARCHITECTURAL",
+        "ALL (ALL) > Services (Services) > LOGISTICS > FREIGHT > INTERNATIONAL",
+        "ALL (ALL) > Services (Services) > MANPOWER > SKILLED > ROAD CONSTRUCTION",
+        "ALL (ALL) > Services (Services) > TESTING > LAB > SOIL TESTING",
+        "ALL (ALL) > Material (Material) > FUEL & LUBRICANTS > DIESEL > BULK SUPPLY",
+        "ALL (ALL) > Material (Material) > CONSTRUCTION MATERIAL > CEMENT > OPC 43 GRADE"
+    ];
+
+    useEffect(() => {
+        if (query.length > 0) {
+            const matches = MOCK_CATEGORIES.filter(c => c.toLowerCase().includes(query.toLowerCase()));
+            setResults(matches);
+            setShowResults(true);
+        } else {
+            setResults(MOCK_CATEGORIES);
+            setShowResults(true);
+        }
+    }, [query]);
+
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (containerRef.current && !containerRef.current.contains(e.target)) setShowResults(false);
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    return (
+        <div className="relative group w-full" ref={containerRef}>
+            <div className="relative flex items-center">
+                <input
+                    type="text"
+                    required={required}
+                    value={query}
+                    onFocus={() => setShowResults(true)}
+                    onChange={(e) => { setQuery(e.target.value); if (!e.target.value) onChange(""); }}
+                    placeholder="Search Category Path (e.g. ALL > Material > ...)"
+                    className="w-full h-12 border border-slate-300 bg-white pl-5 pr-12 text-[12px] font-bold text-slate-900 outline-none transition-all focus:border-blue-700 focus:ring-4 focus:ring-blue-100"
+                />
+                <div className="absolute right-0 h-full w-12 flex items-center justify-center border-l border-slate-200 bg-slate-50 group-hover:bg-slate-100 cursor-pointer">
+                    <Search size={16} className="text-slate-400 group-hover:text-blue-700 transition-colors" />
+                </div>
+            </div>
+            
+            {showResults && results.length > 0 && (
+                <div className="absolute top-full left-0 w-full min-w-[500px] bg-white border border-slate-300 shadow-2xl z-[100] max-h-[400px] overflow-y-auto mt-1 animate-in fade-in slide-in-from-top-1">
+                    {results.map((res, idx) => {
+                        const parts = res.split(' > ');
+                        const mainPath = parts.slice(0, -1).join(' > ');
+                        const endTerm = parts[parts.length - 1];
+
+                        return (
+                            <div 
+                                key={idx}
+                                onClick={() => { setQuery(res); onChange(res); setShowResults(false); }}
+                                className="px-6 py-4 hover:bg-slate-100 cursor-pointer border-b border-slate-100 transition-colors group flex flex-col gap-1"
+                            >
+                                <p className="text-[11px] font-medium text-slate-500 uppercase tracking-tight">
+                                    {mainPath} {parts.length > 1 ? '>' : ''} <span className="text-blue-600 font-black">{endTerm}</span>
+                                </p>
+                            </div>
+                        );
+                    })}
+                </div>
+            )}
+        </div>
+    );
+};
+
 export default function RegistrationWizard() {
     const { categoryId: urlCategoryId, formId: urlFormId } = useParams();
     const [searchParams] = useSearchParams();
@@ -396,7 +480,13 @@ export default function RegistrationWizard() {
                                                                                 {field.label} {field.required && <span className="text-blue-700">*</span>}
                                                                             </label>
                                                                             
-                                                                            {field.type === "text" || field.type === "number" || field.type === "date" || field.type === "textarea" || field.type === "email" ? (
+                                                                            {fieldName === "serviceCategory" ? (
+                                                                                <CategorySearchField
+                                                                                    value={formValues[fieldName] || ""}
+                                                                                    onChange={(val) => handleInputChange(fieldName, val)}
+                                                                                    required={field.required}
+                                                                                />
+                                                                            ) : field.type === "text" || field.type === "number" || field.type === "date" || field.type === "textarea" || field.type === "email" ? (
                                                                                 field.type === "textarea" ? (
                                                                                     <textarea
                                                                                         required={field.required}
