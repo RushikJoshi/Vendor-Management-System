@@ -339,6 +339,11 @@ export default function RegistrationWizard() {
                                 <div className="p-6 space-y-4">
                                     {!isReviewStep ? (
                                         sections.map((section, sIdx) => {
+                                            // Section Visibility Logic
+                                            if (section.dependsOn && formValues[section.dependsOn] !== section.dependsOnValue) {
+                                                return null;
+                                            }
+
                                             const sectionKey = `section-${sIdx}`;
                                             const isOpen = !!expanded[sectionKey];
 

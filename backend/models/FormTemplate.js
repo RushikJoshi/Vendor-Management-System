@@ -18,6 +18,8 @@ const formTemplateSchema = new mongoose.Schema(
             {
                 sectionTitle: String,
                 order: Number,
+                dependsOn: String,     // ID of the parent field that toggles this section
+                dependsOnValue: String, // Value of parent field that triggers this section
                 fields: [
                     {
                         fieldId: String,
