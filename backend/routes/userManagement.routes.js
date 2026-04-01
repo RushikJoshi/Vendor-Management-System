@@ -16,14 +16,14 @@ router.use(protect);
 router.use(authorizeModules("users"));
 
 router.route("/")
-  .get(checkActionAccess("users.view"), getUsers)
-  .post(checkActionAccess("users.create"), createUser);
+  .get(checkActionAccess("users_view"), getUsers)
+  .post(checkActionAccess("users_create"), createUser);
 
-router.patch("/:id/role", checkActionAccess("users.edit"), updateUserRole);
-router.patch("/:id/status", checkActionAccess("users.edit"), updateUserStatus);
+router.patch("/:id/role", checkActionAccess("users_edit"), updateUserRole);
+router.patch("/:id/status", checkActionAccess("users_edit"), updateUserStatus);
 
 router.route("/:id")
-  .put(checkActionAccess("users.edit"), updateUser)
-  .delete(checkActionAccess("users.delete"), deleteUser);
+  .put(checkActionAccess("users_edit"), updateUser)
+  .delete(checkActionAccess("users_delete"), deleteUser);
 
 module.exports = router;

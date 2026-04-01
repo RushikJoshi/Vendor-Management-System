@@ -6,6 +6,7 @@ const asyncHandler = require("../utils/asyncHandler");
 const AppError = require("../utils/AppError");
 const sendEmail = require("../utils/email");
 const logActivity = require("../utils/logActivity");
+const { normalizeRole } = require("../config/roles");
 
 // @desc    Upload GST Certificate
 // @route   PUT /api/vendors/:id/upload-gst
@@ -244,6 +245,15 @@ exports.getAllVendors = asyncHandler(async (req, res, next) => {
 // @route   GET /api/vendors/:id
 // @access  Private
 exports.getVendorById = asyncHandler(async (req, res, next) => {
+    if (normalizeRole(req.user?.role) === "vendor") {
+        const ownVendor = await Vendor.findOne({
+            $or: [{ userId: req.user.id }, { email: req.user.email }],
+        }).select("_id");
+        if (!ownVendor || String(ownVendor._id) !== String(req.params.id)) {
+            return next(new AppError("You can only access your own vendor profile", 403));
+        }
+    }
+
     const vendor = await Vendor.findById(req.params.id).populate("createdBy", "name email");
 
     if (!vendor) {

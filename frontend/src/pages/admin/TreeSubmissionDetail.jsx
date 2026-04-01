@@ -5,6 +5,16 @@ import api from "../../services/api";
 import { AuthContext } from "../../context/AuthContext";
 import { normalizeRole } from "../../config/roles";
 
+const formatValue = (value) => {
+  if (Array.isArray(value)) return value.length ? value.join(", ") : "-";
+  if (value === 0) return "0";
+  if (value === false) return "No";
+  if (value === true) return "Yes";
+  if (value === null || value === undefined) return "-";
+  const text = String(value).trim();
+  return text || "-";
+};
+
 export default function TreeSubmissionDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -46,12 +56,20 @@ export default function TreeSubmissionDetail() {
     setMessage("");
     setMockEmail(null);
     try {
+      const isApprove = action === "approved";
+      const confirmed = window.confirm(
+        isApprove
+          ? "Approve this submission and send vendor credentials?"
+          : "Reject this submission?"
+      );
+      if (!confirmed) return;
+
       const payload =
         action === "rejected"
           ? { submissionId: id, action, rejectionReason: window.prompt("Reason", "Incomplete documents") || "Rejected" }
           : { submissionId: id, action };
       const res = await api.post("/submission/approve", payload);
-      setMessage(`Submission ${action}.`);
+      setMessage(isApprove ? "Submission approved successfully. Credentials email has been sent." : "Submission rejected successfully.");
       setMockEmail(res.data.mockEmail || null);
       load();
     } catch (err) {
@@ -69,7 +87,8 @@ export default function TreeSubmissionDetail() {
           <div>
             <h1 className="text-2xl font-semibold text-slate-900">{row.formName}</h1>
             <p className="mt-1 text-sm text-slate-500">
-              {row.vendorName || "-"} | {row.vendorEmail || "-"} | <span className="capitalize">{row.status}</span>
+              {row.vendorName || "-"} | {row.vendorEmail || "-"} | <span className="capitalize">{row.status}</span> |{" "}
+              {row.createdAt ? new Date(row.createdAt).toLocaleString() : "-"}
             </p>
           </div>
           <button onClick={() => navigate(-1)} className="rounded-lg border px-4 py-2">Back</button>
@@ -105,10 +124,8 @@ export default function TreeSubmissionDetail() {
                   ) : (
                     <p className="mt-2 text-sm text-slate-400">No file</p>
                   )
-                ) : Array.isArray(item.value) ? (
-                  <p className="mt-2 text-sm text-slate-900">{item.value.join(", ") || "-"}</p>
                 ) : (
-                  <p className="mt-2 text-sm text-slate-900">{item.value || "-"}</p>
+                  <p className="mt-2 text-sm text-slate-900">{formatValue(item.value)}</p>
                 )}
               </div>
             ))}

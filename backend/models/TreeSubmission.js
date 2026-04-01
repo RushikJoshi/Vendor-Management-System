@@ -29,6 +29,7 @@ const treeSubmissionSchema = new mongoose.Schema(
     vendorName: { type: String, default: "" },
     vendorUserId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     reviewedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    reviewedAt: { type: Date, default: null },
   },
   { timestamps: true }
 );

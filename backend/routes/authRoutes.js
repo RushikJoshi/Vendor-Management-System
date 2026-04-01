@@ -9,6 +9,7 @@ const {
     logout,
     getMe,
     getPermissions,
+    changePassword,
 } = require("../controllers/authController");
 const { protect } = require("../middlewares/auth.middleware");
 
@@ -18,6 +19,7 @@ router.post("/onboard", onboardCompany);
 router.post("/login", authLimiter, login);
 router.post("/refresh", refreshToken);
 router.post("/logout", logout);
+router.post("/change-password", protect, changePassword);
 
 // Protected routes
 router.get("/me", protect, getMe);

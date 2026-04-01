@@ -185,6 +185,7 @@ export default function TreeFormRenderer() {
   const [success, setSuccess] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [step, setStep] = useState(0);
+  const draftStorageKey = useMemo(() => `tree_form_draft_${id}`, [id]);
   const previousAutofillValuesRef = useRef({});
   const requestedAutofillValuesRef = useRef({});
 
@@ -201,6 +202,19 @@ export default function TreeFormRenderer() {
     };
     load();
   }, [id]);
+
+  useEffect(() => {
+    if (!form) return;
+    try {
+      const raw = localStorage.getItem(draftStorageKey);
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      const savedValues = parsed?.values;
+      if (!savedValues || typeof savedValues !== "object") return;
+      setValues(savedValues);
+      setSuccess("Saved draft restored.");
+    } catch {}
+  }, [form, draftStorageKey]);
 
   const topSections = useMemo(() => form?.structure || [], [form]);
 
@@ -300,12 +314,30 @@ export default function TreeFormRenderer() {
       const res = await axios.post(`${apiBase}/form/submit`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
+      localStorage.removeItem(draftStorageKey);
       setSuccess(`Submitted successfully. ID: ${res.data.data._id}`);
     } catch (err) {
       const errs = err.response?.data?.errors;
       setError(errs?.join(" | ") || err.response?.data?.message || "Submission failed.");
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const saveDraft = () => {
+    try {
+      localStorage.setItem(
+        draftStorageKey,
+        JSON.stringify({
+          formId: id,
+          updatedAt: new Date().toISOString(),
+          values,
+        })
+      );
+      setError("");
+      setSuccess("Draft saved.");
+    } catch {
+      setError("Could not save draft.");
     }
   };
 
@@ -369,22 +401,31 @@ export default function TreeFormRenderer() {
           >
             Previous
           </button>
-          {step < topSections.length - 1 ? (
+          <div className="flex items-center gap-2">
             <button
-              onClick={() => setStep((v) => Math.min(topSections.length - 1, v + 1))}
-              className="rounded-xl bg-sky-600 px-5 py-2 text-sm font-semibold text-white shadow-md shadow-sky-200 transition hover:bg-sky-700"
+              type="button"
+              onClick={saveDraft}
+              className="rounded-xl border border-sky-200 bg-sky-50 px-4 py-2 text-sm font-semibold text-sky-700 transition hover:bg-sky-100"
             >
-              Next
+              Save Draft
             </button>
-          ) : (
-            <button
-              onClick={submit}
-              disabled={submitting}
-              className="rounded-xl bg-sky-700 px-5 py-2 text-sm font-semibold text-white shadow-md shadow-sky-200 transition hover:bg-sky-800 disabled:opacity-60"
-            >
-              {submitting ? "Submitting..." : "Submit"}
-            </button>
-          )}
+            {step < topSections.length - 1 ? (
+              <button
+                onClick={() => setStep((v) => Math.min(topSections.length - 1, v + 1))}
+                className="rounded-xl bg-sky-600 px-5 py-2 text-sm font-semibold text-white shadow-md shadow-sky-200 transition hover:bg-sky-700"
+              >
+                Next
+              </button>
+            ) : (
+              <button
+                onClick={submit}
+                disabled={submitting}
+                className="rounded-xl bg-sky-700 px-5 py-2 text-sm font-semibold text-white shadow-md shadow-sky-200 transition hover:bg-sky-800 disabled:opacity-60"
+              >
+                {submitting ? "Submitting..." : "Submit"}
+              </button>
+            )}
+          </div>
         </div>
 
         {error ? <p className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">{error}</p> : null}

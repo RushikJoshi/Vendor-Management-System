@@ -17,6 +17,7 @@ const {
 
 const { protect } = require("../middlewares/auth.middleware");
 const { authorizeRoles } = require("../middlewares/role.middleware");
+const { checkActionAccess, checkAnyActionAccess } = require("../middlewares/permission.middleware");
 const { uploadGST: uploadGSTMiddleware, uploadAgreement: uploadAgreementMiddleware } = require("../middlewares/upload.middleware");
 const validate = require("../middlewares/validate.middleware");
 const { createVendor: createSchema, updateVendor: updateSchema } = require("../validations/vendor.validation");
@@ -40,8 +41,8 @@ router.put(
 );
 
 // RBAC
-router.get("/me", authorizeRoles("vendor", "admin", "hr", "manager"), getMe);
-router.put("/me", authorizeRoles("vendor"), updateMe);
+router.get("/me", checkAnyActionAccess("vendor_dashboard", "vendors_view"), getMe);
+router.put("/me", authorizeRoles("vendor"), checkActionAccess("vendor_dashboard"), updateMe);
 
 
 // Admin + HR can create, update, or delete
@@ -51,14 +52,14 @@ router.put("/me", authorizeRoles("vendor"), updateMe);
 
 router
     .route("/")
-    .post(authorizeRoles("admin", "hr"), validate(createSchema), createVendor)
-    .get(authorizeRoles("admin", "hr", "manager"), getAllVendors);
+    .post(authorizeRoles("admin", "hr"), checkActionAccess("vendors_add"), validate(createSchema), createVendor)
+    .get(authorizeRoles("admin", "hr", "manager"), checkActionAccess("vendors_view"), getAllVendors);
 
 router
     .route("/:id")
-    .get(authorizeRoles("admin", "hr", "manager", "vendor"), getVendorById)
-    .patch(authorizeRoles("admin", "hr"), validate(updateSchema), updateVendor)
-    .delete(authorizeRoles("admin", "hr"), deleteVendor);
+    .get(authorizeRoles("admin", "hr", "manager", "vendor"), checkAnyActionAccess("vendors_view", "vendor_dashboard"), getVendorById)
+    .patch(authorizeRoles("admin", "hr"), checkActionAccess("vendors_edit"), validate(updateSchema), updateVendor)
+    .delete(authorizeRoles("admin", "hr"), checkActionAccess("vendors_edit"), deleteVendor);
 
 router.get("/:id/performance", authorizeRoles("admin", "hr", "manager"), getVendorPerformance);
 router.post("/:id/remind-payment", authorizeRoles("admin", "hr"), sendPaymentReminder);

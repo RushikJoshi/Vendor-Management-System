@@ -2,6 +2,7 @@ import { createContext, useState, useEffect } from "react";
 import api from "../services/api";
 import { useNavigate } from "react-router-dom";
 import { normalizeRole, getAllowedModules } from "../config/roles";
+import { getEffectivePermissions, sanitizePermissions } from "../config/permissions";
 
 export const AuthContext = createContext();
 
@@ -21,24 +22,31 @@ export function AuthProvider({ children }) {
       }
       
       try {
-        console.log("Rehydrating session...");
         const res = await api.get("/auth/me");
         if (res.data.success) {
           const userData = res.data.data;
-          console.log("Session rehydrated. User:", userData);
           const normalizedRole = normalizeRole(userData.role);
+          const normalizedPermissions = sanitizePermissions(userData.permissions || []);
+          const effectivePermissions =
+            normalizedPermissions.length > 0
+              ? normalizedPermissions
+              : getEffectivePermissions(userData);
           const computedModules =
             Array.isArray(userData.allowedModules) && userData.allowedModules.length
               ? userData.allowedModules
               : getAllowedModules(normalizedRole);
-          const hydratedUser = { ...userData, allowedModules: computedModules };
+          const hydratedUser = {
+            ...userData,
+            permissions: effectivePermissions,
+            allowedModules: computedModules,
+          };
           setUser(hydratedUser);
           setAllowedModules(computedModules);
           localStorage.setItem("role", hydratedUser.role);
           localStorage.setItem("user", JSON.stringify(hydratedUser));
+          localStorage.setItem("mustChangePassword", String(!!hydratedUser.mustChangePassword));
         }
       } catch (err) {
-        console.error("Rehydration failed:", err);
         localStorage.clear();
       }
       setLoading(false);
@@ -53,31 +61,38 @@ export function AuthProvider({ children }) {
     const { token, user: userData } = res.data;
     const role = userData?.role || "vendor";
     const normalizedRole = normalizeRole(role);
+    const normalizedPermissions = sanitizePermissions(userData?.permissions || []);
+    const effectivePermissions =
+      normalizedPermissions.length > 0
+        ? normalizedPermissions
+        : getEffectivePermissions(userData);
     const computedModules =
       Array.isArray(userData.allowedModules) && userData.allowedModules.length
         ? userData.allowedModules
         : getAllowedModules(normalizedRole);
-    const mergedUser = { ...userData, allowedModules: computedModules };
-
-    console.log("Login successful. Role:", role, "User:", userData);
+    const mergedUser = {
+      ...userData,
+      permissions: effectivePermissions,
+      allowedModules: computedModules,
+    };
 
     localStorage.setItem("token", token);
     localStorage.setItem("role", role);
     localStorage.setItem("user", JSON.stringify(mergedUser));
+    localStorage.setItem("mustChangePassword", String(!!mergedUser.mustChangePassword));
 
     api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
     setUser(mergedUser);
     setAllowedModules(computedModules);
 
-    // Route based on role
-    console.log("Normalized Role for routing:", normalizedRole);
-
     if (normalizedRole !== "vendor") {
-      console.log("Redirecting to Internal Portal...");
       navigate("/admin/dashboard");
     } else {
-      console.log("Redirecting to Vendor Portal...");
-      navigate("/vendor/dashboard");
+      if (mergedUser.mustChangePassword) {
+        navigate("/vendor/change-password");
+      } else {
+        navigate("/vendor/dashboard");
+      }
     }
   };
 
@@ -87,7 +102,11 @@ export function AuthProvider({ children }) {
     localStorage.setItem("token", newToken);
     localStorage.setItem("mustChangePassword", "false");
     api.defaults.headers.common["Authorization"] = `Bearer ${newToken}`;
-    setUser(prev => ({ ...prev, mustChangePassword: false }));
+    setUser((prev) => {
+      const nextUser = { ...(prev || {}), mustChangePassword: false };
+      localStorage.setItem("user", JSON.stringify(nextUser));
+      return nextUser;
+    });
     navigate("/vendor/dashboard");
   };
 

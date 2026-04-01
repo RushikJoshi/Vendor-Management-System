@@ -49,7 +49,7 @@ export default function Login() {
       if (["admin", "hr", "manager"].includes(normalizedRole)) {
         navigate("/admin/dashboard");
       } else if (normalizedRole === 'vendor') {
-        navigate("/vendor/dashboard");
+        navigate(user?.mustChangePassword ? "/vendor/change-password" : "/vendor/dashboard");
       }
     }
   }, [user, navigate]);

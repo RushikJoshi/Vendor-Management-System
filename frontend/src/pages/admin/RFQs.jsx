@@ -1,8 +1,10 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 import { AlertCircle, Clock3, FileText, Plus, RefreshCcw } from "lucide-react";
 import { toast } from "react-hot-toast";
 import api from "../../services/api";
 import CreateRFQModal from "./CreateRFQModal";
+import { AuthContext } from "../../context/AuthContext";
+import { hasPermission } from "../../config/permissions";
 
 const DAY_IN_MS = 24 * 60 * 60 * 1000;
 
@@ -43,6 +45,9 @@ const getVendorLabel = (rfq) => {
 };
 
 const RFQList = () => {
+  const { user } = useContext(AuthContext);
+  const canCreateRFQ =
+    String(user?.role || "").toLowerCase() === "admin" || hasPermission(user, "rfq_create");
   const [rfqs, setRfqs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -124,8 +129,9 @@ const RFQList = () => {
             </button>
             <button
               type="button"
-              onClick={() => setShowCreateModal(true)}
-              className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-indigo-700"
+              onClick={() => canCreateRFQ && setShowCreateModal(true)}
+              disabled={!canCreateRFQ}
+              className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Plus size={16} />
               Create RFQ
@@ -246,6 +252,7 @@ const RFQList = () => {
         open={showCreateModal}
         onClose={() => setShowCreateModal(false)}
         onCreated={fetchRFQs}
+        disabled={!canCreateRFQ}
       />
     </div>
   );

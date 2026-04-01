@@ -61,6 +61,10 @@ export default function SaaSDashboard() {
           categoryData,
         });
       } catch (err) {
+        if (err?.response?.status === 403) {
+          navigate("/access-denied", { replace: true });
+          return;
+        }
         console.error("Dashboard fetch failed:", err);
       } finally {
         setLoading(false);
@@ -68,7 +72,7 @@ export default function SaaSDashboard() {
     };
 
     fetchDashboardData();
-  }, []);
+  }, [navigate]);
 
   const totalCategory = useMemo(() => data.categoryData.reduce((sum, item) => sum + Number(item.value || 0), 0), [data.categoryData]);
 
@@ -130,11 +134,11 @@ export default function SaaSDashboard() {
               <p className="text-[12px] text-slate-500">Monthly sourcing activity</p>
             </div>
           </div>
-          <div className="h-[290px] rounded-xl border border-slate-100 p-3">
+          <div className="h-[290px] min-h-[290px] min-w-0 rounded-xl border border-slate-100 p-3">
             {data.trendData.length === 0 ? (
               <div className="flex h-full items-center justify-center text-sm text-slate-500">No procurement trend data available</div>
             ) : (
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={220} debounce={50}>
                 <LineChart data={data.trendData} margin={{ top: 10, right: 12, left: 0, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
                   <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: "#64748b", fontSize: 12 }} />
@@ -165,11 +169,11 @@ export default function SaaSDashboard() {
             </div>
           </div>
 
-          <div className="h-[240px] rounded-xl border border-slate-100 p-3">
+          <div className="h-[240px] min-h-[240px] min-w-0 rounded-xl border border-slate-100 p-3">
             {data.categoryData.length === 0 ? (
               <div className="flex h-full items-center justify-center text-sm text-slate-500">No category mix data available</div>
             ) : (
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={180} debounce={50}>
                 <PieChart>
                   <Tooltip
                     contentStyle={{

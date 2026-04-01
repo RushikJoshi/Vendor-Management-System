@@ -2,13 +2,18 @@ const User = require("../models/User");
 const asyncHandler = require("../utils/asyncHandler");
 const AppError = require("../utils/AppError");
 const { successResponse } = require("../utils/responseHandler");
-const { sanitizePermissionKeys } = require("../config/userPermissions");
+const {
+    sanitizePermissionKeys,
+    getDefaultPermissionsForRole,
+} = require("../config/userPermissions");
+const { normalizeRole } = require("../config/roles");
 
 // @desc    Get all users
 // @route   GET /api/users
 // @access  Private (Admin only)
 exports.getUsers = asyncHandler(async (req, res, next) => {
-    const users = await User.find().sort("-createdAt");
+    const tenantFilter = req.user?.tenantId ? { tenantId: req.user.tenantId } : {};
+    const users = await User.find(tenantFilter).sort("-createdAt");
     
     successResponse(res, "Users retrieved successfully", users);
 });
@@ -17,7 +22,7 @@ exports.getUsers = asyncHandler(async (req, res, next) => {
 // @route   POST /api/users
 // @access  Private (Admin only)
 exports.createUser = asyncHandler(async (req, res, next) => {
-    const { name, email, password, tenantId, permissions = [] } = req.body;
+    const { name, email, password, tenantId, permissions = [], role = "viewer" } = req.body;
 
     // Check if user already exists
     const existingUser = await User.findOne({ email });
@@ -25,15 +30,19 @@ exports.createUser = asyncHandler(async (req, res, next) => {
         return next(new AppError("Email already in use", 400));
     }
 
+    const normalizedRole = normalizeRole(role);
     const sanitizedPermissions = sanitizePermissionKeys(permissions);
+    const effectivePermissions =
+        sanitizedPermissions.length > 0
+            ? sanitizedPermissions
+            : getDefaultPermissionsForRole(normalizedRole);
 
-    // Keep role for backward compatibility, but permissions drive access control.
     const userToCreate = {
         name,
         email,
         password,
-        role: "viewer",
-        permissions: sanitizedPermissions,
+        role: normalizedRole,
+        permissions: effectivePermissions,
         tenantId: tenantId || req.user.tenantId
     };
 
@@ -44,6 +53,7 @@ exports.createUser = asyncHandler(async (req, res, next) => {
         id: user._id,
         name: user.name,
         email: user.email,
+        role: user.role,
         permissions: user.permissions || [],
         status: user.status
     }, 201);
@@ -89,7 +99,7 @@ exports.updateUserStatus = asyncHandler(async (req, res, next) => {
 // @route   PUT /api/users/:id
 // @access  Private (Admin only)
 exports.updateUser = asyncHandler(async (req, res, next) => {
-    const { name, email, permissions = [] } = req.body;
+    const { name, email, permissions = [], role } = req.body;
 
     const user = await User.findById(req.params.id);
     if (!user) {
@@ -106,8 +116,13 @@ exports.updateUser = asyncHandler(async (req, res, next) => {
 
     user.name = name || user.name;
     user.email = email || user.email;
-    user.permissions = sanitizePermissionKeys(permissions);
-    user.role = "viewer";
+    const normalizedRole = role ? normalizeRole(role) : normalizeRole(user.role);
+    const sanitizedPermissions = sanitizePermissionKeys(permissions);
+    user.permissions =
+        sanitizedPermissions.length > 0
+            ? sanitizedPermissions
+            : getDefaultPermissionsForRole(normalizedRole);
+    user.role = normalizedRole;
 
     await user.save();
 

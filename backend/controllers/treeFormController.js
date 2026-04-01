@@ -4,25 +4,56 @@ const crypto = require("crypto");
 const TreeForm = require("../models/TreeForm");
 const TreeSubmission = require("../models/TreeSubmission");
 const User = require("../models/User");
+const sendEmail = require("../utils/email");
 const defaultVendorTemplate = require("../constants/defaultVendorTemplate");
 
 const PAN_REGEX = /^[A-Z]{5}[0-9]{4}[A-Z]$/;
 const GST_REGEX = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/;
 const IFSC_REGEX = /^[A-Z]{4}0[A-Z0-9]{6}$/;
 
+const normalizeKey = (value) => String(value || "").trim().toLowerCase().replace(/[^a-z0-9]/g, "");
+
 const flattenFields = (nodes = [], level = "1", parentTitle = "", acc = []) => {
   nodes.forEach((node, idx) => {
+    const plainNode = typeof node?.toObject === "function" ? node.toObject() : node;
     const nodeNumber = level ? `${level}.${idx + 1}` : `${idx + 1}`;
-    const nodePath = `${nodeNumber} ${node.title}`;
-    (node.fields || []).forEach((field) => {
+    const nodePath = `${nodeNumber} ${plainNode?.title || ""}`.trim();
+    (plainNode?.fields || []).forEach((field) => {
+      const plainField = typeof field?.toObject === "function" ? field.toObject() : field;
       acc.push({
-        ...field,
-        nodeId: node.id,
+        ...plainField,
+        nodeId: plainNode?.id,
         nodePath,
         parentTitle,
       });
     });
-    flattenFields(node.children || [], nodeNumber, node.title, acc);
+    flattenFields(plainNode?.children || [], nodeNumber, plainNode?.title, acc);
+  });
+  return acc;
+};
+
+const normalizeFieldMeta = (field = {}, index = 0) => {
+  const rawId = field.id || field.fieldId || field.name || field.key;
+  const rawLabel = field.label || field.fieldLabel || field.title || field.name || rawId;
+  const rawType = field.type || field.fieldType || field.inputType || "text";
+
+  return {
+    fieldId: String(rawId || `field_${index + 1}`),
+    label: String(rawLabel || `Field ${index + 1}`),
+    type: String(rawType || "text"),
+  };
+};
+
+const flattenValueObject = (input, prefix = "", acc = {}) => {
+  if (!input || typeof input !== "object" || Array.isArray(input)) return acc;
+  Object.entries(input).forEach(([key, value]) => {
+    const nextPrefix = prefix ? `${prefix}.${key}` : key;
+    if (value && typeof value === "object" && !Array.isArray(value)) {
+      flattenValueObject(value, nextPrefix, acc);
+      return;
+    }
+    acc[nextPrefix] = value;
+    acc[key] = value;
   });
   return acc;
 };
@@ -30,6 +61,23 @@ const flattenFields = (nodes = [], level = "1", parentTitle = "", acc = []) => {
 const generatePassword = () => {
   const raw = crypto.randomBytes(6).toString("base64").replace(/[^a-zA-Z0-9]/g, "");
   return `${raw.slice(0, 10)}A1!`;
+};
+
+const sendVendorApprovalEmail = async ({ to, vendorName, temporaryPassword }) => {
+  const loginLink = `${process.env.FRONTEND_URL || process.env.CLIENT_URL || "http://localhost:5173"}/login`;
+  await sendEmail({
+    to,
+    subject: "Your Vendor Account Has Been Approved",
+    templateName: "vendorOnboardingApproved",
+    placeholders: {
+      vendorName: vendorName || "Vendor",
+      loginLink,
+      email: to,
+      temporaryPassword,
+      supportEmail: process.env.SUPPORT_EMAIL || process.env.SMTP_USER || "support@vmspro.com",
+    },
+    text: `Your vendor account is approved. Login: ${loginLink} Email: ${to} Temporary Password: ${temporaryPassword}`,
+  });
 };
 
 exports.createForm = async (req, res) => {
@@ -146,55 +194,101 @@ exports.submitForm = async (req, res) => {
     if (!form) return res.status(404).json({ success: false, message: "Form not found." });
 
     const payload = typeof req.body.payload === "string" ? JSON.parse(req.body.payload) : req.body;
-    const values = payload.values || {};
+    const responseMap = Array.isArray(payload.responses)
+      ? payload.responses.reduce((acc, row) => {
+          const key = row?.fieldId || row?.id || row?.name;
+          if (key) acc[key] = row.value;
+          if (row?.label) acc[row.label] = row.value;
+          return acc;
+        }, {})
+      : {};
+    const valuesArrayMap = Array.isArray(payload.values)
+      ? payload.values.reduce((acc, row, idx) => {
+          if (row && typeof row === "object" && !Array.isArray(row)) {
+            const key = row.fieldId || row.id || row.name;
+            if (key) {
+              acc[key] = row.value;
+              return acc;
+            }
+          }
+          acc[`field_${idx + 1}`] = row;
+          return acc;
+        }, {})
+      : {};
+    const valuesObjectInput = payload.values && typeof payload.values === "object" && !Array.isArray(payload.values) ? payload.values : {};
+    const flattenedValues = flattenValueObject(valuesObjectInput);
+    const values = {
+      ...valuesObjectInput,
+      ...flattenedValues,
+      ...valuesArrayMap,
+      ...responseMap,
+    };
+    const normalizedValues = Object.entries(values).reduce((acc, [key, value]) => {
+      const nk = normalizeKey(key);
+      if (nk && !Object.prototype.hasOwnProperty.call(acc, nk)) acc[nk] = value;
+      return acc;
+    }, {});
     const files = req.files || [];
 
     const flatFields = flattenFields(form.structure, "", form.name, []);
     const errors = [];
 
-    const data = flatFields.map((field) => {
-      const upload = files.find((f) => f.fieldname === `file_${field.id}`);
-      const value = values[field.id];
+    const data = flatFields.map((field, index) => {
+      const meta = normalizeFieldMeta(field, index);
+      const candidateKeys = [
+        meta.fieldId,
+        field.id,
+        field.fieldId,
+        field.name,
+        meta.label,
+        field.label,
+        field.title,
+      ].filter(Boolean);
+      const upload = files.find((f) => candidateKeys.some((key) => f.fieldname === `file_${key}`));
+      const valueKey = candidateKeys.find((key) => Object.prototype.hasOwnProperty.call(values, key));
+      const directValue = valueKey ? values[valueKey] : undefined;
+      const normalizedKey = candidateKeys.map((k) => normalizeKey(k)).find((k) => Object.prototype.hasOwnProperty.call(normalizedValues, k));
+      const value = directValue !== undefined ? directValue : normalizedKey ? normalizedValues[normalizedKey] : undefined;
 
       if (field.required) {
-        if (field.type === "file" && !upload) errors.push(`${field.label} is required.`);
-        if (field.type !== "file") {
+        if (meta.type === "file" && !upload) errors.push(`${meta.label} is required.`);
+        if (meta.type !== "file") {
           const empty =
             value === undefined ||
             value === null ||
             (Array.isArray(value) ? value.length === 0 : String(value).trim() === "");
-          if (empty) errors.push(`${field.label} is required.`);
+          if (empty) errors.push(`${meta.label} is required.`);
         }
       }
 
-      if (value && field.type === "email" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value))) {
-        errors.push(`Invalid email format in ${field.label}`);
+      if (value && meta.type === "email" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value))) {
+        errors.push(`Invalid email format in ${meta.label}`);
       }
       if (value && field.validation?.pattern === "pan" && !PAN_REGEX.test(String(value).toUpperCase())) {
-        errors.push(`Invalid PAN format in ${field.label}`);
+        errors.push(`Invalid PAN format in ${meta.label}`);
       }
       if (value && field.validation?.pattern === "gst" && !GST_REGEX.test(String(value).toUpperCase())) {
-        errors.push(`Invalid GST format in ${field.label}`);
+        errors.push(`Invalid GST format in ${meta.label}`);
       }
 
       if (upload) {
         const ext = path.extname(upload.originalname).replace(".", "").toLowerCase();
         const allowed = field.validation?.allowedFileTypes || [];
         if (allowed.length && !allowed.includes(ext)) {
-          errors.push(`${field.label} file type must be: ${allowed.join(", ")}`);
+          errors.push(`${meta.label} file type must be: ${allowed.join(", ")}`);
         }
         const maxMb = Number(field.validation?.maxFileSizeMB || 5);
         if (upload.size > maxMb * 1024 * 1024) {
-          errors.push(`${field.label} file must be <= ${maxMb}MB`);
+          errors.push(`${meta.label} file must be <= ${maxMb}MB`);
         }
       }
 
       return {
-        fieldId: field.id,
-        label: field.label,
-        type: field.type,
+        fieldId: meta.fieldId,
+        label: meta.label,
+        type: meta.type,
         nodePath: field.nodePath,
-        value: field.type === "file" ? null : value ?? "",
+        value: meta.type === "file" ? null : value ?? "",
         fileUrl: upload ? `/uploads/tree-submissions/${path.basename(upload.path)}` : null,
         fileName: upload ? upload.originalname : null,
       };
@@ -261,6 +355,7 @@ exports.approveSubmission = async (req, res) => {
       submission.status = "rejected";
       submission.rejectionReason = rejectionReason || "Rejected by admin";
       submission.reviewedBy = req.user?._id;
+      submission.reviewedAt = new Date();
       await submission.save();
       return res.status(200).json({ success: true, data: submission });
     }
@@ -270,33 +365,54 @@ exports.approveSubmission = async (req, res) => {
     }
 
     let user = await User.findOne({ email: submission.vendorEmail });
-    let generatedPassword = null;
+    const generatedPassword = generatePassword();
 
     if (!user) {
-      generatedPassword = generatePassword();
       user = await User.create({
         name: submission.vendorName || "Vendor User",
         email: submission.vendorEmail,
         password: generatedPassword,
         role: "vendor",
         status: "active",
+        mustChangePassword: true,
       });
+    } else {
+      if (String(user.role || "").toLowerCase() !== "vendor") {
+        return res.status(409).json({
+          success: false,
+          message: "This email is already used by a non-vendor account.",
+        });
+      }
+      user.name = submission.vendorName || user.name || "Vendor User";
+      user.role = "vendor";
+      user.status = "active";
+      user.password = generatedPassword;
+      user.mustChangePassword = true;
+      await user.save();
     }
 
     submission.status = "approved";
+    submission.rejectionReason = "";
     submission.vendorUserId = user._id;
     submission.reviewedBy = req.user?._id;
+    submission.reviewedAt = new Date();
     await submission.save();
+
+    await sendVendorApprovalEmail({
+      to: user.email,
+      vendorName: user.name,
+      temporaryPassword: generatedPassword,
+    });
 
     return res.status(200).json({
       success: true,
+      message: "Submission approved. Vendor account created and credentials sent via email.",
       data: submission,
       mockEmail: {
         to: user.email,
         subject: "Vendor Account Approved",
-        credentials: generatedPassword
-          ? { email: user.email, password: generatedPassword }
-          : { email: user.email, note: "Existing user, password unchanged." },
+        credentials: { email: user.email, password: generatedPassword },
+        loginLink: `${process.env.FRONTEND_URL || process.env.CLIENT_URL || "http://localhost:5173"}/login`,
       },
     });
   } catch (error) {

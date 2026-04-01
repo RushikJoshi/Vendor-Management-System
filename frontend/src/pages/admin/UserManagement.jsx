@@ -4,45 +4,14 @@ import { toast } from "react-hot-toast";
 import api from "../../services/api";
 import { AuthContext } from "../../context/AuthContext";
 import Modal from "../../components/Modal";
-
-const PERMISSION_GROUPS = [
-  {
-    title: "Users",
-    items: [
-      { key: "users.view", label: "View Users" },
-      { key: "users.create", label: "Create User" },
-      { key: "users.edit", label: "Edit User" },
-      { key: "users.delete", label: "Delete User" },
-    ],
-  },
-  {
-    title: "Vendors",
-    items: [
-      { key: "vendors.view", label: "View Vendors" },
-      { key: "vendors.add", label: "Add Vendor" },
-      { key: "vendors.edit", label: "Edit Vendor" },
-    ],
-  },
-  {
-    title: "RFQ",
-    items: [
-      { key: "rfq.view", label: "View RFQ" },
-      { key: "rfq.create", label: "Create RFQ" },
-      { key: "rfq.approve", label: "Approve RFQ" },
-    ],
-  },
-  {
-    title: "Contracts",
-    items: [
-      { key: "contracts.view", label: "View Contracts" },
-      { key: "contracts.manage", label: "Manage Contracts" },
-    ],
-  },
-  {
-    title: "Settings",
-    items: [{ key: "settings.access", label: "Access Settings" }],
-  },
-];
+import {
+  PERMISSION_GROUPS,
+  ROLE_OPTIONS,
+  DEFAULT_ROLE_PERMISSIONS,
+  normalizePermissionKey,
+  sanitizePermissions,
+  hasPermission as hasUserPermission,
+} from "../../config/permissions";
 
 const ACTION_MAP = PERMISSION_GROUPS.flatMap((group) => group.items);
 
@@ -50,6 +19,7 @@ const DEFAULT_USER = {
   name: "",
   email: "",
   password: "",
+  role: "viewer",
   permissions: [],
 };
 
@@ -60,16 +30,15 @@ const statusTone = (status) =>
     : "border-rose-100 bg-rose-50 text-rose-700";
 
 const hasPermission = (user, key) => {
-  const permissions = Array.isArray(user?.permissions) ? user.permissions : [];
-  return permissions.includes(key);
+  return hasUserPermission(user, key);
 };
 
 const getAccess = (currentUser) => ({
-  canCreate: String(currentUser?.role || "").toLowerCase() === "admin" || hasPermission(currentUser, "users.create"),
-  canEdit: String(currentUser?.role || "").toLowerCase() === "admin" || hasPermission(currentUser, "users.edit"),
-  canDelete: String(currentUser?.role || "").toLowerCase() === "admin" || hasPermission(currentUser, "users.delete"),
-  canToggleStatus: String(currentUser?.role || "").toLowerCase() === "admin" || hasPermission(currentUser, "users.edit"),
-  canView: hasPermission(currentUser, "users.view") || String(currentUser?.role || "").toLowerCase() === "admin",
+  canCreate: String(currentUser?.role || "").toLowerCase() === "admin" || hasPermission(currentUser, "users_create"),
+  canEdit: String(currentUser?.role || "").toLowerCase() === "admin" || hasPermission(currentUser, "users_edit"),
+  canDelete: String(currentUser?.role || "").toLowerCase() === "admin" || hasPermission(currentUser, "users_delete"),
+  canToggleStatus: String(currentUser?.role || "").toLowerCase() === "admin" || hasPermission(currentUser, "users_edit"),
+  canView: hasPermission(currentUser, "users_view") || String(currentUser?.role || "").toLowerCase() === "admin",
 });
 
 export default function UserManagement() {
@@ -127,7 +96,8 @@ export default function UserManagement() {
       name: user.name || "",
       email: user.email || "",
       password: "",
-      permissions: Array.isArray(user.permissions) ? user.permissions : [],
+      role: String(user.role || "viewer").toLowerCase(),
+      permissions: sanitizePermissions(Array.isArray(user.permissions) ? user.permissions : []),
     });
     setSelectedUserId(user._id);
     setIsEditing(true);
@@ -154,8 +124,12 @@ export default function UserManagement() {
     const payload = {
       name: form.name.trim(),
       email: form.email.trim(),
+      role: form.role,
       password: form.password,
-      permissions: form.permissions,
+      permissions:
+        form.role === "vendor"
+          ? sanitizePermissions(DEFAULT_ROLE_PERMISSIONS.vendor)
+          : sanitizePermissions(form.permissions),
     };
 
     const toastId = toast.loading(isEditing ? "Updating user..." : "Creating user...");
@@ -325,7 +299,7 @@ export default function UserManagement() {
 
               {!loading &&
                 filteredUsers.map((user) => {
-                  const userPermissions = Array.isArray(user.permissions) ? user.permissions : [];
+                  const userPermissions = sanitizePermissions(Array.isArray(user.permissions) ? user.permissions : []);
                   return (
                     <tr key={user._id} className="hover:bg-slate-50/70">
                       <td className="px-4 py-4 text-sm font-semibold text-slate-800">{user.name || "-"}</td>
@@ -430,21 +404,38 @@ export default function UserManagement() {
                 className="w-full rounded-lg border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-800 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
               />
             </Field>
+
+            <Field label="Role" span>
+              <select
+                value={form.role}
+                onChange={(e) => setForm((prev) => ({ ...prev, role: e.target.value }))}
+                className="w-full rounded-lg border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-800 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+              >
+                {ROLE_OPTIONS.map((roleOption) => (
+                  <option key={roleOption.value} value={roleOption.value}>
+                    {roleOption.label}
+                  </option>
+                ))}
+              </select>
+            </Field>
           </div>
 
           <div className="space-y-4">
-            {PERMISSION_GROUPS.map((group) => (
+            {PERMISSION_GROUPS.filter((group) =>
+              form.role === "vendor" ? group.title === "Vendor Portal" : group.title !== "Vendor Portal"
+            ).map((group) => (
               <div key={group.title} className="rounded-lg border border-slate-200 bg-slate-50/40 p-4">
                 <h4 className="text-sm font-semibold text-slate-900">{group.title}</h4>
                 <div className="mt-3 grid grid-cols-1 gap-2 md:grid-cols-2">
                   {group.items.map((permission) => {
-                    const checked = form.permissions.includes(permission.key);
+                    const normalizedKey = normalizePermissionKey(permission.key);
+                    const checked = form.permissions.includes(normalizedKey);
                     return (
-                      <label key={permission.key} className="flex items-center gap-3 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700">
+                      <label key={normalizedKey} className="flex items-center gap-3 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700">
                         <input
                           type="checkbox"
                           checked={checked}
-                          onChange={() => togglePermission(permission.key)}
+                          onChange={() => togglePermission(normalizedKey)}
                           className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
                         />
                         <span>{permission.label}</span>

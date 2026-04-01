@@ -11,17 +11,17 @@ const {
     deleteContract
 } = require("../controllers/ContractController");
 
-const { authorizeModules } = require("../middlewares/role.middleware");
+const { checkActionAccess } = require("../middlewares/permission.middleware");
 
 router.use(protect);
 
-router.get("/vendor/:vendorId", authorizeModules("contracts"), getVendorContracts);
-router.get("/stats", authorizeModules("contracts"), getContractStats);
-router.get("/", authorizeModules("contracts"), getContracts);
-router.post("/", authorizeModules("contracts"), createContract);
-router.patch("/:id", authorizeModules("contracts"), updateContract);
-router.patch("/:id/terminate", authorizeModules("contracts"), terminateContract);
-router.delete("/:id", authorizeModules("contracts"), deleteContract);
+router.get("/vendor/:vendorId", checkActionAccess("contracts_view"), getVendorContracts);
+router.get("/stats", checkActionAccess("contracts_view"), getContractStats);
+router.get("/", checkActionAccess("contracts_view"), getContracts);
+router.post("/", checkActionAccess("contracts_manage"), createContract);
+router.patch("/:id", checkActionAccess("contracts_manage"), updateContract);
+router.patch("/:id/terminate", checkActionAccess("contracts_manage"), terminateContract);
+router.delete("/:id", checkActionAccess("contracts_manage"), deleteContract);
 
 
 module.exports = router;

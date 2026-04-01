@@ -1,5 +1,10 @@
 const AppError = require("../utils/AppError");
 const { normalizeRole } = require("../config/roles");
+const {
+    getEffectivePermissionKeys,
+    normalizePermissionKey,
+    hasPermission,
+} = require("../config/userPermissions");
 
 /**
  * Middleware to check if the user's custom role has specific permissions
@@ -54,14 +59,29 @@ exports.checkActionAccess = (...actionKeys) => {
     return (req, res, next) => {
         if (normalizeRole(req.user?.role) === "admin") return next();
 
-        const userActions = Array.isArray(req.user?.permissions) && req.user.permissions.length > 0
-            ? req.user.permissions
-            : Array.isArray(req.userRole?.accessibleModules)
-            ? req.userRole.accessibleModules
-            : [];
-
-        const hasAccess = actionKeys.every((key) => userActions.includes(key));
+        const normalizedRequired = actionKeys.map(normalizePermissionKey).filter(Boolean);
+        const userActions = getEffectivePermissionKeys(req.user || {});
+        const hasAccess = normalizedRequired.every((key) => hasPermission(userActions, key));
         if (!hasAccess) {
+            return next(new AppError("You do not have required action permissions for this endpoint", 403));
+        }
+
+        next();
+    };
+};
+
+/**
+ * OR variant for endpoints shared by multiple personas.
+ * Access granted if the user has at least one provided permission key.
+ */
+exports.checkAnyActionAccess = (...actionKeys) => {
+    return (req, res, next) => {
+        if (normalizeRole(req.user?.role) === "admin") return next();
+
+        const normalizedRequired = actionKeys.map(normalizePermissionKey).filter(Boolean);
+        const userActions = getEffectivePermissionKeys(req.user || {});
+        const hasAnyAccess = normalizedRequired.some((key) => hasPermission(userActions, key));
+        if (!hasAnyAccess) {
             return next(new AppError("You do not have required action permissions for this endpoint", 403));
         }
 

@@ -11,6 +11,9 @@ import Login from "./pages/public/Login";
 
 import VendorDashboard from "./pages/vendor/Dashboard";
 import ChangePassword from "./pages/vendor/ChangePassword";
+import MyRFQs from "./pages/vendor/MyRFQs";
+import SubmitQuotation from "./pages/vendor/SubmitQuotation";
+import Profile from "./pages/vendor/Profile";
 
 
 import RegistrationWizard from "./pages/public/RegistrationWizard";
@@ -117,6 +120,9 @@ function App() {
           >
 
             <Route path="dashboard" element={<VendorDashboard />} />
+            <Route path="rfqs" element={<ProtectedRoute anyPermission="vendor_rfq_view"><MyRFQs /></ProtectedRoute>} />
+            <Route path="submit-quotation" element={<ProtectedRoute anyPermission="vendor_quote_submit"><SubmitQuotation /></ProtectedRoute>} />
+            <Route path="profile" element={<ProtectedRoute anyPermission="vendor_dashboard"><Profile /></ProtectedRoute>} />
             <Route path="*" element={<Navigate to="/vendor/dashboard" replace />} />
 
           </Route>

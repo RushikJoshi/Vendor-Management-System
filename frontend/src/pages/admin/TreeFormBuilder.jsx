@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { CheckCircle2, ChevronDown, Copy, ExternalLink, GripVertical, Plus, Trash2 } from "lucide-react";
+import { Link } from "react-router-dom";
 import api from "../../services/api";
 
 const makeSection = (title = "New Section") => ({
@@ -71,6 +72,10 @@ export default function TreeFormBuilder() {
   const [dragField, setDragField] = useState(null);
   const [publicLink, setPublicLink] = useState("");
   const [allCollapsed, setAllCollapsed] = useState(false);
+  const [pendingSubmissions, setPendingSubmissions] = useState([]);
+  const [pendingLoading, setPendingLoading] = useState(false);
+  const [pendingError, setPendingError] = useState("");
+  const [pendingActionLoading, setPendingActionLoading] = useState("");
 
   const selectedSection = useMemo(
     () => sections.find((s) => s.id === selectedSectionId) || sections[0] || null,
@@ -98,6 +103,24 @@ export default function TreeFormBuilder() {
     };
 
     init();
+  }, []);
+
+  const loadPendingSubmissions = async () => {
+    setPendingLoading(true);
+    setPendingError("");
+    try {
+      const res = await api.get("/submission/all");
+      const rows = (res.data?.data || []).filter((x) => String(x.status || "").toLowerCase() === "pending");
+      setPendingSubmissions(rows.slice(0, 8));
+    } catch (err) {
+      setPendingError(err.response?.data?.message || "Could not load new registrations.");
+    } finally {
+      setPendingLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadPendingSubmissions();
   }, []);
 
   useEffect(() => {
@@ -259,6 +282,29 @@ export default function TreeFormBuilder() {
     }
   };
 
+  const takePendingAction = async (submissionId, action) => {
+    const isApprove = action === "approved";
+    const confirmed = window.confirm(
+      isApprove ? "Approve this submission and send temporary password?" : "Reject this submission?"
+    );
+    if (!confirmed) return;
+
+    try {
+      setPendingActionLoading(`${submissionId}-${action}`);
+      await api.post("/submission/approve", {
+        submissionId,
+        action,
+        ...(action === "rejected" ? { rejectionReason: "Rejected by admin" } : {}),
+      });
+      setMessage(isApprove ? "Vendor approved. Temporary password sent successfully." : "Submission rejected.");
+      await loadPendingSubmissions();
+    } catch (err) {
+      setPendingError(err.response?.data?.message || "Action failed.");
+    } finally {
+      setPendingActionLoading("");
+    }
+  };
+
   return (
     <div className="mx-auto max-w-[1520px] space-y-3 p-3 md:p-4">
       <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -301,7 +347,7 @@ export default function TreeFormBuilder() {
         {error ? <p className="mt-3 text-sm text-rose-600">{error}</p> : null}
       </section>
 
-      <section className="grid gap-4 lg:grid-cols-[300px_1fr]">
+      <section className="grid gap-4 xl:grid-cols-[300px_1fr_320px]">
         <aside className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm lg:h-[calc(100vh-240px)] lg:overflow-auto">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="text-sm font-semibold text-slate-800">Sections</h2>
@@ -494,6 +540,61 @@ export default function TreeFormBuilder() {
             </>
           )}
         </div>
+
+        <aside className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm xl:h-[calc(100vh-240px)] xl:overflow-auto">
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="text-sm font-semibold text-slate-800">New Registrations</h2>
+            <button
+              type="button"
+              onClick={loadPendingSubmissions}
+              className="rounded-lg border border-slate-300 px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50"
+            >
+              Refresh
+            </button>
+          </div>
+
+          {pendingError ? <p className="mb-3 rounded-lg bg-rose-50 px-3 py-2 text-xs text-rose-700">{pendingError}</p> : null}
+
+          {pendingLoading ? (
+            <p className="text-sm text-slate-500">Loading...</p>
+          ) : pendingSubmissions.length === 0 ? (
+            <p className="rounded-lg border border-dashed border-slate-300 p-4 text-sm text-slate-500">No pending submissions.</p>
+          ) : (
+            <div className="space-y-2">
+              {pendingSubmissions.map((row) => (
+                <div key={row._id} className="rounded-xl border border-slate-200 p-3">
+                  <p className="text-sm font-semibold text-slate-800">{row.vendorName || "Vendor"}</p>
+                  <p className="mt-0.5 text-xs text-slate-500 break-all">{row.vendorEmail || "-"}</p>
+                  <p className="mt-1 text-[11px] text-slate-500">{new Date(row.createdAt).toLocaleString()}</p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    <Link
+                      to={`/admin/submissions/${row._id}`}
+                      className="rounded-md border border-slate-300 px-2 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50"
+                    >
+                      View
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={() => takePendingAction(row._id, "approved")}
+                      disabled={!!pendingActionLoading}
+                      className="rounded-md bg-emerald-600 px-2 py-1 text-xs font-medium text-white disabled:opacity-60"
+                    >
+                      {pendingActionLoading === `${row._id}-approved` ? "..." : "Approve"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => takePendingAction(row._id, "rejected")}
+                      disabled={!!pendingActionLoading}
+                      className="rounded-md bg-rose-600 px-2 py-1 text-xs font-medium text-white disabled:opacity-60"
+                    >
+                      {pendingActionLoading === `${row._id}-rejected` ? "..." : "Reject"}
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </aside>
       </section>
     </div>
   );

@@ -4,7 +4,11 @@ const jwt = require("jsonwebtoken");
 const asyncHandler = require("../utils/asyncHandler");
 const AppError = require("../utils/AppError");
 const { normalizeRole, getAllowedModules } = require("../config/roles");
-const { deriveAllowedModulesFromPermissions, sanitizePermissionKeys } = require("../config/userPermissions");
+const {
+  deriveAllowedModulesFromPermissions,
+  sanitizePermissionKeys,
+  getDefaultPermissionsForRole,
+} = require("../config/userPermissions");
 
 const MODULE_ALIAS_MAP = {
   dashboard: "dashboard",
@@ -176,13 +180,18 @@ exports.login = asyncHandler(async (req, res, next) => {
     email: user.email,
     role: user.role,
     tenantId: user.tenantId,
+    mustChangePassword: !!user.mustChangePassword,
   };
 
+  const normalizedRole = normalizeRole(user.role);
   const directPermissions = sanitizePermissionKeys(user.permissions || []);
+  const effectivePermissions =
+    directPermissions.length > 0
+      ? directPermissions
+      : getDefaultPermissionsForRole(normalizedRole);
 
   // Fetch Role Details for dynamic RBAC (legacy fallback)
   const Role = require("../models/Role");
-  const normalizedRole = normalizeRole(user.role);
   const roleDetails = await Role.findOne({
     name: normalizedRole,
     $or: [
@@ -192,8 +201,8 @@ exports.login = asyncHandler(async (req, res, next) => {
   }).populate("permissions");
 
   const allowedModules =
-    directPermissions.length > 0
-      ? deriveAllowedModulesFromPermissions(directPermissions)
+    effectivePermissions.length > 0
+      ? deriveAllowedModulesFromPermissions(effectivePermissions)
       : roleDetails?.accessibleModules?.length
       ? normalizeModules(roleDetails.accessibleModules)
       : getAllowedModules(normalizedRole);
@@ -208,8 +217,10 @@ exports.login = asyncHandler(async (req, res, next) => {
       email: user.email,
       role: user.role,
       tenantId: user.tenantId,
+      mustChangePassword: !!user.mustChangePassword,
       allowedModules,
-      permissions: directPermissions,
+      permissions: effectivePermissions,
+      directPermissions,
       roleDetails
     },
   });
@@ -281,16 +292,20 @@ exports.getMe = asyncHandler(async (req, res, next) => {
   const user = await User.findById(req.user.id);
   if (!user) return next(new AppError("User not found", 404));
 
-  const directPermissions = sanitizePermissionKeys(user.permissions || []);
-  const Role = require("../models/Role");
   const normalizedRole = normalizeRole(user.role);
+  const directPermissions = sanitizePermissionKeys(user.permissions || []);
+  const effectivePermissions =
+    directPermissions.length > 0
+      ? directPermissions
+      : getDefaultPermissionsForRole(normalizedRole);
+  const Role = require("../models/Role");
   const roleDetails = await Role.findOne({
     name: normalizedRole,
     $or: [{ tenantId: user.tenantId }, { tenantId: { $exists: false } }]
   }).populate("permissions");
   const allowedModules =
-    directPermissions.length > 0
-      ? deriveAllowedModulesFromPermissions(directPermissions)
+    effectivePermissions.length > 0
+      ? deriveAllowedModulesFromPermissions(effectivePermissions)
       : roleDetails?.accessibleModules?.length
       ? normalizeModules(roleDetails.accessibleModules)
       : getAllowedModules(normalizedRole);
@@ -301,7 +316,63 @@ exports.getMe = asyncHandler(async (req, res, next) => {
         ...user.toObject(),
         roleDetails,
         allowedModules,
-        permissions: directPermissions,
+        permissions: effectivePermissions,
+        directPermissions,
+    },
+  });
+});
+
+// @desc    Change current user's password
+// @route   POST /api/auth/change-password
+// @access  Private
+exports.changePassword = asyncHandler(async (req, res, next) => {
+  const { currentPassword, newPassword } = req.body;
+  if (!currentPassword || !newPassword) {
+    return next(new AppError("Current password and new password are required", 400));
+  }
+  if (String(newPassword).length < 8) {
+    return next(new AppError("New password must be at least 8 characters", 400));
+  }
+
+  const user = await User.findById(req.user.id).select("+password");
+  if (!user) return next(new AppError("User not found", 404));
+
+  const isMatch = await user.comparePassword(currentPassword);
+  if (!isMatch) {
+    return next(new AppError("Current password is incorrect", 400));
+  }
+
+  const samePassword = await user.comparePassword(newPassword);
+  if (samePassword) {
+    return next(new AppError("New password must be different from current password", 400));
+  }
+
+  user.password = newPassword;
+  user.mustChangePassword = false;
+  await user.save();
+
+  const { accessToken, refreshToken } = generateTokens(user._id, user.tenantId);
+  user.refreshToken = refreshToken;
+  await user.save({ validateBeforeSave: false });
+
+  res.cookie("refreshToken", refreshToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  });
+
+  res.status(200).json({
+    success: true,
+    message: "Password updated successfully",
+    token: accessToken,
+    user: {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      tenantId: user.tenantId,
+      mustChangePassword: false,
     },
   });
 });
@@ -311,18 +382,19 @@ exports.getMe = asyncHandler(async (req, res, next) => {
 // @access  Private
 exports.getPermissions = asyncHandler(async (req, res, next) => {
   const directPermissions = sanitizePermissionKeys(req.user?.permissions || []);
-  if (directPermissions.length > 0) {
-    return res.status(200).json({
-      success: true,
-      allowedModules: deriveAllowedModulesFromPermissions(directPermissions),
-      permissions: directPermissions,
-    });
-  }
   const role = normalizeRole(req.user?.role);
+  const effectivePermissions =
+    directPermissions.length > 0
+      ? directPermissions
+      : getDefaultPermissionsForRole(role);
   const allowedModules = getAllowedModules(role);
   res.status(200).json({
     success: true,
-    allowedModules,
-    permissions: [],
+    allowedModules:
+      effectivePermissions.length > 0
+        ? deriveAllowedModulesFromPermissions(effectivePermissions)
+        : allowedModules,
+    permissions: effectivePermissions,
+    directPermissions,
   });
 });

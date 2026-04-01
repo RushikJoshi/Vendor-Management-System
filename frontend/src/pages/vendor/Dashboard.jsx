@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   ArrowRight,
@@ -66,13 +66,21 @@ export default function Dashboard() {
   const { user } = useContext(AuthContext);
   const [info, setInfo] = useState(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     api
       .get("/vendors/me")
       .then((res) => setInfo(res.data.data))
+      .catch((err) => {
+        if (err?.response?.status === 403) {
+          navigate("/access-denied", { replace: true });
+          return;
+        }
+        setInfo(null);
+      })
       .finally(() => setLoading(false));
-  }, []);
+  }, [navigate]);
 
   if (loading) {
     return (

@@ -4,6 +4,16 @@ const Department = require("../models/Department");
 const asyncHandler = require("../utils/asyncHandler");
 const AppError = require("../utils/AppError");
 const { sendEmail } = require("../utils/emailService");
+const { normalizeRole } = require("../config/roles");
+
+const resolveVendorProfile = async (user) => {
+    if (!user) return null;
+    let vendor = await Vendor.findOne({ userId: user._id || user.id, tenantId: user.tenantId });
+    if (!vendor && user.email) {
+        vendor = await Vendor.findOne({ email: user.email, tenantId: user.tenantId });
+    }
+    return vendor;
+};
 
 // @desc    Create a new RFQ (Draft or Published)
 // @route   POST /api/v1/rfqs
@@ -53,8 +63,23 @@ exports.getRFQs = asyncHandler(async (req, res, next) => {
         const tenantId = req.tenantId || req.user?.tenantId;
         const filter = { tenantId };
         
-        if (req.user?.role === 'vendor') {
-            filter.status = 'published';
+        if (normalizeRole(req.user?.role) === "vendor") {
+            const vendor = await resolveVendorProfile(req.user);
+            if (!vendor) {
+                return res.status(200).json({
+                    success: true,
+                    count: 0,
+                    data: [],
+                });
+            }
+            filter.status = "published";
+            filter.$or = [
+                { "vendorSelection.type": "open" },
+                {
+                    "vendorSelection.type": "targeted",
+                    "vendorSelection.targetedVendors": vendor._id,
+                },
+            ];
         }
 
         const rfqs = await RFQ.find(filter)
@@ -124,10 +149,27 @@ async function notifyVendors(rfq) {
 // but optimized for new schema below:
 
 exports.getRFQ = asyncHandler(async (req, res, next) => {
-    const rfq = await RFQ.findOne({ 
-        _id: req.params.id, 
-        tenantId: req.user.tenantId 
-    }).populate('departmentId', 'name').populate('vendorSelection.targetedVendors', 'name companyName email');
+    const filter = {
+        _id: req.params.id,
+        tenantId: req.user.tenantId
+    };
+
+    if (normalizeRole(req.user?.role) === "vendor") {
+        const vendor = await resolveVendorProfile(req.user);
+        if (!vendor) return next(new AppError("Vendor profile not found", 404));
+        filter.status = "published";
+        filter.$or = [
+            { "vendorSelection.type": "open" },
+            {
+                "vendorSelection.type": "targeted",
+                "vendorSelection.targetedVendors": vendor._id,
+            },
+        ];
+    }
+
+    const rfq = await RFQ.findOne(filter)
+        .populate('departmentId', 'name')
+        .populate('vendorSelection.targetedVendors', 'name companyName email');
 
     if (!rfq) return next(new AppError("RFQ not found", 404));
 

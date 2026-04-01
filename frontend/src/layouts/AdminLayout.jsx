@@ -5,6 +5,7 @@ import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import { sidebarItems } from "../config/SidebarConfig";
 import { normalizeRole, hasAccess } from "../config/roles";
+import { hasAnyPermission } from "../config/permissions";
 
 const MODULE_ALIASES = {
   vendor_forms: ["vendor_forms", "form_builder", "vendors"],
@@ -24,6 +25,9 @@ export default function AdminLayout() {
     .filter((item) => {
       const userRole = normalizeRole(user?.role || "");
       if (userRole === "admin") return true;
+      if (Array.isArray(item.requiredAnyPermissions) && item.requiredAnyPermissions.length > 0) {
+        return hasAnyPermission(user, item.requiredAnyPermissions);
+      }
       if (allowedModules && allowedModules.length > 0) {
         return allowedModules.includes("*") || hasModuleAccess(allowedModules, item.key);
       }

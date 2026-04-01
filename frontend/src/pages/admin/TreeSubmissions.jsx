@@ -10,6 +10,7 @@ export default function TreeSubmissions() {
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [actionLoadingId, setActionLoadingId] = useState("");
+  const [message, setMessage] = useState("");
 
   const load = async () => {
     setLoading(true);
@@ -55,12 +56,26 @@ export default function TreeSubmissions() {
 
   const takeAction = async (submissionId, action) => {
     try {
+      const isApprove = action === "approved";
+      const confirmed = window.confirm(
+        isApprove
+          ? "Approve this vendor submission and create vendor login credentials?"
+          : "Reject this vendor submission?"
+      );
+      if (!confirmed) return;
+
+      let rejectionReason = "";
+      if (!isApprove) {
+        rejectionReason = window.prompt("Rejection reason", "Incomplete details") || "Rejected by admin";
+      }
       setActionLoadingId(`${submissionId}-${action}`);
+      setMessage("");
       await api.post("/submission/approve", {
         submissionId,
         action,
-        ...(action === "rejected" ? { rejectionReason: "Rejected by admin" } : {}),
+        ...(action === "rejected" ? { rejectionReason } : {}),
       });
+      setMessage(isApprove ? "Submission approved and vendor credentials sent successfully." : "Submission rejected.");
       await load();
     } catch (err) {
       setError(err.response?.data?.message || "Action failed.");
@@ -85,6 +100,16 @@ export default function TreeSubmissions() {
             Refresh
           </button>
         </div>
+        {message ? (
+          <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+            {message}
+          </div>
+        ) : null}
+        {error ? (
+          <div className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
+            {error}
+          </div>
+        ) : null}
 
         <div className="flex flex-wrap items-center gap-3">
           <select
@@ -134,8 +159,7 @@ export default function TreeSubmissions() {
             <tr>
               <th className="px-4 py-3 text-left font-semibold text-slate-700">Vendor Name</th>
               <th className="px-4 py-3 text-left font-semibold text-slate-700">Email</th>
-              <th className="px-4 py-3 text-left font-semibold text-slate-700">Form Type</th>
-              <th className="px-4 py-3 text-left font-semibold text-slate-700">Submission Date</th>
+              <th className="px-4 py-3 text-left font-semibold text-slate-700">Date</th>
               <th className="px-4 py-3 text-left font-semibold text-slate-700">Status</th>
               <th className="px-4 py-3 text-left font-semibold text-slate-700">Actions</th>
             </tr>
@@ -143,11 +167,11 @@ export default function TreeSubmissions() {
           <tbody className="text-sm">
             {loading ? (
               <tr>
-                <td className="px-4 py-6 text-slate-500" colSpan={6}>Loading submissions...</td>
+                <td className="px-4 py-6 text-slate-500" colSpan={5}>Loading submissions...</td>
               </tr>
             ) : filteredRows.length === 0 ? (
               <tr>
-                <td className="px-4 py-10" colSpan={6}>
+                <td className="px-4 py-10" colSpan={5}>
                   <div className="flex flex-col items-center justify-center gap-2 text-center">
                     <div className="rounded-full bg-slate-100 p-3">
                       <svg className="h-5 w-5 text-slate-500" viewBox="0 0 24 24" fill="none">
@@ -164,7 +188,6 @@ export default function TreeSubmissions() {
                 <tr key={r._id} className="border-t border-slate-100 hover:bg-slate-50/60">
                   <td className="px-4 py-3 font-medium text-slate-800">{r.vendorName || "-"}</td>
                   <td className="px-4 py-3 text-slate-700 break-all">{r.vendorEmail || "-"}</td>
-                  <td className="px-4 py-3 text-slate-700">{r.formName || "-"}</td>
                   <td className="px-4 py-3 text-slate-600">{new Date(r.createdAt).toLocaleDateString()}</td>
                   <td className="px-4 py-3">
                     <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold capitalize ${statusClass(r.status)}`}>

@@ -37,6 +37,10 @@ const userSchema = new mongoose.Schema(
             enum: ["active", "inactive"],
             default: "active",
         },
+        mustChangePassword: {
+            type: Boolean,
+            default: false,
+        },
 
         tenantId: {
             type: mongoose.Schema.Types.ObjectId,
