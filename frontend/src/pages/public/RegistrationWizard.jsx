@@ -180,14 +180,13 @@ export default function RegistrationWizard() {
         return (
             <div className="min-h-screen bg-[#f8fafc] font-sans">
                  <header className="sticky top-0 z-40 border-b border-slate-200 bg-white shadow-sm">
-                    <div className="mx-auto flex max-w-[1800px] items-center justify-between px-6 py-3">
-                        <div className="flex items-center gap-4">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-900 text-white shadow-xl shadow-slate-200">
-                                <ShieldCheck size={20} strokeWidth={2.5} />
-                            </div>
+                    <div className="mx-auto flex max-w-[1800px] items-center justify-between px-8 py-3">
+                        <div className="flex items-center gap-6">
+                            <img src="/hgiel_logo.png" alt="HGIEL Logo" className="h-11 w-auto object-contain" />
+                            <div className="h-7 w-[1px] bg-slate-200" />
                             <div>
-                                <h1 className="text-xl font-bold tracking-tight text-slate-900 leading-none">VMS PRO</h1>
-                                <p className="text-[12px] font-semibold text-slate-500 mt-1">Enterprise Registry</p>
+                                <h1 className="text-lg font-black tracking-tighter text-slate-900 leading-none">REGISTRY PORTAL</h1>
+                                <p className="text-[10px] font-bold text-blue-700 tracking-[0.2em] mt-1">H.G. INFRA ENGINEERING LTD.</p>
                             </div>
                         </div>
                     </div>
@@ -307,9 +306,10 @@ export default function RegistrationWizard() {
             <main className="w-full flex flex-col min-h-screen">
                 
                 {/* Header Bar */}
-                <header className="bg-white border-b border-slate-300 py-6 px-8 flex items-center justify-between sticky top-0 z-50">
-                    <div className="flex items-center gap-4">
-                        <div className="h-10 w-10 bg-slate-900 text-white flex items-center justify-center rounded uppercase font-black text-xs">HG</div>
+                <header className="bg-white border-b border-slate-300 py-3 px-8 flex items-center justify-between sticky top-0 z-50">
+                    <div className="flex items-center gap-6">
+                        <img src="/hgiel_logo.png" alt="HGIEL Logo" className="h-12 w-auto object-contain" />
+                        <div className="h-8 w-[1px] bg-slate-200" />
                         <h2 className="text-base font-black text-slate-800 uppercase tracking-tight">Supplier Self-Registration Request Form</h2>
                     </div>
                     <div className="flex items-center gap-4">
