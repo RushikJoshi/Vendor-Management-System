@@ -117,7 +117,7 @@ export default function RegistrationWizard() {
     const [submitting, setSubmitting] = useState(false);
     const [isReviewStep, setIsReviewStep] = useState(false);
     const [emailError, setEmailError] = useState("");
-    const [collapsed, setCollapsed] = useState({});
+    const [expanded, setExpanded] = useState({});
 
     // Fetch categories for Step 1
     useEffect(() => {
