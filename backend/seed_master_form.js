@@ -19,6 +19,7 @@ async function seedMasterForm() {
             name: "Enterprise Strategic Partner",
             code: "STRAT-PARTNER",
             description: "High-density supplier registration matching Global Ariba standards.",
+            status: "active",
             criteria: {
                 minimumTurnover: 0,
                 minimumExperienceYears: 0
@@ -200,6 +201,12 @@ async function seedMasterForm() {
         // 5. Create new template
         const template = await FormTemplate.create(MASTER_TEMPLATE_DATA);
         console.log("Master Form Template Seeded Successfully:", template._id);
+
+        // 6. Final link: Update category with published form ID
+        category.formTemplate = template._id;
+        category.hasPublishedForm = true;
+        await category.save();
+        console.log("Category linked and published.");
 
         process.exit(0);
     } catch (err) {
