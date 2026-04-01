@@ -349,10 +349,10 @@ export default function RegistrationWizard() {
                                                             const willBeOpen = !prev[sectionKey];
                                                             const newState = { ...prev, [sectionKey]: willBeOpen };
                                                             
-                                                            // Master Expand: If opening 1.1.1.1 (sIdx 0), open 0-6
-                                                            if (sIdx === 0 && willBeOpen) {
+                                                            // Master Toggle: If toggling 1.1.1.1 (sIdx 0), apply same state to 1-6
+                                                            if (sIdx === 0) {
                                                                 for (let i = 1; i <= 6; i++) {
-                                                                    newState[`section-${i}`] = true;
+                                                                    newState[`section-${i}`] = willBeOpen;
                                                                 }
                                                             }
                                                             return newState;
