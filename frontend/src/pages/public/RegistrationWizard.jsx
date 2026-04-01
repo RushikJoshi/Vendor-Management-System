@@ -393,6 +393,25 @@ export default function RegistrationWizard() {
         "INDIA (IN) > Bihar > Patna"
     ];
 
+    const MOCK_DEPARTMENTS = [
+        "HGIEL (HGIEL) > Operations > Site Engineering",
+        "HGIEL (HGIEL) > Operations > Project Management",
+        "HGIEL (HGIEL) > Operations > Surveying",
+        "HGIEL (HGIEL) > Procurement > Bulk Material",
+        "HGIEL (HGIEL) > Procurement > Plant & Machinery",
+        "HGIEL (HGIEL) > Procurement > IT & Assets",
+        "HGIEL (HGIEL) > Finance > Accounts Payable",
+        "HGIEL (HGIEL) > Finance > Taxation & Audit",
+        "HGIEL (HGIEL) > Quality (QA/QC) > Lab Testing",
+        "HGIEL (HGIEL) > Quality (QA/QC) > Field Inspection",
+        "HGIEL (HGIEL) > HR & Admin > Personnel Management",
+        "HGIEL (HGIEL) > HR & Admin > Industrial Relations",
+        "HGIEL (HGIEL) > HSE & Safety > Site Safety",
+        "HGIEL (HGIEL) > HSE & Safety > Environmental Compliance",
+        "HGIEL (HGIEL) > Legal > Contract Management",
+        "HGIEL (HGIEL) > IT > Infrastructure & Support"
+    ];
+
     const sections = categoryDetails?.formTemplate?.sections || [];
 
     const handleInputChange = (name, value) => {
@@ -526,13 +545,13 @@ export default function RegistrationWizard() {
                                                                                 {field.label} {field.required && <span className="text-blue-700">*</span>}
                                                                             </label>
                                                                             
-                                                                            {fieldName === "serviceCategory" || fieldName === "region" ? (
+                                                                            {fieldName === "serviceCategory" || fieldName === "region" || fieldName === "department" ? (
                                                                                 <SuggestSearchField
                                                                                     value={formValues[fieldName] || ""}
                                                                                     onChange={(val) => handleInputChange(fieldName, val)}
                                                                                     required={field.required}
-                                                                                    mockData={fieldName === "serviceCategory" ? MOCK_CATEGORIES : MOCK_REGIONS}
-                                                                                    placeholder={fieldName === "serviceCategory" ? "Search Category Path..." : "Search Region Path..."}
+                                                                                    mockData={fieldName === "serviceCategory" ? MOCK_CATEGORIES : fieldName === "region" ? MOCK_REGIONS : MOCK_DEPARTMENTS}
+                                                                                    placeholder={fieldName === "serviceCategory" ? "Search Category..." : fieldName === "region" ? "Search Region..." : "Search Department..."}
                                                                                 />
                                                                             ) : field.type === "text" || field.type === "number" || field.type === "date" || field.type === "textarea" || field.type === "email" ? (
                                                                                 field.type === "textarea" ? (
