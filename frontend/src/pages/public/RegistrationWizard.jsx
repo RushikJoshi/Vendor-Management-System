@@ -134,7 +134,7 @@ const SuggestSearchField = ({ value, onChange, required, mockData, placeholder }
             </div>
             
             {showResults && results.length > 0 && (
-                <div className="absolute top-full left-0 w-full min-w-[500px] bg-white border border-slate-300 shadow-2xl z-[100] max-h-[400px] overflow-y-auto mt-1 animate-in fade-in slide-in-from-top-1">
+                <div className="absolute top-full left-0 w-full md:w-[150%] bg-white border border-slate-300 shadow-2xl z-[1000] max-h-[400px] overflow-y-auto mt-1 animate-in fade-in slide-in-from-top-1">
                     {results.map((res, idx) => {
                         const parts = res.split(' > ');
                         const mainPath = parts.slice(0, -1).join(' > ');
@@ -144,10 +144,13 @@ const SuggestSearchField = ({ value, onChange, required, mockData, placeholder }
                             <div 
                                 key={idx}
                                 onClick={() => { setQuery(res); onChange(res); setShowResults(false); }}
-                                className="px-6 py-4 hover:bg-slate-100 cursor-pointer border-b border-slate-100 transition-colors group flex flex-col gap-1"
+                                className="px-5 py-4 hover:bg-slate-50 cursor-pointer border-b border-slate-100 transition-colors group flex flex-col gap-0.5"
                             >
-                                <p className="text-[11px] font-medium text-slate-500 uppercase tracking-tight">
-                                    {mainPath} {parts.length > 1 ? '>' : ''} <span className="text-blue-600 font-black">{endTerm}</span>
+                                <p className="text-[10px] font-medium text-slate-400 uppercase tracking-wider flex items-center gap-2">
+                                    {mainPath} {parts.length > 1 ? '>' : ''}
+                                </p>
+                                <p className="text-[12px] font-black text-blue-700 uppercase tracking-tight">
+                                    {endTerm}
                                 </p>
                             </div>
                         );
@@ -249,11 +252,9 @@ export default function RegistrationWizard() {
                  <header className="sticky top-0 z-40 border-b border-slate-200 bg-white shadow-sm">
                     <div className="mx-auto flex max-w-[1800px] items-center justify-between px-8 py-3">
                         <div className="flex items-center gap-6">
-                            <img src="/hgiel_logo.png" alt="HGIEL Logo" className="h-11 w-auto object-contain" />
-                            <div className="h-7 w-[1px] bg-slate-200" />
                             <div>
                                 <h1 className="text-lg font-black tracking-tighter text-slate-900 leading-none">REGISTRY PORTAL</h1>
-                                <p className="text-[10px] font-bold text-blue-700 tracking-[0.2em] mt-1">H.G. INFRA ENGINEERING LTD.</p>
+                                <p className="text-[10px] font-bold text-blue-700 tracking-[0.2em] mt-1">GT VENDOR MANAGEMENT</p>
                             </div>
                         </div>
                     </div>
@@ -394,22 +395,22 @@ export default function RegistrationWizard() {
     ];
 
     const MOCK_DEPARTMENTS = [
-        "HGIEL (HGIEL) > Operations > Site Engineering",
-        "HGIEL (HGIEL) > Operations > Project Management",
-        "HGIEL (HGIEL) > Operations > Surveying",
-        "HGIEL (HGIEL) > Procurement > Bulk Material",
-        "HGIEL (HGIEL) > Procurement > Plant & Machinery",
-        "HGIEL (HGIEL) > Procurement > IT & Assets",
-        "HGIEL (HGIEL) > Finance > Accounts Payable",
-        "HGIEL (HGIEL) > Finance > Taxation & Audit",
-        "HGIEL (HGIEL) > Quality (QA/QC) > Lab Testing",
-        "HGIEL (HGIEL) > Quality (QA/QC) > Field Inspection",
-        "HGIEL (HGIEL) > HR & Admin > Personnel Management",
-        "HGIEL (HGIEL) > HR & Admin > Industrial Relations",
-        "HGIEL (HGIEL) > HSE & Safety > Site Safety",
-        "HGIEL (HGIEL) > HSE & Safety > Environmental Compliance",
-        "HGIEL (HGIEL) > Legal > Contract Management",
-        "HGIEL (HGIEL) > IT > Infrastructure & Support"
+        "Operations > Site Engineering",
+        "Operations > Project Management",
+        "Operations > Surveying",
+        "Procurement > Bulk Material",
+        "Procurement > Plant & Machinery",
+        "Procurement > IT & Assets",
+        "Finance > Accounts Payable",
+        "Finance > Taxation & Audit",
+        "Quality (QA/QC) > Lab Testing",
+        "Quality (QA/QC) > Field Inspection",
+        "HR & Admin > Personnel Management",
+        "HR & Admin > Industrial Relations",
+        "HSE & Safety > Site Safety",
+        "HSE & Safety > Environmental Compliance",
+        "Legal > Contract Management",
+        "IT > Infrastructure & Support"
     ];
 
     const sections = categoryDetails?.formTemplate?.sections || [];
@@ -457,8 +458,6 @@ export default function RegistrationWizard() {
                 {/* Header Bar */}
                 <header className="bg-white border-b border-slate-300 py-3 px-8 flex items-center justify-between sticky top-0 z-50">
                     <div className="flex items-center gap-6">
-                        <img src="/hgiel_logo.png" alt="HGIEL Logo" className="h-12 w-auto object-contain" />
-                        <div className="h-8 w-[1px] bg-slate-200" />
                         <h2 className="text-base font-black text-slate-800 uppercase tracking-tight">Supplier Self-Registration Request Form</h2>
                     </div>
                     <div className="flex items-center gap-4">
