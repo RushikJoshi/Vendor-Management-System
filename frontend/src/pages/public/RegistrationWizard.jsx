@@ -341,11 +341,38 @@ export default function RegistrationWizard() {
                                         sections.map((section, sIdx) => {
                                             const sectionKey = `section-${sIdx}`;
                                             const isOpen = !collapsed[sectionKey];
+
+                                            const toggleSection = (idx) => {
+                                                setCollapsed(prev => {
+                                                    const willBeOpen = !prev[`section-${idx}`];
+                                                    const newState = { ...prev, [`section-${idx}`]: willBeOpen };
+                                                    
+                                                    // Expansion Shortcut: If opening section 1.1.1.1, also open up to 1.1.1.4.2
+                                                    if (idx === 0 && willBeOpen) {
+                                                        for (let i = 1; i <= 6; i++) {
+                                                            newState[`section-${i}`] = true; // Use true if true=open in this logic
+                                                        }
+                                                    }
+                                                    return newState;
+                                                });
+                                            };
+                                            
+                                            // Ensure we use the correct boolean convention for collapsed vs isOpen
+                                            // In our state: collapsed[key] = true means it's closed.
+                                            // So !collapsed[key] = true means it's open.
+                                            // Wait, let's just use the current 'isOpen' variable from state for consistency.
                                             
                                             return (
                                                 <div key={sectionKey} className="bg-white border border-slate-200 overflow-hidden transition-all duration-300">
                                                     <div 
-                                                        onClick={() => setCollapsed(prev => ({ ...prev, [sectionKey]: !prev[sectionKey] }))}
+                                                        onClick={() => setCollapsed(prev => {
+                                                            const willBeOpen = prev[sectionKey]; // if previously true (collapsed), it will be open (false)
+                                                            const newState = { ...prev, [sectionKey]: !prev[sectionKey] };
+                                                            if (sIdx === 0 && willBeOpen) {
+                                                                for (let i = 1; i <= 6; i++) { newState[`section-${i}`] = false; }
+                                                            }
+                                                            return newState;
+                                                        })}
                                                         className="bg-[#fcfdfe] px-6 py-5 flex items-center justify-between border-b border-slate-100 cursor-pointer group hover:bg-slate-50"
                                                     >
                                                         <div className="flex items-center gap-5">
