@@ -362,8 +362,14 @@ export default function RegistrationWizard() {
                                                     {isOpen && (
                                                         <div className="p-8 md:p-12 animate-in fade-in slide-in-from-top-4 duration-500">
                                                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-12 gap-y-10">
-                                                                {section.fields.map((field, fIdx) => {
+                                                                 {section.fields.map((field, fIdx) => {
                                                                     const fieldName = field.name || field.fieldId;
+
+                                                                    // Dynamic Visibility Logic
+                                                                    if (field.dependsOn && formValues[field.dependsOn] !== field.dependsOnValue) {
+                                                                        return null;
+                                                                    }
+
                                                                     let colSpan = "col-span-1";
                                                                     if (field.type === 'textarea') colSpan = "col-span-full";
                                                                     else if (field.label.toLowerCase().includes('email') || field.label.toLowerCase().includes('name')) colSpan = "md:col-span-1 lg:col-span-2";

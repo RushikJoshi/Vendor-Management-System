@@ -38,6 +38,8 @@ const formTemplateSchema = new mongoose.Schema(
                         },
                         options: [String], // only for dropdown
                         order: Number,
+                        dependsOn: String,    // ID/Label of the parent field
+                        dependsOnValue: String // Value of parent field that triggers this field
                     },
                 ],
             },
