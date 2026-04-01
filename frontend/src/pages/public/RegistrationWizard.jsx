@@ -91,39 +91,22 @@ const hasRenderableSections = (formTemplate) =>
         (section) => Array.isArray(section?.fields) && section.fields.length > 0
     );
 
-const CategorySearchField = ({ value, onChange, required }) => {
+const SuggestSearchField = ({ value, onChange, required, mockData, placeholder }) => {
     const [query, setQuery] = useState(value);
     const [results, setResults] = useState([]);
     const [showResults, setShowResults] = useState(false);
     const containerRef = useRef(null);
 
-    const MOCK_CATEGORIES = [
-        "ALL (ALL) > Material (Material) > GENERAL CONSUMABLES (ZCON) > IT CONSUMABLE (120004) > CABLE MANAGER (13004011)",
-        "ALL (ALL) > Material (Material) > ASSET MATERIAL (ZAST) > IT EQUIPMENT (130002) > MANAGED SWITCH 24 PORT (12000935)",
-        "ALL (ALL) > Material (Material) > ASSET MATERIAL (ZAST) > IT EQUIPMENT (130002) > MANAGED SWITCH 48 PORT (12000936)",
-        "ALL (ALL) > Civil (Civil) > ROAD UTILITY > PAVEMENT > BITUMINOUS MIX",
-        "ALL (ALL) > Civil (Civil) > ROAD UTILITY > EARTHWORK > EMBANKMENT",
-        "ALL (ALL) > Civil (Civil) > ROAD UTILITY > DRAINAGE > RCC PIPES",
-        "ALL (ALL) > Civil (Civil) > INFRASTRUCTURE > BRIDGE > STEEL STRUCTURES",
-        "ALL (ALL) > Civil (Civil) > INFRASTRUCTURE > BRIDGE > EXPANSION JOINT",
-        "ALL (ALL) > Services (Services) > CONSULTANCY > DESIGN > ARCHITECTURAL",
-        "ALL (ALL) > Services (Services) > LOGISTICS > FREIGHT > INTERNATIONAL",
-        "ALL (ALL) > Services (Services) > MANPOWER > SKILLED > ROAD CONSTRUCTION",
-        "ALL (ALL) > Services (Services) > TESTING > LAB > SOIL TESTING",
-        "ALL (ALL) > Material (Material) > FUEL & LUBRICANTS > DIESEL > BULK SUPPLY",
-        "ALL (ALL) > Material (Material) > CONSTRUCTION MATERIAL > CEMENT > OPC 43 GRADE"
-    ];
-
     useEffect(() => {
         if (query.length > 0) {
-            const matches = MOCK_CATEGORIES.filter(c => c.toLowerCase().includes(query.toLowerCase()));
+            const matches = mockData.filter(c => c.toLowerCase().includes(query.toLowerCase()));
             setResults(matches);
             setShowResults(true);
         } else {
-            setResults(MOCK_CATEGORIES);
+            setResults(mockData);
             setShowResults(true);
         }
-    }, [query]);
+    }, [query, mockData]);
 
     useEffect(() => {
         const handleClickOutside = (e) => {
@@ -142,7 +125,7 @@ const CategorySearchField = ({ value, onChange, required }) => {
                     value={query}
                     onFocus={() => setShowResults(true)}
                     onChange={(e) => { setQuery(e.target.value); if (!e.target.value) onChange(""); }}
-                    placeholder="Search Category Path (e.g. ALL > Material > ...)"
+                    placeholder={placeholder}
                     className="w-full h-12 border border-slate-300 bg-white pl-5 pr-12 text-[12px] font-bold text-slate-900 outline-none transition-all focus:border-blue-700 focus:ring-4 focus:ring-blue-100"
                 />
                 <div className="absolute right-0 h-full w-12 flex items-center justify-center border-l border-slate-200 bg-slate-50 group-hover:bg-slate-100 cursor-pointer">
@@ -347,6 +330,38 @@ export default function RegistrationWizard() {
 
     if (loading) return <div className="min-h-screen flex items-center justify-center bg-[#f8fafc]"><LoadingSpinner /></div>;
 
+    const MOCK_CATEGORIES = [
+        "ALL (ALL) > Material (Material) > GENERAL CONSUMABLES (ZCON) > IT CONSUMABLE (120004) > CABLE MANAGER (13004011)",
+        "ALL (ALL) > Material (Material) > ASSET MATERIAL (ZAST) > IT EQUIPMENT (130002) > MANAGED SWITCH 24 PORT (12000935)",
+        "ALL (ALL) > Material (Material) > ASSET MATERIAL (ZAST) > IT EQUIPMENT (130002) > MANAGED SWITCH 48 PORT (12000936)",
+        "ALL (ALL) > Civil (Civil) > ROAD UTILITY > PAVEMENT > BITUMINOUS MIX",
+        "ALL (ALL) > Civil (Civil) > ROAD UTILITY > EARTHWORK > EMBANKMENT",
+        "ALL (ALL) > Civil (Civil) > ROAD UTILITY > DRAINAGE > RCC PIPES",
+        "ALL (ALL) > Civil (Civil) > INFRASTRUCTURE > BRIDGE > STEEL STRUCTURES",
+        "ALL (ALL) > Civil (Civil) > INFRASTRUCTURE > BRIDGE > EXPANSION JOINT",
+        "ALL (ALL) > Services (Services) > CONSULTANCY > DESIGN > ARCHITECTURAL",
+        "ALL (ALL) > Services (Services) > LOGISTICS > FREIGHT > INTERNATIONAL",
+        "ALL (ALL) > Services (Services) > MANPOWER > SKILLED > ROAD CONSTRUCTION",
+        "ALL (ALL) > Services (Services) > TESTING > LAB > SOIL TESTING",
+        "ALL (ALL) > Material (Material) > FUEL & LUBRICANTS > DIESEL > BULK SUPPLY",
+        "ALL (ALL) > Material (Material) > CONSTRUCTION MATERIAL > CEMENT > OPC 43 GRADE"
+    ];
+
+    const MOCK_REGIONS = [
+        "INDIA (IN) > Rajasthan > Jaipur",
+        "INDIA (IN) > Rajasthan > Udaipur",
+        "INDIA (IN) > Rajasthan > Jodhpur",
+        "INDIA (IN) > Maharashtra > Mumbai",
+        "INDIA (IN) > Maharashtra > Pune",
+        "INDIA (IN) > Gujarat > Ahmedabad",
+        "INDIA (IN) > Gujarat > Surat",
+        "INDIA (IN) > Delhi > NCR",
+        "INDIA (IN) > Haryana > Gurugram",
+        "INDIA (IN) > Uttar Pradesh > Noida",
+        "INDIA (IN) > Karnataka > Bengaluru",
+        "INDIA (IN) > Telangana > Hyderabad"
+    ];
+
     const sections = categoryDetails?.formTemplate?.sections || [];
 
     const handleInputChange = (name, value) => {
@@ -480,11 +495,13 @@ export default function RegistrationWizard() {
                                                                                 {field.label} {field.required && <span className="text-blue-700">*</span>}
                                                                             </label>
                                                                             
-                                                                            {fieldName === "serviceCategory" ? (
-                                                                                <CategorySearchField
+                                                                            {fieldName === "serviceCategory" || fieldName === "region" ? (
+                                                                                <SuggestSearchField
                                                                                     value={formValues[fieldName] || ""}
                                                                                     onChange={(val) => handleInputChange(fieldName, val)}
                                                                                     required={field.required}
+                                                                                    mockData={fieldName === "serviceCategory" ? MOCK_CATEGORIES : MOCK_REGIONS}
+                                                                                    placeholder={fieldName === "serviceCategory" ? "Search Category Path..." : "Search Region Path..."}
                                                                                 />
                                                                             ) : field.type === "text" || field.type === "number" || field.type === "date" || field.type === "textarea" || field.type === "email" ? (
                                                                                 field.type === "textarea" ? (
