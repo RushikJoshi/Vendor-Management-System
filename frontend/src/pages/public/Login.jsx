@@ -165,7 +165,7 @@ export default function Login() {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="admin@hginfra.com"
+                    placeholder="admin@company.com"
                     className="w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-xl py-3 pl-12 pr-4 text-sm font-bold text-slate-900 dark:text-white focus:bg-white dark:focus:bg-slate-900 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-600/5 outline-none transition-all placeholder-slate-300 dark:placeholder-slate-700"
                   />
                 </div>

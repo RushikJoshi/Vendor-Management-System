@@ -24,6 +24,7 @@ import UserManagement from "./pages/admin/UserManagement";
 import RoleManagement from "./pages/admin/RoleManagement";
 import Settings from "./pages/admin/Settings";
 import AuditLogs from "./pages/admin/AuditLogs";
+import Applications from "./pages/admin/Applications";
 import AccessDenied from "./pages/AccessDenied";
 import TreeFormBuilder from "./pages/admin/TreeFormBuilder";
 import TreeSubmissions from "./pages/admin/TreeSubmissions";
@@ -87,6 +88,7 @@ function App() {
             <Route path="submissions/:id" element={<ProtectedRoute module="submissions"><TreeSubmissionDetail /></ProtectedRoute>} />
             <Route path="rfqs" element={<ProtectedRoute module="rfq"><RFQs /></ProtectedRoute>} />
             <Route path="contracts" element={<ProtectedRoute module="contracts"><Contracts /></ProtectedRoute>} />
+            <Route path="applications" element={<ProtectedRoute module="applications"><Applications /></ProtectedRoute>} />
             <Route path="analytics" element={<ProtectedRoute module="analytics"><DashboardAnalytics /></ProtectedRoute>} />
             <Route path="users" element={<ProtectedRoute module="users"><UserManagement /></ProtectedRoute>} />
             <Route path="roles" element={<ProtectedRoute module="roles"><RoleManagement /></ProtectedRoute>} />

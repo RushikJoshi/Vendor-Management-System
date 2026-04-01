@@ -38,7 +38,7 @@ export const ROLE_NORMALIZE_MAP = {
 
 export const MODULE_PERMISSIONS = {
   admin: ["*"],
-  hr: ["dashboard", "users", "roles", "settings"],
+  hr: ["dashboard", "applications", "users", "roles", "settings"],
   finance: ["dashboard", "contracts", "analytics", "finance"],
   procurement: ["dashboard", "rfq", "contracts", "vendor_forms", "form_builder"],
   sales: ["dashboard", "rfq", "contracts", "analytics"],

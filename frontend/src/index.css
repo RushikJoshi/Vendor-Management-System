@@ -233,3 +233,119 @@
   font-weight: 600 !important;
 }
 
+/* Public registration readability and typography polish */
+.registration-readable {
+  font-family: "Aptos", "Segoe UI Variable", "Segoe UI", "Inter", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+}
+
+.registration-readable h1,
+.registration-readable h2,
+.registration-readable h3,
+.registration-readable h4,
+.registration-readable h5,
+.registration-readable h6 {
+  font-family: "Aptos Display", "Aptos", "Segoe UI Variable", "Segoe UI", "Inter", sans-serif;
+  letter-spacing: -0.025em;
+}
+
+.registration-readable input,
+.registration-readable textarea,
+.registration-readable select,
+.registration-readable button {
+  font: inherit;
+}
+
+.registration-readable input,
+.registration-readable textarea,
+.registration-readable select {
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.registration-readable input::placeholder,
+.registration-readable textarea::placeholder {
+  color: #94a3b8;
+  letter-spacing: 0;
+}
+
+.registration-readable .font-black {
+  font-weight: 800 !important;
+}
+
+.registration-readable [class*="text-[10px]"],
+.registration-readable [class*="text-[11px]"],
+.registration-readable [class*="text-[12px]"] {
+  line-height: 1.4 !important;
+}
+
+.registration-readable [class*="tracking-[0.2em]"],
+.registration-readable [class*="tracking-[0.25em]"],
+.registration-readable [class*="tracking-[0.3em]"],
+.registration-readable .tracking-widest,
+.registration-readable .tracking-wider {
+  letter-spacing: 0.12em !important;
+}
+
+.registration-page {
+  background:
+    radial-gradient(circle at top left, rgba(59, 130, 246, 0.08), transparent 22%),
+    linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+}
+
+.registration-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.9rem 2rem;
+  background: rgba(255, 255, 255, 0.88);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.95);
+  backdrop-filter: blur(14px);
+}
+
+.registration-surface {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid #e2e8f0;
+  border-radius: 24px;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.08);
+}
+
+.registration-subsection-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+}
+
+.registration-subsection-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.registration-action-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1rem;
+  padding: 2rem 0 1rem;
+  border-top: 1px solid #cbd5e1;
+}
+
+@media (max-width: 768px) {
+  .registration-header {
+    padding: 0.85rem 1rem;
+  }
+
+  .registration-action-bar {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+}
+
