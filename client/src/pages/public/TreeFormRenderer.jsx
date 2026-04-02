@@ -5,6 +5,7 @@ import axios from "axios";
 const apiBase = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 const GST_REGEX = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/;
 const IFSC_REGEX = /^[A-Z]{4}0[A-Z0-9]{6}$/;
+const PINCODE_REGEX = /^[0-9]{6}$/;
 
 const flattenNodes = (nodes, prefix = "", acc = []) => {
   nodes.forEach((node, idx) => {
@@ -158,16 +159,45 @@ function FieldRenderer({ field, values, files, setValues, setFiles }) {
     );
   }
 
+  const handleInputChange = (e) => {
+    let val = e.target.value;
+    const labelLo = field.label?.toLowerCase() || "";
+
+    // 1. MOBILE / CONTACT / PHONE: Only allow numbers, max 15
+    if (labelLo.includes("mobile") || labelLo.includes("phone") || labelLo.includes("alternate")) {
+      val = val.replace(/\D/g, "").slice(0, 15);
+    }
+    // 2. GST: Alphanumeric, max 15, uppercase
+    else if (labelLo.includes("gst")) {
+      val = val.replace(/[^a-zA-Z0-9]/g, "").toUpperCase().slice(0, 15);
+    }
+    // 3. PAN: Alphanumeric, max 10, uppercase
+    else if (labelLo.includes("pan")) {
+      val = val.replace(/[^a-zA-Z0-9]/g, "").toUpperCase().slice(0, 10);
+    }
+    // 4. CIN: Alphanumeric, max 21, uppercase
+    else if (labelLo.includes("cin")) {
+      val = val.replace(/[^a-zA-Z0-9]/g, "").toUpperCase().slice(0, 21);
+    }
+    // 5. MSME / UDYAM: Allow Alphanumeric + Hyphens, max 19, uppercase
+    else if (labelLo.includes("msme") || labelLo.includes("udyam")) {
+      val = val.replace(/[^a-zA-Z0-9-]/g, "").toUpperCase().slice(0, 19);
+    }
+
+    setValue(val);
+  };
+
   return (
     <div className={`space-y-1 ${wideSpanClass}`}>
       <label className="text-xs font-semibold tracking-wide text-slate-700">
         {field.label} {field.required ? <span className="text-rose-500">*</span> : null}
       </label>
       <input
-        type={field.type === "date" ? "date" : field.type === "number" ? "number" : field.type === "email" ? "email" : "text"}
+        type={field.type === "date" ? "date" : field.type === "email" ? "email" : "text"}
         className={inputBaseClass}
+        placeholder={field.placeholder || ""}
         value={current}
-        onChange={(e) => setValue(e.target.value)}
+        onChange={handleInputChange}
       />
       {hintText ? <p className="text-[11px] text-slate-500">{hintText}</p> : null}
     </div>
@@ -243,25 +273,63 @@ export default function TreeFormRenderer() {
     }
     if (pattern === "ifsc" && IFSC_REGEX.test(normalizedValue)) {
       try {
-        const res = await axios.post(`${apiBase}/form/autofill/ifsc`, { ifsc: normalizedValue });
-        const bank = res.data?.data?.BANK || "";
-        const branch = res.data?.data?.BRANCH || "";
+        const res = await axios.get(`https://ifsc.razorpay.com/${normalizedValue}`);
+        const bank = res.data?.BANK || "";
+        const branch = res.data?.BRANCH || "";
         const allNodes = flattenNodes(form?.structure || []);
         const bankField = allNodes.flatMap((n) => n.fields || []).find((f) => /bank name/i.test(f.label));
         const branchField = allNodes.flatMap((n) => n.fields || []).find((f) => /branch/i.test(f.label));
-        setValues((p) => {
-          const next = { ...p };
-          let changed = false;
-          if (bankField && bank && p[bankField.id] !== bank) {
-            next[bankField.id] = bank;
-            changed = true;
-          }
-          if (branchField && branch && p[branchField.id] !== branch) {
-            next[branchField.id] = branch;
-            changed = true;
-          }
-          return changed ? next : p;
-        });
+        setValues((p) => ({ 
+          ...p, 
+          ...(bankField && bank ? { [bankField.id]: bank } : {}),
+          ...(branchField && branch ? { [branchField.id]: branch } : {})
+        }));
+      } catch {}
+    }
+    
+    // PINCODE AUTOFILL
+    if (label.includes("pincode") && PINCODE_REGEX.test(normalizedValue)) {
+      try {
+        const res = await axios.get(`https://api.postalpincode.in/pincode/${normalizedValue}`);
+        const data = res.data?.[0];
+        if (data?.Status === "Success") {
+            const first = data.PostOffice?.[0];
+            const city = first?.District || first?.Block || "";
+            const state = first?.State || "";
+            
+            const allNodes = flattenNodes(form?.structure || []);
+            const cityField = allNodes.flatMap((n) => n.fields || []).find((f) => /city/i.test(f.label));
+            const stateField = allNodes.flatMap((n) => n.fields || []).find((f) => /state/i.test(f.label));
+            
+            setValues((p) => ({
+                ...p,
+                ...(cityField && city ? { [cityField.id]: city } : {}),
+                ...(stateField && state ? { [stateField.id]: state } : {})
+            }));
+        }
+      } catch {}
+    }
+
+    // CITY TO PINCODE AUTOFILL
+    if (label.includes("city") && normalizedValue.length > 3) {
+      try {
+        const res = await axios.get(`https://api.postalpincode.in/postoffice/${normalizedValue}`);
+        const data = res.data?.[0];
+        if (data?.Status === "Success") {
+            const first = data.PostOffice?.[0];
+            const pincode = first?.Pincode || "";
+            const state = first?.State || "";
+            
+            const allNodes = flattenNodes(form?.structure || []);
+            const pinField = allNodes.flatMap((n) => n.fields || []).find((f) => /pincode/i.test(f.label));
+            const stateField = allNodes.flatMap((n) => n.fields || []).find((f) => /state/i.test(f.label));
+            
+            setValues((p) => ({
+                ...p,
+                ...(pinField && pincode && !p[pinField.id] ? { [pinField.id]: pincode } : {}),
+                ...(stateField && state && !p[stateField.id] ? { [stateField.id]: state } : {})
+            }));
+        }
       } catch {}
     }
   };
@@ -272,14 +340,21 @@ export default function TreeFormRenderer() {
     allNodes.forEach((node) => {
       (node.fields || []).forEach((field) => {
         const pattern = field.validation?.pattern;
-        if (pattern !== "gst" && pattern !== "ifsc") return;
+        const label = field.label?.toLowerCase() || "";
+        
+        if (pattern !== "gst" && pattern !== "ifsc" && !label.includes("pincode") && !label.includes("city")) return;
 
         const current = String(values[field.id] || "").trim().toUpperCase();
         const previous = String(previousAutofillValuesRef.current[field.id] || "").trim().toUpperCase();
 
         if (!current || current === previous) return;
 
-        const isValid = pattern === "gst" ? GST_REGEX.test(current) : IFSC_REGEX.test(current);
+        let isValid = false;
+        if (pattern === "gst") isValid = GST_REGEX.test(current);
+        else if (pattern === "ifsc") isValid = IFSC_REGEX.test(current);
+        else if (label.includes("pincode")) isValid = PINCODE_REGEX.test(current);
+        else if (label.includes("city")) isValid = current.length > 3;
+
         if (!isValid) return;
 
         if (requestedAutofillValuesRef.current[field.id] === current) return;
