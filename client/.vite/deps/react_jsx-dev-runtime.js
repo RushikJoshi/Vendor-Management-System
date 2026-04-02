@@ -1,17 +1,17 @@
 import { t as __commonJSMin } from "./chunk-pP36uUqT.js";
 import { t as require_react } from "./react-BtTaNF3r.js";
 
-//#region node_modules/react/cjs/react-jsx-runtime.development.js
+//#region node_modules/react/cjs/react-jsx-dev-runtime.development.js
 /**
 * @license React
-* react-jsx-runtime.development.js
+* react-jsx-dev-runtime.development.js
 *
 * Copyright (c) Meta Platforms, Inc. and affiliates.
 *
 * This source code is licensed under the MIT license found in the
 * LICENSE file in the root directory of this source tree.
 */
-var require_react_jsx_runtime_development = /* @__PURE__ */ __commonJSMin(((exports) => {
+var require_react_jsx_dev_runtime_development = /* @__PURE__ */ __commonJSMin(((exports) => {
 	(function() {
 		function getComponentNameFromType(type) {
 			if (null == type) return null;
@@ -189,23 +189,20 @@ var require_react_jsx_runtime_development = /* @__PURE__ */ __commonJSMin(((expo
 		var unknownOwnerDebugTask = createTask(getTaskName(UnknownOwner));
 		var didWarnAboutKeySpread = {};
 		exports.Fragment = REACT_FRAGMENT_TYPE;
-		exports.jsx = function(type, config, maybeKey) {
+		exports.jsxDEV = function(type, config, maybeKey, isStaticChildren) {
 			var trackActualOwner = 1e4 > ReactSharedInternals.recentlyCreatedOwnerStacks++;
-			return jsxDEVImpl(type, config, maybeKey, !1, trackActualOwner ? Error("react-stack-top-frame") : unknownOwnerDebugStack, trackActualOwner ? createTask(getTaskName(type)) : unknownOwnerDebugTask);
-		};
-		exports.jsxs = function(type, config, maybeKey) {
-			var trackActualOwner = 1e4 > ReactSharedInternals.recentlyCreatedOwnerStacks++;
-			return jsxDEVImpl(type, config, maybeKey, !0, trackActualOwner ? Error("react-stack-top-frame") : unknownOwnerDebugStack, trackActualOwner ? createTask(getTaskName(type)) : unknownOwnerDebugTask);
+			return jsxDEVImpl(type, config, maybeKey, isStaticChildren, trackActualOwner ? Error("react-stack-top-frame") : unknownOwnerDebugStack, trackActualOwner ? createTask(getTaskName(type)) : unknownOwnerDebugTask);
 		};
 	})();
 }));
 
 //#endregion
-//#region node_modules/react/jsx-runtime.js
-var require_jsx_runtime = /* @__PURE__ */ __commonJSMin(((exports, module) => {
-	module.exports = require_react_jsx_runtime_development();
+//#region node_modules/react/jsx-dev-runtime.js
+var require_jsx_dev_runtime = /* @__PURE__ */ __commonJSMin(((exports, module) => {
+	module.exports = require_react_jsx_dev_runtime_development();
 }));
 
 //#endregion
-export { require_jsx_runtime as t };
-//# sourceMappingURL=jsx-runtime-QTcnD5iV.js.map
+export default require_jsx_dev_runtime();
+
+//# sourceMappingURL=react_jsx-dev-runtime.js.map
