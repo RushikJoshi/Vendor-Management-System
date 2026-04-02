@@ -2405,3 +2405,6 @@
 2026-03-31 15:54:22:5422 [33mwarn[39m: [33mRedis Cache system is offline (No local Redis detected). Main functionality is unaffected.[39m
 2026-03-31 15:54:22:5422 [33mwarn[39m: [33mBackground Job system (Email) is offline (No local Redis detected).[39m
 >>>>>>> 88e8169f35ed6d7b186a81a22d0469c1d5236cb2
+2026-04-01 10:20:05:205 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-01 10:20:05:205 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-01 10:20:05:205 [warn] Background Job system (Email) is offline (No local Redis detected).
