@@ -1,0 +1,163 @@
+﻿{
+  "scoreBreakdown": {
+    "certification": 0,
+    "documents": 0,
+    "experience": 0,
+    "turnover": 0
+  },
+  "_id": "6995ad10899f52a29c08d7f1",
+  "formTemplate": "6995a8bb1247bfdbc3f2291e",
+  "currentStage": "COMPLETED",
+  "data": {},
+  "email": "dharmikjethwani777@gmail.com",
+  "companyName": "Dharmik Ptv. Llp. ",
+  "status": "submitted",
+  "documents": [
+    {
+      "name": "PowerPlay Website.docx",
+      "url": "C:\\Users\\DHARMI~1\\AppData\\Local\\Temp\\a0c81d48433e4b640939b7705b60d3e9",
+      "public_id": "a0c81d48433e4b640939b7705b60d3e9",
+      "fieldName": "gstCert",
+      "status": "pending",
+      "reminderSent": false,
+      "_id": "6995ad10899f52a29c08d7f2"
+    },
+    {
+      "name": "Offer Letter.docx",
+      "url": "C:\\Users\\DHARMI~1\\AppData\\Local\\Temp\\75a0ee33954d4d03adb86aaaf020f206",
+      "public_id": "75a0ee33954d4d03adb86aaaf020f206",
+      "fieldName": "cancelledCheque",
+      "status": "pending",
+      "reminderSent": false,
+      "_id": "6995b4385d099b69edb1ccce"
+    },
+    {
+      "name": "Joining letter format.docx",
+      "url": "C:\\Users\\DHARMI~1\\AppData\\Local\\Temp\\fddcd2b73ac00c168b23a7094fc3cd43",
+      "public_id": "fddcd2b73ac00c168b23a7094fc3cd43",
+      "fieldName": "msmeCert",
+      "status": "pending",
+      "reminderSent": false,
+      "_id": "6995b4385d099b69edb1cccf"
+    },
+    {
+      "name": "press post latest (1).png",
+      "url": "https://res.cloudinary.com/duxtgdzww/image/upload/v1772183837/vms_enterprise/ulsrv8gashobv8v18x03.png",
+      "public_id": "vms_enterprise/ulsrv8gashobv8v18x03",
+      "fieldName": "bank_cheque",
+      "status": "pending",
+      "reminderSent": false,
+      "_id": "69a161299852f67daf550e48"
+    },
+    {
+      "name": "press post latest.png",
+      "url": "https://res.cloudinary.com/duxtgdzww/image/upload/v1772183844/vms_enterprise/qqzcumytswua6jbxqoxt.png",
+      "public_id": "vms_enterprise/qqzcumytswua6jbxqoxt",
+      "fieldName": "doc_gst",
+      "status": "pending",
+      "reminderSent": false,
+      "_id": "69a161299852f67daf550e49"
+    },
+    {
+      "name": "press post latest.png",
+      "url": "https://res.cloudinary.com/duxtgdzww/image/upload/v1772183844/vms_enterprise/x5grm0mp7paysqeioh9q.png",
+      "public_id": "vms_enterprise/x5grm0mp7paysqeioh9q",
+      "fieldName": "doc_pan",
+      "status": "pending",
+      "reminderSent": false,
+      "_id": "69a161299852f67daf550e4a"
+    },
+    {
+      "name": "press post latest.png",
+      "url": "https://res.cloudinary.com/duxtgdzww/image/upload/v1772183848/vms_enterprise/xwu09f4fsz5dfbo8km5z.png",
+      "public_id": "vms_enterprise/xwu09f4fsz5dfbo8km5z",
+      "fieldName": "doc_incorp",
+      "status": "pending",
+      "reminderSent": false,
+      "_id": "69a161299852f67daf550e4b"
+    },
+    {
+      "name": "2673922a-4a9d-4175-907a-df5bca064250.jpg",
+      "url": "https://res.cloudinary.com/duxtgdzww/image/upload/v1772183848/vms_enterprise/kmvrcrrj86ik4d9martt.jpg",
+      "public_id": "vms_enterprise/kmvrcrrj86ik4d9martt",
+      "fieldName": "doc_address",
+      "status": "pending",
+      "reminderSent": false,
+      "_id": "69a161299852f67daf550e4c"
+    },
+    {
+      "name": "press post latest.png",
+      "url": "https://res.cloudinary.com/duxtgdzww/image/upload/v1772183848/vms_enterprise/d65aeop6q3og1qmrg5p0.png",
+      "public_id": "vms_enterprise/d65aeop6q3og1qmrg5p0",
+      "fieldName": "doc_bank",
+      "status": "pending",
+      "reminderSent": false,
+      "_id": "69a161299852f67daf550e4d"
+    },
+    {
+      "name": "ChatGPT Image Feb 25, 2026, 06_30_23 PM.png",
+      "url": "https://res.cloudinary.com/duxtgdzww/image/upload/v1772529688/vms_enterprise/pacxkkglqjzjxcwmxadh.png",
+      "public_id": "vms_enterprise/pacxkkglqjzjxcwmxadh",
+      "fieldName": "bank_cheque",
+      "status": "pending",
+      "reminderSent": false,
+      "_id": "69a6a8212bf85a6465c48d1f"
+    }
+  ],
+  "createdAt": "2026-02-18T12:14:08.169Z",
+  "updatedAt": "2026-03-03T09:21:38.124Z",
+  "__v": 2,
+  "reviewedAt": "2026-02-18T12:45:33.784Z",
+  "reviewedBy": "69958f405e3b22754f62d412",
+  "approvalHistory": [],
+  "eligibilityScore": 0,
+  "eligibilityStatus": "NOT_ELIGIBLE",
+  "formVersion": 1,
+  "riskLevel": "High",
+  "workflowStages": [
+    {
+      "stageOrder": 1,
+      "stageName": "TECHNICAL",
+      "assignedRole": "Technical Reviewer",
+      "status": "approved",
+      "reviewedBy": "000000000000000000000000",
+      "reviewedAt": "2026-02-27T10:42:10.434Z",
+      "remarks": "good",
+      "_id": "69a161299852f67daf550e44"
+    },
+    {
+      "stageOrder": 2,
+      "stageName": "FINANCE",
+      "assignedRole": "Finance Reviewer",
+      "status": "approved",
+      "reviewedBy": "000000000000000000000000",
+      "reviewedAt": "2026-02-27T10:42:57.504Z",
+      "remarks": "good",
+      "_id": "69a161299852f67daf550e45"
+    },
+    {
+      "stageOrder": 3,
+      "stageName": "COMPLIANCE",
+      "assignedRole": "Compliance Officer",
+      "status": "approved",
+      "reviewedBy": "000000000000000000000000",
+      "reviewedAt": "2026-02-27T10:43:10.280Z",
+      "remarks": "doood",
+      "_id": "69a161299852f67daf550e46"
+    },
+    {
+      "stageOrder": 4,
+      "stageName": "FINAL_APPROVAL",
+      "assignedRole": "Procurement Manager",
+      "status": "approved",
+      "reviewedBy": "000000000000000000000000",
+      "reviewedAt": "2026-02-27T10:43:23.946Z",
+      "remarks": "goofd",
+      "_id": "69a161299852f67daf550e47"
+    }
+  ],
+  "submittedAt": "2026-03-03T09:21:37.983Z",
+  "pdfPath": "C:\\vendor-management-system\\backend\\uploads\\applications\\vendor_app_6995ad10899f52a29c08d7f1_1772529698048.pdf",
+  "approvedAt": "2026-03-02T18:58:00.485Z",
+  "approvedBy": "69a5199747f6502ea0e294bf"
+}

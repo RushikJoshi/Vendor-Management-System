@@ -1,3 +1,0 @@
-(node:37872) [MONGOOSE] Warning: mongoose: the `new` option for `findOneAndUpdate()` and `findOneAndReplace()` is deprecated. Use `returnDocument: 'after'` instead.
-(Use `node --trace-warnings ...` to show where the warning was created)
-Vendor creation failed: Vendor validation failed: createdBy: Path `createdBy` is required., name: Vendor name is required, status: `approved` is not a valid enum value for path `status`.
