@@ -1,8 +1,103 @@
 {
+<<<<<<< HEAD
+  "hash": "be98a3f6",
+  "configHash": "f8a139bd",
+  "lockfileHash": "4ef8a39e",
+  "browserHash": "767ecd9c",
+  "optimized": {
+    "axios": {
+      "src": "../../node_modules/axios/index.js",
+      "file": "axios.js",
+      "fileHash": "9be746a3",
+      "needsInterop": false
+    },
+    "date-fns": {
+      "src": "../../node_modules/date-fns/index.js",
+      "file": "date-fns.js",
+      "fileHash": "b3021b3b",
+      "needsInterop": false
+    },
+    "framer-motion": {
+      "src": "../../node_modules/framer-motion/dist/es/index.mjs",
+      "file": "framer-motion.js",
+      "fileHash": "478dda08",
+      "needsInterop": false
+    },
+    "lucide-react": {
+      "src": "../../node_modules/lucide-react/dist/esm/lucide-react.js",
+      "file": "lucide-react.js",
+      "fileHash": "8e808ea5",
+      "needsInterop": false
+    },
+    "react-dom": {
+      "src": "../../node_modules/react-dom/index.js",
+      "file": "react-dom.js",
+      "fileHash": "3c6c74ee",
+      "needsInterop": true
+    },
+    "react-dom/client": {
+      "src": "../../node_modules/react-dom/client.js",
+      "file": "react-dom_client.js",
+      "fileHash": "5327bcaa",
+      "needsInterop": true
+    },
+    "react-hot-toast": {
+      "src": "../../node_modules/react-hot-toast/dist/index.mjs",
+      "file": "react-hot-toast.js",
+      "fileHash": "b2d608e0",
+      "needsInterop": false
+    },
+    "react-router-dom": {
+      "src": "../../node_modules/react-router-dom/dist/index.mjs",
+      "file": "react-router-dom.js",
+      "fileHash": "920b201f",
+      "needsInterop": false
+    },
+    "react": {
+      "src": "../../node_modules/react/index.js",
+      "file": "react.js",
+      "fileHash": "2a33aa4e",
+      "needsInterop": true
+    },
+    "react/jsx-dev-runtime": {
+      "src": "../../node_modules/react/jsx-dev-runtime.js",
+      "file": "react_jsx-dev-runtime.js",
+      "fileHash": "dcf5ec92",
+      "needsInterop": true
+    },
+    "recharts": {
+      "src": "../../node_modules/recharts/es6/index.js",
+      "file": "recharts.js",
+      "fileHash": "4a3e57dc",
+      "needsInterop": false
+    },
+    "socket.io-client": {
+      "src": "../../node_modules/socket.io-client/build/esm/index.js",
+      "file": "socket__io-client.js",
+      "fileHash": "2e1dd6df",
+      "needsInterop": false
+    }
+  },
+  "chunks": {
+    "chunk-pP36uUqT": {
+      "file": "chunk-pP36uUqT.js",
+      "isDynamicEntry": false
+    },
+    "react-BtTaNF3r": {
+      "file": "react-BtTaNF3r.js",
+      "isDynamicEntry": false
+    },
+    "react-dom-DG8qvQ5t": {
+      "file": "react-dom-DG8qvQ5t.js",
+      "isDynamicEntry": false
+    }
+  }
+=======
   "hash": "bf8ccdcf",
   "configHash": "475461a5",
   "lockfileHash": "c7e4d9c3",
   "browserHash": "a914c8d5",
   "optimized": {},
   "chunks": {}
+>>>>>>> f8b21ef199f5c3a73eedb449b528814bd0f99fce
 }
