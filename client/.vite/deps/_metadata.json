@@ -1,4 +1,5 @@
 {
+<<<<<<< HEAD
   "hash": "be98a3f6",
   "configHash": "f8a139bd",
   "lockfileHash": "4ef8a39e",
@@ -91,4 +92,12 @@
       "isDynamicEntry": false
     }
   }
+=======
+  "hash": "bf8ccdcf",
+  "configHash": "475461a5",
+  "lockfileHash": "c7e4d9c3",
+  "browserHash": "a914c8d5",
+  "optimized": {},
+  "chunks": {}
+>>>>>>> f8b21ef199f5c3a73eedb449b528814bd0f99fce
 }
