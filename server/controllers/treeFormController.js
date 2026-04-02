@@ -10,6 +10,9 @@ const defaultVendorTemplate = require("../constants/defaultVendorTemplate");
 const PAN_REGEX = /^[A-Z]{5}[0-9]{4}[A-Z]$/;
 const GST_REGEX = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/;
 const IFSC_REGEX = /^[A-Z]{4}0[A-Z0-9]{6}$/;
+const CIN_REGEX = /^[LUu][0-9]{5}[A-Za-z]{2}[0-9]{4}[A-Za-z]{3}[0-9]{6}$/;
+const MSME_REGEX = /^UDYAM-[A-Z]{2}-[0-9]{2}-[0-9]{7}$/;
+const MOBILE_REGEX = /^[0-9]{10,15}$/;
 
 const normalizeKey = (value) => String(value || "").trim().toLowerCase().replace(/[^a-z0-9]/g, "");
 
@@ -269,6 +272,25 @@ exports.submitForm = async (req, res) => {
       }
       if (value && field.validation?.pattern === "gst" && !GST_REGEX.test(String(value).toUpperCase())) {
         errors.push(`Invalid GST format in ${meta.label}`);
+      }
+
+      // Label-based strict validation for specific industrial fields
+      const labelLo = meta.label.toLowerCase();
+      const valStr = String(value || "").trim().toUpperCase();
+
+      if (valStr) {
+        if ((labelLo.includes("mobile") || labelLo.includes("phone")) && !MOBILE_REGEX.test(valStr)) {
+          errors.push(`${meta.label} must be 10-15 digits.`);
+        }
+        if (labelLo.includes("pan") && !PAN_REGEX.test(valStr)) {
+          errors.push(`Invalid PAN format in ${meta.label}`);
+        }
+        if (labelLo.includes("cin") && !CIN_REGEX.test(valStr)) {
+          errors.push(`Invalid CIN format in ${meta.label} (Expected 21 chars)`);
+        }
+        if (labelLo.includes("msme") && !MSME_REGEX.test(valStr)) {
+          errors.push(`Invalid MSME format in ${meta.label} (Expected UDYAM-XX-00-1234567)`);
+        }
       }
 
       if (upload) {

@@ -2,6 +2,7 @@ const crypto = require("crypto");
 const Submission = require("../models/Submission");
 const User = require("../models/User");
 const Vendor = require("../models/vendor.model");
+const Company = require("../models/Company");
 
 const generatePassword = () => {
   const raw = crypto.randomBytes(6).toString("base64").replace(/[^a-zA-Z0-9]/g, "");
@@ -104,25 +105,49 @@ exports.reviewSubmission = async (req, res) => {
     await submission.save();
 
     // Create Vendor Registry Entry
-    const phoneResponse = submission.responses?.find(r => 
-      r.label?.toLowerCase().includes("phone") || 
-      r.label?.toLowerCase().includes("mobile") || 
-      r.label?.toLowerCase().includes("contact")
-    );
-    const phone = phoneResponse?.value || "0000000000";
+    let tenantId = req.user.tenantId;
+
+    // Fallback: If admin has no tenantId (e.g. platform admin or misconfigured), find existing company
+    if (!tenantId) {
+      const defaultCompany = await Company.findOne();
+      tenantId = defaultCompany?._id;
+    }
+
+    if (!tenantId) {
+      return res.status(400).json({
+        success: false,
+        message: "No registered company found. Please create a company first.",
+      });
+    }
+
+    // Extraction logic for advanced fields from submission
+    const getResponse = (label) => submission.responses?.find(r => 
+      r.label?.toLowerCase().includes(label.toLowerCase())
+    )?.value;
+
+    const phone = getResponse("phone") || getResponse("mobile") || "0000000000";
+    const city = getResponse("city") || "";
+    const state = getResponse("state") || "";
+    const pincode = getResponse("pincode") || "";
 
     await Vendor.findOneAndUpdate(
-      { email: submission.vendorEmail, tenantId: req.user.tenantId },
+      { email: submission.vendorEmail, tenantId: tenantId },
       {
         name: submission.vendorName || user.name,
         email: submission.vendorEmail,
         phone: String(phone).replace(/[^0-9]/g, "").slice(0, 10) || "0000000000",
+        address: {
+          city: city,
+          state: state,
+          pincode: pincode,
+        },
         companyName: submission.vendorName || "New Vendor",
-        tenantId: req.user.tenantId,
+        tenantId: tenantId,
         createdBy: req.user._id,
-        status: "active"
+        status: "approved", // Changed from 'active' to match frontend filter
+        lifecycleStatus: "active"
       },
-      { upsert: true, new: true }
+      { upsert: true, new: true, runValidators: false }
     );
 
     return res.status(200).json({
