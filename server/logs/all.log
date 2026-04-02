@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 2026-04-02 15:07:05:75 [info] Server running in development mode on port 5000
 2026-04-02 15:07:05:75 [info] 🎯 Job Processor Initialized
 2026-04-02 15:07:06:76 [warn] Background Job system (Email) is offline (No local Redis detected).
@@ -28,3 +29,10 @@
 2026-04-02 15:20:38:2038 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
 2026-04-02 15:20:38:2038 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
 2026-04-02 15:20:38:2038 [warn] Background Job system (Email) is offline (No local Redis detected).
+=======
+2026-04-02 11:56:15:5615 [info] Server running in development mode on port 5000
+2026-04-02 11:56:15:5615 [info] 🎯 Job Processor Initialized
+2026-04-02 11:56:15:5615 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-02 11:56:15:5615 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-02 11:56:15:5615 [warn] Background Job system (Email) is offline (No local Redis detected).
+>>>>>>> Stashed changes
