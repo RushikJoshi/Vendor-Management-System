@@ -260,25 +260,30 @@ export default function FormBuilder() {
                     <motion.div 
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="bg-white p-12 rounded-[2.5rem] border-4 border-slate-900/5 shadow-2xl flex flex-col items-center text-center"
+                        className="bg-white p-8 rounded-xl border border-slate-200 shadow-sm mt-6"
                     >
-                        <Layout size={48} className="text-slate-300 mb-8" />
-                        <h2 className="text-3xl font-black text-slate-900 uppercase tracking-tight mb-4">Create New Business Vertical</h2>
-                        <p className="max-w-xl text-slate-500 font-medium italic mb-10">Define a new category of vendors. This will initialize a fresh registration protocol for this domain.</p>
+                        <div className="flex items-center gap-3 mb-2">
+                            <Layout size={20} className="text-indigo-600" />
+                            <h2 className="text-lg font-bold text-slate-900">Create New Vendor Category</h2>
+                        </div>
+                        <p className="text-sm text-slate-500 mb-6">Initialize a fresh registration protocol for a new vendor domain.</p>
                         
-                        <div className="w-full max-w-md">
-                            <input 
-                                type="text"
-                                value={newCategoryName}
-                                onChange={(e) => setNewCategoryName(e.target.value)}
-                                placeholder="E.g., IT SERVICES, LOGISTICS, RAW MATERIALS"
-                                className="w-full px-8 py-5 rounded-2xl bg-slate-50 border border-slate-200 text-slate-900 font-black uppercase tracking-widest placeholder:text-slate-300 focus:bg-white focus:border-slate-900 transition-all outline-none text-center"
-                            />
+                        <div className="flex flex-col sm:flex-row items-end gap-4 max-w-xl">
+                            <div className="w-full flex flex-col gap-1.5">
+                                <label className="text-[12px] font-semibold text-slate-600">Category Name</label>
+                                <input 
+                                    type="text"
+                                    value={newCategoryName}
+                                    onChange={(e) => setNewCategoryName(e.target.value)}
+                                    placeholder="e.g. IT Services, Raw Materials"
+                                    className="w-full px-3 py-2.5 rounded-lg bg-white border border-slate-200 text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:ring-1 focus:ring-indigo-400 focus:border-indigo-400 transition-all outline-none"
+                                />
+                            </div>
                             <button 
-                                onClick={() => newCategoryName ? setStep("build-form") : toast.error("Name required")}
-                                className="mt-8 w-full bg-slate-900 text-white py-5 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] shadow-xl hover:-translate-y-1 transition-all"
+                                onClick={() => newCategoryName ? setStep("build-form") : toast.error("Category name required")}
+                                className="w-full sm:w-auto px-6 py-2.5 bg-indigo-600 text-white rounded-lg text-sm font-bold shadow-sm hover:bg-indigo-700 transition-colors whitespace-nowrap"
                             >
-                                Start Building Protocol
+                                Start Building Form
                             </button>
                         </div>
                     </motion.div>

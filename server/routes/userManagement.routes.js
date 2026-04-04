@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { 
   getUsers, 
+  getUserById,
   createUser, 
   updateUserRole, 
   updateUserStatus,
@@ -23,6 +24,7 @@ router.patch("/:id/role", checkActionAccess("users_edit"), updateUserRole);
 router.patch("/:id/status", checkActionAccess("users_edit"), updateUserStatus);
 
 router.route("/:id")
+  .get(checkActionAccess("users_view"), getUserById)
   .put(checkActionAccess("users_edit"), updateUser)
   .delete(checkActionAccess("users_delete"), deleteUser);
 

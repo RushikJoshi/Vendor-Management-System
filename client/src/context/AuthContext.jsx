@@ -3,6 +3,7 @@ import api from "../services/api";
 import { useNavigate } from "react-router-dom";
 import { normalizeRole, getAllowedModules } from "../config/roles";
 import { getEffectivePermissions, sanitizePermissions } from "../config/permissions";
+import { getAdminLinksForUser } from "../config/SidebarConfig";
 
 export const AuthContext = createContext();
 
@@ -86,7 +87,8 @@ export function AuthProvider({ children }) {
     setAllowedModules(computedModules);
 
     if (normalizedRole !== "vendor") {
-      navigate("/admin/dashboard");
+      const adminLinks = getAdminLinksForUser(mergedUser, computedModules);
+      navigate(adminLinks[0]?.to || "/admin/dashboard");
     } else {
       if (mergedUser.mustChangePassword) {
         navigate("/vendor/change-password");

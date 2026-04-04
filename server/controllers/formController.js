@@ -1,6 +1,7 @@
 const FormTemplate = require("../models/FormTemplate");
 const AuditLog = require("../models/AuditLog");
 const Category = require("../models/Category");
+const TreeForm = require("../models/TreeForm");
 
 exports.getPublishedForm = async (req, res) => {
     try {
@@ -13,9 +14,48 @@ exports.getPublishedForm = async (req, res) => {
 
 exports.getMasterForm = async (req, res) => {
     try {
-        const template = await FormTemplate.findOne({ name: "MASTER_VENDOR_FORM", status: "published" });
-        if (!template) return res.status(404).json({ success: false, message: "Master form not found or not published" });
-        res.status(200).json({ success: true, data: template });
+        const treeForm = await TreeForm.findOne({ code: "DEFAULT_VENDOR_REGISTRATION_V1", status: "published" });
+        if (!treeForm) {
+            return res.status(404).json({ success: false, message: "Master form not found or not published" });
+        }
+
+        const sections = [];
+        let orderCount = 1;
+
+        const processNode = (node) => {
+            if (node.fields && node.fields.length > 0) {
+                sections.push({
+                    sectionTitle: node.title || `Section ${orderCount}`,
+                    order: orderCount++,
+                    fields: node.fields.map((f, i) => ({
+                        fieldId: f.id,
+                        label: f.label || `Field ${i+1}`,
+                        type: f.type || "text",
+                        required: !!f.required,
+                        options: f.options || [],
+                        order: i + 1,
+                        validation: f.validation
+                    }))
+                });
+            }
+            if (node.children && node.children.length > 0) {
+                node.children.forEach(c => processNode(c));
+            }
+        };
+
+        if (treeForm.structure && Array.isArray(treeForm.structure)) {
+            treeForm.structure.forEach(node => processNode(node));
+        }
+
+        res.status(200).json({ 
+            success: true, 
+            data: {
+                _id: treeForm._id,
+                name: treeForm.name,
+                description: treeForm.description,
+                sections: sections
+            } 
+        });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
@@ -33,6 +73,44 @@ exports.getTemplates = async (req, res) => {
 
 exports.getFormById = async (req, res) => {
     try {
+        const treeForm = await TreeForm.findById(req.params.id);
+        if (treeForm) {
+            const sections = [];
+            let orderCount = 1;
+            const processNode = (node) => {
+                if (node.fields && node.fields.length > 0) {
+                    sections.push({
+                        sectionTitle: node.title || `Section ${orderCount}`,
+                        order: orderCount++,
+                        fields: node.fields.map((f, i) => ({
+                            fieldId: f.id,
+                            label: f.label || `Field ${i+1}`,
+                            type: f.type || "text",
+                            required: !!f.required,
+                            options: f.options || [],
+                            order: i + 1,
+                            validation: f.validation
+                        }))
+                    });
+                }
+                if (node.children && node.children.length > 0) {
+                    node.children.forEach(c => processNode(c));
+                }
+            };
+            if (treeForm.structure && Array.isArray(treeForm.structure)) {
+                treeForm.structure.forEach(node => processNode(node));
+            }
+            return res.status(200).json({ 
+                success: true, 
+                data: {
+                    _id: treeForm._id,
+                    name: treeForm.name,
+                    description: treeForm.description,
+                    sections: sections
+                } 
+            });
+        }
+
         const template = await FormTemplate.findById(req.params.id);
         if (!template) return res.status(404).json({ success: false, message: "Not found" });
         res.status(200).json({ success: true, data: template });
@@ -45,6 +123,57 @@ exports.getPublicFormByCategory = async (req, res) => {
     try {
         const catId = req.params.categoryId;
         
+        let categoryName = "";
+        try {
+            const cat = await Category.findById(catId);
+            if (cat) categoryName = cat.name;
+        } catch (e) {}
+
+        let treeForm = null;
+        if (categoryName) {
+            treeForm = await TreeForm.findOne({ categoryName, status: "published" });
+        }
+        if (!treeForm) {
+            treeForm = await TreeForm.findOne({ code: "DEFAULT_VENDOR_REGISTRATION_V1", status: "published" });
+        }
+
+        if (treeForm) {
+            const sections = [];
+            let orderCount = 1;
+            const processNode = (node) => {
+                if (node.fields && node.fields.length > 0) {
+                    sections.push({
+                        sectionTitle: node.title || `Section ${orderCount}`,
+                        order: orderCount++,
+                        fields: node.fields.map((f, i) => ({
+                            fieldId: f.id,
+                            label: f.label || `Field ${i+1}`,
+                            type: f.type || "text",
+                            required: !!f.required,
+                            options: f.options || [],
+                            order: i + 1,
+                            validation: f.validation
+                        }))
+                    });
+                }
+                if (node.children && node.children.length > 0) {
+                    node.children.forEach(c => processNode(c));
+                }
+            };
+            if (treeForm.structure && Array.isArray(treeForm.structure)) {
+                treeForm.structure.forEach(node => processNode(node));
+            }
+            return res.status(200).json({ 
+                success: true, 
+                data: {
+                    _id: treeForm._id,
+                    name: treeForm.name,
+                    description: treeForm.description,
+                    sections: sections
+                } 
+            });
+        }
+
         // Find published form linked to this category
         const template = await FormTemplate.findOne({
             categoryId: catId,

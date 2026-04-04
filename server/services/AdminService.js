@@ -3,6 +3,7 @@ const VendorApplication = require("../models/VendorApplication");
 const Message = require("../models/Message");
 const Contract = require("../models/Contract");
 const AuditLog = require("../models/AuditLog");
+const TreeSubmission = require("../models/TreeSubmission");
 const AuditService = require("./AuditService");
 const { sendEmail } = require("../utils/emailService");
 
@@ -24,7 +25,12 @@ class AdminService {
         }
 
         const totalVendors = await Vendor.countDocuments();
-        const pendingApprovals = await VendorApplication.countDocuments({ status: "submitted" });
+        
+        const [wizardPending, treePending] = await Promise.all([
+            VendorApplication.countDocuments({ status: { $in: ["submitted", "under_review", "pending"] } }),
+            TreeSubmission.countDocuments({ status: { $in: ["pending", "submitted"] } })
+        ]);
+        const pendingApprovals = wizardPending + treePending;
         const blacklisted = await Vendor.countDocuments({ lifecycleStatus: "blacklisted" });
         const activeContracts = await Contract.countDocuments({ status: "active" });
 

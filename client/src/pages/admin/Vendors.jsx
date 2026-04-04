@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../../services/api";
-import VendorDetailsModal from "./VendorDetailsModal";
 import AddVendorModal from "./AddVendorModal";
 import { toast } from "react-hot-toast";
 import { 
@@ -14,6 +14,7 @@ import StatusBadge from "../../components/StatusBadge";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function Vendors() {
+  const navigate = useNavigate();
   const [vendors, setVendors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState(null);
@@ -30,7 +31,7 @@ export default function Vendors() {
   const fetchVendors = async () => {
     try {
       const res = await api.get("/vendors", {
-        params: { status: "approved" }
+        params: { status: "active" }
       });
       const data = res.data.data;
       setVendors(data);
@@ -151,7 +152,7 @@ export default function Vendors() {
                         <Download size={16} /> Export
                       </button>
                       <button 
-                        onClick={() => setIsAddModalOpen(true)}
+                        onClick={() => navigate("/admin/vendors/add")}
                         className="flex items-center gap-2 rounded-xl bg-slate-900 px-6 py-3 text-[13px] font-bold text-white shadow-sm transition-all hover:bg-slate-800 tracking-wide"
                       >
                         <Plus size={18} /> Add Vendor
@@ -219,7 +220,7 @@ export default function Vendors() {
                     <tr 
                         key={v._id} 
                         className="group hover:bg-slate-50/50 transition-colors cursor-pointer"
-                        onClick={() => setSelected(v)}
+                        onClick={() => navigate(`/admin/vendors/${v._id}`)}
                     >
                         <td className="px-6 py-5">
                             <div className="flex items-center gap-4">
@@ -264,7 +265,6 @@ export default function Vendors() {
         </div>
       </div>
 
-      <VendorDetailsModal vendor={selected} onClose={() => setSelected(null)} />
       <AddVendorModal 
         open={isAddModalOpen} 
         onClose={() => setIsAddModalOpen(false)} 

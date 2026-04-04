@@ -28,6 +28,25 @@ const contractSchema = new mongoose.Schema(
             type: Number,
             required: true,
         },
+        currency: {
+            type: String,
+            default: "INR",
+        },
+        contractType: {
+            type: String,
+            enum: ["MSA", "SOW", "NDA", "SLA", "Licensing", "Others"],
+            default: "MSA",
+        },
+        paymentTerms: {
+            type: String,
+            default: "Net 30",
+        },
+        noticePeriod: {
+            type: Number, // in days
+            default: 30,
+        },
+        internalOwner: String,
+        description: String,
         status: {
             type: String,
             enum: ["active", "expired", "terminated"],
@@ -38,9 +57,13 @@ const contractSchema = new mongoose.Schema(
             default: false,
         },
         documentUrl: String,
+        tenantId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Company",
+        },
         createdBy: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "Admin",
+            ref: "User",
         },
         rfqId: {
             type: mongoose.Schema.Types.ObjectId,
@@ -54,6 +77,7 @@ const contractSchema = new mongoose.Schema(
     { timestamps: true }
 );
 
+contractSchema.index({ tenantId: 1 });
 contractSchema.index({ vendorId: 1 });
 contractSchema.index({ endDate: 1 });
 contractSchema.index({ status: 1 });

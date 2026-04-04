@@ -4,6 +4,7 @@ const Vendor = require("../models/vendor.model");
 const asyncHandler = require("../utils/asyncHandler");
 const AppError = require("../utils/AppError");
 const { normalizeRole } = require("../config/roles");
+const NotificationService = require("../services/NotificationService");
 
 const resolveVendorProfile = async (user) => {
     if (!user) return null;
@@ -61,6 +62,17 @@ exports.submitQuotation = asyncHandler(async (req, res, next) => {
 
     const quotation = await Quotation.create(req.body);
 
+    await NotificationService.notifyInternalUsers(
+        req.user.tenantId,
+        {
+            title: "New Quotation Submitted",
+            message: `${vendor.companyName || vendor.name || req.user.name || "A vendor"} submitted a quotation for RFQ "${rfq.title}".`,
+            type: "quotation",
+            relatedEntityId: rfq._id,
+        },
+        { excludeUserId: req.user._id }
+    );
+
     res.status(201).json({
         success: true,
         data: quotation,
@@ -89,6 +101,35 @@ exports.getQuotationsByRFQ = asyncHandler(async (req, res, next) => {
         success: true,
         count: quotations.length,
         data: quotations,
+    });
+});
+
+// @desc    Reject a quotation
+// @route   POST /api/v1/quotations/:id/reject
+// @access  Private (Admin)
+exports.rejectQuotation = asyncHandler(async (req, res, next) => {
+    const quotation = await Quotation.findOne({ _id: req.params.id, tenantId: req.user.tenantId });
+    if (!quotation) return next(new AppError("Quotation not found", 404));
+
+    if (quotation.status === "accepted") {
+        return next(new AppError("Accepted quotation cannot be rejected", 400));
+    }
+
+    if (quotation.status === "rejected") {
+        return res.status(200).json({
+            success: true,
+            message: "Quotation already rejected",
+            data: quotation,
+        });
+    }
+
+    quotation.status = "rejected";
+    await quotation.save();
+
+    res.status(200).json({
+        success: true,
+        message: "Quotation rejected successfully",
+        data: quotation,
     });
 });
 

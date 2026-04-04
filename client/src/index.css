@@ -349,3 +349,63 @@
   }
 }
 
+/* Institutional Printing Engine */
+@media print {
+  /* Remove layout constraints */
+  body, html {
+    background: white !important;
+    font-size: 11pt !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Hide navigation components */
+  aside, 
+  nav, 
+  header, 
+  [role="navigation"],
+  .sidebar-container,
+  .navbar-container,
+  .no-print,
+  button,
+  .lucide,
+  footer {
+    display: none !important;
+  }
+
+  /* Expand content to full width */
+  main, 
+  .lg\:pl-\[16rem\], 
+  .lg\:pl-\[6rem\], 
+  .mt-\[4\.25rem\], 
+  .lg\:mt-\[4\.5rem\],
+  .relative.z-10.flex.min-h-screen.flex-1.flex-col {
+    padding-left: 0 !important;
+    margin-top: 0 !important;
+    width: 100% !important;
+    position: static !important;
+  }
+
+  /* Card and Border Adjustments */
+  .rounded-xl, .rounded-2xl {
+    border-radius: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  .border-slate-200, .border-slate-100 {
+    border-bottom: 1px solid #eee !important;
+  }
+
+  /* Force visibility for print */
+  .fade-in {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  /* Avoid cutting page in middle of items */
+  .group {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+}

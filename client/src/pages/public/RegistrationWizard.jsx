@@ -573,10 +573,16 @@ export default function RegistrationWizard() {
                     setCategoryDetails({ formTemplate: enrichRegistrationTemplate(formRes.data.data) });
                 } else if (catIdToFetch) {
                     const formRes = await publicApi.get(`/forms/public/${catIdToFetch}`);
-                    if (!hasRenderableSections(formRes.data.data)) {
-                        throw new Error("Selected registration form is not published yet.");
+                    if (formRes.data.data && hasRenderableSections(formRes.data.data)) {
+                        setCategoryDetails({ formTemplate: enrichRegistrationTemplate(formRes.data.data) });
+                    } else {
+                        // Fallback logic
+                        const formResMaster = await publicApi.get(`/forms/master/public`);
+                        if (!hasRenderableSections(formResMaster.data.data)) {
+                            throw new Error("Master registration form is not published yet.");
+                        }
+                        setCategoryDetails({ formTemplate: enrichRegistrationTemplate(formResMaster.data.data) });
                     }
-                    setCategoryDetails({ formTemplate: enrichRegistrationTemplate(formRes.data.data) });
                 } else {
                     const formRes = await publicApi.get(`/forms/master/public`);
                     if (!hasRenderableSections(formRes.data.data)) {
@@ -631,9 +637,9 @@ export default function RegistrationWizard() {
 
                         <div className="rounded-[24px] border border-slate-200 bg-white/85 p-6 shadow-[0_18px_45px_rgba(15,23,42,0.06)]">
                             <p className="text-[12px] font-semibold tracking-[0.14em] text-slate-500">AVAILABLE CATEGORIES</p>
-                            <p className="mt-3 text-4xl font-bold tracking-tight text-slate-900">{allCategories.filter(cat => cat.hasPublishedForm).length}</p>
+                            <p className="mt-3 text-4xl font-bold tracking-tight text-slate-900">{allCategories.length}</p>
                             <p className="mt-3 text-sm leading-6 text-slate-600">
-                                Pick an active category to continue. Locked cards indicate forms that are not published yet.
+                                Pick an active category to continue. Customized forms apply where available; otherwise, the master enterprise form is utilized.
                             </p>
                             <div className="mt-6 rounded-2xl bg-slate-50 px-4 py-4 text-sm text-slate-600">
                                 Review tip: keep your business profile, email, mobile number, and statutory details ready before entering the form.
@@ -648,15 +654,11 @@ export default function RegistrationWizard() {
                             {allCategories.map(cat => (
                                 <button
                                     key={cat._id}
-                                    disabled={!cat.hasPublishedForm}
                                     onClick={() => { setSelectedCat(cat); setPublicStep("category-detail"); }}
-                                    className={`group flex min-h-[320px] flex-col justify-between rounded-[28px] border p-7 text-left transition-all duration-300
-                                        ${cat.hasPublishedForm
-                                            ? "border-slate-200 bg-white/95 shadow-[0_16px_40px_rgba(15,23,42,0.06)] hover:-translate-y-1 hover:border-blue-200 hover:shadow-[0_24px_50px_rgba(37,99,235,0.12)] cursor-pointer"
-                                            : "border-slate-200 bg-white/70 opacity-60 cursor-not-allowed"}`}
+                                    className={`group flex min-h-[320px] flex-col justify-between rounded-[28px] border p-7 text-left transition-all duration-300 border-slate-200 bg-white/95 shadow-[0_16px_40px_rgba(15,23,42,0.06)] hover:-translate-y-1 hover:border-blue-200 hover:shadow-[0_24px_50px_rgba(37,99,235,0.12)] cursor-pointer`}
                                 >
                                     <div>
-                                        <div className={`mb-6 flex h-14 w-14 items-center justify-center rounded-2xl border transition-all ${cat.hasPublishedForm ? "border-blue-100 bg-blue-50 text-blue-700 group-hover:bg-blue-700 group-hover:text-white" : "border-slate-200 bg-slate-100 text-slate-400"}`}>
+                                        <div className={`mb-6 flex h-14 w-14 items-center justify-center rounded-2xl border transition-all border-blue-100 bg-blue-50 text-blue-700 group-hover:bg-blue-700 group-hover:text-white`}>
                                             <Building2 size={28} />
                                         </div>
 
@@ -664,8 +666,8 @@ export default function RegistrationWizard() {
                                             <span className="rounded-full bg-slate-100 px-3 py-1 text-[11px] font-semibold text-slate-600">
                                                 {cat.code || "Category"}
                                             </span>
-                                            <span className={`rounded-full px-3 py-1 text-[11px] font-semibold ${cat.hasPublishedForm ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-500"}`}>
-                                                {cat.hasPublishedForm ? "Active" : "Locked"}
+                                            <span className={`rounded-full px-3 py-1 text-[11px] font-semibold bg-emerald-50 text-emerald-700`}>
+                                                Active
                                             </span>
                                         </div>
 
@@ -1125,7 +1127,8 @@ export default function RegistrationWizard() {
             if (token) formData.append("invitationToken", token);
             if (selectedCat?._id) formData.append("categoryId", selectedCat._id);
             formData.append("email", resolvedEmail);
-            formData.append("companyName", formValues.companyName || formValues.vendorName || "Dossier Submission");
+            const resolvedCompanyName = formValues.companyName || formValues.vendorName || formValues.company_name || formValues.fullTradeName || formValues.co_name || formValues.legalName || formValues.legal_name || formValues.tradeName || formValues.trade_name || formValues.supplierName || formValues.organizationName || "Vendor Submission";
+            formData.append("companyName", resolvedCompanyName);
             formData.append("formTemplateId", categoryDetails.formTemplate._id);
             formData.append("data", JSON.stringify(formValues));
 

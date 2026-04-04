@@ -186,9 +186,12 @@ exports.getVendors = async (req, res) => {
     }
     // --- INDUSTRIAL AUTO-SYNC LOGIC END ---
 
-    let query = { status: "active" };
-    if (lifecycleStatus) query.lifecycleStatus = lifecycleStatus;
-    if (category) query.category = category;
+     let query = {};
+     if (status) query.status = status;
+     else query.status = { $in: ["active", "approved"] }; // Support both legacy and new statuses
+
+     if (lifecycleStatus) query.lifecycleStatus = lifecycleStatus;
+     if (category) query.category = category;
 
     const total = await Vendor.countDocuments(query);
     const vendors = await Vendor.find(query)
@@ -285,4 +288,82 @@ exports.deleteVendor = async (req, res) => {
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
+};
+
+/**
+ * @desc    Update Vendor detail (Admin Only)
+ * @route   PATCH /api/vendors/:id
+ */
+exports.updateVendor = async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        // Allowed fields for manual admin edit
+        const updateData = {};
+        const updatableFields = ["companyName", "name", "email", "phone", "contactPerson", "lifecycleStatus", "category", "gstNumber"];
+        
+        for(let field of updatableFields) {
+            if(req.body[field] !== undefined) {
+                // Special handling for Category (Cast empty string to null/undefined)
+                if(field === "category" && req.body[field] === "") {
+                    updateData[field] = null;
+                } else {
+                    updateData[field] = req.body[field];
+                }
+            }
+        }
+
+        // Special handling for address (Map string override to city)
+        if(req.body.address) {
+            if(typeof req.body.address === 'string') {
+                updateData.address = { city: req.body.address };
+            } else {
+                updateData.address = req.body.address;
+            }
+        }
+
+        const vendor = await Vendor.findById(id);
+        if (!vendor) return res.status(404).json({ success: false, message: "Vendor not found" });
+
+        const beforeData = vendor.toObject();
+        
+        // Perform Update (Disabled runValidators momentarily for debugging)
+        console.log("🛠️ Vendor Update Payload:", JSON.stringify(updateData, null, 2));
+        
+        const updatedVendor = await Vendor.findByIdAndUpdate(
+            id, 
+            { $set: updateData }, 
+            { new: true, runValidators: false }
+        );
+
+        if (!updatedVendor) {
+            return res.status(404).json({ success: false, message: "Failed to locate/update vendor record." });
+        }
+
+        // Audit Logging
+        try {
+            const AuditService = require("../services/AuditService");
+            await AuditService.log({
+                req,
+                actionType: "VENDOR_PROFILE_UPDATE",
+                entityType: "Vendor",
+                entityId: vendor._id,
+                beforeData,
+                afterData: updatedVendor.toObject(),
+                metadata: { remarks: "Administrative correction" }
+            });
+        } catch (auditErr) {
+            console.error("Audit Service Warning:", auditErr.message);
+        }
+
+        res.status(200).json({ success: true, data: updatedVendor });
+    } catch (err) {
+        console.error("❌ updateVendor Fatal Error:", err);
+        res.status(400).json({ 
+            success: false, 
+            message: `Synchronization Error: ${err.message}`,
+            debug: err.stack,
+            fullError: err
+        });
+    }
 };

@@ -61,10 +61,40 @@ const notifyAllAdmins = async (data) => {
     }
 };
 
+/**
+ * Send notification to all internal users within a tenant (non-vendor).
+ */
+const notifyInternalUsers = async (tenantId, data, options = {}) => {
+    try {
+        if (!tenantId) return [];
+
+        const users = await User.find({
+            tenantId,
+            status: "active",
+        }).select("_id role");
+
+        const excludeId = options.excludeUserId ? String(options.excludeUserId) : null;
+        const internalUsers = users.filter((user) => {
+            if (excludeId && String(user._id) === excludeId) return false;
+            return normalizeRole(user.role) !== "vendor";
+        });
+
+        for (const user of internalUsers) {
+            await sendNotification(user._id, data);
+        }
+
+        return internalUsers;
+    } catch (error) {
+        console.error("Error notifying internal users:", error);
+        return [];
+    }
+};
+
 module.exports = {
     sendNotification,
     notify,
     notifyAdminsByRole,
-    notifyAllAdmins
+    notifyAllAdmins,
+    notifyInternalUsers
 };
 

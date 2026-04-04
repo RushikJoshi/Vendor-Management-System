@@ -84,27 +84,6 @@ exports.reviewSubmission = async (req, res) => {
       });
     }
 
-    let user = await User.findOne({ email: submission.vendorEmail });
-    let generatedPassword = null;
-
-    if (!user) {
-      generatedPassword = generatePassword();
-      user = await User.create({
-        name: submission.vendorName || "Vendor User",
-        email: submission.vendorEmail,
-        password: generatedPassword,
-        role: "vendor",
-        status: "active",
-      });
-    }
-
-    submission.status = "approved";
-    submission.vendorUser = user._id;
-    submission.reviewedBy = req.user?._id;
-    submission.reviewedAt = new Date();
-    await submission.save();
-
-    // Create Vendor Registry Entry
     let tenantId = req.user.tenantId;
 
     // Fallback: If admin has no tenantId (e.g. platform admin or misconfigured), find existing company
@@ -119,6 +98,30 @@ exports.reviewSubmission = async (req, res) => {
         message: "No registered company found. Please create a company first.",
       });
     }
+
+    let user = await User.findOne({ email: submission.vendorEmail });
+    let generatedPassword = null;
+
+    if (!user) {
+      generatedPassword = generatePassword();
+      user = await User.create({
+        name: submission.vendorName || "Vendor User",
+        email: submission.vendorEmail,
+        password: generatedPassword,
+        role: "vendor",
+        status: "active",
+        tenantId: tenantId,
+      });
+    } else if (String(user.role || "").toLowerCase() === "vendor" && String(user.tenantId || "") !== String(tenantId)) {
+      user.tenantId = tenantId;
+      await user.save({ validateBeforeSave: false });
+    }
+
+    submission.status = "approved";
+    submission.vendorUser = user._id;
+    submission.reviewedBy = req.user?._id;
+    submission.reviewedAt = new Date();
+    await submission.save();
 
     // Extraction logic for advanced fields from submission
     const getResponse = (label) => submission.responses?.find(r => 

@@ -1,9 +1,11 @@
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { AlertCircle, Clock3, FileText, Plus, RefreshCcw, TrendingUp, ArrowRight } from "lucide-react";
+import { 
+  AlertCircle, Clock3, FileText, Plus, RefreshCcw, TrendingUp, ArrowRight, 
+  Send, Trash2, XCircle, CheckCircle, Edit3
+} from "lucide-react";
 import { toast } from "react-hot-toast";
 import api from "../../services/api";
-import CreateRFQModal from "./CreateRFQModal";
 import { AuthContext } from "../../context/AuthContext";
 import { hasPermission } from "../../config/permissions";
 
@@ -131,7 +133,7 @@ const RFQList = () => {
             </button>
             <button
               type="button"
-              onClick={() => canCreateRFQ && setShowCreateModal(true)}
+              onClick={() => canCreateRFQ && navigate("/admin/rfqs/create")}
               disabled={!canCreateRFQ}
               className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
@@ -235,13 +237,82 @@ const RFQList = () => {
                       </td>
                       <td className="whitespace-nowrap px-4 py-4 text-sm text-slate-600">{formatDate(rfq.quoteDeadline)}</td>
                       <td className="whitespace-nowrap px-4 py-4 text-right">
-                        <button
-                          type="button"
-                          onClick={() => navigate(`/admin/rfqs/${rfq._id}/compare`)}
-                          className="inline-flex items-center gap-2 rounded-lg border border-indigo-100 bg-indigo-50 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-indigo-700 transition hover:bg-indigo-600 hover:text-white shadow-sm shadow-indigo-100 active:scale-95"
-                        >
-                          Compare Bids <ArrowRight size={14} />
-                        </button>
+                        <div className="flex items-center justify-end gap-2">
+                          {normalizedStatus === "draft" && (
+                            <>
+                              <button
+                                type="button"
+                                onClick={async () => {
+                                  try {
+                                    await api.patch(`/rfqs/${rfq._id}/status`, { status: 'published' });
+                                    toast.success("Protocol Transmitted (Published)");
+                                    fetchRFQs();
+                                  } catch (err) {
+                                    toast.error("Transmission failed");
+                                  }
+                                }}
+                                className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-100 bg-emerald-50 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-emerald-700 transition hover:bg-emerald-600 hover:text-white"
+                                title="Publish to Market"
+                              >
+                                <Send size={12} /> Publish
+                              </button>
+                               <button
+                                type="button"
+                                onClick={async () => {
+                                  if(!window.confirm("Abort this draft protocol?")) return;
+                                  try {
+                                    await api.delete(`/rfqs/${rfq._id}`);
+                                    toast.success("Draft Purged");
+                                    fetchRFQs();
+                                  } catch (err) {
+                                    toast.error("Cleanup failed");
+                                  }
+                                }}
+                                className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            </>
+                          )}
+
+                          {normalizedStatus === "published" && (
+                            <>
+                              <button
+                                type="button"
+                                onClick={() => navigate(`/admin/rfqs/${rfq._id}/compare`)}
+                                className="inline-flex items-center gap-2 rounded-lg border border-indigo-100 bg-indigo-50 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-indigo-700 transition hover:bg-indigo-600 hover:text-white shadow-sm shadow-indigo-100 active:scale-95"
+                              >
+                                Compare Bids <ArrowRight size={14} />
+                              </button>
+                               <button
+                                type="button"
+                                onClick={async () => {
+                                  try {
+                                    await api.patch(`/rfqs/${rfq._id}/status`, { status: 'closed' });
+                                    toast.success("Cycle Terminated");
+                                    fetchRFQs();
+                                  } catch (err) {
+                                    toast.error("Closure failed");
+                                  }
+                                }}
+                                className="p-2 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"
+                                title="Close Sourcing Event"
+                              >
+                                <XCircle size={14} />
+                              </button>
+                            </>
+                          )}
+
+                          {(normalizedStatus === "closed" || normalizedStatus === "cancelled") && (
+                            <button
+                                type="button"
+                                onClick={() => navigate(`/admin/rfqs/${rfq._id}/compare`)}
+                                className="inline-flex items-center gap-2 rounded-lg border border-slate-100 bg-slate-50 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-slate-500 transition hover:bg-slate-200 shadow-sm active:scale-95"
+                              >
+                                View Results <ArrowRight size={14} />
+                            </button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   );
@@ -251,12 +322,7 @@ const RFQList = () => {
         </div>
       </section>
 
-      <CreateRFQModal
-        open={showCreateModal}
-        onClose={() => setShowCreateModal(false)}
-        onCreated={fetchRFQs}
-        disabled={!canCreateRFQ}
-      />
+
     </div>
   );
 };

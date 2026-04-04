@@ -3,43 +3,14 @@ import { useContext, useState } from "react";
 import { AuthContext } from "../context/AuthContext";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
-import { sidebarItems } from "../config/SidebarConfig";
-import { normalizeRole, hasAccess } from "../config/roles";
-import { hasAnyPermission } from "../config/permissions";
-
-const MODULE_ALIASES = {
-  vendor_forms: ["vendor_forms", "form_builder", "vendors"],
-};
-
-const hasModuleAccess = (allowedModules = [], moduleKey) => {
-  const aliases = MODULE_ALIASES[moduleKey] || [moduleKey];
-  return aliases.some((key) => allowedModules.includes(key));
-};
+import { getAdminLinksForUser } from "../config/SidebarConfig";
 
 export default function AdminLayout() {
   const { user, allowedModules } = useContext(AuthContext);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
-  const filteredLinks = sidebarItems
-    .filter((item) => {
-      const userRole = normalizeRole(user?.role || "");
-      if (userRole === "admin") return true;
-      if (Array.isArray(item.requiredAnyPermissions) && item.requiredAnyPermissions.length > 0) {
-        return hasAnyPermission(user, item.requiredAnyPermissions);
-      }
-      if (allowedModules && allowedModules.length > 0) {
-        return allowedModules.includes("*") || hasModuleAccess(allowedModules, item.key);
-      }
-      return item.allowedRoles
-        ? item.allowedRoles.includes(userRole)
-        : hasAccess(userRole, item.requiredRole || "admin");
-    })
-    .map((item) => ({
-      to: item.path,
-      label: item.label,
-      icon: item.icon,
-    }));
+  const filteredLinks = getAdminLinksForUser(user, allowedModules);
 
   return (
     <div className="admin-readable relative flex min-h-screen overflow-hidden bg-[linear-gradient(180deg,#f7f3eb_0%,#f4efe6_26%,#f8f7f3_58%,#fbfaf7_100%)] text-slate-900 selection:bg-amber-200 selection:text-slate-950">

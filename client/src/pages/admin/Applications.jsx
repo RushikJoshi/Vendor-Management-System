@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../services/api";
 import Modal from "../../components/Modal";
 import { toast } from "react-hot-toast";
 import {
-    Eye, Building2, Mail, Filter, Globe,
+    Eye, Building2, Mail, Filter, Globe, X, ChevronDown,
     Activity, Zap, Layers, AlertCircle, CheckCircle2, MoreHorizontal, ChevronRight, Search,
     TrendingUp, ShieldCheck, Terminal, ArrowUpRight, Calendar, Briefcase, User, ArrowRight
 } from "lucide-react";
@@ -21,6 +21,13 @@ export default function Applications() {
     const [selectedApp, setSelectedApp] = useState(null);
     const [filterStatus, setFilterStatus] = useState("all");
     const [search, setSearch] = useState("");
+    const [showPipelineFilter, setShowPipelineFilter] = useState(false);
+    const [pipelineCategory, setPipelineCategory] = useState("all");
+    const [pipelineRisk, setPipelineRisk] = useState("all");
+    const [pipelineStage, setPipelineStage] = useState("all");
+    const [selectedIds, setSelectedIds] = useState(new Set());
+    const [bulkLoading, setBulkLoading] = useState(false);
+    const filterRef = useRef(null);
     const [stats, setStats] = useState({
         total: 0,
         pending: 0,
@@ -59,19 +66,81 @@ export default function Applications() {
         }
     };
 
+    // Close pipeline filter on outside click
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (filterRef.current && !filterRef.current.contains(e.target)) setShowPipelineFilter(false);
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    const categories = [...new Set(apps.map(a => a.category?.name || 'General').filter(Boolean))];
+
     const filteredApps = apps.filter(app => {
         const matchesStatus = filterStatus === 'all' || app.status?.toLowerCase() === filterStatus.toLowerCase();
         const matchesSearch = !search || 
             app.companyName?.toLowerCase().includes(search.toLowerCase()) ||
             app.email?.toLowerCase().includes(search.toLowerCase()) ||
             app._id?.toLowerCase().includes(search.toLowerCase());
-        return matchesStatus && matchesSearch;
+        const matchesCategory = pipelineCategory === 'all' || (app.category?.name || 'General') === pipelineCategory;
+        const matchesRisk = pipelineRisk === 'all' || (app.riskLevel || 'Low') === pipelineRisk;
+        const matchesStage = pipelineStage === 'all' || (app.currentStage || 'SUBMITTED') === pipelineStage;
+        return matchesStatus && matchesSearch && matchesCategory && matchesRisk && matchesStage;
     });
+
+    const pendingFilteredIds = filteredApps.filter(a => a.status === 'pending' || a.status === 'submitted' || a.status === 'draft').map(a => a._id);
+    const allPendingSelected = pendingFilteredIds.length > 0 && pendingFilteredIds.every(id => selectedIds.has(id));
+
+    const toggleSelect = (id) => {
+        setSelectedIds(prev => {
+            const next = new Set(prev);
+            next.has(id) ? next.delete(id) : next.add(id);
+            return next;
+        });
+    };
+
+    const toggleSelectAll = () => {
+        if (allPendingSelected) {
+            setSelectedIds(new Set());
+        } else {
+            setSelectedIds(new Set(pendingFilteredIds));
+        }
+    };
+
+    const handleBulkApprove = async () => {
+        const ids = [...selectedIds];
+        if (ids.length === 0) return toast.error('Select at least one pending application.');
+        const confirm = window.confirm(`Approve ${ids.length} application(s)?`);
+        if (!confirm) return;
+        setBulkLoading(true);
+        let success = 0, fail = 0;
+        for (const id of ids) {
+            try {
+                await api.post('/submission/approve', { submissionId: id, action: 'approved' });
+                success++;
+            } catch {
+                fail++;
+            }
+        }
+        setBulkLoading(false);
+        setSelectedIds(new Set());
+        toast.success(`${success} approved${fail ? `, ${fail} failed` : ''}`);
+        fetchApps();
+    };
+
+    const activePipelineFilters = [pipelineCategory, pipelineRisk, pipelineStage].filter(f => f !== 'all').length;
+
+    const clearPipelineFilters = () => {
+        setPipelineCategory('all');
+        setPipelineRisk('all');
+        setPipelineStage('all');
+    };
 
     return (
         <div className="space-y-6 pb-10 fade-in">
             {/* ── PREMIUM HEADER ─────────────────────────────────────────── */}
-            <section className="overflow-hidden rounded-2xl border border-slate-200/60 bg-white shadow-sm">
+            <section className="relative rounded-2xl border border-slate-200/60 bg-white shadow-sm">
                 <div className="p-6 md:p-8">
                     <div className="mb-6 flex flex-wrap items-center gap-3">
                         <span className="flex items-center gap-2 rounded-full border border-indigo-100 bg-indigo-50/80 px-4 py-1.5 text-[10.5px] font-bold uppercase tracking-[0.15em] text-indigo-700 shadow-sm">
@@ -97,11 +166,62 @@ export default function Applications() {
                             </p>
                         </div>
                         <div className="flex flex-wrap items-center gap-3">
-                            <button className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-[13px] font-bold text-slate-700 shadow-sm transition-all hover:bg-slate-50">
-                                <Filter size={16} /> Pipeline Filter
-                            </button>
-                            <button className="flex items-center gap-2 rounded-xl bg-slate-900 px-6 py-3 text-[13px] font-bold text-white shadow-sm transition-all hover:bg-slate-800 tracking-wide">
-                                <ShieldCheck size={18} /> Bulk Approve
+                            <div className="relative" ref={filterRef}>
+                                <button onClick={() => setShowPipelineFilter(!showPipelineFilter)} className={`flex items-center gap-2 rounded-xl border px-5 py-3 text-[13px] font-bold shadow-sm transition-all hover:bg-slate-50 ${activePipelineFilters > 0 ? 'border-indigo-300 bg-indigo-50 text-indigo-700' : 'border-slate-200 bg-white text-slate-700'}`}>
+                                    <Filter size={16} /> Pipeline Filter
+                                    {activePipelineFilters > 0 && <span className="ml-1 flex h-5 w-5 items-center justify-center rounded-full bg-indigo-600 text-[10px] font-bold text-white">{activePipelineFilters}</span>}
+                                    <ChevronDown size={14} className={`transition-transform ${showPipelineFilter ? 'rotate-180' : ''}`} />
+                                </button>
+                                {showPipelineFilter && (
+                                    <div className="absolute right-0 top-full mt-2 z-50 w-80 rounded-2xl border border-slate-200 bg-white p-5 shadow-xl animate-in fade-in slide-in-from-top-2">
+                                        <div className="flex items-center justify-between mb-4">
+                                            <h4 className="text-[12px] font-bold uppercase tracking-wider text-slate-500">Pipeline Filters</h4>
+                                            {activePipelineFilters > 0 && <button onClick={clearPipelineFilters} className="text-[11px] font-bold text-indigo-600 hover:text-indigo-800 uppercase tracking-wider">Clear All</button>}
+                                        </div>
+                                        <div className="space-y-4">
+                                            <div>
+                                                <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Category</label>
+                                                <select value={pipelineCategory} onChange={e => setPipelineCategory(e.target.value)} className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-[13px] font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400">
+                                                    <option value="all">All Categories</option>
+                                                    {categories.map(c => <option key={c} value={c}>{c}</option>)}
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Risk Level</label>
+                                                <select value={pipelineRisk} onChange={e => setPipelineRisk(e.target.value)} className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-[13px] font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400">
+                                                    <option value="all">All Risk Levels</option>
+                                                    <option value="Low">Low Risk</option>
+                                                    <option value="Medium">Medium Risk</option>
+                                                    <option value="High">High Risk</option>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Pipeline Stage</label>
+                                                <select value={pipelineStage} onChange={e => setPipelineStage(e.target.value)} className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-[13px] font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400">
+                                                    <option value="all">All Stages</option>
+                                                    <option value="SUBMITTED">Submitted</option>
+                                                    <option value="TECHNICAL">Technical</option>
+                                                    <option value="FINANCE">Finance</option>
+                                                    <option value="COMPLIANCE">Compliance</option>
+                                                    <option value="FINAL_APPROVAL">Final Approval</option>
+                                                    <option value="COMPLETED">Completed</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                            <button
+                                onClick={handleBulkApprove}
+                                disabled={selectedIds.size === 0 || bulkLoading}
+                                className={`flex items-center gap-2 rounded-xl px-6 py-3 text-[13px] font-bold shadow-sm transition-all tracking-wide ${
+                                    selectedIds.size > 0
+                                        ? 'bg-emerald-600 text-white hover:bg-emerald-700 active:scale-95'
+                                        : 'bg-slate-900 text-white hover:bg-slate-800'
+                                }`}
+                            >
+                                <ShieldCheck size={18} />
+                                {bulkLoading ? 'Approving...' : selectedIds.size > 0 ? `Bulk Approve (${selectedIds.size})` : 'Bulk Approve'}
                             </button>
                         </div>
                     </div>
@@ -145,6 +265,9 @@ export default function Applications() {
                     <table className="w-full text-left border-collapse">
                         <thead>
                             <tr className="border-b border-slate-100 bg-slate-50/50">
+                                <th className="px-4 py-4 w-10">
+                                    <input type="checkbox" checked={allPendingSelected && pendingFilteredIds.length > 0} onChange={toggleSelectAll} className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer" title="Select all pending" />
+                                </th>
                                 <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-slate-500">Applicant</th>
                                 <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-slate-500">Details</th>
                                 <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-slate-500">Progress</th>
@@ -156,6 +279,7 @@ export default function Applications() {
                             {loading ? (
                                 [...Array(5)].map((_, i) => (
                                     <tr key={i} className="animate-pulse">
+                                        <td className="p-4"><div className="h-4 w-4 bg-slate-100 rounded"></div></td>
                                         <td className="p-6"><div className="h-10 w-48 bg-slate-100 rounded-lg"></div></td>
                                         <td className="p-6"><div className="h-4 w-32 bg-slate-100 rounded"></div></td>
                                         <td className="p-6"><div className="h-6 w-32 bg-slate-100 rounded-full"></div></td>
@@ -165,7 +289,7 @@ export default function Applications() {
                                 ))
                             ) : filteredApps.length === 0 ? (
                                 <tr>
-                                    <td colSpan="5" className="px-6 py-20 text-center">
+                                    <td colSpan="6" className="px-6 py-20 text-center">
                                         <div className="flex flex-col items-center justify-center text-slate-400">
                                             <Layers size={40} className="mb-4 text-slate-300" strokeWidth={1.5} />
                                             <p className="text-[13px] font-bold uppercase tracking-wider">No matching applications</p>
@@ -178,13 +302,14 @@ export default function Applications() {
                                         key={app._id} 
                                         className="group hover:bg-slate-50/50 transition-colors cursor-pointer"
                                     onClick={() => {
-                                        if (app.isTree) {
-                                            navigate(`/admin/submissions/${app._id}`);
-                                        } else {
-                                            setSelectedApp(app);
-                                        }
+                                        navigate(`/admin/submissions/${app._id}`);
                                     }}
                                     >
+                                        <td className="px-4 py-5" onClick={e => e.stopPropagation()}>
+                                            {(app.status === 'pending' || app.status === 'submitted' || app.status === 'draft') && (
+                                                <input type="checkbox" checked={selectedIds.has(app._id)} onChange={() => toggleSelect(app._id)} className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer" />
+                                            )}
+                                        </td>
                                         <td className="px-6 py-5">
                                             <div className="flex items-center gap-4">
                                                 <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-100 text-slate-400 group-hover:bg-white group-hover:text-indigo-600 group-hover:shadow-md transition-all border border-transparent group-hover:border-slate-100">
@@ -207,7 +332,7 @@ export default function Applications() {
                                         </td>
                                         <td className="px-6 py-5">
                                             <div className="flex flex-col gap-3 min-w-[140px]">
-                                                <Stepper currentStage={app.currentStage || 'Submitted'} />
+                                                <Stepper currentStage={app.currentStage || 'SUBMITTED'} status={app.status} />
                                                 <StatusBadge status={app.status} />
                                             </div>
                                         </td>
@@ -226,9 +351,6 @@ export default function Applications() {
                                             <div className="flex items-center justify-end gap-2">
                                                 <button className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-4 py-2 text-[11px] font-bold uppercase tracking-wider text-slate-600 shadow-sm hover:bg-slate-50 hover:text-indigo-600 transition-all active:scale-95">
                                                     Review <ArrowRight size={12} />
-                                                </button>
-                                                <button className="p-2 text-slate-300 hover:text-slate-900 transition-colors">
-                                                    <MoreHorizontal size={16} />
                                                 </button>
                                             </div>
                                         </td>

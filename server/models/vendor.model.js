@@ -19,9 +19,9 @@ const vendorSchema = new mongoose.Schema(
             required: [true, "Phone number is required"],
             validate: {
                 validator: function (v) {
-                    return /\d{10}/.test(v); // Simple 10-digit validation
+                    return /^\d{10,12}$/.test(v.replace(/\s+/g, '')); // Allow 10 to 12 digits, ignore spaces
                 },
-                message: "Please provide a valid 10-digit phone number",
+                message: "Please provide a valid phone number (10-12 digits)",
             },
         },
         companyName: {
@@ -50,6 +50,23 @@ const vendorSchema = new mongoose.Schema(
             type: String,
             enum: ["active", "inactive"],
             default: "active",
+        },
+        lifecycleStatus: {
+            type: String,
+            enum: ["active", "inactive", "suspended", "blacklisted"],
+            default: "active",
+        },
+        blacklistHistory: [
+            {
+                reason: String,
+                remarks: String,
+                blacklistedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+                blacklistedAt: { type: Date, default: Date.now }
+            }
+        ],
+        createdFromApplicationId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "VendorApplication"
         },
         category: {
             type: mongoose.Schema.Types.ObjectId,

@@ -2,23 +2,37 @@ const router = require("express").Router();
 const { protect } = require("../middlewares/auth.middleware");
 
 const { checkPermission } = require("../middleware/permissionMiddleware");
-const ContractController = require("../controllers/ContractController");
+const { 
+    getContractStats, getContracts, createContract, getVendorContracts, updateContract, terminateContract, deleteContract, getContractById 
+} = require("../controllers/ContractController");
 const PerformanceController = require("../controllers/PerformanceController");
 const LifecycleService = require("../services/LifecycleService");
 
 // All SLM routes require protection
 router.use(protect);
 
+// Custom middleware to allow vendors or users with MANAGE_CONTRACTS
+const allowVendorOrPermission = (permission) => {
+    const authCheck = checkPermission(permission);
+    return (req, res, next) => {
+        if (req.user && req.user.role === 'vendor') {
+            return next();
+        }
+        return authCheck(req, res, next);
+    };
+};
+
 /**
  * CONTRACT ROUTES
  */
-router.get("/contracts/stats", checkPermission("MANAGE_CONTRACTS"), ContractController.getContractStats);
-router.get("/contracts", checkPermission("MANAGE_CONTRACTS"), ContractController.getContracts);
-router.post("/contracts", checkPermission("MANAGE_CONTRACTS"), ContractController.createContract);
-router.get("/contracts/vendor/:vendorId", checkPermission("MANAGE_VENDORS"), ContractController.getVendorContracts);
-router.patch("/contracts/:id", checkPermission("MANAGE_CONTRACTS"), ContractController.updateContract);
-router.patch("/contracts/:id/terminate", checkPermission("MANAGE_CONTRACTS"), ContractController.terminateContract);
-router.delete("/contracts/:id", checkPermission("MANAGE_CONTRACTS"), ContractController.deleteContract);
+router.get("/contracts/stats", allowVendorOrPermission("MANAGE_CONTRACTS"), getContractStats);
+router.get("/contracts", allowVendorOrPermission("MANAGE_CONTRACTS"), getContracts);
+router.get("/contracts/:id", allowVendorOrPermission("MANAGE_CONTRACTS"), getContractById);
+router.post("/contracts", checkPermission("MANAGE_CONTRACTS"), createContract);
+router.get("/contracts/vendor/:vendorId", checkPermission("MANAGE_VENDORS"), getVendorContracts);
+router.patch("/contracts/:id", checkPermission("MANAGE_CONTRACTS"), updateContract);
+router.patch("/contracts/:id/terminate", checkPermission("MANAGE_CONTRACTS"), terminateContract);
+router.delete("/contracts/:id", checkPermission("MANAGE_CONTRACTS"), deleteContract);
 
 /**
  * PERFORMANCE ROUTES

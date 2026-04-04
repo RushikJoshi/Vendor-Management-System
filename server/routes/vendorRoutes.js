@@ -10,6 +10,7 @@ const {
     updateVendorStatus,
     blacklistVendor,
     deleteVendor,
+    updateVendor,
 } = require("../controllers/vendorController");
 
 // Protected routes
@@ -29,6 +30,7 @@ router.delete("/:id", authorize("admin"), deleteVendor);
 // Admin Only: Manage Status & Blacklist
 router.patch("/:id/status", authorize("admin"), updateVendorStatus);
 router.post("/:id/blacklist", authorize("admin"), blacklistVendor);
+router.patch("/:id", authorize("admin"), updateVendor);
 
 // Both Admin and Normal Users can view vendors
 router.get("/", authorize("admin", "user"), getVendors);

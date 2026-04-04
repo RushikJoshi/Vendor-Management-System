@@ -1,10 +1,8 @@
 import { useEffect, useState } from "react";
 import api from "../../services/api";
 import { toast } from "react-hot-toast";
-import { Plus, Edit2, Trash2, ShieldCheck, Tag, FileText, Sparkles, Loader2, ChevronRight, Search, Filter, Layers, Zap, Info, X } from "lucide-react";
+import { Plus, Edit2, Trash2, Tag, Layout, ArrowLeft, Save, Check, XCircle } from "lucide-react";
 import StatusBadge from "../../components/StatusBadge";
-import Modal from "../../components/Modal";
-import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function Categories() {
@@ -12,8 +10,6 @@ export default function Categories() {
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
     const [editing, setEditing] = useState(null);
-    const [formTemplates, setFormTemplates] = useState([]);
-    const [aiLoading, setAiLoading] = useState(false);
 
     const [formData, setFormData] = useState({
         name: "",
@@ -27,7 +23,7 @@ export default function Categories() {
             const res = await api.get("/categories");
             setCategories(res.data.data);
         } catch (err) {
-            toast.error("Resource acquisition failure");
+            toast.error("Failed to load categories.");
         } finally {
             setLoading(false);
         }
@@ -37,54 +33,23 @@ export default function Categories() {
         fetchData();
     }, []);
 
-    const handleAIGenerate = async () => {
-        if (!formData.name.trim()) {
-            toast.error("Define Segment Alias first for AI synthesis.");
-            return;
-        }
-        setAiLoading(true);
-        const toastId = toast.loading("AI Synthesizing Taxonomy...");
-        try {
-            // Simplified AI generation for name/description
-            const response = await axios.post(
-                "http://localhost:5000/api/category/generate-ai",
-                { segmentName: formData.name.trim() },
-                { headers: { "Content-Type": "application/json" } }
-            );
-
-            const aiData = response.data?.data;
-
-            if (aiData) {
-                setFormData(prev => ({
-                    ...prev,
-                    description: aiData.description || prev.description,
-                }));
-                toast.success("AI synthesis complete.", { id: toastId });
-            }
-        } catch (err) {
-            toast.error("AI bridge failed.", { id: toastId });
-        } finally {
-            setAiLoading(false);
-        }
-    };
-
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const toastId = toast.loading(editing ? "Refining Taxonomy..." : "Committing Taxonomy...");
+        const toastId = toast.loading(editing ? "Updating category..." : "Creating category...");
         try {
             if (editing) {
                 await api.put(`/categories/${editing._id}`, formData);
-                toast.success("Taxonomy node updated", { id: toastId });
+                toast.success("Category updated successfully", { id: toastId });
             } else {
                 await api.post("/categories", formData);
-                toast.success("Taxonomy node committed", { id: toastId });
+                toast.success("Category created successfully", { id: toastId });
             }
             setShowModal(false);
             setEditing(null);
             setFormData({ name: "", description: "", status: "active" });
             fetchData();
         } catch (err) {
-            toast.error(err.response?.data?.message || "Registry rejection", { id: toastId });
+            toast.error(err.response?.data?.message || "Failed to save category", { id: toastId });
         }
     };
 
@@ -98,192 +63,250 @@ export default function Categories() {
         setShowModal(true);
     };
 
-    // ... (logic continues with updated table columns)
-    
+    if (showModal) {
+        return (
+            <div className="space-y-4 pb-20 fade-in">
+                {/* COMPACT HEADER (Matches AddVendor Template) */}
+                <motion.div 
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm flex items-center justify-between"
+                >
+                    <div className="flex items-center gap-4">
+                        <button 
+                            onClick={() => setShowModal(false)}
+                            className="p-1 hover:bg-slate-100 rounded-lg transition-colors text-slate-500"
+                        >
+                            <ArrowLeft size={16} />
+                        </button>
+                        <div>
+                            <h1 className="text-lg font-bold text-slate-900 tracking-tight flex items-center gap-2 leading-none">
+                                <Tag className="text-indigo-600" size={18} />
+                                {editing ? 'Edit Vendor Category' : 'Register New Vendor Category'}
+                            </h1>
+                            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1 text-slate-500">
+                                <div className="flex items-center gap-1 text-[12px] font-medium">
+                                    <Tag size={12} className="text-slate-400" />
+                                    Please fill out the category definition exactly as per official logic.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                        <button 
+                            type="button"
+                            onClick={() => setShowModal(false)}
+                            className="px-4 py-1.5 bg-white border border-slate-200 text-slate-700 rounded-lg text-xs font-bold hover:bg-slate-50 transition-all active:scale-95"
+                        >
+                            Cancel
+                        </button>
+                        <button 
+                            onClick={handleSubmit}
+                            disabled={loading}
+                            className="px-4 py-1.5 bg-indigo-600 text-white rounded-lg text-xs font-bold hover:bg-indigo-700 transition-all active:scale-95 flex items-center gap-2 disabled:opacity-50"
+                        >
+                            {loading ? "Saving..." : "Save Category"} <Save size={12} />
+                        </button>
+                    </div>
+                </motion.div>
+
+                {/* CONTENT SECTIONS: Compact Grid matching AddVendor */}
+                <div className="grid gap-4">
+                    <motion.section 
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.05 }}
+                        className="rounded-xl border border-slate-200 bg-white overflow-hidden shadow-sm"
+                    >
+                        <div className="bg-slate-50/50 border-b border-slate-100 px-5 py-2.5 flex items-center gap-2">
+                            <Tag size={13} className="text-indigo-600" />
+                            <h2 className="text-[12px] font-bold text-slate-800 tracking-wide">1.1 Category Core Details</h2>
+                        </div>
+                        
+                        <div className="p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-5">
+                            <InputGroup 
+                                label="Official Category Name" 
+                                name="name" 
+                                value={formData.name} 
+                                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                placeholder="Enter full category name"
+                                required
+                            />
+
+                            <div className="flex flex-col gap-1 md:col-span-2">
+                                <p className="text-[11px] font-semibold text-slate-500 capitalize leading-none mb-1">
+                                    Operational Description
+                                </p>
+                                <textarea
+                                    className="w-full bg-white border border-slate-200 rounded-lg py-2 px-3 text-[13px] font-medium text-slate-900 focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400 outline-none transition-all placeholder:text-slate-300 min-h-[42px]"
+                                    placeholder="Enter operational definition..."
+                                    value={formData.description}
+                                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                                />
+                            </div>
+
+                            <div className="flex flex-col gap-1">
+                                <p className="text-[11px] font-semibold text-slate-500 capitalize leading-none mb-1">
+                                    Status
+                                </p>
+                                <select
+                                    className="w-full bg-white border border-slate-200 rounded-lg py-2 px-3 text-[13px] font-medium text-slate-900 focus:border-indigo-400 outline-none transition-all"
+                                    value={formData.status}
+                                    onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                                >
+                                    <option value="active">Active Classification</option>
+                                    <option value="inactive">Inactive / Deprecated</option>
+                                </select>
+                            </div>
+                        </div>
+                    </motion.section>
+                </div>
+            </div>
+        );
+    }
+
     return (
-        <div className="space-y-12 fade-in pb-20">
-            {/* ── BREADCRUMB & HEADER ─────────────────────────────────────────── */}
-            <header className="flex flex-col xl:flex-row justify-between items-start xl:items-end gap-10 border-b border-slate-200 pb-12">
-                <div className="space-y-6">
-                    <div className="flex items-center gap-2">
-                        <span className="bg-slate-900 text-white px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-[0.2em]">Master Module</span>
-                        <div className="h-1 w-6 bg-slate-200 rounded-full"></div>
-                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Vendor Categories</span>
-                    </div>
-                    <div>
-                        <h1 className="text-5xl font-black text-slate-900 tracking-[-0.05em] uppercase leading-none mb-4">Categories</h1>
-                        <p className="text-sm font-medium text-slate-500 max-w-xl italic border-l-4 border-slate-900/10 pl-6">Manage global vendor categories. These acts as the primary classification for all vendor onboarding and lifecycle management.</p>
+        <div className="space-y-6 pb-20 fade-in">
+            {/* COMPACT HEADER (Matches AddVendor style) */}
+            <motion.div 
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm flex items-center justify-between"
+            >
+                <div>
+                    <h1 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2 leading-none">
+                        <Layout className="text-indigo-600" size={20} />
+                        Vendor Categories
+                    </h1>
+                    <p className="mt-2 text-sm text-slate-500">
+                        Manage global vendor categories for onboarding operations
+                    </p>
+                </div>
+
+                <div className="flex items-center gap-3">
+                    <button 
+                        onClick={() => {
+                            setEditing(null);
+                            setFormData({ name: "", description: "", status: "active" });
+                            setShowModal(true);
+                        }}
+                        className="px-5 py-2 bg-indigo-600 text-white rounded-lg text-[13px] font-bold hover:bg-indigo-700 transition-all active:scale-95 flex items-center gap-2 shadow-sm shadow-indigo-200"
+                    >
+                        <Plus size={16} /> Add Category
+                    </button>
+                </div>
+            </motion.div>
+
+            {/* TABLE SECTION */}
+            <motion.section 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.05 }}
+                className="rounded-xl border border-slate-200 bg-white overflow-hidden shadow-sm"
+            >
+                <div className="border-b border-slate-100 p-5 bg-slate-50/50 flex items-center justify-between">
+                    <div className="flex items-center gap-3 text-[13px] font-bold text-slate-600">
+                        <Tag size={16} className="text-indigo-500" />
+                        <span>Registry: {categories.length} Categories</span>
                     </div>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-4 relative z-10">
-                  <button 
-                    onClick={() => {
-                        setEditing(null);
-                        setFormData({ name: "", description: "", status: "active" });
-                        setShowModal(true);
-                    }}
-                    className="flex items-center gap-4 bg-slate-900 text-white px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] hover:bg-slate-800 transition-all shadow-xl shadow-slate-200 active:scale-95"
-                  >
-                    <Plus size={18} /> Add Category
-                  </button>
-                </div>
-            </header>
-
-            {/* ── CATEGORY REGISTRY ───────────────────────────────────────────── */ }
-            <div className="bg-white rounded-[3.5rem] border border-slate-100 shadow-premium overflow-hidden">
-                <div className="p-10 border-b border-slate-50 flex flex-col md:flex-row md:items-center justify-between gap-10 bg-slate-50/50">
-                    <div className="relative w-full md:w-[450px]">
-                        <Search size={22} className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400" />
-                        <input
-                            type="text"
-                            placeholder="Search categories..."
-                            className="w-full pl-16 pr-8 py-5 bg-white border border-slate-200 rounded-[2rem] text-sm font-bold text-slate-900 focus:ring-12 focus:ring-slate-50 focus:border-slate-900 outline-none transition-all shadow-inner placeholder-slate-300"
-                        />
-                    </div>
-                    <div className="flex items-center gap-6">
-                        <span className="text-[10px] font-black uppercase text-slate-300 tracking-[0.3em]">
-                          Total Categories: {categories.length}
-                        </span>
-                    </div>
-                </div>
-
-                <div className="overflow-x-auto no-scrollbar">
-                    <table className="w-full">
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
                         <thead>
-                            <tr className="bg-slate-50/20">
-                                <th className="px-10 py-6 text-left text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Category Name</th>
-                                <th className="px-10 py-6 text-left text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Description</th>
-                                <th className="px-10 py-6 text-left text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Status</th>
-                                <th className="px-10 py-6 text-right text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">Actions</th>
+                            <tr className="border-b border-slate-100 bg-slate-50/50">
+                                <th className="px-6 py-4 text-[12px] font-bold uppercase tracking-wider text-slate-500">Category Name</th>
+                                <th className="px-6 py-4 text-[12px] font-bold uppercase tracking-wider text-slate-500">Description</th>
+                                <th className="px-6 py-4 text-[12px] font-bold uppercase tracking-wider text-slate-500">Status</th>
+                                <th className="px-6 py-4 text-[12px] font-bold uppercase tracking-wider text-slate-500 text-right">Actions</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-50">
+                        <tbody className="divide-y divide-slate-100">
                             {loading ? (
-                                [1,2,3].map(i => <tr key={i} className="animate-pulse h-24 bg-slate-50/10"><td colSpan="4"></td></tr>)
-                            ) : categories.map((cat, idx) => (
-                                <motion.tr 
-                                    key={cat._id} 
-                                    initial={{ opacity: 0, x: -10 }} 
-                                    animate={{ opacity: 1, x: 0 }}
-                                    className="group hover:bg-[#FDFDFD] transition-all border-l-4 border-transparent hover:border-slate-900"
-                                >
-                                    <td className="px-10 py-8">
-                                        <div className="flex items-center gap-6">
-                                            <div className="w-12 h-12 rounded-2xl bg-white border border-slate-100 flex items-center justify-center text-slate-400 transition-all shadow-inner uppercase">
-                                                <Tag size={18} />
+                                [...Array(4)].map((_, i) => (
+                                    <tr key={i} className="animate-pulse">
+                                        <td className="p-6"><div className="h-4 w-32 bg-slate-100 rounded"></div></td>
+                                        <td className="p-6"><div className="h-4 w-64 bg-slate-100 rounded"></div></td>
+                                        <td className="p-6"><div className="h-6 w-20 bg-slate-100 rounded-full"></div></td>
+                                        <td className="p-6 text-right"><div className="h-8 w-20 bg-slate-100 rounded-lg ml-auto"></div></td>
+                                    </tr>
+                                ))
+                            ) : categories.map((cat) => (
+                                <tr key={cat._id} className="hover:bg-slate-50/50 transition-colors">
+                                    <td className="px-6 py-4">
+                                        <div className="flex items-center gap-3">
+                                            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 border border-indigo-100/50">
+                                                <Tag size={14} />
                                             </div>
-                                            <p className="text-sm font-black text-slate-900 uppercase tracking-tighter leading-none">{cat.name}</p>
+                                            <span className="text-[14px] font-bold text-slate-900">{cat.name}</span>
                                         </div>
                                     </td>
-                                    <td className="px-10 py-8">
-                                        <p className="text-[11px] font-bold text-slate-500 uppercase tracking-tight max-w-xs line-clamp-1 italic">{cat.description || 'No description provided'}</p>
+                                    <td className="px-6 py-4">
+                                        <p className="text-[13px] font-medium text-slate-500 max-w-md line-clamp-1">{cat.description || 'No description provided'}</p>
                                     </td>
-                                    <td className="px-10 py-8">
-                                        <StatusBadge status={cat.status === 'active' ? "active" : "locked"} />
+                                    <td className="px-6 py-4">
+                                        <StatusBadge status={cat.status === 'active' ? "active" : "failed"} />
                                     </td>
-                                    <td className="px-10 py-8 text-right">
-                                        <div className="flex justify-end gap-3">
+                                    <td className="px-6 py-4 text-right">
+                                        <div className="flex justify-end gap-2">
                                             <button 
                                                 onClick={() => handleEdit(cat)}
-                                                className="p-3 bg-white text-slate-300 hover:text-slate-900 border border-slate-100 rounded-2xl shadow-sm hover:shadow-xl transition-all"
+                                                className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 border border-transparent hover:border-indigo-100 rounded-lg transition-all"
+                                                title="Edit Category"
                                             >
-                                                <Edit2 size={18} />
+                                                <Edit2 size={16} />
                                             </button>
                                             <button 
-                                               onClick={() => {
-                                                   if(window.confirm("Are you sure you want to delete this category?")) {
-                                                       api.delete(`/categories/${cat._id}`).then(() => fetchData());
-                                                   }
-                                               }}
-                                               className="p-3 bg-white text-slate-300 hover:text-rose-600 border border-slate-100 rounded-2xl shadow-sm hover:shadow-xl transition-all"
+                                                onClick={() => {
+                                                    if(window.confirm("Are you sure you want to delete this category?")) {
+                                                        const toastId = toast.loading("Deleting...");
+                                                        api.delete(`/categories/${cat._id}`).then(() => {
+                                                            toast.success("Deleted", { id: toastId });
+                                                            fetchData();
+                                                        }).catch(() => toast.error("Failed to delete", { id: toastId }));
+                                                    }
+                                                }}
+                                                className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 border border-transparent hover:border-rose-100 rounded-lg transition-all"
+                                                title="Delete Category"
                                             >
-                                                <Trash2 size={18} />
+                                                <Trash2 size={16} />
                                             </button>
                                         </div>
                                     </td>
-                                </motion.tr>
+                                </tr>
                             ))}
+                            {categories.length === 0 && !loading && (
+                                <tr>
+                                    <td colSpan="4" className="px-6 py-12 text-center text-slate-500 text-[13px] font-medium">
+                                        No categories found. Click 'Add Category' to create one.
+                                    </td>
+                                </tr>
+                            )}
                         </tbody>
                     </table>
                 </div>
-            </div>
-
-            {/* ── MODAL ──────────────────────────────────────────────────────── */ }
-            <AnimatePresence>
-                {showModal && (
-                    <div className="fixed inset-0 z-[1000] flex items-center justify-center p-8 bg-slate-900/60 backdrop-blur-md">
-                        <motion.div 
-                            initial={{ opacity: 0, scale: 0.9, y: 30 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.9, y: 30 }}
-                            className="bg-white w-full max-w-xl rounded-[3.5rem] shadow-2xl overflow-hidden flex flex-col relative"
-                        >
-                            <div className="p-12 border-b border-slate-50 bg-slate-50/50 flex justify-between items-center">
-                                <div>
-                                    <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase">{editing ? 'Edit' : 'New'} Category</h2>
-                                </div>
-                                <button onClick={() => setShowModal(false)} className="w-12 h-12 flex items-center justify-center bg-white rounded-2xl shadow-xl border border-slate-100 text-slate-400 hover:text-slate-900 transition-all active:scale-95">
-                                    <X size={28} />
-                                </button>
-                            </div>
-
-                            <form onSubmit={handleSubmit} className="p-12 space-y-8">
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Category Name</label>
-                                    <input
-                                        type="text"
-                                        required
-                                        className="w-full px-8 py-5 bg-slate-50 border border-slate-100 rounded-[2rem] text-sm font-black text-slate-900 focus:bg-white focus:ring-12 focus:ring-slate-50 focus:border-slate-900 outline-none transition-all shadow-inner uppercase tracking-tighter"
-                                        placeholder="e.g. RAW MATERIALS"
-                                        value={formData.name}
-                                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                    />
-                                </div>
-
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Description</label>
-                                    <textarea
-                                        className="w-full px-8 py-5 bg-slate-50 border border-slate-100 rounded-[2rem] text-sm font-bold text-slate-900 focus:bg-white focus:ring-12 focus:ring-slate-50 focus:border-slate-900 outline-none transition-all shadow-inner placeholder-slate-300 italic min-h-[100px]"
-                                        placeholder="Category definition..."
-                                        value={formData.description}
-                                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                    />
-                                </div>
-
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-4">Operational Status</label>
-                                    <select
-                                        className="w-full px-8 py-5 bg-slate-50 border border-slate-100 rounded-[2rem] text-sm font-black text-slate-900 focus:bg-white focus:ring-12 focus:ring-slate-50 focus:border-slate-900 outline-none transition-all shadow-inner appearance-none uppercase tracking-[0.1em]"
-                                        value={formData.status}
-                                        onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                                    >
-                                        <option value="active">Active</option>
-                                        <option value="inactive">Inactive</option>
-                                    </select>
-                                </div>
-
-                                <div className="pt-6">
-                                    <button type="submit" className="w-full py-6 bg-slate-900 text-white rounded-[2rem] font-black text-[10px] uppercase tracking-[0.3em] shadow-2xl hover:bg-slate-800 transition-all flex items-center justify-center gap-4 active:scale-95">
-                                        <ShieldCheck size={18} /> {editing ? 'Update' : 'Initialize'} Category
-                                    </button>
-                                </div>
-                            </form>
-                        </motion.div>
-                    </div>
-                )}
-            </AnimatePresence>
-
-            <style>{`
-                .shadow-premium {
-                    box-shadow: 0 40px 100px -30px rgba(0, 0, 0, 0.08);
-                }
-                .no-scrollbar::-webkit-scrollbar { display: none; }
-                .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-                select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394A3B8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2.5' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 1.5rem center; background-size: 1.2rem; }
-            `}</style>
+            </motion.section>
         </div>
     );
 }
 
-
+function InputGroup({ label, name, value, onChange, placeholder, type = "text", required = false, disabled = false }) {
+    return (
+        <div className="flex flex-col gap-1">
+            <p className="text-[11px] font-semibold text-slate-500 capitalize leading-none mb-1">
+                {label} {required && <span className="text-rose-500">*</span>}
+            </p>
+            <input
+                required={required}
+                disabled={disabled}
+                type={type}
+                name={name}
+                value={value}
+                onChange={onChange}
+                placeholder={placeholder}
+                className="w-full bg-white border border-slate-200 rounded-lg py-2 px-3 text-[13px] font-medium text-slate-900 focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400 outline-none transition-all placeholder:text-slate-300 disabled:bg-slate-50 disabled:text-slate-500"
+            />
+        </div>
+    );
+}

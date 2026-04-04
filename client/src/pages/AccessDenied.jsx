@@ -1,9 +1,27 @@
-import React from 'react';
+import React, { useContext, useEffect } from 'react';
 import { ShieldX, ArrowLeft, Home } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { AuthContext } from '../context/AuthContext';
+import { normalizeRole } from '../config/roles';
+import { getAdminLinksForUser } from '../config/SidebarConfig';
 
 export default function AccessDenied() {
     const navigate = useNavigate();
+    const { user } = useContext(AuthContext);
+
+    useEffect(() => {
+        if (!user) return;
+
+        const userRole = normalizeRole(user?.role || user?.roleName || "");
+        const adminLinks = getAdminLinksForUser(user, user?.allowedModules || []);
+        const target = userRole === "vendor" ? "/vendor/dashboard" : adminLinks[0]?.to || "/admin/dashboard";
+
+        const timer = window.setTimeout(() => {
+            navigate(target, { replace: true });
+        }, 1200);
+
+        return () => window.clearTimeout(timer);
+    }, [navigate, user]);
 
     return (
         <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
@@ -19,6 +37,12 @@ export default function AccessDenied() {
                 <p className="text-gray-500 font-medium leading-relaxed mb-10">
                     You do not have the necessary permissions to access this restricted protocol. Please contact your administrator if you believe this is an error.
                 </p>
+
+                {user && (
+                    <p className="mb-6 text-[11px] font-bold uppercase tracking-[0.18em] text-slate-400">
+                        Redirecting to your workspace...
+                    </p>
+                )}
 
                 <div className="space-y-3">
                     <button 

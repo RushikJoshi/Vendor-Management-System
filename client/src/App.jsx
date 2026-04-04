@@ -14,6 +14,8 @@ import ChangePassword from "./pages/vendor/ChangePassword";
 import MyRFQs from "./pages/vendor/MyRFQs";
 import SubmitQuotation from "./pages/vendor/SubmitQuotation";
 import Profile from "./pages/vendor/Profile";
+import MyContracts from "./pages/vendor/MyContracts";
+import ContractDetail from "./pages/vendor/ContractDetail";
 
 
 import RegistrationWizard from "./pages/public/RegistrationWizard";
@@ -35,6 +37,15 @@ import TreeSubmissions from "./pages/admin/TreeSubmissions";
 import TreeSubmissionDetail from "./pages/admin/TreeSubmissionDetail";
 import TreeFormRenderer from "./pages/public/TreeFormRenderer";
 import QuotationsComparison from "./pages/admin/QuotationsComparison";
+import AddVendor from "./pages/admin/AddVendor";
+import ManageVendor from "./pages/admin/ManageVendor";
+import CreateRFQ from "./pages/admin/CreateRFQ";
+import CreateContract from "./pages/admin/CreateContract";
+import CreateUser from "./pages/admin/CreateUser";
+import Categories from "./pages/admin/Categories";
+import CategoryForm from "./pages/admin/CategoryForm";
+
+
 
 
 import { NotificationProvider } from "./context/NotificationContext";
@@ -92,13 +103,23 @@ function App() {
             <Route path="submissions" element={<ProtectedRoute module="submissions"><TreeSubmissions /></ProtectedRoute>} />
             <Route path="submissions/:id" element={<ProtectedRoute module="submissions"><TreeSubmissionDetail /></ProtectedRoute>} />
             <Route path="rfqs" element={<ProtectedRoute module="rfq"><RFQs /></ProtectedRoute>} />
+            <Route path="rfqs/create" element={<ProtectedRoute module="rfq"><CreateRFQ /></ProtectedRoute>} />
             <Route path="rfqs/:id/compare" element={<ProtectedRoute module="rfq"><QuotationsComparison /></ProtectedRoute>} />
             <Route path="contracts" element={<ProtectedRoute module="contracts"><Contracts /></ProtectedRoute>} />
+            <Route path="contracts/create" element={<ProtectedRoute module="contracts"><CreateContract /></ProtectedRoute>} />
+            <Route path="contracts/:id/edit" element={<ProtectedRoute module="contracts"><CreateContract /></ProtectedRoute>} />
             <Route path="applications" element={<ProtectedRoute module="applications"><Applications /></ProtectedRoute>} />
             <Route path="vendors" element={<ProtectedRoute module="vendors"><Vendors /></ProtectedRoute>} />
+            <Route path="vendors/add" element={<ProtectedRoute module="vendors"><AddVendor /></ProtectedRoute>} />
+            <Route path="vendors/:id" element={<ProtectedRoute module="vendors"><ManageVendor /></ProtectedRoute>} />
             <Route path="analytics" element={<ProtectedRoute module="analytics"><DashboardAnalytics /></ProtectedRoute>} />
             <Route path="users" element={<ProtectedRoute module="users"><UserManagement /></ProtectedRoute>} />
+            <Route path="users/create" element={<ProtectedRoute module="users"><CreateUser /></ProtectedRoute>} />
+            <Route path="users/:id/edit" element={<ProtectedRoute module="users"><CreateUser /></ProtectedRoute>} />
             <Route path="roles" element={<ProtectedRoute module="roles"><RoleManagement /></ProtectedRoute>} />
+            <Route path="categories" element={<ProtectedRoute module="vendor_forms"><Categories /></ProtectedRoute>} />
+            <Route path="categories/create" element={<ProtectedRoute module="vendor_forms"><CategoryForm /></ProtectedRoute>} />
+            <Route path="categories/:id" element={<ProtectedRoute module="vendor_forms"><CategoryForm /></ProtectedRoute>} />
             <Route path="profile" element={<ProtectedRoute module="users"><Settings /></ProtectedRoute>} />
             <Route path="settings" element={<ProtectedRoute module="settings"><Settings /></ProtectedRoute>} />
             <Route path="audit-logs" element={<ProtectedRoute module="analytics"><AuditLogs /></ProtectedRoute>} />
@@ -129,6 +150,8 @@ function App() {
             <Route path="rfqs" element={<ProtectedRoute anyPermission="vendor_rfq_view"><MyRFQs /></ProtectedRoute>} />
             <Route path="submit-quotation" element={<ProtectedRoute anyPermission="vendor_quote_submit"><SubmitQuotation /></ProtectedRoute>} />
             <Route path="profile" element={<ProtectedRoute anyPermission="vendor_dashboard"><Profile /></ProtectedRoute>} />
+            <Route path="contracts" element={<ProtectedRoute anyPermission="vendor_dashboard"><MyContracts /></ProtectedRoute>} />
+            <Route path="contracts/:id" element={<ProtectedRoute anyPermission="vendor_dashboard"><ContractDetail /></ProtectedRoute>} />
             <Route path="*" element={<Navigate to="/vendor/dashboard" replace />} />
 
           </Route>

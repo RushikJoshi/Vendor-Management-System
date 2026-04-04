@@ -73,10 +73,36 @@ function getDefaultPermissionsForRole(rawRole) {
     return sanitizePermissionKeys(DEFAULT_ROLE_PERMISSIONS[role] || []);
 }
 
-function getEffectivePermissionKeys(userLike = {}) {
-    const directPermissions = sanitizePermissionKeys(userLike.permissions || []);
-    if (directPermissions.length > 0) return directPermissions;
-    return getDefaultPermissionsForRole(userLike.role);
+/**
+ * Resolves the final list of active permission keys for a user.
+ * Prioritizes Database Role permissions, then direct User permissions, then hardcoded Defaults.
+ * @param {Object} user - The basic user document/object
+ * @param {Object} fullRole - The populated Role document (including permissions array)
+ */
+function getEffectivePermissionKeys(user = {}, fullRole = null) {
+    let keys = new Set();
+
+    // 1. Add permissions from the Database Role if available (High Priority)
+    if (fullRole && Array.isArray(fullRole.permissions)) {
+        fullRole.permissions.forEach(p => {
+            if (typeof p === "string") keys.add(normalizePermissionKey(p));
+            else if (p && p.name) keys.add(normalizePermissionKey(p.name));
+        });
+    }
+
+    // 2. Add direct user permissions if any (Override/Addition)
+    if (Array.isArray(user.permissions)) {
+        user.permissions.forEach(p => keys.add(normalizePermissionKey(p)));
+    }
+
+    // 3. If still empty, use hardcoded Role defaults (Safety Net)
+    if (keys.size === 0) {
+        const role = normalizeRole(user.role);
+        const defaults = DEFAULT_ROLE_PERMISSIONS[role] || [];
+        defaults.forEach(p => keys.add(normalizePermissionKey(p)));
+    }
+
+    return sanitizePermissionKeys(Array.from(keys));
 }
 
 function deriveAllowedModulesFromPermissions(permissionKeys = []) {

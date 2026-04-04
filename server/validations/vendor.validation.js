@@ -53,7 +53,7 @@ const vendorValidationSchema = {
     updateVendor: Joi.object({
         name: Joi.string().min(3),
         email: Joi.string().email(),
-        phone: Joi.string().pattern(/^[6-9]\d{9}$/),
+        phone: Joi.string().pattern(/^\d{10,12}$/),
         companyName: Joi.string(),
         gstNumber: Joi.string().uppercase().pattern(gstRegex),
         address: Joi.object({
@@ -61,7 +61,9 @@ const vendorValidationSchema = {
             state: Joi.string(),
             pincode: Joi.string().length(6).pattern(/^[0-9]+$/),
         }),
-        status: Joi.string().valid("active", "inactive"),
+        status: Joi.string().valid("active", "inactive", "suspended", "blacklisted"),
+        category: Joi.string().allow("", null),
+        lifecycleStatus: Joi.string().valid("active", "inactive", "suspended", "blacklisted"),
         rating: Joi.number().min(0).max(5),
     }).min(1), // At least one field should be provided for update
 };

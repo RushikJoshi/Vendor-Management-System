@@ -2,6 +2,7 @@ const Vendor = require("../models/Vendor");
 const VendorApplication = require("../models/VendorApplication");
 const Category = require("../models/Category");
 const Contract = require("../models/Contract");
+const TreeSubmission = require("../models/TreeSubmission");
 const SchedulerService = require("../services/SchedulerService");
 const mongoose = require("mongoose");
 
@@ -26,7 +27,12 @@ exports.getAnalytics = async (req, res) => {
 
         const totalVendors = await Vendor.countDocuments();
         const approvedVendors = await Vendor.countDocuments({ status: "approved" });
-        const pendingApprovals = await VendorApplication.countDocuments({ status: { $in: ["submitted", "under_review"] } });
+        
+        const [wizardPending, treePending] = await Promise.all([
+            VendorApplication.countDocuments({ status: { $in: ["submitted", "under_review", "pending"] } }),
+            TreeSubmission.countDocuments({ status: { $in: ["pending", "submitted"] } })
+        ]);
+        const pendingApprovals = wizardPending + treePending;
 
         // 📊 1. Approval Metrics
         const approvalMetrics = await VendorApplication.aggregate([

@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import { Edit, Mail, Search, ShieldCheck, Trash2, UserPlus, Users } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import api from "../../services/api";
 import { AuthContext } from "../../context/AuthContext";
@@ -43,16 +44,13 @@ const getAccess = (currentUser) => ({
 
 export default function UserManagement() {
   const { user: currentUser } = useContext(AuthContext);
+  const navigate = useNavigate();
   const access = useMemo(() => getAccess(currentUser), [currentUser]);
 
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-  const [selectedUserId, setSelectedUserId] = useState(null);
-  const [form, setForm] = useState(DEFAULT_USER);
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -72,81 +70,20 @@ export default function UserManagement() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [access.canView]);
 
-  const resetForm = () => {
-    setForm(DEFAULT_USER);
-    setIsEditing(false);
-    setSelectedUserId(null);
-  };
-
-  const openCreateModal = () => {
+  const handleCreateUser = () => {
     if (!access.canCreate) {
       toast.error("You do not have permission to create users.");
       return;
     }
-    resetForm();
-    setIsModalOpen(true);
+    navigate("/admin/users/create");
   };
 
-  const openEditModal = (user) => {
+  const handleEditUser = (user) => {
     if (!access.canEdit) {
       toast.error("You do not have permission to edit users.");
       return;
     }
-    setForm({
-      name: user.name || "",
-      email: user.email || "",
-      password: "",
-      role: String(user.role || "viewer").toLowerCase(),
-      permissions: sanitizePermissions(Array.isArray(user.permissions) ? user.permissions : []),
-    });
-    setSelectedUserId(user._id);
-    setIsEditing(true);
-    setIsModalOpen(true);
-  };
-
-  const closeModal = () => {
-    setIsModalOpen(false);
-    resetForm();
-  };
-
-  const togglePermission = (permissionKey) => {
-    setForm((prev) => {
-      const exists = prev.permissions.includes(permissionKey);
-      return {
-        ...prev,
-        permissions: exists ? prev.permissions.filter((item) => item !== permissionKey) : [...prev.permissions, permissionKey],
-      };
-    });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const payload = {
-      name: form.name.trim(),
-      email: form.email.trim(),
-      role: form.role,
-      password: form.password,
-      permissions:
-        form.role === "vendor"
-          ? sanitizePermissions(DEFAULT_ROLE_PERMISSIONS.vendor)
-          : sanitizePermissions(form.permissions),
-    };
-
-    const toastId = toast.loading(isEditing ? "Updating user..." : "Creating user...");
-    try {
-      if (isEditing) {
-        if (!payload.password) delete payload.password;
-        await api.put(`/v1/users/${selectedUserId}`, payload);
-        toast.success("User updated successfully", { id: toastId });
-      } else {
-        await api.post("/v1/users", payload);
-        toast.success("User created successfully", { id: toastId });
-      }
-      closeModal();
-      fetchUsers();
-    } catch (error) {
-      toast.error(error?.response?.data?.message || "Request failed", { id: toastId });
-    }
+    navigate(`/admin/users/${user._id}/edit`);
   };
 
   const handleDelete = async (userId) => {
@@ -228,7 +165,7 @@ export default function UserManagement() {
             </button>
             <button
               type="button"
-              onClick={openCreateModal}
+              onClick={handleCreateUser}
               disabled={!access.canCreate}
               className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
@@ -343,7 +280,7 @@ export default function UserManagement() {
                         <div className="flex items-center gap-2">
                           <button
                             type="button"
-                            onClick={() => openEditModal(user)}
+                            onClick={() => handleEditUser(user)}
                             disabled={!access.canEdit}
                             className="inline-flex items-center gap-1.5 rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
                           >
@@ -369,100 +306,6 @@ export default function UserManagement() {
         </div>
       </section>
 
-      <Modal open={isModalOpen} onClose={closeModal} title={isEditing ? "Edit User" : "Create User"} size="max-w-4xl">
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-            <Field label="Full Name" span>
-              <input
-                type="text"
-                required
-                value={form.name}
-                onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))}
-                placeholder="Enter full name"
-                className="w-full rounded-lg border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-800 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
-              />
-            </Field>
-
-            <Field label="Email Address" span>
-              <input
-                type="email"
-                required
-                value={form.email}
-                onChange={(e) => setForm((prev) => ({ ...prev, email: e.target.value }))}
-                placeholder="name@company.com"
-                className="w-full rounded-lg border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-800 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
-              />
-            </Field>
-
-            <Field label={isEditing ? "Password (Optional)" : "Password"} span>
-              <input
-                type="password"
-                required={!isEditing}
-                value={form.password}
-                onChange={(e) => setForm((prev) => ({ ...prev, password: e.target.value }))}
-                placeholder={isEditing ? "Leave blank to keep existing password" : "Enter password"}
-                className="w-full rounded-lg border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-800 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
-              />
-            </Field>
-
-            <Field label="Role" span>
-              <select
-                value={form.role}
-                onChange={(e) => setForm((prev) => ({ ...prev, role: e.target.value }))}
-                className="w-full rounded-lg border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-800 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
-              >
-                {ROLE_OPTIONS.map((roleOption) => (
-                  <option key={roleOption.value} value={roleOption.value}>
-                    {roleOption.label}
-                  </option>
-                ))}
-              </select>
-            </Field>
-          </div>
-
-          <div className="space-y-4">
-            {PERMISSION_GROUPS.filter((group) =>
-              form.role === "vendor" ? group.title === "Vendor Portal" : group.title !== "Vendor Portal"
-            ).map((group) => (
-              <div key={group.title} className="rounded-lg border border-slate-200 bg-slate-50/40 p-4">
-                <h4 className="text-sm font-semibold text-slate-900">{group.title}</h4>
-                <div className="mt-3 grid grid-cols-1 gap-2 md:grid-cols-2">
-                  {group.items.map((permission) => {
-                    const normalizedKey = normalizePermissionKey(permission.key);
-                    const checked = form.permissions.includes(normalizedKey);
-                    return (
-                      <label key={normalizedKey} className="flex items-center gap-3 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700">
-                        <input
-                          type="checkbox"
-                          checked={checked}
-                          onChange={() => togglePermission(normalizedKey)}
-                          className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
-                        />
-                        <span>{permission.label}</span>
-                      </label>
-                    );
-                  })}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="flex items-center justify-between border-t border-slate-100 pt-4">
-            <div className="inline-flex items-center gap-2 rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-600">
-              <ShieldCheck size={14} className="text-emerald-600" />
-              Permissions control sidebar visibility and page/API access.
-            </div>
-            <div className="flex items-center gap-3">
-              <button type="button" onClick={closeModal} className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-50">
-                Cancel
-              </button>
-              <button type="submit" className="rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-bold text-white transition hover:bg-indigo-700">
-                {isEditing ? "Save Changes" : "Create User"}
-              </button>
-            </div>
-          </div>
-        </form>
-      </Modal>
     </div>
   );
 }

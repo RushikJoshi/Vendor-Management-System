@@ -18,6 +18,17 @@ exports.getUsers = asyncHandler(async (req, res, next) => {
     successResponse(res, "Users retrieved successfully", users);
 });
 
+// @desc    Get single user by ID
+// @route   GET /api/users/:id
+// @access  Private (Admin only)
+exports.getUserById = asyncHandler(async (req, res, next) => {
+    const user = await User.findById(req.params.id).select("-password");
+    if (!user) {
+        return next(new AppError("User not found", 404));
+    }
+    successResponse(res, "User retrieved successfully", user);
+});
+
 // @desc    Create a new user
 // @route   POST /api/users
 // @access  Private (Admin only)

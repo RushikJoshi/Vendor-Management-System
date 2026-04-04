@@ -39,7 +39,9 @@ export default function ProtectedRoute({ children, requiredRole, role, module, a
 
   // Hierarchy check: user must have level >= requiredRole
   if (requiredRole) {
-    if (!hasAccess(userRole, requiredRole)) {
+    const userAllowedModules = Array.isArray(user?.allowedModules) ? user.allowedModules : [];
+    const isInternalCustomRole = userRole !== "vendor" && userAllowedModules.length > 0;
+    if (!hasAccess(userRole, requiredRole) && !isInternalCustomRole) {
       return <Navigate to="/access-denied" replace />;
     }
   }

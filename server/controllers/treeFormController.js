@@ -44,7 +44,48 @@ const normalizeFieldMeta = (field = {}, index = 0) => {
     fieldId: String(rawId || `field_${index + 1}`),
     label: String(rawLabel || `Field ${index + 1}`),
     type: String(rawType || "text"),
+    dependsOn: field.dependsOn || null,
+    dependsOnValue: field.dependsOnValue || null,
   };
+};
+
+const getValueFromSources = (keys = [], values = {}, normalizedValues = {}) => {
+  const directKey = keys.find((key) => Object.prototype.hasOwnProperty.call(values, key));
+  if (directKey) return values[directKey];
+
+  const normalizedKey = keys
+    .map((key) => normalizeKey(key))
+    .find((key) => Object.prototype.hasOwnProperty.call(normalizedValues, key));
+
+  return normalizedKey ? normalizedValues[normalizedKey] : undefined;
+};
+
+const isFieldActive = (field = {}, meta = {}, values = {}, normalizedValues = {}) => {
+  const fieldKey = normalizeKey(meta.fieldId);
+
+  if (meta.dependsOn) {
+    const dependencyValue = getValueFromSources([meta.dependsOn], values, normalizedValues);
+    if (String(dependencyValue || "").trim() !== String(meta.dependsOnValue || "").trim()) {
+      return false;
+    }
+  }
+
+  if (fieldKey.includes("pannum")) {
+    const panStatus = getValueFromSources(["panStatus", "f_pan_status", "pan_status"], values, normalizedValues);
+    return String(panStatus || "").trim().toLowerCase() === "available";
+  }
+
+  if (fieldKey.includes("pfno") || fieldKey.includes("pfnum")) {
+    const pfStatus = getValueFromSources(["pfStatus", "f_pf_status", "pf_status"], values, normalizedValues);
+    return String(pfStatus || "").trim().toLowerCase() === "yes";
+  }
+
+  if (fieldKey.includes("esino") || fieldKey.includes("esinum")) {
+    const esiStatus = getValueFromSources(["esiStatus", "f_esi_status", "esi_status"], values, normalizedValues);
+    return String(esiStatus || "").trim().toLowerCase() === "yes";
+  }
+
+  return true;
 };
 
 const flattenValueObject = (input, prefix = "", acc = {}) => {
@@ -252,8 +293,9 @@ exports.submitForm = async (req, res) => {
       const directValue = valueKey ? values[valueKey] : undefined;
       const normalizedKey = candidateKeys.map((k) => normalizeKey(k)).find((k) => Object.prototype.hasOwnProperty.call(normalizedValues, k));
       const value = directValue !== undefined ? directValue : normalizedKey ? normalizedValues[normalizedKey] : undefined;
+      const activeField = isFieldActive(field, meta, values, normalizedValues);
 
-      if (field.required) {
+      if (field.required && activeField) {
         if (meta.type === "file" && !upload) errors.push(`${meta.label} is required.`);
         if (meta.type !== "file") {
           const empty =
@@ -264,25 +306,29 @@ exports.submitForm = async (req, res) => {
         }
       }
 
-      if (value && meta.type === "email" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value))) {
+      if (value && activeField && meta.type === "email" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value))) {
         errors.push(`Invalid email format in ${meta.label}`);
       }
-      if (value && field.validation?.pattern === "pan" && !PAN_REGEX.test(String(value).toUpperCase())) {
+      if (value && activeField && field.validation?.pattern === "pan" && !PAN_REGEX.test(String(value).toUpperCase())) {
         errors.push(`Invalid PAN format in ${meta.label}`);
       }
-      if (value && field.validation?.pattern === "gst" && !GST_REGEX.test(String(value).toUpperCase())) {
+      if (value && activeField && field.validation?.pattern === "gst" && !GST_REGEX.test(String(value).toUpperCase())) {
         errors.push(`Invalid GST format in ${meta.label}`);
       }
 
       // Label-based strict validation for specific industrial fields
       const labelLo = meta.label.toLowerCase();
       const valStr = String(value || "").trim().toUpperCase();
+      const isPanNumberField =
+        labelLo.includes("pan number") ||
+        labelLo.includes("pan no") ||
+        normalizeKey(meta.fieldId).includes("pannum");
 
-      if (valStr) {
+      if (valStr && activeField) {
         if ((labelLo.includes("mobile") || labelLo.includes("phone")) && !MOBILE_REGEX.test(valStr)) {
           errors.push(`${meta.label} must be 10-15 digits.`);
         }
-        if (labelLo.includes("pan") && !PAN_REGEX.test(valStr)) {
+        if (isPanNumberField && !PAN_REGEX.test(valStr)) {
           errors.push(`Invalid PAN format in ${meta.label}`);
         }
         if (labelLo.includes("cin") && !CIN_REGEX.test(valStr)) {
@@ -345,8 +391,140 @@ exports.submitForm = async (req, res) => {
 
 exports.getSubmissions = async (req, res) => {
   try {
-    const rows = await TreeSubmission.find().sort({ createdAt: -1 });
-    return res.status(200).json({ success: true, data: rows });
+    const VendorApplication = require("../models/VendorApplication");
+    const FormTemplate = require("../models/FormTemplate");
+
+    const [treeRows, appRows] = await Promise.all([
+      TreeSubmission.find().sort({ createdAt: -1 }),
+      VendorApplication.find().populate("category", "name").populate("formTemplate").sort({ createdAt: -1 }),
+    ]);
+
+    // Harmonize VendorApplication records to match TreeSubmission shape
+    const harmonizedApps = appRows.map((app) => {
+      const appObj = app.toObject();
+      const dataMap =
+        app.data instanceof Map
+          ? Object.fromEntries(app.data)
+          : appObj.data || {};
+
+      // Try to use FormTemplate sections for proper grouping
+      const template = appObj.formTemplate;
+      const sections = template?.sections || [];
+      const usedKeys = new Set();
+      const dataArray = [];
+
+      if (sections.length > 0) {
+        // Map data using actual form template sections
+        sections.forEach((section, sIdx) => {
+          const sectionTitle = section.sectionTitle || `Section ${sIdx + 1}`;
+          // Don't add prefix if sectionTitle already starts with a number
+          const alreadyNumbered = /^\d/.test(sectionTitle);
+          const nodePath = alreadyNumbered ? sectionTitle : `1.${sIdx + 1} ${sectionTitle}`;
+
+          (section.fields || []).forEach((field) => {
+            const fieldId = field.fieldId || field.name || field.label;
+            if (!fieldId) return;
+
+            // Try multiple key formats to find the value
+            const candidateKeys = [fieldId, field.name, field.label].filter(Boolean);
+            let matchedKey = candidateKeys.find((k) => dataMap.hasOwnProperty(k));
+            
+            // Also try lowercase and normalized versions
+            if (!matchedKey) {
+              const normalizedMap = {};
+              Object.keys(dataMap).forEach(k => { normalizedMap[k.toLowerCase()] = k; });
+              matchedKey = candidateKeys.find(k => normalizedMap[k.toLowerCase()]);
+              if (matchedKey) matchedKey = normalizedMap[matchedKey.toLowerCase()];
+            }
+
+            const value = matchedKey ? dataMap[matchedKey] : undefined;
+            if (matchedKey) usedKeys.add(matchedKey);
+
+            if (value !== undefined && value !== null && String(value).trim() !== "") {
+              dataArray.push({
+                fieldId: fieldId,
+                label: field.label || fieldId,
+                type: field.type?.type || field.type || "text",
+                nodePath: nodePath,
+                value: value,
+                fileUrl: null,
+                fileName: null,
+              });
+            }
+          });
+        });
+      }
+
+      // Add remaining unmapped fields under a generic section
+      Object.entries(dataMap).forEach(([key, value]) => {
+        if (usedKeys.has(key)) return;
+        if (value === undefined || value === null || String(value).trim() === "") return;
+        // Skip internal/meta fields
+        if (["formTemplateId", "categoryId", "invitationToken", "__v"].includes(key)) return;
+
+        dataArray.push({
+          fieldId: key,
+          label: key
+            .replace(/([A-Z])/g, " $1")
+            .replace(/^./, (s) => s.toUpperCase())
+            .replace(/_/g, " ")
+            .trim(),
+          type: typeof value === "string" && value.includes("@") ? "email" : "text",
+          nodePath: sections.length > 0 ? "Other Information" : "Registration Form Data",
+          value: value,
+          fileUrl: null,
+          fileName: null,
+        });
+      });
+
+      // Add documents as file entries
+      const docEntries = (appObj.documents || []).map((doc) => ({
+        fieldId: doc.fieldName || doc.name,
+        label: doc.fieldName || doc.name || "Document",
+        type: "file",
+        nodePath: "Uploaded Documents",
+        value: null,
+        fileUrl: doc.url || null,
+        fileName: doc.name || "Document",
+      }));
+
+      // Better vendor name extraction
+      const vendorName =
+        appObj.companyName && appObj.companyName !== "Dossier Submission" && appObj.companyName !== "Incomplete Profile" && appObj.companyName !== "Vendor Submission"
+          ? appObj.companyName
+          : dataMap.companyName || dataMap.company_name || dataMap.co_name || dataMap.vendorName || dataMap.fullTradeName || dataMap.legalName || dataMap.legal_name || dataMap.tradeName || dataMap.trade_name || dataMap.supplierName || appObj.companyName || "Vendor";
+
+      return {
+        _id: appObj._id,
+        formId: appObj.formTemplate?._id || appObj.formTemplate,
+        formName: appObj.category?.name
+          ? `${appObj.category.name} Registration`
+          : template?.name || "Vendor Registration",
+        categoryName: appObj.category?.name || "General",
+        data: [...dataArray, ...docEntries],
+        status:
+          appObj.status === "submitted" || appObj.status === "changes_requested" || appObj.status === "in_review" || appObj.status === "draft"
+            ? "pending"
+            : appObj.status,
+        rejectionReason: "",
+        vendorEmail: appObj.vendorEmail || appObj.email || "",
+        vendorName: vendorName,
+        vendorUserId: appObj.approvedBy || null,
+        reviewedBy: appObj.approvedBy || appObj.rejectedBy || null,
+        reviewedAt: appObj.approvedAt || appObj.rejectedAt || null,
+        createdAt: appObj.createdAt,
+        updatedAt: appObj.updatedAt,
+        _source: "application",
+        _applicationId: appObj._id,
+      };
+    });
+
+    // Merge and sort by date
+    const allRows = [...treeRows.map((r) => ({ ...r.toObject(), _source: "tree" })), ...harmonizedApps].sort(
+      (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+    );
+
+    return res.status(200).json({ success: true, data: allRows });
   } catch (error) {
     return res.status(500).json({ success: false, message: error.message });
   }
@@ -355,8 +533,128 @@ exports.getSubmissions = async (req, res) => {
 exports.getSubmissionById = async (req, res) => {
   try {
     const row = await TreeSubmission.findById(req.params.id).populate("formId", "name structure");
-    if (!row) return res.status(404).json({ success: false, message: "Submission not found." });
-    return res.status(200).json({ success: true, data: row });
+    if (row) {
+      return res.status(200).json({ success: true, data: { ...row.toObject(), _source: "tree" } });
+    }
+
+    // Fallback: try VendorApplication
+    const VendorApplication = require("../models/VendorApplication");
+    const app = await VendorApplication.findById(req.params.id).populate("category", "name").populate("formTemplate");
+    if (!app) {
+      return res.status(404).json({ success: false, message: "Submission not found." });
+    }
+
+    const appObj = app.toObject();
+    const dataMap =
+      app.data instanceof Map
+        ? Object.fromEntries(app.data)
+        : appObj.data || {};
+
+    // Use FormTemplate sections for proper grouping
+    const template = appObj.formTemplate;
+    const sections = template?.sections || [];
+    const usedKeys = new Set();
+    const dataArray = [];
+
+    if (sections.length > 0) {
+      sections.forEach((section, sIdx) => {
+        const sectionTitle = section.sectionTitle || `Section ${sIdx + 1}`;
+          const alreadyNumbered = /^\d/.test(sectionTitle);
+          const nodePath = alreadyNumbered ? sectionTitle : `1.${sIdx + 1} ${sectionTitle}`;
+
+        (section.fields || []).forEach((field) => {
+          const fieldId = field.fieldId || field.name || field.label;
+          if (!fieldId) return;
+
+          const candidateKeys = [fieldId, field.name, field.label].filter(Boolean);
+          let matchedKey = candidateKeys.find((k) => dataMap.hasOwnProperty(k));
+
+          if (!matchedKey) {
+            const normalizedMap = {};
+            Object.keys(dataMap).forEach(k => { normalizedMap[k.toLowerCase()] = k; });
+            matchedKey = candidateKeys.find(k => normalizedMap[k.toLowerCase()]);
+            if (matchedKey) matchedKey = normalizedMap[matchedKey.toLowerCase()];
+          }
+
+          const value = matchedKey ? dataMap[matchedKey] : undefined;
+          if (matchedKey) usedKeys.add(matchedKey);
+
+          if (value !== undefined && value !== null && String(value).trim() !== "") {
+            dataArray.push({
+              fieldId: fieldId,
+              label: field.label || fieldId,
+              type: field.type?.type || field.type || "text",
+              nodePath: nodePath,
+              value: value,
+              fileUrl: null,
+              fileName: null,
+            });
+          }
+        });
+      });
+    }
+
+    // Add remaining unmapped fields
+    Object.entries(dataMap).forEach(([key, value]) => {
+      if (usedKeys.has(key)) return;
+      if (value === undefined || value === null || String(value).trim() === "") return;
+      if (["formTemplateId", "categoryId", "invitationToken", "__v"].includes(key)) return;
+
+      dataArray.push({
+        fieldId: key,
+        label: key
+          .replace(/([A-Z])/g, " $1")
+          .replace(/^./, (s) => s.toUpperCase())
+          .replace(/_/g, " ")
+          .trim(),
+        type: typeof value === "string" && value.includes("@") ? "email" : "text",
+        nodePath: sections.length > 0 ? "Other Information" : "Registration Form Data",
+        value: value,
+        fileUrl: null,
+        fileName: null,
+      });
+    });
+
+    const docEntries = (appObj.documents || []).map((doc) => ({
+      fieldId: doc.fieldName || doc.name,
+      label: doc.fieldName || doc.name || "Document",
+      type: "file",
+      nodePath: "Uploaded Documents",
+      value: null,
+      fileUrl: doc.url || null,
+      fileName: doc.name || "Document",
+    }));
+
+    const vendorName =
+      appObj.companyName && appObj.companyName !== "Dossier Submission" && appObj.companyName !== "Incomplete Profile" && appObj.companyName !== "Vendor Submission"
+        ? appObj.companyName
+        : dataMap.companyName || dataMap.company_name || dataMap.co_name || dataMap.vendorName || dataMap.fullTradeName || dataMap.legalName || dataMap.legal_name || dataMap.tradeName || dataMap.trade_name || dataMap.supplierName || appObj.companyName || "Vendor";
+
+    const harmonized = {
+      _id: appObj._id,
+      formId: appObj.formTemplate?._id || appObj.formTemplate,
+      formName: appObj.category?.name
+        ? `${appObj.category.name} Registration`
+        : template?.name || "Vendor Registration",
+      categoryName: appObj.category?.name || "General",
+      data: [...dataArray, ...docEntries],
+      status:
+        appObj.status === "submitted" || appObj.status === "changes_requested" || appObj.status === "in_review" || appObj.status === "draft"
+          ? "pending"
+          : appObj.status,
+      rejectionReason: "",
+      vendorEmail: appObj.vendorEmail || appObj.email || "",
+      vendorName: vendorName,
+      vendorUserId: appObj.approvedBy || null,
+      reviewedBy: appObj.approvedBy || appObj.rejectedBy || null,
+      reviewedAt: appObj.approvedAt || appObj.rejectedAt || null,
+      createdAt: appObj.createdAt,
+      updatedAt: appObj.updatedAt,
+      _source: "application",
+      _applicationId: appObj._id,
+    };
+
+    return res.status(200).json({ success: true, data: harmonized });
   } catch (error) {
     return res.status(500).json({ success: false, message: error.message });
   }
@@ -367,8 +665,118 @@ exports.approveSubmission = async (req, res) => {
     const { submissionId, action = "approved", rejectionReason = "" } = req.body;
     if (!submissionId) return res.status(400).json({ success: false, message: "submissionId is required." });
 
+    // First try TreeSubmission
     const submission = await TreeSubmission.findById(submissionId);
-    if (!submission) return res.status(404).json({ success: false, message: "Submission not found." });
+    
+    if (!submission) {
+      // Fallback: try VendorApplication
+      const VendorApplication = require("../models/VendorApplication");
+      const app = await VendorApplication.findById(submissionId);
+      if (!app) {
+        return res.status(404).json({ success: false, message: "Submission not found." });
+      }
+
+      const actionableStatuses = ["submitted", "in_review", "draft", "changes_requested", "pending"];
+      if (!actionableStatuses.includes(app.status)) {
+        return res.status(400).json({ success: false, message: `Submission already ${app.status}.` });
+      }
+
+      if (action === "rejected") {
+        app.status = "rejected";
+        app.rejectedAt = new Date();
+        app.rejectedBy = req.user?._id;
+        await app.save({ validateBeforeSave: false });
+        return res.status(200).json({ success: true, data: app, message: "Submission rejected." });
+      }
+
+      // Approve VendorApplication
+      const vendorEmail = app.vendorEmail || app.email;
+      if (!vendorEmail) {
+        return res.status(400).json({ success: false, message: "Vendor email missing in submission data." });
+      }
+
+      let user = await User.findOne({ email: vendorEmail });
+      const generatedPassword = generatePassword();
+
+      if (!user) {
+        user = await User.create({
+          name: app.companyName || "Vendor User",
+          email: vendorEmail,
+          password: generatedPassword,
+          role: "vendor",
+          status: "active",
+          mustChangePassword: true,
+          tenantId: req.user?.tenantId,
+        });
+      } else {
+        if (String(user.role || "").toLowerCase() !== "vendor") {
+          return res.status(409).json({
+            success: false,
+            message: "This email is already used by a non-vendor account.",
+          });
+        }
+        user.name = app.companyName || user.name || "Vendor User";
+        user.role = "vendor";
+        user.status = "active";
+        user.password = generatedPassword;
+        user.mustChangePassword = true;
+        user.tenantId = req.user?.tenantId;
+        await user.save();
+      }
+
+      const VendorModel = require("../models/vendor.model");
+      let vendor = await VendorModel.findOne({ email: vendorEmail, tenantId: req.user.tenantId });
+      if (!vendor) {
+        const dataMap = app.data instanceof Map ? Object.fromEntries(app.data) : (app.data || {});
+        const getVal = (key) => dataMap[key] || "";
+
+        vendor = await VendorModel.create({
+          name: app.companyName || "Active Partner",
+          email: vendorEmail,
+          companyName: app.companyName,
+          status: "active",
+          phone: String(getVal("co_mobile") || getVal("mobileNumber") || getVal("phone") || "0000000000").replace(/[^0-9]/g, "").slice(0, 10) || "0000000000",
+          category: app.category,
+          address: {
+            city: getVal("city") || "N/A",
+            state: getVal("state") || "N/A",
+            pincode: getVal("pincode") || "000000",
+          },
+          tenantId: req.user.tenantId,
+          createdBy: req.user?._id,
+        });
+      }
+
+      app.status = "approved";
+      app.approvedAt = new Date();
+      app.approvedBy = req.user?._id;
+      app.currentStage = "COMPLETED";
+      await app.save({ validateBeforeSave: false });
+
+      try {
+        await sendVendorApprovalEmail({
+          to: user.email,
+          vendorName: user.name,
+          temporaryPassword: generatedPassword,
+        });
+      } catch (emailErr) {
+        console.error("Email failed:", emailErr.message);
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: "Submission approved. Vendor account created and credentials sent via email.",
+        data: app,
+        mockEmail: {
+          to: user.email,
+          subject: "Vendor Account Approved",
+          credentials: { email: user.email, password: generatedPassword },
+          loginLink: `${process.env.FRONTEND_URL || process.env.CLIENT_URL || "http://localhost:5173"}/login`,
+        },
+      });
+    }
+
+    // Original TreeSubmission logic
     if (submission.status !== "pending") {
       return res.status(400).json({ success: false, message: `Submission already ${submission.status}.` });
     }
@@ -397,6 +805,7 @@ exports.approveSubmission = async (req, res) => {
         role: "vendor",
         status: "active",
         mustChangePassword: true,
+        tenantId: req.user?.tenantId,
       });
     } else {
       if (String(user.role || "").toLowerCase() !== "vendor") {
@@ -410,6 +819,7 @@ exports.approveSubmission = async (req, res) => {
       user.status = "active";
       user.password = generatedPassword;
       user.mustChangePassword = true;
+      user.tenantId = req.user?.tenantId;
       await user.save();
     }
 

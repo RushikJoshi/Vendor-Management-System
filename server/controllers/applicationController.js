@@ -13,6 +13,14 @@ const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 const { successResponse, errorResponse } = require("../utils/responseHandler");
 
+const resolveApplicationTenantId = async (application, fallbackTenantId = null) => {
+    if (fallbackTenantId) return fallbackTenantId;
+    if (!application?.approvedBy) return null;
+
+    const approver = await User.findById(application.approvedBy).select("tenantId");
+    return approver?.tenantId || null;
+};
+
 // @desc Check if email already exists (Public)
 exports.checkEmail = async (req, res) => {
     try {
@@ -78,7 +86,7 @@ exports.submitApplication = async (req, res) => {
                 invitationToken,
                 email: email,
                 vendorEmail: email,
-                companyName: companyName || incomingData.companyName || incomingData.vendorName || incomingData.co_name || "Incomplete Profile",
+                companyName: companyName || incomingData.companyName || incomingData.vendorName || incomingData.co_name || incomingData.fullTradeName || incomingData.company_name || incomingData.legalName || incomingData.legal_name || incomingData.tradeName || incomingData.trade_name || incomingData.supplierName || incomingData.organizationName || "Vendor Submission",
                 data: incomingData,
                 status: "submitted",
                 submittedAt: new Date(),
@@ -113,7 +121,7 @@ exports.submitApplication = async (req, res) => {
                 category: category._id,
                 email: email,
                 vendorEmail: email,
-                companyName: companyName || incomingData.companyName || incomingData.vendorName || incomingData.co_name || "Incomplete Profile",
+                companyName: companyName || incomingData.companyName || incomingData.vendorName || incomingData.co_name || incomingData.fullTradeName || incomingData.company_name || incomingData.legalName || incomingData.legal_name || incomingData.tradeName || incomingData.trade_name || incomingData.supplierName || incomingData.organizationName || "Vendor Submission",
                 data: incomingData,
                 status: "submitted",
                 submittedAt: new Date(),
@@ -140,7 +148,7 @@ exports.submitApplication = async (req, res) => {
                 category: defaultCategory ? defaultCategory._id : null,
                 email: email,
                 vendorEmail: email,
-                companyName: companyName || incomingData.companyName || incomingData.vendorName || incomingData.co_name || "Incomplete Profile",
+                companyName: companyName || incomingData.companyName || incomingData.vendorName || incomingData.co_name || incomingData.fullTradeName || incomingData.company_name || incomingData.legalName || incomingData.legal_name || incomingData.tradeName || incomingData.trade_name || incomingData.supplierName || incomingData.organizationName || "Vendor Submission",
                 data: incomingData,
                 status: "submitted",
                 submittedAt: new Date(),
@@ -409,7 +417,7 @@ exports.processApprovalStage = async (req, res, next) => {
             // Create vendor account when fully approved
             if (status === "approved" && updated.currentStage === "COMPLETED") {
                 try {
-                    await exports.createVendorFromApplication(updated);
+                    await exports.createVendorFromApplication(updated, req.user?.tenantId);
                 } catch (e) { console.error("Vendor creation failed:", e.message); }
             }
         });
@@ -474,6 +482,8 @@ exports.approveApplication = async (req, res) => {
             }
             return 'N/A';
         };
+
+        const tenantId = await resolveApplicationTenantId(application, req.user?.tenantId);
 
         // 5. Create Vendor account
         const vendor = await Vendor.create({
@@ -544,7 +554,7 @@ exports.approveApplication = async (req, res) => {
             role: "vendor",
             status: "active",
             mustChangePassword: true,
-            tenantId: application.category // Optional: link to category if needed
+            tenantId,
         });
 
         // Link User to Vendor (using createdBy or new field)
@@ -643,7 +653,7 @@ exports.rejectApplication = async (req, res) => {
     }
 };
 
-async function createVendorFromApplication(application) {
+async function createVendorFromApplication(application, fallbackTenantId = null) {
     // 1. Generate secure 8-char temp password (upper + lower + digits)
     const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
     const tempPassword = Array.from({ length: 8 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
@@ -724,6 +734,8 @@ async function createVendorFromApplication(application) {
         contractsCount: 0
     });
 
+    const tenantId = await resolveApplicationTenantId(application, fallbackTenantId);
+
     // 3b. Create User account for authentication
     const newUser = await User.create({
         name: application.companyName,
@@ -732,7 +744,7 @@ async function createVendorFromApplication(application) {
         role: "vendor",
         status: "active",
         mustChangePassword: true,
-        tenantId: application.category
+        tenantId
     });
 
     // Link User to Vendor
@@ -786,12 +798,22 @@ exports.getApplications = async (req, res) => {
              VendorApplication.find(query).populate("category").sort("-createdAt").skip(skip).limit(parseInt(limit)),
              TreeSubmission.find(status ? { status } : {}).populate("formId").sort("-createdAt").skip(skip).limit(parseInt(limit))
         ]);
+        // Fix VendorApplication companyName from data when stored as generic fallback
+        const fixedApps = apps.map(a => {
+            const appObj = a.toObject();
+            if (appObj.companyName === "Dossier Submission" || appObj.companyName === "Incomplete Profile" || appObj.companyName === "Vendor Submission") {
+                const dataMap = a.data instanceof Map ? Object.fromEntries(a.data) : (appObj.data || {});
+                const realName = dataMap.companyName || dataMap.vendorName || dataMap.co_name || dataMap.fullTradeName || dataMap.company_name || dataMap.legalName || dataMap.legal_name || dataMap.tradeName || dataMap.trade_name || dataMap.supplierName || null;
+                if (realName) appObj.companyName = realName;
+            }
+            return appObj;
+        });
 
         // Harmonize TreeSubmissions to look like applications
         const harmonizedTree = treeSubmissions.map(ts => ({
             ...ts.toObject(),
             _id: ts._id,
-            companyName: ts.vendorName || "Dossier Submission",
+            companyName: ts.vendorName || "Vendor Submission",
             email: ts.vendorEmail,
             status: ts.status,
             currentStage: ts.status === 'approved' ? 'COMPLETED' : ts.status === 'rejected' ? 'REJECTED' : 'SUBMITTED',
@@ -799,7 +821,7 @@ exports.getApplications = async (req, res) => {
             createdAt: ts.createdAt
         }));
 
-        let applications = [...apps, ...harmonizedTree].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        let applications = [...fixedApps, ...harmonizedTree].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
         // Field Level Security
         const adminPerms = req.user.permissions || [];

@@ -1,4 +1,7 @@
 const Vendor = require("../models/vendor.model");
+const VendorApplication = require("../models/VendorApplication");
+const TreeSubmission = require("../models/TreeSubmission");
+const Category = require("../models/Category");
 const asyncHandler = require("../utils/asyncHandler");
 
 /**
@@ -34,16 +37,16 @@ exports.getVendorStats = asyncHandler(async (req, res, next) => {
         }
     ]);
 
-    // 2) Monthly Growth Statistics (Last 6 Months)
-    const sixMonthsAgo = new Date();
-    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 5);
-    sixMonthsAgo.setDate(1); // Start of month
+    // 2) Monthly Growth Statistics (Last 12 Months)
+    const twelveMonthsAgo = new Date();
+    twelveMonthsAgo.setMonth(twelveMonthsAgo.getMonth() - 11);
+    twelveMonthsAgo.setDate(1); 
 
     const monthlyQuery = Vendor.aggregate([
         {
             $match: {
                 isDeleted: { $ne: true },
-                createdAt: { $gte: sixMonthsAgo }
+                createdAt: { $gte: twelveMonthsAgo }
             }
         },
         {
@@ -58,7 +61,24 @@ exports.getVendorStats = asyncHandler(async (req, res, next) => {
         { $sort: { "_id.year": 1, "_id.month": 1 } }
     ]);
 
-    const [stats, monthlyGrowth] = await Promise.all([statsQuery, monthlyQuery]);
+    // 3) Category Mix
+    const categoryMixQuery = Vendor.aggregate([
+        { $match: { isDeleted: { $ne: true } } },
+        { $group: { _id: "$category", count: { $sum: 1 } } },
+        { $lookup: { from: "categories", localField: "_id", foreignField: "_id", as: "categoryInfo" } },
+        { $unwind: { path: "$categoryInfo", preserveNullAndEmptyArrays: true } },
+        { $project: { _id: 0, name: { $ifNull: ["$categoryInfo.name", "General"] }, value: "$count" } }
+    ]);
+
+    const [stats, monthlyGrowth, wizardPending, treePending, categoryMix] = await Promise.all([
+        statsQuery, 
+        monthlyQuery,
+        VendorApplication.countDocuments({ status: { $in: ["submitted", "under_review", "pending"] } }),
+        TreeSubmission.countDocuments({ status: { $in: ["pending", "submitted"] } }),
+        categoryMixQuery
+    ]);
+
+    const pendingApprovals = wizardPending + treePending;
 
     // Format monthly growth for frontend
     const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -80,6 +100,8 @@ exports.getVendorStats = asyncHandler(async (req, res, next) => {
         message: "Vendor statistics fetched successfully",
         data: {
             ...result,
+            pendingApprovals,
+            categoryMix,
             monthlyVendorStats: formattedMonthlyStats
         }
     });

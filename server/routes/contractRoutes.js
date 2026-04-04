@@ -8,7 +8,8 @@ const {
     getVendorContracts,
     terminateContract,
     updateContract,
-    deleteContract
+    deleteContract,
+    getContractById
 } = require("../controllers/ContractController");
 
 const { checkActionAccess } = require("../middlewares/permission.middleware");
@@ -17,6 +18,7 @@ router.use(protect);
 
 router.get("/vendor/:vendorId", checkActionAccess("contracts_view"), getVendorContracts);
 router.get("/stats", checkActionAccess("contracts_view"), getContractStats);
+router.get("/:id", checkActionAccess("contracts_view"), getContractById);
 router.get("/", checkActionAccess("contracts_view"), getContracts);
 router.post("/", checkActionAccess("contracts_manage"), createContract);
 router.patch("/:id", checkActionAccess("contracts_manage"), updateContract);

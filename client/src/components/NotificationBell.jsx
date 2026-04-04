@@ -1,5 +1,5 @@
 import React, { useState, useContext, useRef, useEffect } from 'react';
-import { Bell, Check, Trash, Info, CheckCircle, AlertTriangle, FileText, ChevronRight } from 'lucide-react';
+import { Bell, Check, Trash, Info, CheckCircle, AlertTriangle, FileText, ChevronRight, ReceiptIndianRupee } from 'lucide-react';
 import { NotificationContext } from '../context/NotificationContext';
 import { formatDistanceToNow } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
@@ -21,6 +21,7 @@ export default function NotificationBell() {
         // Navigation logic
         if (notification.type === 'vendor') navigate('/admin/vendors');
         if (notification.type === 'rfq') navigate('/admin/rfqs');
+        if (notification.type === 'quotation') navigate(notification.relatedEntityId ? `/admin/rfqs/${notification.relatedEntityId}/compare` : '/admin/rfqs');
         if (notification.type === 'application') navigate('/admin/applications');
         if (notification.type === 'contract') navigate('/admin/contracts');
         
@@ -43,6 +44,7 @@ export default function NotificationBell() {
         switch (type) {
             case 'vendor': return <Info className="text-blue-500" size={16} />;
             case 'rfq': return <FileText className="text-indigo-500" size={16} />;
+            case 'quotation': return <ReceiptIndianRupee className="text-violet-500" size={16} />;
             case 'application': return <CheckCircle className="text-green-500" size={16} />;
             case 'contract': return <AlertTriangle className="text-amber-500" size={16} />;
             default: return <Bell size={16} />;
