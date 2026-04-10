@@ -64,14 +64,7 @@ export default function Navbar({
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={onDesktopToggle}
-          className="hidden h-10 items-center gap-2 rounded-xl border border-stone-200 bg-white/85 px-3 text-[12px] font-semibold text-stone-600 transition-all hover:border-amber-400 hover:text-slate-900 lg:inline-flex"
-        >
-          {isSidebarCollapsed ? <PanelLeftOpen size={16} /> : <PanelLeftClose size={16} />}
-          {isSidebarCollapsed ? "Open Menu" : "Collapse Menu"}
-        </button>
+
       </div>
 
       <div className="flex items-center gap-2 sm:gap-3 lg:gap-4">
@@ -108,11 +101,7 @@ export default function Navbar({
               <p className="text-[13px] font-semibold leading-none text-slate-900">
                 {user?.name || "System Admin"}
               </p>
-              <div className="mt-1 flex items-center justify-end gap-1.5">
-                <span className="inline-flex rounded-full bg-sky-50 px-2 py-0.5 text-[10px] font-medium text-sky-700">
-                  {user?.role || "admin"}
-                </span>
-              </div>
+
             </div>
 
             <div className="relative">

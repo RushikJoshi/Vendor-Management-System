@@ -135,9 +135,7 @@ export default function Vendors() {
                       <h1 className="text-4xl font-semibold leading-tight tracking-[-0.03em] text-slate-900 md:text-5xl">
                           Vendor Ecosystem.
                       </h1>
-                      <p className="mt-4 max-w-2xl text-[16px] font-medium leading-relaxed tracking-wide text-slate-500 xl:text-[17px]">
-                          Master directory of all validated enterprise partners. Manage compliance, contact details, and operational status from one central platform.
-                      </p>
+
                   </div>
                   
                   <div className="flex flex-wrap items-center gap-3">

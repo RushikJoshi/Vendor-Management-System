@@ -142,28 +142,24 @@ export default function Applications() {
             {/* ── PREMIUM HEADER ─────────────────────────────────────────── */}
             <section className="relative rounded-2xl border border-slate-200/60 bg-white shadow-sm">
                 <div className="p-6 md:p-8">
-                    <div className="mb-6 flex flex-wrap items-center gap-3">
-                        <span className="flex items-center gap-2 rounded-full border border-indigo-100 bg-indigo-50/80 px-4 py-1.5 text-[10.5px] font-bold uppercase tracking-[0.15em] text-indigo-700 shadow-sm">
-                            <span className="relative flex h-2 w-2">
-                                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-indigo-400 opacity-75"></span>
-                                <span className="relative inline-flex h-2 w-2 rounded-full bg-indigo-500"></span>
-                            </span>
-                            Onboarding Pipeline
-                        </span>
-                        <span className="flex items-center gap-1.5 rounded-full border border-slate-200/80 bg-white px-4 py-1.5 text-[10px] font-semibold uppercase tracking-[0.15em] text-slate-600 shadow-sm">
-                            <Activity size={12} className="text-slate-400" />
-                            Live Queue
-                        </span>
-                    </div>
-
-                    <div className="flex flex-col xl:flex-row xl:items-end justify-between gap-6">
-                        <div className="max-w-3xl">
-                            <h1 className="text-4xl font-semibold leading-tight tracking-[-0.03em] text-slate-900 md:text-5xl">
+                    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                        <div className="flex flex-wrap items-center gap-5">
+                            <h1 className="text-3xl font-bold tracking-tight text-slate-900 md:text-4xl whitespace-nowrap">
                                 Vendor Applications.
                             </h1>
-                            <p className="mt-4 max-w-2xl text-[16px] font-medium leading-relaxed tracking-wide text-slate-500 xl:text-[17px]">
-                                Evaluate incoming vendor registrations, assess risk profiles, and manage the complete onboarding lifecycle from submission to final approval.
-                            </p>
+                            <div className="flex flex-wrap items-center gap-3">
+                                <span className="flex items-center gap-2 rounded-full border border-indigo-100 bg-indigo-50/80 px-4 py-1.5 text-[10.5px] font-bold uppercase tracking-[0.15em] text-indigo-700 shadow-sm">
+                                    <span className="relative flex h-2 w-2">
+                                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-indigo-400 opacity-75"></span>
+                                        <span className="relative inline-flex h-2 w-2 rounded-full bg-indigo-500"></span>
+                                    </span>
+                                    Onboarding Pipeline
+                                </span>
+                                <span className="flex items-center gap-1.5 rounded-full border border-slate-200/80 bg-white px-4 py-1.5 text-[10px] font-semibold uppercase tracking-[0.15em] text-slate-600 shadow-sm">
+                                    <Activity size={12} className="text-slate-400" />
+                                    Live Queue
+                                </span>
+                            </div>
                         </div>
                         <div className="flex flex-wrap items-center gap-3">
                             <div className="relative" ref={filterRef}>
@@ -317,7 +313,7 @@ export default function Applications() {
                                                 </div>
                                                 <div className="min-w-0">
                                                     <div className="flex items-center gap-2">
-                                                        <p className="text-[14px] font-bold text-slate-900 group-hover:text-indigo-900 truncate">{app.companyName || "N/A"}</p>
+                                                        <p className="text-[14px] font-semibold text-slate-900 group-hover:text-indigo-900 truncate">{app.companyName || "N/A"}</p>
                                                         {app.isNew && <span className="bg-indigo-600 text-white text-[8px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider">New</span>}
                                                     </div>
                                                     <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mt-0.5">{app.category?.name || "General"}</p>
@@ -326,7 +322,7 @@ export default function Applications() {
                                         </td>
                                         <td className="px-6 py-5">
                                             <div className="flex flex-col">
-                                                <span className="text-[13px] font-bold text-slate-700">{app.email}</span>
+                                                <span className="text-[13px] font-semibold text-slate-700">{app.email}</span>
                                                 <span className="text-[11px] font-mono text-slate-400 mt-0.5">#{app._id?.slice(-8).toUpperCase()}</span>
                                             </div>
                                         </td>

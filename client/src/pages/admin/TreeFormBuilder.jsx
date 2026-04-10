@@ -45,7 +45,7 @@ const mapSectionFromApi = (node) => {
   if (subsections.length === 0 && Array.isArray(node.fields) && node.fields.length > 0) {
     subsections = [
       {
-        id: `${node.id}_general`,
+        id: `gen_${node.id}_${Math.random().toString(36).slice(2, 6)}`,
         title: "General",
         collapsed: false,
         fields: node.fields.map(mapFieldFromApi),
@@ -197,35 +197,41 @@ export default function TreeFormBuilder() {
     setDragField(null);
   };
 
-  const toPayloadField = (field) => ({
-    id: field.id,
-    label: field.label || "Untitled Field",
-    type: field.type,
-    required: !!field.required,
-    options: (field.optionsText || "")
-      .split(",")
-      .map((value) => value.trim())
-      .filter(Boolean),
-    validation: {
-      pattern: "none",
-      min: undefined,
-      max: undefined,
-      allowedFileTypes: ["pdf", "png", "jpg", "jpeg"],
-      maxFileSizeMB: 5,
-    },
-  });
+  const toPayloadField = (field) => {
+    if (!field) return null;
+    return {
+      id: field.id,
+      label: field.label || "Untitled Field",
+      type: field.type || "text",
+      required: !!field.required,
+      options: (field.optionsText || "")
+        .split(",")
+        .map((value) => value.trim())
+        .filter(Boolean),
+      validation: {
+        pattern: "none",
+        min: undefined,
+        max: undefined,
+        allowedFileTypes: ["pdf", "png", "jpg", "jpeg"],
+        maxFileSizeMB: 5,
+      },
+    };
+  };
 
-  const toPayloadSection = (section) => ({
-    id: section.id,
-    title: section.title,
-    fields: [],
-    children: section.subsections.map((subsection) => ({
-      id: subsection.id,
-      title: subsection.title,
-      fields: subsection.fields.map(toPayloadField),
-      children: [],
-    })),
-  });
+  const toPayloadSection = (section) => {
+    if (!section) return null;
+    return {
+      id: section.id,
+      title: section.title || "Untitled Section",
+      fields: [],
+      children: (section.subsections || []).map((subsection) => ({
+        id: subsection.id,
+        title: subsection.title || "Untitled Subsection",
+        fields: (subsection.fields || []).map(toPayloadField).filter(Boolean),
+        children: [],
+      })),
+    };
+  };
 
   const saveForm = async (nextStatus = status) => {
     setMessage("");
@@ -238,14 +244,18 @@ export default function TreeFormBuilder() {
         structure: sections.map(toPayloadSection),
       };
 
-      const res = editingFormId ? await api.put(`/form/${editingFormId}`, payload) : await api.post("/form/create", payload);
+      const res = editingFormId 
+        ? await api.put(`/form/${editingFormId}`, payload) 
+        : await api.post("/form/create", payload);
+
       setEditingFormId(res.data.data._id);
       setStatus(res.data.data.status || nextStatus);
       const link = `${window.location.origin}/tree-form/${res.data.data._id}`;
       setPublicLink(link);
       setMessage(nextStatus === "published" ? "Form published successfully." : "Form saved.");
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to save form.");
+      console.error("[SaveForm Error]:", err);
+      setError(err.response?.data?.message || err.message || "Failed to save form.");
     }
   };
 
@@ -278,10 +288,10 @@ export default function TreeFormBuilder() {
             <option value="draft">Draft</option>
             <option value="published">Published</option>
           </select>
-          <button type="button" onClick={saveForm} className="rounded-lg bg-[#2563eb] px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
+          <button type="button" onClick={() => saveForm()} className="rounded-lg bg-[#2563eb] px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
             Save Form
           </button>
-          <button type="button" onClick={publishForm} className="inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700">
+          <button type="button" onClick={() => publishForm()} className="inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700">
             <CheckCircle2 size={15} />
             Publish
           </button>

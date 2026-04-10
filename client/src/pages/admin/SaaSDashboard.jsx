@@ -106,9 +106,6 @@ export default function SaaSDashboard() {
             <h1 className="text-3xl font-bold tracking-tight text-slate-900 md:text-[38px]">
               Dashboard Overview
             </h1>
-            <p className="mt-2 text-[15px] font-medium text-slate-500">
-              Overview of vendor registrations, category distribution, and procurement activity.
-            </p>
           </div>
           <div className="flex items-center gap-3">
             <button

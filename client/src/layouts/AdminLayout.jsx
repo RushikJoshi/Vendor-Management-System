@@ -37,7 +37,7 @@ export default function AdminLayout() {
 
       <div
         className={`relative z-10 flex min-h-screen flex-1 flex-col pl-0 transition-all duration-300 ${
-          isSidebarCollapsed ? "lg:pl-[6rem]" : "lg:pl-[16rem]"
+          isSidebarCollapsed ? "lg:pl-[5.5rem]" : "lg:pl-[17rem]"
         }`}
       >
         <Navbar
