@@ -52,7 +52,6 @@ const vendorApplicationSchema = new mongoose.Schema(
         email: {
             type: String,
             required: true,
-            unique: true,
         },
         companyName: {
             type: String,

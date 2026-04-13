@@ -2,20 +2,10 @@ import { NavLink, useLocation } from "react-router-dom";
 import { 
   ChevronLeft, 
   ChevronRight, 
-  LayoutDashboard, 
   X, 
-  LogOut, 
-  User as UserIcon,
   Building2,
-  FileText,
-  FileSignature,
-  Users,
-  Settings,
   Circle
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
-import { useContext } from "react";
-import { AuthContext } from "../context/AuthContext";
 
 export default function Sidebar({
   links = [],
@@ -25,7 +15,6 @@ export default function Sidebar({
   onToggleCollapse = () => {},
 }) {
   const location = useLocation();
-  const { user, logout } = useContext(AuthContext);
 
   // Group links logically for a more professional feel
   const groups = [
@@ -35,7 +24,7 @@ export default function Sidebar({
     },
     {
       title: "Management",
-      items: links.filter(l => ["Vendors", "Form Builder", "Categories", "RFQs", "Contracts"].includes(l.label))
+      items: links.filter(l => ["Vendors", "Form Builder", "Categories", "RFQs", "Procurement", "Contracts"].includes(l.label))
     },
     {
       title: "System",
@@ -56,14 +45,10 @@ export default function Sidebar({
             <Building2 className="text-white" size={22} strokeWidth={2.5} />
           </div>
           {!isCollapsed && (
-            <motion.div 
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="flex flex-col"
-            >
+            <div className="flex flex-col">
               <span className="text-lg font-bold tracking-tight text-slate-900">VMS<span className="text-indigo-600">PRO</span></span>
               <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Enterprise</span>
-            </motion.div>
+            </div>
           )}
         </div>
         
@@ -108,12 +93,7 @@ export default function Sidebar({
                     `}
                   >
                     {/* Active Indicator Bar */}
-                    {isActive && (
-                      <motion.div 
-                        layoutId="activeBar"
-                        className="absolute left-0 h-6 w-1 rounded-r-full bg-white/40"
-                      />
-                    )}
+                    {isActive && <div className="absolute left-0 h-6 w-1 rounded-r-full bg-white/40" />}
 
                     <div className={`flex items-center justify-center transition-transform duration-300 group-hover:scale-110 ${isActive ? "text-white" : "text-slate-400 group-hover:text-indigo-600"}`}>
                       <Icon size={isCollapsed ? 22 : 19} strokeWidth={isActive ? 2.5 : 2} />

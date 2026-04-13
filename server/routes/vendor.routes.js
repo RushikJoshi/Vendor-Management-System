@@ -10,6 +10,7 @@ const {
     uploadGST,
     uploadAgreement,
     getMe,
+    getVendorDashboardStats,
     updateMe,
     sendPaymentReminder
 } = require("../controllers/vendor.controller");
@@ -42,6 +43,7 @@ router.put(
 
 // RBAC
 router.get("/me", checkAnyActionAccess("vendor_dashboard", "vendors_view"), getMe);
+router.get("/me/stats", checkAnyActionAccess("vendor_dashboard"), getVendorDashboardStats);
 router.put("/me", authorizeRoles("vendor"), checkActionAccess("vendor_dashboard"), updateMe);
 
 

@@ -76,6 +76,26 @@ const rfqSchema = new mongoose.Schema(
             enum: ["draft", "published", "closed", "cancelled"],
             default: "draft",
         },
+        sourcePrId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "PurchaseRequest",
+            default: null,
+            index: true,
+        },
+        categoryId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Category",
+            default: null,
+            index: true,
+        },
+        sentAt: {
+            type: Date,
+            default: null,
+        },
+        sentVendorCount: {
+            type: Number,
+            default: 0,
+        },
         tenantId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Company",
@@ -92,5 +112,7 @@ const rfqSchema = new mongoose.Schema(
 // Indexing for faster searches
 rfqSchema.index({ tenantId: 1, status: 1 });
 rfqSchema.index({ departmentId: 1 });
+rfqSchema.index({ tenantId: 1, sourcePrId: 1 });
+rfqSchema.index({ tenantId: 1, categoryId: 1, status: 1 });
 
 module.exports = mongoose.model("RFQ", rfqSchema);

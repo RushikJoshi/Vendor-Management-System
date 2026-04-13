@@ -49,13 +49,17 @@ import CategoryForm from "./pages/admin/CategoryForm";
 
 
 import { NotificationProvider } from "./context/NotificationContext";
+import { ProcurementProvider } from "./context/ProcurementContext";
 import { Toaster } from "react-hot-toast";
+import ProcurementHub from "./pages/admin/ProcurementHub";
+import VendorProcurementDesk from "./pages/vendor/VendorProcurementDesk";
 
 function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
         <NotificationProvider>
+          <ProcurementProvider>
           <Toaster 
             position="top-right"
             toastOptions={{
@@ -106,6 +110,7 @@ function App() {
             <Route path="rfqs/create" element={<ProtectedRoute module="rfq"><CreateRFQ /></ProtectedRoute>} />
             <Route path="rfqs/:id/compare" element={<ProtectedRoute module="rfq"><QuotationsComparison /></ProtectedRoute>} />
             <Route path="contracts" element={<ProtectedRoute module="contracts"><Contracts /></ProtectedRoute>} />
+            <Route path="procurement" element={<ProtectedRoute module="procurement"><ProcurementHub /></ProtectedRoute>} />
             <Route path="contracts/create" element={<ProtectedRoute module="contracts"><CreateContract /></ProtectedRoute>} />
             <Route path="contracts/:id/edit" element={<ProtectedRoute module="contracts"><CreateContract /></ProtectedRoute>} />
             <Route path="applications" element={<ProtectedRoute module="applications"><Applications /></ProtectedRoute>} />
@@ -152,6 +157,7 @@ function App() {
             <Route path="profile" element={<ProtectedRoute anyPermission="vendor_dashboard"><Profile /></ProtectedRoute>} />
             <Route path="contracts" element={<ProtectedRoute anyPermission="vendor_dashboard"><MyContracts /></ProtectedRoute>} />
             <Route path="contracts/:id" element={<ProtectedRoute anyPermission="vendor_dashboard"><ContractDetail /></ProtectedRoute>} />
+            <Route path="procurement" element={<ProtectedRoute anyPermission="vendor_dashboard"><VendorProcurementDesk /></ProtectedRoute>} />
             <Route path="*" element={<Navigate to="/vendor/dashboard" replace />} />
 
           </Route>
@@ -166,6 +172,7 @@ function App() {
 
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
+        </ProcurementProvider>
         </NotificationProvider>
       </AuthProvider>
 

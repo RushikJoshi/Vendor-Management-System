@@ -165,7 +165,7 @@ function TreeNodeRenderer({ node, number, values, files, setValues, setFiles, co
   }
 
   return (
-    <div className={`w-full overflow-hidden transition-all ${isTopLevel ? "" : "mt-2 rounded-2xl border border-slate-200 bg-white"}`}>
+    <div className={`w-full transition-all ${isTopLevel ? "" : "mt-2 rounded-2xl border border-slate-200 bg-white"}`}>
       <div 
         className={`flex items-center gap-3 cursor-pointer py-4 transition-colors ${
            isTopLevel 
@@ -339,7 +339,7 @@ function FieldRenderer({ field, values, files, setValues, setFiles }) {
   };
 
   return (
-    <div className={`space-y-1 ${wideSpanClass}`}>
+    <div className={`space-y-1 ${wideSpanClass} relative focus-within:z-50`}>
       <label className="text-xs font-semibold tracking-wide text-slate-700">
         {field.label} {field.required ? <span className="text-rose-500">*</span> : null}
       </label>

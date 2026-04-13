@@ -7,6 +7,10 @@ const AppError = require("../utils/AppError");
 const sendEmail = require("../utils/email");
 const logActivity = require("../utils/logActivity");
 const { normalizeRole } = require("../config/roles");
+const PurchaseOrder = require("../models/PurchaseOrder");
+const Invoice = require("../modules/procurement/models/Invoice");
+const Notification = require("../models/Notification");
+
 
 // @desc    Upload GST Certificate
 // @route   PUT /api/vendors/:id/upload-gst
@@ -388,4 +392,50 @@ exports.sendPaymentReminder = asyncHandler(async (req, res, next) => {
     });
 
     successResponse(res, "Payment reminder sent successfully", null);
+});
+
+// @desc    Get dashboard statistics for current vendor
+// @route   GET /api/vendors/me/stats
+// @access  Private (Vendor only)
+exports.getVendorDashboardStats = asyncHandler(async (req, res, next) => {
+    const vendor = await Vendor.findOne({ userId: req.user.id });
+
+    if (!vendor) {
+        // Fallback or handle null profile
+        return successResponse(res, "Vendor stats fetched (No profile)", {
+            activePOs: 0,
+            pendingInvoices: 0,
+            avgRating: 0,
+            onTimeDelivery: 0,
+            notifications: 0,
+            profileComplete: false
+        });
+    }
+
+    const [activePOs, pendingInvoices, unreadNotifications] = await Promise.all([
+        PurchaseOrder.countDocuments({
+            vendorId: vendor._id,
+            status: { $in: ["sent", "accepted"] }
+        }),
+        Invoice.countDocuments({
+            vendorId: vendor._id,
+            status: { $in: ["submitted", "verified", "approved", "payment_initiated"] }
+        }),
+        Notification.countDocuments({
+            userId: req.user.id,
+            isRead: false
+        })
+    ]);
+
+    const stats = {
+        activePOs,
+        pendingInvoices,
+        avgRating: vendor.rating || 0,
+        onTimeDelivery: vendor.onTimeDeliveryPercentage || 0,
+        unreadNotifications,
+        totalOrders: vendor.totalOrders || 0,
+        profileComplete: vendor.status === "active"
+    };
+
+    successResponse(res, "Vendor stats fetched successfully", stats);
 });

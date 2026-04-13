@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../../services/api";
 
+const ACTIONABLE_STATUSES = new Set(["pending", "needs_correction", "on_hold", "escalated", "conditionally_approved"]);
+
 export default function TreeSubmissions() {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -45,18 +47,22 @@ export default function TreeSubmissions() {
     });
   }, [rows, statusFilter, fromDate, toDate]);
 
-  const pendingCount = filteredRows.filter((r) => String(r.status || "").toLowerCase() === "pending").length;
+  const pendingCount = filteredRows.filter((r) => ACTIONABLE_STATUSES.has(String(r.status || "").toLowerCase())).length;
 
   const statusClass = (status) => {
     const s = String(status || "").toLowerCase();
     if (s === "approved") return "bg-emerald-100 text-emerald-800";
     if (s === "rejected") return "bg-rose-100 text-rose-800";
+    if (s === "needs_correction") return "bg-orange-100 text-orange-800";
+    if (s === "escalated") return "bg-indigo-100 text-indigo-800";
+    if (s === "conditionally_approved") return "bg-teal-100 text-teal-800";
+    if (s === "on_hold") return "bg-slate-200 text-slate-700";
     return "bg-amber-100 text-amber-800";
   };
 
   const takeAction = async (submissionId, action) => {
     try {
-      const isApprove = action === "approved";
+      const isApprove = action === "approve";
       const confirmed = window.confirm(
         isApprove
           ? "Approve this vendor submission and create vendor login credentials?"
@@ -73,7 +79,7 @@ export default function TreeSubmissions() {
       await api.post("/submission/approve", {
         submissionId,
         action,
-        ...(action === "rejected" ? { rejectionReason } : {}),
+        ...(action === "reject" ? { reason: rejectionReason } : {}),
       });
       setMessage(isApprove ? "Submission approved and vendor credentials sent successfully." : "Submission rejected.");
       await load();
@@ -121,6 +127,10 @@ export default function TreeSubmissions() {
             <option value="pending">Pending</option>
             <option value="approved">Approved</option>
             <option value="rejected">Rejected</option>
+            <option value="needs_correction">Needs Correction</option>
+            <option value="on_hold">On Hold</option>
+            <option value="escalated">Escalated</option>
+            <option value="conditionally_approved">Conditionally Approved</option>
           </select>
           <input
             type="date"
@@ -149,9 +159,9 @@ export default function TreeSubmissions() {
       </div>
 
       <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
-        {pendingCount > 0 ? (
+            {pendingCount > 0 ? (
           <div className="border-b border-amber-200 bg-amber-50 px-4 py-2 text-sm font-medium text-amber-800">
-            {pendingCount} pending approval{pendingCount > 1 ? "s" : ""}. Review now.
+            {pendingCount} actionable submission{pendingCount > 1 ? "s" : ""}. Review now.
           </div>
         ) : null}
         <table className="w-full">
@@ -191,7 +201,7 @@ export default function TreeSubmissions() {
                   <td className="px-4 py-3 text-slate-600">{new Date(r.createdAt).toLocaleDateString()}</td>
                   <td className="px-4 py-3">
                     <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold capitalize ${statusClass(r.status)}`}>
-                      {r.status}
+                      {String(r.status || "").replaceAll("_", " ")}
                     </span>
                   </td>
                   <td className="px-4 py-3">
@@ -204,19 +214,19 @@ export default function TreeSubmissions() {
                       </Link>
                       <button
                         type="button"
-                        onClick={() => takeAction(r._id, "approved")}
-                        disabled={String(r.status || "").toLowerCase() !== "pending" || !!actionLoadingId}
+                        onClick={() => takeAction(r._id, "approve")}
+                        disabled={!ACTIONABLE_STATUSES.has(String(r.status || "").toLowerCase()) || !!actionLoadingId}
                         className="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
                       >
-                        {actionLoadingId === `${r._id}-approved` ? "Approving..." : "Approve"}
+                        {actionLoadingId === `${r._id}-approve` ? "Approving..." : "Approve"}
                       </button>
                       <button
                         type="button"
-                        onClick={() => takeAction(r._id, "rejected")}
-                        disabled={String(r.status || "").toLowerCase() !== "pending" || !!actionLoadingId}
+                        onClick={() => takeAction(r._id, "reject")}
+                        disabled={!ACTIONABLE_STATUSES.has(String(r.status || "").toLowerCase()) || !!actionLoadingId}
                         className="rounded-lg bg-rose-600 px-3 py-1.5 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
                       >
-                        {actionLoadingId === `${r._id}-rejected` ? "Rejecting..." : "Reject"}
+                        {actionLoadingId === `${r._id}-reject` ? "Rejecting..." : "Reject"}
                       </button>
                     </div>
                   </td>

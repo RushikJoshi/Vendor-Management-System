@@ -51,13 +51,13 @@ exports.submitApplication = async (req, res) => {
 
         if (!email) throw new Error("Compliance Error: Identification email is required to process dossier.");
 
-        // 1) Find existing application
-        let application = await VendorApplication.findOne({
-            $or: [
-                { email: email },
-                { invitationToken: invitationToken && invitationToken !== 'null' ? invitationToken : '___none___' }
-            ]
-        });
+        // 1) Find existing application - Only match by token to allow multiple applications per email
+        // If invitationToken is provided, we update that specific dossier. 
+        // If no token, we always create a new application.
+        let application = null;
+        if (invitationToken && invitationToken !== 'null') {
+            application = await VendorApplication.findOne({ invitationToken });
+        }
 
         // 2) Blacklist Integrity Check
         const existingVendor = await Vendor.findOne({ email });
@@ -485,80 +485,101 @@ exports.approveApplication = async (req, res) => {
 
         const tenantId = await resolveApplicationTenantId(application, req.user?.tenantId);
 
-        // 5. Create Vendor account
-        const vendor = await Vendor.create({
-            email: application.email,
-            companyName: application.companyName,
-            password: hashedPassword,
-            status: 'approved',
-            phone: getVal('co_mobile', 'mobileNumber', 'phone', 'mobile'),
-            contactPerson: getVal('co_contact', 'contactName', 'contactPerson'),
-            serviceType: getVal('co_nature', 'natureOfBusiness', 'serviceType') !== 'N/A'
-                ? getVal('co_nature', 'natureOfBusiness', 'serviceType') : 'General',
-            category: application.category,
-            address: getVal('co_address', 'address', 'registeredAddress'),
-            companyDetails: {
-                website: getVal('co_website', 'website'),
-                establishmentYear: Number(getVal('co_estYear', 'establishmentYear')) || 0,
-                natureOfBusiness: getVal('co_nature', 'natureOfBusiness'),
-                employeeCount: Number(getVal('co_employees', 'employeeCount')) || 0,
-                registeredAddress: getVal('co_address', 'address')
-            },
-            contactDetails: {
-                name: getVal('co_contact', 'contactName'),
-                designation: getVal('co_designation', 'designation'),
-                mobile: getVal('co_mobile', 'mobileNumber'),
-                email: getVal('co_email', 'contactEmail', 'email') !== 'N/A' ? getVal('co_email', 'contactEmail', 'email') : application.email,
-                alternateContact: getVal('co_altMobile', 'altMobile')
-            },
-            statutoryDetails: {
-                panNumber: getVal('co_pan', 'panNum'),
-                gstNumber: getVal('co_gst', 'gstNum'),
-                registrationType: getVal('co_regType', 'regType'),
-                msmeNumber: getVal('co_msme', 'msmeNum'),
-                msmeCategory: getVal('co_msmeCat', 'msmeCat')
-            },
-            bankDetails: {
-                beneficiaryName: getVal('bk_beneficiary', 'beneficiaryName'),
-                bankName: getVal('bk_bankName', 'bankName'),
-                branchName: getVal('bk_branch', 'bankBranch'),
-                accountNumber: getVal('bk_accNo', 'accountNumber'),
-                accountType: getVal('bk_accType', 'accountType'),
-                ifscCode: getVal('bk_ifsc', 'ifscCode'),
-                micrCode: getVal('bk_micr', 'micrCode')
-            },
-            taxDetails: {
-                itrLast3Years: getVal('tx_itr', 'itrStatus'),
-                taxResidencyCert: getVal('tx_trc', 'trcStatus'),
-                vatNumber: getVal('tx_vat', 'vatNum')
-            },
-            complianceDetails: {
-                antiBribery: ['true', 'on', true].includes(getVal('cl_antiBribery', 'antiBribery')),
-                noConflict: ['true', 'on', true].includes(getVal('cl_noConflict', 'noConflict')),
-                dataPrivacy: ['true', 'on', true].includes(getVal('cl_dataPrivacy', 'dataPrivacy'))
-            },
-            documents: (application.documents || []).map(doc => ({
-                name: doc.name, url: doc.url,
-                public_id: doc.public_id, fieldName: doc.fieldName
-            })),
-            createdFromApplicationId: application._id,
-            averageRating: 0,
-            contractsCount: 0
-        });
+        // 5. Create or Update Vendor account mapping form data
+        let vendor = await Vendor.findOne({ email: application.email });
+        if (vendor) {
+            vendor.companyName = application.companyName;
+            vendor.phone = getVal('co_mobile', 'mobileNumber', 'phone', 'mobile');
+            vendor.category = application.category;
+            vendor.address = getVal('co_address', 'address', 'registeredAddress');
+            await vendor.save();
+        } else {
+            vendor = await Vendor.create({
+                email: application.email,
+                companyName: application.companyName,
+                password: hashedPassword,
+                status: 'approved',
+                phone: getVal('co_mobile', 'mobileNumber', 'phone', 'mobile'),
+                contactPerson: getVal('co_contact', 'contactName', 'contactPerson'),
+                serviceType: getVal('co_nature', 'natureOfBusiness', 'serviceType') !== 'N/A'
+                    ? getVal('co_nature', 'natureOfBusiness', 'serviceType') : 'General',
+                category: application.category,
+                address: getVal('co_address', 'address', 'registeredAddress'),
+                companyDetails: {
+                    website: getVal('co_website', 'website'),
+                    establishmentYear: Number(getVal('co_estYear', 'establishmentYear')) || 0,
+                    natureOfBusiness: getVal('co_nature', 'natureOfBusiness'),
+                    employeeCount: Number(getVal('co_employees', 'employeeCount')) || 0,
+                    registeredAddress: getVal('co_address', 'address')
+                },
+                contactDetails: {
+                    name: getVal('co_contact', 'contactName'),
+                    designation: getVal('co_designation', 'designation'),
+                    mobile: getVal('co_mobile', 'mobileNumber'),
+                    email: getVal('co_email', 'contactEmail', 'email') !== 'N/A' ? getVal('co_email', 'contactEmail', 'email') : application.email,
+                    alternateContact: getVal('co_altMobile', 'altMobile')
+                },
+                statutoryDetails: {
+                    panNumber: getVal('co_pan', 'panNum'),
+                    gstNumber: getVal('co_gst', 'gstNum'),
+                    registrationType: getVal('co_regType', 'regType'),
+                    msmeNumber: getVal('co_msme', 'msmeNum'),
+                    msmeCategory: getVal('co_msmeCat', 'msmeCat')
+                },
+                bankDetails: {
+                    beneficiaryName: getVal('bk_beneficiary', 'beneficiaryName'),
+                    bankName: getVal('bk_bankName', 'bankName'),
+                    branchName: getVal('bk_branch', 'bankBranch'),
+                    accountNumber: getVal('bk_accNo', 'accountNumber'),
+                    accountType: getVal('bk_accType', 'accountType'),
+                    ifscCode: getVal('bk_ifsc', 'ifscCode'),
+                    micrCode: getVal('bk_micr', 'micrCode')
+                },
+                taxDetails: {
+                    itrLast3Years: getVal('tx_itr', 'itrStatus'),
+                    taxResidencyCert: getVal('tx_trc', 'trcStatus'),
+                    vatNumber: getVal('tx_vat', 'vatNum')
+                },
+                complianceDetails: {
+                    antiBribery: ['true', 'on', true].includes(getVal('cl_antiBribery', 'antiBribery')),
+                    noConflict: ['true', 'on', true].includes(getVal('cl_noConflict', 'noConflict')),
+                    dataPrivacy: ['true', 'on', true].includes(getVal('cl_dataPrivacy', 'dataPrivacy'))
+                },
+                documents: (application.documents || []).map(doc => ({
+                    name: doc.name, url: doc.url,
+                    public_id: doc.public_id, fieldName: doc.fieldName
+                })),
+                createdFromApplicationId: application._id,
+                averageRating: 0,
+                contractsCount: 0
+            });
+        }
 
-        // 5b. Create User account for authentication
-        const newUser = await User.create({
-            name: application.companyName,
-            email: application.email,
-            password: tempPassword, // User model will hash this in pre-save hook
-            role: "vendor",
-            status: "active",
-            mustChangePassword: true,
-            tenantId,
-        });
+        // 5b. Handle User account for authentication
+        let user = await User.findOne({ email: application.email });
+        if (!user) {
+            user = await User.create({
+                name: application.companyName,
+                email: application.email,
+                password: tempPassword,
+                role: "vendor",
+                status: "active",
+                mustChangePassword: true,
+                tenantId,
+            });
+        } else {
+            // Only update role to vendor if they are not already an admin/hr
+            if (user.role === "vendor") {
+                user.name = application.companyName;
+                user.status = "active";
+                user.mustChangePassword = true;
+                user.password = tempPassword;
+                await user.save();
+            }
+        }
 
-        // Link User to Vendor (using createdBy or new field)
-        vendor.createdBy = newUser._id;
+        // Link User to Vendor
+        vendor.createdBy = user._id;
         await vendor.save();
 
         // 6. Update application status
@@ -668,90 +689,111 @@ async function createVendorFromApplication(application, fallbackTenantId = null)
         return 'N/A';
     };
 
-    // 3. Create Vendor account mapping form data
+    // 3. Create or Update Vendor account mapping form data
     const contactNameVal = getVal('co_contact', 'contactName', 'contactPerson');
     const vendorName = contactNameVal !== 'N/A' ? contactNameVal : application.companyName;
 
-    const vendor = await Vendor.create({
-        name: vendorName,
-        createdBy: application.approvedBy || application.category, // Fallback to category ID if approvedBy is missing
-        email: application.email,
-        companyName: application.companyName,
-        password: hashedPassword,
-        status: 'active',
-        phone: getVal('co_mobile', 'mobileNumber', 'phone', 'mobile'),
-        contactPerson: vendorName,
-        serviceType: getVal('co_nature', 'natureOfBusiness', 'serviceType') !== 'N/A'
-            ? getVal('co_nature', 'natureOfBusiness', 'serviceType') : 'General',
-        category: application.category,
-        address: getVal('co_address', 'address', 'registeredAddress'),
-        companyDetails: {
-            website: getVal('co_website', 'website'),
-            establishmentYear: Number(getVal('co_estYear', 'establishmentYear')) || 0,
-            natureOfBusiness: getVal('co_nature', 'natureOfBusiness'),
-            employeeCount: Number(getVal('co_employees', 'employeeCount')) || 0,
-            registeredAddress: getVal('co_address', 'address')
-        },
-        contactDetails: {
-            name: getVal('co_contact', 'contactName'),
-            designation: getVal('co_designation', 'designation'),
-            mobile: getVal('co_mobile', 'mobileNumber'),
-            email: getVal('co_email', 'contactEmail', 'email') !== 'N/A' ? getVal('co_email', 'contactEmail', 'email') : application.email,
-            alternateContact: getVal('co_altMobile', 'altMobile')
-        },
-        statutoryDetails: {
-            panNumber: getVal('co_pan', 'panNum'),
-            gstNumber: getVal('co_gst', 'gstNum'),
-            registrationType: getVal('co_regType', 'regType'),
-            msmeNumber: getVal('co_msme', 'msmeNum'),
-            msmeCategory: getVal('co_msmeCat', 'msmeCat')
-        },
-        bankDetails: {
-            beneficiaryName: getVal('bk_beneficiary', 'beneficiaryName'),
-            bankName: getVal('bk_bankName', 'bankName'),
-            branchName: getVal('bk_branch', 'bankBranch'),
-            accountNumber: getVal('bk_accNo', 'accountNumber'),
-            accountType: getVal('bk_accType', 'accountType'),
-            ifscCode: getVal('bk_ifsc', 'ifscCode'),
-            micrCode: getVal('bk_micr', 'micrCode')
-        },
-        taxDetails: {
-            itrLast3Years: getVal('tx_itr', 'itrStatus'),
-            taxResidencyCert: getVal('tx_trc', 'trcStatus'),
-            vatNumber: getVal('tx_vat', 'vatNum')
-        },
-        complianceDetails: {
-            antiBribery: ['true', 'on', true].includes(getVal('cl_antiBribery', 'antiBribery')),
-            noConflict: ['true', 'on', true].includes(getVal('cl_noConflict', 'noConflict')),
-            dataPrivacy: ['true', 'on', true].includes(getVal('cl_dataPrivacy', 'dataPrivacy'))
-        },
-        documents: (application.documents || []).map(doc => ({
-            name: doc.name, url: doc.url,
-            public_id: doc.public_id, fieldName: doc.fieldName
-        })),
-        createdFromApplicationId: application._id,
-        averageRating: 0,
-        contractsCount: 0
-    });
+    let vendor = await Vendor.findOne({ email: application.email });
+    if (vendor) {
+        vendor.name = vendorName;
+        vendor.companyName = application.companyName;
+        vendor.phone = getVal('co_mobile', 'mobileNumber', 'phone', 'mobile');
+        vendor.category = application.category;
+        vendor.address = getVal('co_address', 'address', 'registeredAddress');
+        await vendor.save();
+    } else {
+        vendor = await Vendor.create({
+            name: vendorName,
+            createdBy: application.approvedBy || application.category,
+            email: application.email,
+            companyName: application.companyName,
+            password: hashedPassword,
+            status: 'active',
+            phone: getVal('co_mobile', 'mobileNumber', 'phone', 'mobile'),
+            contactPerson: vendorName,
+            serviceType: getVal('co_nature', 'natureOfBusiness', 'serviceType') !== 'N/A'
+                ? getVal('co_nature', 'natureOfBusiness', 'serviceType') : 'General',
+            category: application.category,
+            address: getVal('co_address', 'address', 'registeredAddress'),
+            companyDetails: {
+                website: getVal('co_website', 'website'),
+                establishmentYear: Number(getVal('co_estYear', 'establishmentYear')) || 0,
+                natureOfBusiness: getVal('co_nature', 'natureOfBusiness'),
+                employeeCount: Number(getVal('co_employees', 'employeeCount')) || 0,
+                registeredAddress: getVal('co_address', 'address')
+            },
+            contactDetails: {
+                name: getVal('co_contact', 'contactName'),
+                designation: getVal('co_designation', 'designation'),
+                mobile: getVal('co_mobile', 'mobileNumber'),
+                email: getVal('co_email', 'contactEmail', 'email') !== 'N/A' ? getVal('co_email', 'contactEmail', 'email') : application.email,
+                alternateContact: getVal('co_altMobile', 'altMobile')
+            },
+            statutoryDetails: {
+                panNumber: getVal('co_pan', 'panNum'),
+                gstNumber: getVal('co_gst', 'gstNum'),
+                registrationType: getVal('co_regType', 'regType'),
+                msmeNumber: getVal('co_msme', 'msmeNum'),
+                msmeCategory: getVal('co_msmeCat', 'msmeCat')
+            },
+            bankDetails: {
+                beneficiaryName: getVal('bk_beneficiary', 'beneficiaryName'),
+                bankName: getVal('bk_bankName', 'bankName'),
+                branchName: getVal('bk_branch', 'bankBranch'),
+                accountNumber: getVal('bk_accNo', 'accountNumber'),
+                accountType: getVal('bk_accType', 'accountType'),
+                ifscCode: getVal('bk_ifsc', 'ifscCode'),
+                micrCode: getVal('bk_micr', 'micrCode')
+            },
+            taxDetails: {
+                itrLast3Years: getVal('tx_itr', 'itrStatus'),
+                taxResidencyCert: getVal('tx_trc', 'trcStatus'),
+                vatNumber: getVal('tx_vat', 'vatNum')
+            },
+            complianceDetails: {
+                antiBribery: ['true', 'on', true].includes(getVal('cl_antiBribery', 'antiBribery')),
+                noConflict: ['true', 'on', true].includes(getVal('cl_noConflict', 'noConflict')),
+                dataPrivacy: ['true', 'on', true].includes(getVal('cl_dataPrivacy', 'dataPrivacy'))
+            },
+            documents: (application.documents || []).map(doc => ({
+                name: doc.name, url: doc.url,
+                public_id: doc.public_id, fieldName: doc.fieldName
+            })),
+            createdFromApplicationId: application._id,
+            averageRating: 0,
+            contractsCount: 0
+        });
+    }
 
     const tenantId = await resolveApplicationTenantId(application, fallbackTenantId);
 
-    // 3b. Create User account for authentication
-    const newUser = await User.create({
-        name: application.companyName,
-        email: application.email,
-        password: tempPassword, // User model will hash this in pre-save hook
-        role: "vendor",
-        status: "active",
-        mustChangePassword: true,
-        tenantId
-    });
+    // 4. Handle User account for authentication
+    let user = await User.findOne({ email: application.email });
+    if (!user) {
+        user = await User.create({
+            name: application.companyName,
+            email: application.email,
+            password: tempPassword,
+            role: "vendor",
+            status: "active",
+            mustChangePassword: true,
+            tenantId
+        });
+    } else {
+        if (user.role === "vendor") {
+            user.name = application.companyName;
+            user.status = "active";
+            user.mustChangePassword = true;
+            user.password = tempPassword;
+            await user.save();
+        }
+    }
 
     // Link User to Vendor
-    vendor.createdBy = newUser._id;
+    vendor.createdBy = user._id;
     await vendor.save();
 
-    // 4. Update the application to link vendor ID using findByIdAndUpdate (bypasses hooks)
+    // 5. Update the application to link vendor ID using findByIdAndUpdate (bypasses hooks)
     await VendorApplication.findByIdAndUpdate(application._id, {
         $set: { vendorId: vendor._id }
     });
