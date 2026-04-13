@@ -246,7 +246,7 @@ export default function Categories() {
                                         <p className="text-[13px] font-medium text-slate-500 max-w-md line-clamp-1">{cat.description || 'No description provided'}</p>
                                     </td>
                                     <td className="px-6 py-4">
-                                        <StatusBadge status={cat.status === 'active' ? "active" : "failed"} />
+                                        <StatusBadge status={cat.status || "inactive"} />
                                     </td>
                                     <td className="px-6 py-4 text-right">
                                         <div className="flex justify-end gap-2">

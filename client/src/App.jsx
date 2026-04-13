@@ -53,6 +53,11 @@ import { ProcurementProvider } from "./context/ProcurementContext";
 import { Toaster } from "react-hot-toast";
 import ProcurementHub from "./pages/admin/ProcurementHub";
 import VendorProcurementDesk from "./pages/vendor/VendorProcurementDesk";
+import CreateInvoice from "./pages/vendor/CreateInvoice";
+import UpdateShipment from "./pages/vendor/UpdateShipment";
+import PurchaseOrderDetail from "./pages/admin/PurchaseOrderDetail";
+import PaymentCheckout from "./pages/admin/PaymentCheckout";
+import AdminDeliveries from "./pages/admin/AdminDeliveries";
 
 function App() {
   return (
@@ -111,6 +116,9 @@ function App() {
             <Route path="rfqs/:id/compare" element={<ProtectedRoute module="rfq"><QuotationsComparison /></ProtectedRoute>} />
             <Route path="contracts" element={<ProtectedRoute module="contracts"><Contracts /></ProtectedRoute>} />
             <Route path="procurement" element={<ProtectedRoute module="procurement"><ProcurementHub /></ProtectedRoute>} />
+            <Route path="procurement/po/:id" element={<ProtectedRoute module="procurement"><PurchaseOrderDetail /></ProtectedRoute>} />
+            <Route path="procurement/payment/:id" element={<ProtectedRoute module="procurement"><PaymentCheckout /></ProtectedRoute>} />
+            <Route path="procurement/shipments" element={<ProtectedRoute module="procurement"><AdminDeliveries /></ProtectedRoute>} />
             <Route path="contracts/create" element={<ProtectedRoute module="contracts"><CreateContract /></ProtectedRoute>} />
             <Route path="contracts/:id/edit" element={<ProtectedRoute module="contracts"><CreateContract /></ProtectedRoute>} />
             <Route path="applications" element={<ProtectedRoute module="applications"><Applications /></ProtectedRoute>} />
@@ -158,6 +166,9 @@ function App() {
             <Route path="contracts" element={<ProtectedRoute anyPermission="vendor_dashboard"><MyContracts /></ProtectedRoute>} />
             <Route path="contracts/:id" element={<ProtectedRoute anyPermission="vendor_dashboard"><ContractDetail /></ProtectedRoute>} />
             <Route path="procurement" element={<ProtectedRoute anyPermission="vendor_dashboard"><VendorProcurementDesk /></ProtectedRoute>} />
+            <Route path="procurement/invoice/new" element={<ProtectedRoute anyPermission="vendor_dashboard"><CreateInvoice /></ProtectedRoute>} />
+            <Route path="procurement/shipment/update" element={<ProtectedRoute anyPermission="vendor_dashboard"><UpdateShipment /></ProtectedRoute>} />
+            <Route path="procurement/po/:id" element={<ProtectedRoute anyPermission="vendor_dashboard"><PurchaseOrderDetail /></ProtectedRoute>} />
             <Route path="*" element={<Navigate to="/vendor/dashboard" replace />} />
 
           </Route>

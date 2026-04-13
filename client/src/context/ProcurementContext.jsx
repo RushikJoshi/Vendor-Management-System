@@ -17,6 +17,14 @@ export function ProcurementProvider({ children }) {
   const refreshAll = useCallback(async () => {
     setLoading(true);
     try {
+      const safeFetch = async (promise, defaultVal) => {
+        try {
+          return await promise;
+        } catch (error) {
+          return { data: { data: defaultVal } };
+        }
+      };
+
       const [
         overviewRes,
         prRes,
@@ -26,13 +34,13 @@ export function ProcurementProvider({ children }) {
         paymentRes,
         slaRes,
       ] = await Promise.all([
-        procurementApi.getOverview(),
-        procurementApi.listPRs(),
-        procurementApi.listPOs(),
-        procurementApi.listDeliveries(),
-        procurementApi.listInvoices(),
-        procurementApi.listPayments(),
-        procurementApi.listSlaBreaches(),
+        safeFetch(procurementApi.getOverview(), null),
+        safeFetch(procurementApi.listPRs(), []),
+        safeFetch(procurementApi.listPOs(), []),
+        safeFetch(procurementApi.listDeliveries(), []),
+        safeFetch(procurementApi.listInvoices(), []),
+        safeFetch(procurementApi.listPayments(), []),
+        safeFetch(procurementApi.listSlaBreaches(), []),
       ]);
       setOverview(overviewRes.data.data || null);
       setPurchaseRequests(prRes.data.data || []);

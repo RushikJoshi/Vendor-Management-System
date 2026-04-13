@@ -13,6 +13,8 @@ const makeSubsection = (title = "New Subsection") => ({
   id: `subsection_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
   title,
   collapsed: false,
+  repeatable: false,
+  repeatSourceFieldId: "",
   fields: [],
 });
 
@@ -38,6 +40,8 @@ const mapSectionFromApi = (node) => {
     id: child.id,
     title: child.title || `Subsection ${idx + 1}`,
     collapsed: idx !== 0,
+    repeatable: !!child.repeatable,
+    repeatSourceFieldId: child.repeatSourceFieldId || "",
     fields: (child.fields || []).map(mapFieldFromApi),
   }));
 
@@ -227,6 +231,8 @@ export default function TreeFormBuilder() {
       children: (section.subsections || []).map((subsection) => ({
         id: subsection.id,
         title: subsection.title || "Untitled Subsection",
+        repeatable: !!subsection.repeatable,
+        repeatSourceFieldId: subsection.repeatSourceFieldId || "",
         fields: (subsection.fields || []).map(toPayloadField).filter(Boolean),
         children: [],
       })),
@@ -417,6 +423,30 @@ export default function TreeFormBuilder() {
                           onChange={(e) => updateSubsection(selectedSection.id, subsection.id, (sub) => ({ ...sub, title: e.target.value }))}
                           placeholder="Subsection title"
                         />
+
+                        {/* REPEATABLE CONTROLS */}
+                        <div className="flex items-center gap-2 px-3 py-1 bg-white rounded-lg border border-slate-200">
+                           <label className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-slate-500">
+                             <input 
+                                type="checkbox" 
+                                checked={!!subsection.repeatable} 
+                                onChange={(e) => updateSubsection(selectedSection.id, subsection.id, sub => ({ ...sub, repeatable: e.target.checked }))}
+                             />
+                             Repeatable
+                           </label>
+                           {subsection.repeatable && (
+                             <select 
+                                className="text-[10px] font-bold border-none bg-slate-50 rounded px-1 outline-none"
+                                value={subsection.repeatSourceFieldId}
+                                onChange={(e) => updateSubsection(selectedSection.id, subsection.id, sub => ({ ...sub, repeatSourceFieldId: e.target.value }))}
+                             >
+                                <option value="">Select Count Field</option>
+                                {sections.flatMap(s => s.subsections.flatMap(ss => ss.fields)).map(f => (
+                                  <option key={f.id} value={f.id}>{f.label || f.id}</option>
+                                ))}
+                             </select>
+                           )}
+                        </div>
                         <span className="rounded bg-white px-2 py-1 text-[11px] text-slate-500">{subsection.fields.length} fields</span>
                         <button
                           type="button"

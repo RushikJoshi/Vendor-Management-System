@@ -10,7 +10,7 @@ const procurementPaymentSchema = new mongoose.Schema(
     amount: { type: Number, required: true, min: 0 },
     method: {
       type: String,
-      enum: ["bank_transfer", "neft", "rtgs", "upi", "card", "other"],
+      enum: ["bank_transfer", "neft", "rtgs", "imps", "upi", "card", "cheque", "other"],
       required: true,
     },
     status: {

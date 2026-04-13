@@ -11,11 +11,11 @@ const { normalizeRole } = require("../config/roles");
 
 const resolveVendorProfile = async (user) => {
   if (!user) return null;
-  let vendor = await Vendor.findOne({ userId: user._id || user.id, tenantId: user.tenantId });
-  if (!vendor && user.email) {
-    vendor = await Vendor.findOne({ email: user.email, tenantId: user.tenantId });
-  }
-  return vendor;
+  const tenantId = user.tenantId;
+  const filter = { $or: [{ userId: user._id || user.id }, { email: user.email }] };
+  if (tenantId) filter.tenantId = tenantId;
+  
+  return Vendor.findOne(filter);
 };
 
 const mapPrItemsToRfqItems = (items = []) =>
@@ -79,7 +79,7 @@ exports.createRFQ = asyncHandler(async (req, res, next) => {
     departmentId: req.body.departmentId || pr?.departmentId || null,
     items: req.body.items?.length ? req.body.items : mapPrItemsToRfqItems(pr?.items || []),
     budget: req.body.budget || { amount: pr?.totalEstimate || 0, currency: pr?.currency || "INR" },
-    quoteDeadline: req.body.quoteDeadline,
+    quoteDeadline: req.body.quoteDeadline ? new Date(new Date(req.body.quoteDeadline).setHours(23, 59, 59, 999)) : null,
     deliveryDeadline: req.body.deliveryDeadline || pr?.requiredBy || null,
     vendorSelection: req.body.vendorSelection || { type: "targeted", targetedVendors: [] },
     termsAndConditions: req.body.termsAndConditions || "",
@@ -178,14 +178,38 @@ exports.getRFQDetails = asyncHandler(async (req, res, next) => {
   res.status(200).json({ success: true, data: rfq });
 });
 
-// Existing list/update endpoints
 exports.getRFQs = asyncHandler(async (req, res, next) => {
   const tenantId = req.tenantId || req.user?.tenantId;
-  const filter = { tenantId };
+  const filter = {};
+  
+  if (tenantId) {
+    filter.tenantId = tenantId;
+  } else {
+    console.warn("[RFQ] getRFQs called without tenantId context for user:", req.user?._id);
+  }
+
+  // Disabled aggressive auto-close for now as it conflicts with today's deadlines
+  // Aggressive Auto-Close disabled. 
+  // FIX: On-the-fly reopening of RFQs that are still within the deadline (Today or Future)
+  try {
+      const todayStart = new Date();
+      todayStart.setHours(0,0,0,0);
+      await RFQ.updateMany(
+        { 
+          status: "closed", 
+          quoteDeadline: { $gte: todayStart }, 
+          tenantId: req.user?.tenantId || req.tenantId 
+        },
+        { $set: { status: "published" } }
+      );
+  } catch (err) {
+      console.error("Self-heal RFQ failed:", err);
+  }
 
   if (normalizeRole(req.user?.role) === "vendor") {
     const vendor = await resolveVendorProfile(req.user);
     if (!vendor) {
+      console.warn("[RFQ] Vendor profile not resolved for user:", req.user?._id);
       return res.status(200).json({ success: true, count: 0, data: [] });
     }
     filter.status = "published";
@@ -195,16 +219,14 @@ exports.getRFQs = asyncHandler(async (req, res, next) => {
     ];
   }
 
+  console.log("[RFQ] Fetching RFQs with filter:", JSON.stringify(filter));
   const rfqs = await RFQ.find(filter)
     .populate("departmentId", "name")
     .populate("vendorSelection.targetedVendors", "name companyName email")
     .populate("categoryId", "name")
     .sort("-createdAt");
 
-  for (const rfq of rfqs) {
-    await ensureAutoStatus(rfq);
-  }
-
+  console.log("[RFQ] Found", rfqs.length, "RFQs");
   res.status(200).json({ success: true, count: rfqs.length, data: rfqs });
 });
 
