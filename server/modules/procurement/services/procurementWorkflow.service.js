@@ -373,7 +373,7 @@ class ProcurementWorkflowService {
 
     const previous = invoice.toObject();
     invoice.status = approve ? "approved" : "rejected";
-    invoice.rejectionReason = approve ? "" : reason;
+    invoice.rejectionReason = reason;
     invoice.reviewedBy = req.user._id;
     invoice.reviewedAt = new Date();
     await invoice.save();
@@ -397,7 +397,8 @@ class ProcurementWorkflowService {
     return invoice;
   }
 
-  static async processPayment(req, invoiceId, { amount, method, transactionRef = "" }) {
+  static async processPayment(req, invoiceId, { amount, method, transactionRef = "", reference = "", paymentDate }) {
+    const finalTransactionRef = transactionRef || reference || "";
     const invoice = await Invoice.findOne({ _id: invoiceId, tenantId: req.tenantId });
     if (!invoice) throw new Error("Invoice not found.");
     if (invoice.status !== "approved") throw new Error("Only approved invoice can be paid.");
@@ -416,17 +417,19 @@ class ProcurementWorkflowService {
       amount: Number(amount || invoice.totalAmount),
       method,
       status: "completed",
-      transactionRef,
+      transactionRef: finalTransactionRef,
       processedBy: req.user._id,
-      processedAt: new Date(),
+      processedAt: paymentDate ? new Date(paymentDate) : new Date(),
     });
 
     const paymentMethodMap = {
       bank_transfer: "bank_transfer",
       neft: "bank_transfer",
       rtgs: "bank_transfer",
+      imps: "bank_transfer",
       upi: "bank_transfer",
       card: "card",
+      cheque: "check",
       other: "check",
     };
 
@@ -434,7 +437,7 @@ class ProcurementWorkflowService {
       poId: po._id,
       amount: procurementPayment.amount,
       method: paymentMethodMap[method] || "bank_transfer",
-      transactionRef,
+      transactionRef: finalTransactionRef,
       status: "completed",
       tenantId: req.tenantId,
     });

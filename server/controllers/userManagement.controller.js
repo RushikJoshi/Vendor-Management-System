@@ -59,6 +59,25 @@ exports.createUser = asyncHandler(async (req, res, next) => {
 
     const user = await User.create(userToCreate);
 
+    // If the created user is a vendor, auto-sync to the Vendor registry so it appears in the Vendors list
+    if (normalizedRole === "vendor") {
+        const Vendor = require("../models/Vendor");
+        try {
+            await Vendor.create({
+                name: user.name,
+                companyName: user.name,
+                email: user.email,
+                phone: "0000000000",
+                status: "active",
+                lifecycleStatus: "active",
+                createdBy: req.user._id,
+                tenantId: user.tenantId || "600000000000000000000001", // fallback if no tenant
+            });
+        } catch (err) {
+            console.error("Vendor auto-sync failed:", err.message);
+        }
+    }
+
 
     successResponse(res, "User created successfully", {
         id: user._id,
@@ -133,9 +152,34 @@ exports.updateUser = asyncHandler(async (req, res, next) => {
         sanitizedPermissions.length > 0
             ? sanitizedPermissions
             : getDefaultPermissionsForRole(normalizedRole);
+    const oldRole = user.role;
     user.role = normalizedRole;
 
     await user.save();
+
+    // If the updated user is now a vendor, auto-sync to the Vendor registry so it appears in the Vendors list
+    if (normalizedRole === "vendor" && oldRole !== "vendor") {
+        const Vendor = require("../models/Vendor");
+        try {
+            await Vendor.findOneAndUpdate(
+                { email: user.email },
+                {
+                    $setOnInsert: {
+                        name: user.name,
+                        companyName: user.name,
+                        phone: "0000000000",
+                        status: "active",
+                        lifecycleStatus: "active",
+                        createdBy: req.user._id,
+                        tenantId: user.tenantId || "600000000000000000000001",
+                    }
+                },
+                { upsert: true }
+            );
+        } catch (err) {
+            console.error("Vendor auto-sync failed:", err.message);
+        }
+    }
 
     successResponse(res, "User updated successfully", user);
 });

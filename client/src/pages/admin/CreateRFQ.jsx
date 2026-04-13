@@ -126,6 +126,15 @@ const CreateRFQ = () => {
     const prevStep = () => setStep(s => s - 1);
 
     const handleSubmit = async (status) => {
+        // Full Validation before submission
+        if (!formData.title?.trim()) return toast.error("Protcol title is mandatory.");
+        if (!formData.description?.trim()) return toast.error("Strategic description is mandatory.");
+        
+        const invalidItems = formData.items.some(item => !item.name?.trim() || !item.quantity);
+        if (invalidItems) return toast.error("Item matrix is incomplete. All item names are required.");
+        
+        if (!formData.quoteDeadline) return toast.error("Submission deadline is mandatory.");
+
         setLoading(true);
         const toastId = toast.loading(`Committing Asset: ${status === 'draft' ? 'Draft Registry' : 'Active Transmission'}...`);
         try {

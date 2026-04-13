@@ -84,7 +84,7 @@ exports.selectVendor = asyncHandler(async (req, res) => {
 
 exports.listPurchaseOrders = asyncHandler(async (req, res) => {
   const rows = await PurchaseOrder.find(tenantFilter(req))
-    .populate("vendorId", "name companyName email")
+    .populate("vendorId", "name companyName email phone address bankAccount")
     .populate("rfqId", "title")
     .sort({ createdAt: -1 });
   res.status(200).json({ success: true, data: rows });
@@ -119,7 +119,7 @@ exports.reviewInvoice = asyncHandler(async (req, res) => {
 exports.listInvoices = asyncHandler(async (req, res) => {
   const rows = await Invoice.find(tenantFilter(req))
     .populate("poId", "poNumber")
-    .populate("vendorId", "name companyName")
+    .populate("vendorId", "name companyName bankAccount")
     .sort({ createdAt: -1 });
   res.status(200).json({ success: true, data: rows });
 });
@@ -132,7 +132,7 @@ exports.processPayment = asyncHandler(async (req, res) => {
 exports.listPayments = asyncHandler(async (req, res) => {
   const rows = await ProcurementPayment.find(tenantFilter(req))
     .populate("invoiceId", "invoiceNumber totalAmount")
-    .populate("vendorId", "name companyName")
+    .populate("vendorId", "name companyName bankAccount")
     .sort({ createdAt: -1 });
   res.status(200).json({ success: true, data: rows });
 });

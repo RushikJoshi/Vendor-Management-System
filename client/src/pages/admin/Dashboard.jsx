@@ -114,7 +114,7 @@ export default function Dashboard() {
             <div className="w-2 h-2 rounded-full bg-[#10B981] shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
           </div>
           <div className="p-6 flex-1 min-h-[300px] flex items-center justify-center relative">
-            <ResponsiveContainer width="99%" height="100%" debounce={10}>
+            <ResponsiveContainer width="99%" height={300} debounce={10}>
               <PieChart>
                 <Pie
                   data={riskChartData}
@@ -158,7 +158,7 @@ export default function Dashboard() {
             </div>
           </div>
           <div className="p-8 flex-1 min-h-[300px]">
-            <ResponsiveContainer width="99%" height="100%" debounce={10}>
+            <ResponsiveContainer width="99%" height={300} debounce={10}>
               <AreaChart data={data.approvalMetrics.stageWiseAverage}>
                 <defs>
                   <linearGradient id="colorAvg" x1="0" y1="0" x2="0" y2="1">

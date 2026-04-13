@@ -140,23 +140,29 @@ exports.acceptQuotation = asyncHandler(async (req, res, next) => {
     const quotation = await Quotation.findOne({ _id: req.params.id, tenantId: req.user.tenantId });
     if (!quotation) return next(new AppError("Quotation or registry mismatch", 404));
 
+    console.log("[Quotation] Accepting quotation:", quotation._id, "for RFQ:", quotation.rfqId);
+
     // 1. Mark winning quotation as accepted
     quotation.status = "accepted";
     await quotation.save();
+    console.log("[Quotation] Marked as accepted");
 
     // 2. Mark other concurrent quotations for the same RFQ as rejected
     await Quotation.updateMany(
         { rfqId: quotation.rfqId, _id: { $ne: quotation._id }, tenantId: req.user.tenantId },
         { status: "rejected" }
     );
+    console.log("[Quotation] Others rejected");
 
     // 3. Mark RFQ as terminated/closed for the procurement cycle
     const rfq = await RFQ.findByIdAndUpdate(quotation.rfqId, { status: "closed" }, { new: true });
     if (!rfq) return next(new AppError("Associated RFQ node not found", 404));
+    console.log("[Quotation] RFQ marked as closed:", rfq._id);
 
     // 4. Provision formal Contract node (Master Agreement)
     const Contract = require("../models/Contract");
     const PurchaseOrder = require("../models/PurchaseOrder");
+    console.log("[Quotation] Creating Contract & PO...");
     const contractNumber = `CNT-${Date.now().toString().slice(-6)}-${rfq._id.toString().slice(-4)}`.toUpperCase();
     const poNumber = `PO-${Date.now().toString().slice(-6)}-${rfq._id.toString().slice(-4)}`.toUpperCase();
     
@@ -171,21 +177,28 @@ exports.acceptQuotation = asyncHandler(async (req, res, next) => {
         status: 'active',
         rfqId: rfq._id,
         quotationId: quotation._id,
+        tenantId: req.user.tenantId, // FIXED: Added missing tenantId
         createdBy: req.user._id
     });
 
     // Create Purchase Order (Execution Node)
+    // Map RFQ items to PO items to preserve quantity info
+    const poItems = quotation.items.map(quoteItem => {
+        const rfqItem = rfq.items.find(ri => String(ri._id) === String(quoteItem.rfqItemId));
+        return {
+            name: quoteItem.notes || rfqItem?.name || "Operational Requirement",
+            quantity: rfqItem?.quantity || 1,
+            unitPrice: quoteItem.unitPrice,
+            totalPrice: quoteItem.unitPrice * (rfqItem?.quantity || 1)
+        };
+    });
+
     const po = await PurchaseOrder.create({
         poNumber: poNumber,
         rfqId: rfq._id,
         vendorId: quotation.vendorId,
         quotationId: quotation._id,
-        items: quotation.items.map(item => ({
-            name: item.notes || "Operational Requirement",
-            quantity: 1, // Assumption: RFQs are priced as lots or per item
-            unitPrice: item.unitPrice,
-            totalPrice: item.unitPrice
-        })),
+        items: poItems,
         totalAmount: quotation.totalAmount,
         status: 'sent',
         tenantId: req.user.tenantId,

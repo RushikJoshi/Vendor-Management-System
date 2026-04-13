@@ -151,7 +151,7 @@ const CategoryAutocomplete = ({ value, onChange, placeholder, required, type = "
     );
 };
 
-function TreeNodeRenderer({ node, number, values, files, setValues, setFiles, collapsed, setCollapsed }) {
+function TreeNodeRenderer({ node, number, values, files, setValues, setFiles, collapsed, setCollapsed, repeatIndex }) {
   const key = node.id;
   const defaultCollapsed = false; // Always open by default or rely on config
   const isCollapsed = collapsed[key] ?? defaultCollapsed;
@@ -178,7 +178,7 @@ function TreeNodeRenderer({ node, number, values, files, setValues, setFiles, co
             {isCollapsed ? "→" : "↓"}
         </span>
         <span className={`font-semibold tracking-tight ${isTopLevel ? "text-lg text-slate-900" : "text-[13px] text-blue-700"}`}>
-            {node.title}
+            {node.title} {repeatIndex ? `#${repeatIndex}` : ""}
         </span>
       </div>
 
@@ -187,26 +187,72 @@ function TreeNodeRenderer({ node, number, values, files, setValues, setFiles, co
           {node.fields && node.fields.length > 0 && (
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 mb-4">
               {node.fields.map((field) => (
-                <FieldRenderer key={field.id} field={field} values={values} files={files} setValues={setValues} setFiles={setFiles} />
+                <FieldRenderer 
+                  key={field.id} 
+                  field={field} 
+                  values={values} 
+                  files={files} 
+                  setValues={setValues} 
+                  setFiles={setFiles} 
+                  repeatIndex={repeatIndex} 
+                />
               ))}
             </div>
           )}
           
           {node.children && node.children.length > 0 && (
             <div className="flex flex-col gap-2">
-              {node.children.map((child, idx) => (
-                <TreeNodeRenderer
-                  key={child.id}
-                  node={child}
-                  number={`${number}.${idx + 1}`}
-                  values={values}
-                  files={files}
-                  setValues={setValues}
-                  setFiles={setFiles}
-                  collapsed={collapsed}
-                  setCollapsed={setCollapsed}
-                />
-              ))}
+              {node.children.map((child, idx) => {
+                // SMART AUTO-DETECTION: If title contains "Bank" and we find a "how many" field inside or same level
+                let isRepeatable = child.repeatable;
+                let repeatKey = child.repeatSourceFieldId;
+
+                if (!isRepeatable && child.title?.toLowerCase().includes("bank")) {
+                    const countField = child.fields?.find(f => f.label?.toLowerCase().includes("how many") && f.label?.toLowerCase().includes("bank"));
+                    if (countField) {
+                        isRepeatable = true;
+                        repeatKey = countField.id;
+                    }
+                }
+
+                // REPETITION LOGIC
+                if (isRepeatable && repeatKey) {
+                  const textMap = { "one": 1, "two": 2, "three": 3, "four": 4, "five": 5 };
+                  const rawVal = String(values[repeatKey] || values[`${repeatKey}_1`] || "1").toLowerCase();
+                  const count = textMap[rawVal] || parseInt(rawVal, 10) || 1;
+                  
+                  const repeatArray = Array.from({ length: Math.min(count, 10) }, (_, i) => i + 1); 
+                  
+                  return repeatArray.map((num) => (
+                    <TreeNodeRenderer
+                      key={`${child.id}_${num}`}
+                      node={child}
+                      number={`${number}.${idx + 1}.${num}`}
+                      values={values}
+                      files={files}
+                      setValues={setValues}
+                      setFiles={setFiles}
+                      collapsed={collapsed}
+                      setCollapsed={setCollapsed}
+                      repeatIndex={num}
+                    />
+                  ));
+                }
+
+                return (
+                  <TreeNodeRenderer
+                    key={child.id}
+                    node={child}
+                    number={`${number}.${idx + 1}`}
+                    values={values}
+                    files={files}
+                    setValues={setValues}
+                    setFiles={setFiles}
+                    collapsed={collapsed}
+                    setCollapsed={setCollapsed}
+                  />
+                );
+              })}
             </div>
           )}
         </div>
@@ -215,9 +261,10 @@ function TreeNodeRenderer({ node, number, values, files, setValues, setFiles, co
   );
 }
 
-function FieldRenderer({ field, values, files, setValues, setFiles }) {
-  const setValue = (v) => setValues((p) => ({ ...p, [field.id]: v }));
-  const current = values[field.id] ?? (field.type === "checkbox" ? [] : "");
+function FieldRenderer({ field, values, files, setValues, setFiles, repeatIndex }) {
+  const fieldKey = repeatIndex ? `${field.id}_${repeatIndex}` : field.id;
+  const setValue = (v) => setValues((p) => ({ ...p, [fieldKey]: v }));
+  const current = values[fieldKey] ?? (field.type === "checkbox" ? [] : "");
   const isWideField = field.type === "checkbox" || field.type === "radio" || field.type === "file";
   const wideSpanClass = isWideField ? "md:col-span-2 xl:col-span-3" : "";
   const pattern = field.validation?.pattern;
@@ -303,9 +350,9 @@ function FieldRenderer({ field, values, files, setValues, setFiles }) {
         <input
           type="file"
           className={`${inputBaseClass} file:mr-3 file:rounded-lg file:border-0 file:bg-stone-700 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-white hover:file:bg-stone-800`}
-          onChange={(e) => setFiles((p) => ({ ...p, [field.id]: e.target.files?.[0] || null }))}
+          onChange={(e) => setFiles((p) => ({ ...p, [fieldKey]: e.target.files?.[0] || null }))}
         />
-        {files[field.id]?.name ? <p className="text-xs text-slate-500">Selected: {files[field.id].name}</p> : null}
+        {files[fieldKey]?.name ? <p className="text-xs text-slate-500">Selected: {files[fieldKey].name}</p> : null}
       </div>
     );
   }

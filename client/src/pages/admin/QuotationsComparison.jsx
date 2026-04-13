@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { 
     ChevronLeft, ShieldCheck, TrendingUp,
     ArrowRight, CheckCircle2, User, Calendar,
-    Check, X, Award
+    Check, X, Award, Info
 } from "lucide-react";
 import { toast } from "react-hot-toast";
 import api from "../../services/api";
@@ -36,16 +36,21 @@ export default function QuotationsComparison() {
     }, [fetchData]);
 
     const handleAccept = async (quoteId) => {
-        if (!window.confirm("Are you sure you want to accept this quotation? This will create the contract and close the RFQ.")) return;
+        console.log("Accept action initiated for:", quoteId);
+        // Temporarily bypassing confirm to rule out browser interference
         
+        console.log("Proceeding with acceptance API call...");
         setProcessing(true);
-        const toastId = toast.loading("Accepting quotation...");
+        const toastId = toast.loading("Formalizing Contract & PO...");
         try {
-            await api.post(`/quotations/${quoteId}/accept`);
-            toast.success("Quotation accepted successfully.", { id: toastId });
+            console.log("Post started to:", `/quotations/${quoteId}/accept`);
+            const res = await api.post(`/quotations/${quoteId}/accept`);
+            console.log("API Response:", res.data);
+            toast.success("Success! Contract & PO have been provisioned.", { id: toastId });
             navigate("/admin/contracts");
         } catch (err) {
-            toast.error(err.response?.data?.message || "Failed to accept quotation.", { id: toastId });
+            console.error("Accept Error:", err);
+            toast.error(err.response?.data?.message || "Internal Protocol Error: Failed to finalize acceptance.", { id: toastId });
         } finally {
             setProcessing(false);
         }
@@ -178,6 +183,10 @@ export default function QuotationsComparison() {
                                 ) : quote.status === 'rejected' ? (
                                     <div className="w-full bg-rose-50 text-rose-700 p-3.5 rounded-xl border border-rose-200 flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest">
                                         <X size={16} strokeWidth={3} /> Quotation Rejected
+                                    </div>
+                                ) : rfq.status === 'closed' ? (
+                                    <div className="w-full bg-amber-50 text-amber-700 p-3.5 rounded-xl border border-amber-200 flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest text-center">
+                                        <Info size={16} /> RFQ Closed - Cannot Negotiate
                                     </div>
                                 ) : (
                                     <>

@@ -20,11 +20,11 @@ export default function Sidebar({
   const groups = [
     {
       title: "Core",
-      items: links.filter(l => ["Dashboard", "Applications"].includes(l.label))
+      items: links.filter(l => ["Dashboard", "Applications", "My Profile"].includes(l.label))
     },
     {
       title: "Management",
-      items: links.filter(l => ["Vendors", "Form Builder", "Categories", "RFQs", "Procurement", "Contracts"].includes(l.label))
+      items: links.filter(l => ["Vendors", "Form Builder", "Categories", "RFQs", "My RFQs", "Procurement", "Procurement Desk", "Submit Quotation", "Contracts", "My Contracts"].includes(l.label))
     },
     {
       title: "System",

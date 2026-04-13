@@ -124,6 +124,13 @@ const vendorSchema = new mongoose.Schema(
             public_id: String,
             url: String,
         },
+        bankAccount: {
+            accountHolderName: String,
+            accountNumber: String,
+            bankName: String,
+            ifscCode: String,
+            branchName: String,
+        },
     },
     {
         timestamps: true,

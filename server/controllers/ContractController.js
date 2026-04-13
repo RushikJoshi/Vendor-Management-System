@@ -104,6 +104,7 @@ exports.getContracts = async (req, res) => {
         return successResponse(res, "Contracts retrieved", contracts, 200, {
             total,
             page: parseInt(page),
+            limit: parseInt(limit),
             pages: Math.ceil(total / limit)
         });
     } catch (err) {
