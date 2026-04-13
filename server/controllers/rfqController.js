@@ -1,198 +1,236 @@
 const RFQ = require("../models/RFQ");
 const Vendor = require("../models/vendor.model");
-const Department = require("../models/Department");
+const Category = require("../models/Category");
+const PurchaseRequest = require("../modules/procurement/models/PurchaseRequest");
+const User = require("../models/User");
 const asyncHandler = require("../utils/asyncHandler");
 const AppError = require("../utils/AppError");
 const { sendEmail } = require("../utils/emailService");
+const NotificationService = require("../services/NotificationService");
 const { normalizeRole } = require("../config/roles");
 
 const resolveVendorProfile = async (user) => {
-    if (!user) return null;
-    let vendor = await Vendor.findOne({ userId: user._id || user.id, tenantId: user.tenantId });
-    if (!vendor && user.email) {
-        vendor = await Vendor.findOne({ email: user.email, tenantId: user.tenantId });
-    }
-    return vendor;
+  if (!user) return null;
+  let vendor = await Vendor.findOne({ userId: user._id || user.id, tenantId: user.tenantId });
+  if (!vendor && user.email) {
+    vendor = await Vendor.findOne({ email: user.email, tenantId: user.tenantId });
+  }
+  return vendor;
 };
 
-// @desc    Create a new RFQ (Draft or Published)
+const mapPrItemsToRfqItems = (items = []) =>
+  items.map((item) => ({
+    name: item.name || item.description || "Item",
+    quantity: Number(item.quantity || item.qty || 1),
+    unit: item.unit || item.uom || "Nos",
+    specifications: item.specs || item.specifications || "",
+  }));
+
+const ensureAutoStatus = async (rfq) => {
+  if (!rfq || rfq.status !== "published") return rfq;
+  if (rfq.quoteDeadline && new Date(rfq.quoteDeadline) < new Date()) {
+    rfq.status = "closed";
+    await rfq.save({ validateBeforeSave: false });
+  }
+  return rfq;
+};
+
+const fetchApprovedVendors = async ({ tenantId, categoryId, targetedVendorIds = [] }) => {
+  const baseFilter = {
+    tenantId,
+    status: { $in: ["active", "approved"] },
+    lifecycleStatus: "active",
+  };
+  if (categoryId) baseFilter.category = categoryId;
+  if (Array.isArray(targetedVendorIds) && targetedVendorIds.length > 0) {
+    baseFilter._id = { $in: targetedVendorIds };
+  }
+  return Vendor.find(baseFilter).select("name companyName email category");
+};
+
+// @desc Create RFQ (from approved PR if prId is provided)
 exports.createRFQ = asyncHandler(async (req, res, next) => {
-    console.log("🛠️ RFQ CREATION ATTEMPT:", JSON.stringify(req.body, null, 2));
-    console.log("👤 USER CONTEXT:", { id: req.user?._id, role: req.user?.role, tenant: req.user?.tenantId });
+  if (!req.user?.tenantId) {
+    return next(new AppError("Tenant context missing.", 400));
+  }
 
-    if (!req.user?.tenantId) {
-        console.error("❌ RFQ CREATION FAILED: Missing Tenant ID in user session.");
-        return next(new AppError("You must be associated with a tenant to create an RFQ.", 400));
+  const { prId, categoryId } = req.body || {};
+  let pr = null;
+
+  if (prId) {
+    pr = await PurchaseRequest.findOne({ _id: prId, tenantId: req.user.tenantId });
+    if (!pr) return next(new AppError("Purchase request not found.", 404));
+    if (pr.status !== "approved") {
+      return next(new AppError("Only approved PR can be converted to RFQ.", 400));
     }
+  }
 
-    req.body.tenantId = req.user.tenantId;
-    req.body.createdBy = req.user._id;
-
-    // Logic for suggesting vendors based on department (only runs if department is provided)
-    if (req.body.departmentId && req.body.vendorSelection?.type === 'targeted' && (!req.body.vendorSelection.targetedVendors || req.body.vendorSelection.targetedVendors.length === 0)) {
-        // Automatically suggest vendors from the same department if none selected
-        const suggestedVendors = await Vendor.find({ 
-            tenantId: req.user.tenantId, 
-            departments: req.body.departmentId,
-            status: 'active'
-        }).select('_id');
-        req.body.vendorSelection.targetedVendors = suggestedVendors.map(v => v._id);
+  const resolvedCategoryId = categoryId || pr?.categoryId || null;
+  if (resolvedCategoryId) {
+    const category = await Category.findById(resolvedCategoryId);
+    if (!category || category.status !== "active") {
+      return next(new AppError("Invalid or inactive category.", 400));
     }
-    try {
-        const rfq = await RFQ.create(req.body);
+  }
 
-        // If published, notify vendors
-        if (rfq.status === 'published') {
-            const NotificationService = require("../services/NotificationService");
-            await notifyVendors(rfq);
+  const rfqPayload = {
+    title: req.body.title || pr?.title,
+    description: req.body.description || pr?.description || "RFQ created from PR",
+    departmentId: req.body.departmentId || pr?.departmentId || null,
+    items: req.body.items?.length ? req.body.items : mapPrItemsToRfqItems(pr?.items || []),
+    budget: req.body.budget || { amount: pr?.totalEstimate || 0, currency: pr?.currency || "INR" },
+    quoteDeadline: req.body.quoteDeadline,
+    deliveryDeadline: req.body.deliveryDeadline || pr?.requiredBy || null,
+    vendorSelection: req.body.vendorSelection || { type: "targeted", targetedVendors: [] },
+    termsAndConditions: req.body.termsAndConditions || "",
+    status: req.body.status || "draft",
+    tenantId: req.user.tenantId,
+    createdBy: req.user._id,
+    sourcePrId: pr?._id || null,
+    categoryId: resolvedCategoryId,
+  };
 
-            // Notify admins about new RFQ
-            NotificationService.notifyAllAdmins({
-                title: "New RFQ Created",
-                message: `RFQ "${rfq.title}" has been created and published.`,
-                type: "rfq",
-                relatedEntityId: rfq._id
-            });
-        }
+  if (!rfqPayload.title || !rfqPayload.quoteDeadline) {
+    return next(new AppError("RFQ title and quote deadline are required.", 400));
+  }
 
-        console.log("✅ RFQ CREATED SUCCESSFULLY:", rfq._id);
-        res.status(201).json({
-            success: true,
-            data: rfq,
-        });
-    } catch (err) {
-        console.error("🔥 CRITICAL RFQ CREATION ERROR:", err);
-        return next(new AppError(err.message || "Failed to initialize procurement node.", 500));
-    }
+  const rfq = await RFQ.create(rfqPayload);
+  if (pr) {
+    pr.rfqId = rfq._id;
+    pr.status = "converted_to_rfq";
+    await pr.save({ validateBeforeSave: false });
+  }
+
+  if (rfq.status === "published") {
+    await exports.sendRFQToVendorsInternal(rfq, req);
+  }
+
+  res.status(201).json({ success: true, data: rfq });
 });
 
-// @desc    Get RFQs with filters
-// @route   GET /api/v1/rfqs
+// @desc Send RFQ to approved vendors (email + dashboard notification)
+exports.sendRFQToVendors = asyncHandler(async (req, res, next) => {
+  const rfq = await RFQ.findOne({ _id: req.params.id, tenantId: req.user.tenantId });
+  if (!rfq) return next(new AppError("RFQ not found.", 404));
+
+  await exports.sendRFQToVendorsInternal(rfq, req);
+  res.status(200).json({ success: true, message: "RFQ sent to vendors.", data: rfq });
+});
+
+exports.sendRFQToVendorsInternal = async (rfq, req) => {
+  const vendorSelection = rfq.vendorSelection || { type: "targeted", targetedVendors: [] };
+  const targeted = vendorSelection.type === "targeted" ? vendorSelection.targetedVendors : [];
+
+  const approvedVendors = await fetchApprovedVendors({
+    tenantId: rfq.tenantId,
+    categoryId: rfq.categoryId,
+    targetedVendorIds: targeted,
+  });
+
+  const vendorEmails = approvedVendors.map((v) => v.email).filter(Boolean);
+
+  for (const email of vendorEmails) {
+    await sendEmail({
+      to: email,
+      subject: `New RFQ: ${rfq.title}`,
+      text: `RFQ "${rfq.title}" is available. Submit quotation before ${new Date(rfq.quoteDeadline).toLocaleDateString()}.`,
+    });
+
+    const user = await User.findOne({ email, tenantId: rfq.tenantId }).select("_id");
+    if (user?._id) {
+      await NotificationService.sendNotification(user._id, {
+        title: "New RFQ",
+        message: `RFQ "${rfq.title}" has been published.`,
+        type: "rfq",
+        relatedEntityId: rfq._id,
+      });
+    }
+  }
+
+  rfq.status = rfq.status === "draft" ? "published" : rfq.status;
+  rfq.sentAt = new Date();
+  rfq.sentVendorCount = vendorEmails.length;
+  await rfq.save({ validateBeforeSave: false });
+};
+
+// @desc Get RFQ details (auto status tracking)
+exports.getRFQDetails = asyncHandler(async (req, res, next) => {
+  const filter = { _id: req.params.id, tenantId: req.user.tenantId };
+
+  if (normalizeRole(req.user?.role) === "vendor") {
+    const vendor = await resolveVendorProfile(req.user);
+    if (!vendor) return next(new AppError("Vendor profile not found", 404));
+    filter.status = "published";
+    filter.$or = [
+      { "vendorSelection.type": "open" },
+      { "vendorSelection.type": "targeted", "vendorSelection.targetedVendors": vendor._id },
+    ];
+  }
+
+  let rfq = await RFQ.findOne(filter)
+    .populate("departmentId", "name")
+    .populate("vendorSelection.targetedVendors", "name companyName email")
+    .populate("categoryId", "name");
+
+  if (!rfq) return next(new AppError("RFQ not found", 404));
+  rfq = await ensureAutoStatus(rfq);
+
+  res.status(200).json({ success: true, data: rfq });
+});
+
+// Existing list/update endpoints
 exports.getRFQs = asyncHandler(async (req, res, next) => {
-    console.log(`📡 GET RFQs for tenant: ${req.tenantId}`);
-    try {
-        const tenantId = req.tenantId || req.user?.tenantId;
-        const filter = { tenantId };
-        
-        if (normalizeRole(req.user?.role) === "vendor") {
-            const vendor = await resolveVendorProfile(req.user);
-            if (!vendor) {
-                return res.status(200).json({
-                    success: true,
-                    count: 0,
-                    data: [],
-                });
-            }
-            filter.status = "published";
-            filter.$or = [
-                { "vendorSelection.type": "open" },
-                {
-                    "vendorSelection.type": "targeted",
-                    "vendorSelection.targetedVendors": vendor._id,
-                },
-            ];
-        }
+  const tenantId = req.tenantId || req.user?.tenantId;
+  const filter = { tenantId };
 
-        const rfqs = await RFQ.find(filter)
-            .populate('departmentId', 'name')
-            .populate('vendorSelection.targetedVendors', 'name companyName email')
-            .sort('-createdAt');
-
-        res.status(200).json({
-            success: true,
-            count: rfqs.length,
-            data: rfqs,
-        });
-    } catch (err) {
-        console.error("Critical RFQ Registry Failure:", err);
-        return next(new AppError(`Error retrieving RFQs: ${err.message}`, 500));
+  if (normalizeRole(req.user?.role) === "vendor") {
+    const vendor = await resolveVendorProfile(req.user);
+    if (!vendor) {
+      return res.status(200).json({ success: true, count: 0, data: [] });
     }
+    filter.status = "published";
+    filter.$or = [
+      { "vendorSelection.type": "open" },
+      { "vendorSelection.type": "targeted", "vendorSelection.targetedVendors": vendor._id },
+    ];
+  }
+
+  const rfqs = await RFQ.find(filter)
+    .populate("departmentId", "name")
+    .populate("vendorSelection.targetedVendors", "name companyName email")
+    .populate("categoryId", "name")
+    .sort("-createdAt");
+
+  for (const rfq of rfqs) {
+    await ensureAutoStatus(rfq);
+  }
+
+  res.status(200).json({ success: true, count: rfqs.length, data: rfqs });
 });
 
-// @desc    Update RFQ status (Publish, Close, etc.)
-// @route   PATCH /api/v1/rfqs/:id/status
 exports.updateRFQStatus = asyncHandler(async (req, res, next) => {
-    const { status } = req.body;
-    const rfq = await RFQ.findOneAndUpdate(
-        { _id: req.params.id, tenantId: req.user.tenantId },
-        { status },
-        { new: true, runValidators: true }
-    );
+  const { status } = req.body;
+  const rfq = await RFQ.findOneAndUpdate(
+    { _id: req.params.id, tenantId: req.user.tenantId },
+    { status },
+    { new: true, runValidators: true }
+  );
 
-    if (!rfq) return next(new AppError("RFQ not found", 404));
+  if (!rfq) return next(new AppError("RFQ not found", 404));
 
-    if (status === 'published') {
-        await notifyVendors(rfq);
-    }
+  if (status === "published") {
+    await exports.sendRFQToVendorsInternal(rfq, req);
+  }
 
-    res.status(200).json({ success: true, data: rfq });
-});
-
-// Helper function to notify vendors
-async function notifyVendors(rfq) {
-    let vendorEmails = [];
-    
-    if (rfq.vendorSelection.type === 'open') {
-        // Notify all active vendors in the tenant
-        const vendors = await Vendor.find({ tenantId: rfq.tenantId, status: 'active' }).select('email');
-        vendorEmails = vendors.map(v => v.email);
-    } else {
-        // Notify only targeted vendors
-        const vendors = await Vendor.find({ _id: { $in: rfq.vendorSelection.targetedVendors } }).select('email');
-        vendorEmails = vendors.map(v => v.email);
-    }
-
-    // Send emails (In a real app, use a queue like Bull)
-    for (const email of vendorEmails) {
-        try {
-            await sendEmail({
-                to: email,
-                subject: `New RFQ: ${rfq.title}`,
-                text: `A new Request for Quotation has been published. \n\nTitle: ${rfq.title}\nDeadline: ${rfq.quoteDeadline.toLocaleDateString()}`,
-            });
-        } catch (err) {
-            console.error(`Failed to notify vendor: ${email}`, err);
-        }
-    }
-}
-
-// Inherit getRFQ and updateRFQ from existing file logic if needed, 
-// but optimized for new schema below:
-
-exports.getRFQ = asyncHandler(async (req, res, next) => {
-    const filter = {
-        _id: req.params.id,
-        tenantId: req.user.tenantId
-    };
-
-    if (normalizeRole(req.user?.role) === "vendor") {
-        const vendor = await resolveVendorProfile(req.user);
-        if (!vendor) return next(new AppError("Vendor profile not found", 404));
-        filter.status = "published";
-        filter.$or = [
-            { "vendorSelection.type": "open" },
-            {
-                "vendorSelection.type": "targeted",
-                "vendorSelection.targetedVendors": vendor._id,
-            },
-        ];
-    }
-
-    const rfq = await RFQ.findOne(filter)
-        .populate('departmentId', 'name')
-        .populate('vendorSelection.targetedVendors', 'name companyName email');
-
-    if (!rfq) return next(new AppError("RFQ not found", 404));
-
-    res.status(200).json({ success: true, data: rfq });
+  res.status(200).json({ success: true, data: rfq });
 });
 
 exports.updateRFQ = asyncHandler(async (req, res, next) => {
-    const rfq = await RFQ.findOneAndUpdate(
-        { _id: req.params.id, tenantId: req.user.tenantId },
-        req.body,
-        { new: true, runValidators: true }
-    );
-    if (!rfq) return next(new AppError("RFQ not found", 404));
-    res.status(200).json({ success: true, data: rfq });
+  const rfq = await RFQ.findOneAndUpdate(
+    { _id: req.params.id, tenantId: req.user.tenantId },
+    req.body,
+    { new: true, runValidators: true }
+  );
+  if (!rfq) return next(new AppError("RFQ not found", 404));
+  res.status(200).json({ success: true, data: rfq });
 });

@@ -1,238 +1,213 @@
 import { useEffect, useState } from "react";
 import api from "../../services/api";
+import procurementApi from "../../services/procurementApi";
 import {
-  ShieldCheck,
+  TrendingUp,
+  Package,
+  FileCheck,
   Bell,
-  Clock,
   CheckCircle,
   AlertCircle,
-  Building2,
-  Mail,
+  Clock,
   ChevronRight,
-  TrendingUp,
-  FileText,
-  MessageSquare,
-  Globe
+  ExternalLink
 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export default function VendorDashboard() {
-  const [info, setInfo] = useState(null);
-  const [messages, setMessages] = useState([]);
+  const [profile, setProfile] = useState(null);
+  const [stats, setStats] = useState({
+    activePOs: 0,
+    pendingInvoices: 0,
+    avgRating: 0,
+    onTimeDelivery: 0,
+    unreadNotifications: 0
+  });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    (async () => {
+    const fetchData = async () => {
       try {
-        const res = await api.get("/vendors/me");
-        setInfo(res.data);
-        const msgRes = await api.get("/vendors/messages");
-        setMessages(msgRes.data.slice(0, 3));
+        const [profileRes, statsRes] = await Promise.all([
+          api.get("/vendors/me"),
+          procurementApi.getVendorDashboardStats()
+        ]);
+        setProfile(profileRes.data);
+        setStats(statsRes.data);
       } catch (err) {
-        console.error(err);
+        console.error("Dashboard Load Error:", err);
       } finally {
         setLoading(false);
       }
-    })();
+    };
+    fetchData();
   }, []);
 
-  if (loading) return (
-    <div className="flex items-center justify-center min-h-[400px]">
-      <div className="w-10 h-10 border-4 border-[#0F7B4D] border-t-transparent rounded-full animate-spin"></div>
-    </div>
-  );
+  if (loading) {
+    return (
+      <div className="flex h-96 items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-indigo-600"></div>
+      </div>
+    );
+  }
 
-  if (!info) return (
-    <div className="p-12 text-center bg-white rounded-3xl border border-slate-100 shadow-sm">
-      <AlertCircle className="mx-auto text-rose-500 mb-4" size={48} />
-      <h2 className="text-2xl font-black text-slate-900">Synchronization Error</h2>
-      <p className="text-slate-500 mt-2">Could not retrieve vendor profile from the core registry.</p>
-    </div>
-  );
-
-  const statusColors = {
-    pending: { bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-100', icon: Clock },
-    approved: { bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-100', icon: CheckCircle },
-    active: { bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-100', icon: CheckCircle },
-    rejected: { bg: 'bg-rose-50', text: 'text-rose-700', border: 'border-rose-100', icon: AlertCircle },
-  };
-
-  const status = info.status?.toLowerCase() || 'pending';
-  const theme = statusColors[status] || statusColors.pending;
-  const StatusIcon = theme.icon;
+  const statCards = [
+    {
+      label: "Active Orders",
+      count: stats.activePOs,
+      icon: Package,
+      color: "bg-indigo-50 text-indigo-600",
+      trend: "Immediate Action",
+      link: "/vendor/procurement-desk"
+    },
+    {
+      label: "Pending Invoices",
+      count: stats.pendingInvoices,
+      icon: FileCheck,
+      color: "bg-emerald-50 text-emerald-600",
+      trend: "Payment Cycle",
+      link: "/vendor/procurement-desk"
+    },
+    {
+      label: "Service Rating",
+      count: `${stats.avgRating}/5`,
+      icon: TrendingUp,
+      color: "bg-amber-50 text-amber-600",
+      trend: "Trust Score",
+      link: "/vendor/profile"
+    },
+    {
+      label: "New Alerts",
+      count: stats.unreadNotifications,
+      icon: Bell,
+      color: "bg-rose-50 text-rose-600",
+      trend: "System Feed",
+      link: "/vendor/messages"
+    }
+  ];
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-700">
-
-      {/* Top Welcome Section */}
-      <div className="relative overflow-hidden bg-[#0F7B4D] rounded-[2.5rem] p-10 lg:p-14 text-white shadow-2xl shadow-[#0F7B4D]/20">
-        <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-white/10 rounded-full -mr-48 -mt-48 blur-3xl"></div>
-        <div className="absolute bottom-0 left-0 w-64 h-64 bg-black/10 rounded-full -ml-32 -mb-32 blur-2xl"></div>
-
-        <div className="relative z-10 flex flex-col md:flex-row justify-between items-end gap-8">
-          <div className="space-y-4">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md rounded-xl border border-white/10 text-[10px] font-black uppercase tracking-[0.2em]">
-              <Building2 size={14} />
-              Official Entity Dashboard
-            </div>
-            <h1 className="text-4xl lg:text-5xl font-black tracking-tight leading-none uppercase">
-              Welcome, <span className="text-emerald-300">{info.companyName}</span>
-            </h1>
-            <p className="text-emerald-100/70 font-medium text-lg max-w-xl">
-              Manage your global procurement identity, compliance certifications, and enterprise communications from the official mission control.
-            </p>
+    <div className="mx-auto max-w-7xl animate-in fade-in duration-500 space-y-8 bg-slate-50/50 p-6 rounded-3xl">
+      
+      {/* Header Section */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-slate-900">
+            Welcome, <span className="text-indigo-600">{profile?.companyName || "Vendor"}</span>
+          </h1>
+          <p className="mt-1 text-slate-500 font-medium">Here is a summary of your procurement ecosystem today.</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <div className={`flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-bold border-2 ${profile?.status === 'active' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-slate-100 text-slate-600 border-slate-200'}`}>
+            <CheckCircle size={14} />
+            {profile?.status?.toUpperCase() || "PENDING"} VERIFICATION
           </div>
-          <div className="flex gap-4">
-            <button className="bg-white text-[#0F7B4D] px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl hover:scale-105 transition-all">
-              Profile Settings
-            </button>
-            <button className="bg-emerald-400 text-[#0F7B4D] px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl hover:scale-105 transition-all">
-              View Dossier
-            </button>
-          </div>
+          <Link to="/vendor/profile" className="rounded-xl border border-slate-200 bg-white p-2.5 text-slate-600 hover:bg-slate-50 transition-colors shadow-sm">
+             <span className="sr-only">Profile</span>
+             <ChevronRight size={20} />
+          </Link>
         </div>
       </div>
 
-      {/* Stats Matrix */}
+      {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.02)] flex flex-col justify-between group hover:border-[#0F7B4D]/30 transition-all">
-          <div className="flex justify-between items-start mb-6">
-            <div className={`p-4 rounded-2xl ${theme.bg} ${theme.text}`}>
-              <StatusIcon size={24} />
+        {statCards.map((card, i) => (
+          <Link key={i} to={card.link} className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 shadow-sm hover:shadow-md transition-all">
+            <div className="flex items-start justify-between">
+              <div className={`rounded-xl p-3 ${card.color}`}>
+                <card.icon size={24} />
+              </div>
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{card.trend}</span>
             </div>
-            <div className="text-[10px] font-black text-slate-300 uppercase tracking-widest leading-none text-right">Registry <br /> Status</div>
-          </div>
-          <div>
-            <div className="flex items-baseline gap-2">
-              <h3 className={`text-2xl font-black capitalize ${theme.text}`}>{status}</h3>
+            <div className="mt-4">
+              <h3 className="text-3xl font-black text-slate-900 tracking-tight">{card.count}</h3>
+              <p className="text-sm font-semibold text-slate-500 mt-1">{card.label}</p>
             </div>
-            <p className="text-xs font-bold text-slate-400 mt-1">Verified on 24 Feb 2026</p>
-          </div>
-        </div>
-
-        <div className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.02)] flex flex-col justify-between group hover:border-[#0F7B4D]/30 transition-all">
-          <div className="flex justify-between items-start mb-6">
-            <div className="p-4 rounded-2xl bg-indigo-50 text-indigo-600">
-              <Mail size={24} />
+            <div className="absolute bottom-0 right-0 p-3 opacity-0 group-hover:opacity-100 transition-opacity">
+               <ExternalLink size={14} className="text-slate-300" />
             </div>
-            <div className="text-[10px] font-black text-slate-300 uppercase tracking-widest leading-none text-right">System <br /> Messages</div>
-          </div>
-          <div>
-            <h3 className="text-2xl font-black text-slate-900">{messages.length}</h3>
-            <p className="text-xs font-bold text-slate-400 mt-1">Unread priority notifications</p>
-          </div>
-        </div>
-
-        <div className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.02)] flex flex-col justify-between group hover:border-[#0F7B4D]/30 transition-all">
-          <div className="flex justify-between items-start mb-6">
-            <div className="p-4 rounded-2xl bg-sky-50 text-sky-600">
-              <TrendingUp size={24} />
-            </div>
-            <div className="text-[10px] font-black text-slate-300 uppercase tracking-widest leading-none text-right">Network <br /> Trust Score</div>
-          </div>
-          <div>
-            <h3 className="text-2xl font-black text-slate-900">98%</h3>
-            <p className="text-xs font-bold text-slate-400 mt-1">Tier 1 Strategic Vendor</p>
-          </div>
-        </div>
-
-        <div className="bg-white p-8 rounded-[2rem] border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.02)] flex flex-col justify-between group hover:border-[#0F7B4D]/30 transition-all">
-          <div className="flex justify-between items-start mb-6">
-            <div className="p-4 rounded-2xl bg-amber-50 text-amber-600">
-              <Globe size={24} />
-            </div>
-            <div className="text-[10px] font-black text-slate-300 uppercase tracking-widest leading-none text-right">Regional <br /> Presence</div>
-          </div>
-          <div>
-            <h3 className="text-2xl font-black text-slate-900">Global</h3>
-            <p className="text-xs font-bold text-slate-400 mt-1">Registered in 14 Regions</p>
-          </div>
-        </div>
+          </Link>
+        ))}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Approval Timeline */}
-        <div className="lg:col-span-2 bg-white rounded-[2.5rem] p-10 border border-slate-100 shadow-sm relative overflow-hidden">
-          <div className="flex items-center justify-between mb-10">
-            <h2 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-3">
-              <Clock className="text-[#0F7B4D]" size={24} />
-              Onboarding Lifecycle
-            </h2>
-            <button className="text-[10px] font-black text-[#0F7B4D] uppercase tracking-widest hover:underline">View History</button>
-          </div>
-
-          <div className="relative space-y-12 before:absolute before:left-[19px] before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-100">
-            <div className="relative pl-14 flex flex-col group">
-              <div className="absolute left-0 top-1 w-10 h-10 bg-[#0F7B4D] text-white rounded-xl flex items-center justify-center z-10 shadow-lg shadow-[#0F7B4D]/30">
-                <ShieldCheck size={20} />
-              </div>
-              <h4 className="font-black text-slate-900 leading-none mb-1">Dossier Submission</h4>
-              <p className="text-xs text-slate-500 font-medium">Stage 1 and Stage 2 profiles successfully ingested into the registry.</p>
-              <span className="text-[10px] font-black text-emerald-600 mt-3 flex items-center gap-1 uppercase tracking-widest">
-                <CheckCircle size={10} /> Sequence Completed • 12 Jan
-              </span>
+        {/* Main Content Area */}
+        <div className="lg:col-span-2 space-y-6">
+          <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+                <Clock className="text-indigo-600" size={20} />
+                Operations Roadmap
+              </h2>
+              <Link to="/vendor/procurement-desk" className="text-xs font-bold text-indigo-600 hover:underline">Manage Desk</Link>
             </div>
 
-            <div className="relative pl-14 flex flex-col group">
-              <div className={`absolute left-0 top-1 w-10 h-10 ${status === 'pending' ? 'bg-amber-100 text-amber-600 animate-pulse' : 'bg-[#0F7B4D] text-white shadow-lg shadow-[#0F7B4D]/30'} rounded-xl flex items-center justify-center z-10`}>
-                <Clock size={20} />
+            <div className="relative space-y-10 before:absolute before:left-4 before:top-4 before:bottom-4 before:w-0.5 before:bg-slate-100">
+              <div className="relative pl-10">
+                <div className="absolute left-0 top-1.5 h-8 w-8 rounded-full border-4 border-white bg-indigo-600 shadow-sm flex items-center justify-center text-white">
+                  <CheckCircle size={14} />
+                </div>
+                <h4 className="font-bold text-slate-900">Application Verified</h4>
+                <p className="text-sm text-slate-500 mt-1">Your entity has been cleared for strategic sourcing operations.</p>
+                <div className="mt-2 text-[10px] font-bold text-emerald-600 uppercase">Completed • Verified Level 1</div>
               </div>
-              <h4 className="font-black text-slate-900 leading-none mb-1">Security Committee Review</h4>
-              <p className="text-xs text-slate-500 font-medium">Compliance officers are currently evaluating entity cross-references and bank data.</p>
-              <span className={`text-[10px] font-black ${status === 'pending' ? 'text-amber-600' : 'text-emerald-600'} mt-3 flex items-center gap-1 uppercase tracking-widest`}>
-                {status === 'pending' ? 'Active Investigation' : 'Verified • 18 Jan'}
-              </span>
-            </div>
 
-            <div className="relative pl-14 flex flex-col group opacity-40">
-              <div className="absolute left-0 top-1 w-10 h-10 bg-slate-100 text-slate-400 rounded-xl flex items-center justify-center z-10">
-                <CheckCircle size={20} />
+              <div className="relative pl-10">
+                <div className={`absolute left-0 top-1.5 h-8 w-8 rounded-full border-4 border-white ${stats.activePOs > 0 ? "bg-indigo-600" : "bg-slate-100"} shadow-sm flex items-center justify-center text-white`}>
+                  {stats.activePOs > 0 ? <CheckCircle size={14} /> : <div className="h-1.5 w-1.5 rounded-full bg-slate-400" />}
+                </div>
+                <h4 className="font-bold text-slate-900">Active Procurement</h4>
+                <p className="text-sm text-slate-500 mt-1">Participate in open RFQs or fulfill existing Purchase Orders.</p>
+                <div className="mt-2 text-[10px] font-bold text-indigo-600 uppercase">{stats.activePOs} Active POs running</div>
               </div>
-              <h4 className="font-black text-slate-900 leading-none mb-1">Registry Activation</h4>
-              <p className="text-xs text-slate-500 font-medium">Formal injection into the active procurement database for contract bidding.</p>
-              <span className="text-[10px] font-black text-slate-300 mt-3 flex items-center gap-1 uppercase tracking-widest">Sequence Locked</span>
+
+              <div className="relative pl-10">
+                <div className="absolute left-0 top-1.5 h-8 w-8 rounded-full border-4 border-white bg-slate-50 shadow-sm flex items-center justify-center">
+                  <div className="h-1.5 w-1.5 rounded-full bg-slate-200" />
+                </div>
+                <h4 className="font-bold text-slate-900 opacity-60">Payment Settlement</h4>
+                <p className="text-sm text-slate-500 mt-1 opacity-60">Revenue cycle management and historical payment audit trails.</p>
+                <div className="mt-2 text-[10px] font-bold text-slate-300 uppercase">Wait for next cycle</div>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Secure Notifications */}
-        <div className="bg-slate-900 rounded-[2.5rem] p-10 text-white relative overflow-hidden flex flex-col">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-600/10 rounded-full blur-[80px]"></div>
-          <div className="relative z-10 mb-auto">
-            <div className="flex items-center justify-between mb-8">
-              <h2 className="text-xl font-black tracking-tight flex items-center gap-3">
-                <Bell className="text-emerald-400" size={20} />
-                Secure Inbox
-              </h2>
-              <div className="w-6 h-6 bg-rose-500 text-white rounded-full flex items-center justify-center text-[10px] font-black">
-                {messages.length}
+        {/* Sidebar / Performance Section */}
+        <div className="space-y-6">
+           <div className="rounded-2xl bg-slate-900 p-8 text-white shadow-xl relative overflow-hidden group">
+              <div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-indigo-500/20 blur-3xl group-hover:bg-indigo-500/40 transition-all duration-700" />
+              <div className="relative z-10 flex flex-col items-center text-center">
+                 <div className="h-20 w-20 rounded-full border-4 border-slate-800 bg-slate-800 flex items-center justify-center mb-4">
+                    <TrendingUp size={32} className="text-indigo-400" />
+                 </div>
+                 <h3 className="text-2xl font-black text-white">{stats.onTimeDelivery}%</h3>
+                 <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">On-Time Delivery Rate</p>
+                 <div className="mt-6 w-full space-y-3 pt-6 border-t border-white/10">
+                    <div className="flex justify-between items-center text-xs">
+                       <span className="text-slate-500 font-bold uppercase">Consistency</span>
+                       <span className="text-indigo-400 font-black">High Performance</span>
+                    </div>
+                    <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                       <div className="h-full bg-indigo-500 rounded-full" style={{ width: `${stats.onTimeDelivery}%` }} />
+                    </div>
+                 </div>
               </div>
-            </div>
+           </div>
 
-            <div className="space-y-6">
-              {messages.length > 0 ? messages.map((m, idx) => (
-                <div key={m._id} className="p-5 bg-white/5 border border-white/5 rounded-2xl hover:bg-white/10 hover:border-white/10 transition-all cursor-pointer group">
-                  <div className="flex justify-between items-start mb-2">
-                    <p className="text-[9px] font-black text-emerald-400 uppercase tracking-widest">Priority 0{idx + 1}</p>
-                    <ChevronRight size={14} className="text-white/20 group-hover:text-white transition-transform group-hover:translate-x-1" />
-                  </div>
-                  <h4 className="font-bold text-sm text-white line-clamp-1 mb-1">{m.subject}</h4>
-                  <p className="text-[11px] text-white/50 line-clamp-2 leading-relaxed font-medium">{m.preview}</p>
-                </div>
-              )) : (
-                <div className="text-center py-10 opacity-40">
-                  <MessageSquare className="mx-auto mb-4" size={32} />
-                  <p className="text-xs font-black uppercase tracking-widest">No Active Messages</p>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <button className="relative z-10 w-full mt-10 py-5 bg-white/5 border border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-white hover:text-slate-900 transition-all">
-            Open Secure Terminal
-          </button>
+           <div className="rounded-2xl border border-rose-100 bg-rose-50/30 p-6">
+              <div className="flex items-start gap-3">
+                 <div className="rounded-lg bg-rose-100 p-2 text-rose-600">
+                    <AlertCircle size={20} />
+                 </div>
+                 <div>
+                    <h4 className="text-sm font-bold text-slate-900">Priority Action Needed</h4>
+                    <p className="text-xs text-slate-600 mt-1 font-medium">You have {stats.pendingInvoices} invoices in the verification stage. Ensure accuracy to avoid payout delays.</p>
+                 </div>
+              </div>
+           </div>
         </div>
       </div>
-
     </div>
   );
 }

@@ -16,6 +16,7 @@ const FormSeeder = require("./services/FormSeeder");
 const http = require("http");
 const path = require("path");
 const socketUtil = require("./utils/socket");
+const { startProcurementCron } = require("./modules/procurement/jobs/procurement.cron");
 
 // Ensure all models are registered
 require("./models/Permission");
@@ -44,6 +45,11 @@ require("./models/Quotation");
 require("./models/PurchaseOrder");
 require("./models/Payment");
 require("./models/Rating");
+require("./modules/procurement/models/PurchaseRequest");
+require("./modules/procurement/models/Delivery");
+require("./modules/procurement/models/Invoice");
+require("./modules/procurement/models/ProcurementPayment");
+require("./modules/procurement/models/ProcurementSLA");
 
 const app = express();
 
@@ -109,6 +115,7 @@ app.use(`${API_V1}/roles`, require("./routes/role.routes"));
 app.use(`${API_V1}/submissions`, require("./routes/submissionRoutes"));
 app.use(`${API_V1}/form`, require("./routes/treeFormRoutes"));
 app.use(`${API_V1}/submission`, require("./routes/treeSubmissionRoutes"));
+app.use(`${API_V1}/procurement`, require("./modules/procurement/routes/procurement.routes"));
 
 // Backward compatibility & frontend aliases
 app.use("/api/auth", require("./routes/authRoutes"));
@@ -134,6 +141,7 @@ app.use("/api/roles", require("./routes/role.routes"));
 app.use("/api/submissions", require("./routes/submissionRoutes"));
 app.use("/api/form", require("./routes/treeFormRoutes"));
 app.use("/api/submission", require("./routes/treeSubmissionRoutes"));
+app.use("/api/procurement", require("./modules/procurement/routes/procurement.routes"));
 
 // 7) Handle Undefined Routes
 app.use((req, res, next) => {
@@ -169,4 +177,5 @@ server.listen(PORT, () => {
 
     // Seed pre-configured forms
     FormSeeder.seedMasterForm();
+    startProcurementCron();
 });

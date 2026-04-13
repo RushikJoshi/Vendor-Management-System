@@ -124,6 +124,41 @@ const sendVendorApprovalEmail = async ({ to, vendorName, temporaryPassword }) =>
   });
 };
 
+const normalizeDecisionAction = (action = "") => {
+  const value = String(action || "").trim().toLowerCase();
+  const map = {
+    approved: "approve",
+    approve: "approve",
+    rejected: "reject",
+    reject: "reject",
+    send_back: "send_back",
+    sendback: "send_back",
+    correction: "send_back",
+    hold: "hold",
+    escalate: "escalate",
+    conditional_approve: "conditional_approve",
+    conditionalapprove: "conditional_approve",
+  };
+  return map[value] || "";
+};
+
+const mapApplicationStatusToSubmissionStatus = (status = "") => {
+  const value = String(status || "").toLowerCase();
+  if (value === "submitted" || value === "draft") return "pending";
+  if (value === "changes_requested") return "needs_correction";
+  if (value === "in_review") return "on_hold";
+  return value || "pending";
+};
+
+const DECISION_STATUS_MAP = {
+  approve: "approved",
+  reject: "rejected",
+  send_back: "needs_correction",
+  hold: "on_hold",
+  escalate: "escalated",
+  conditional_approve: "conditionally_approved",
+};
+
 exports.createForm = async (req, res) => {
   try {
     const { code, name, categoryName = "", version = 1, structure = [], status = "draft" } = req.body;
@@ -502,10 +537,7 @@ exports.getSubmissions = async (req, res) => {
           : template?.name || "Vendor Registration",
         categoryName: appObj.category?.name || "General",
         data: [...dataArray, ...docEntries],
-        status:
-          appObj.status === "submitted" || appObj.status === "changes_requested" || appObj.status === "in_review" || appObj.status === "draft"
-            ? "pending"
-            : appObj.status,
+        status: mapApplicationStatusToSubmissionStatus(appObj.status),
         rejectionReason: "",
         vendorEmail: appObj.vendorEmail || appObj.email || "",
         vendorName: vendorName,
@@ -638,10 +670,7 @@ exports.getSubmissionById = async (req, res) => {
         : template?.name || "Vendor Registration",
       categoryName: appObj.category?.name || "General",
       data: [...dataArray, ...docEntries],
-      status:
-        appObj.status === "submitted" || appObj.status === "changes_requested" || appObj.status === "in_review" || appObj.status === "draft"
-          ? "pending"
-          : appObj.status,
+      status: mapApplicationStatusToSubmissionStatus(appObj.status),
       rejectionReason: "",
       vendorEmail: appObj.vendorEmail || appObj.email || "",
       vendorName: vendorName,
@@ -662,8 +691,18 @@ exports.getSubmissionById = async (req, res) => {
 
 exports.approveSubmission = async (req, res) => {
   try {
-    const { submissionId, action = "approved", rejectionReason = "" } = req.body;
+    const { submissionId, action = "approved", rejectionReason = "", reason = "", riskLevel, riskScore } = req.body;
     if (!submissionId) return res.status(400).json({ success: false, message: "submissionId is required." });
+    const normalizedAction = normalizeDecisionAction(action);
+    if (!normalizedAction) {
+      return res.status(400).json({ success: false, message: "Invalid decision action." });
+    }
+
+    const decisionReason = String(reason || rejectionReason || "").trim();
+    const requiresReason = normalizedAction !== "approve";
+    if (requiresReason && !decisionReason) {
+      return res.status(400).json({ success: false, message: "Reason is required for this decision." });
+    }
 
     // First try TreeSubmission
     const submission = await TreeSubmission.findById(submissionId);
@@ -681,12 +720,32 @@ exports.approveSubmission = async (req, res) => {
         return res.status(400).json({ success: false, message: `Submission already ${app.status}.` });
       }
 
-      if (action === "rejected") {
-        app.status = "rejected";
-        app.rejectedAt = new Date();
-        app.rejectedBy = req.user?._id;
+      if (normalizedAction !== "approve") {
+        if (normalizedAction === "reject") {
+          app.status = "rejected";
+          app.rejectedAt = new Date();
+          app.rejectedBy = req.user?._id;
+        } else if (normalizedAction === "send_back") {
+          app.status = "changes_requested";
+        } else if (["hold", "escalate", "conditional_approve"].includes(normalizedAction)) {
+          app.status = "in_review";
+        }
+
+        app.approvalHistory = app.approvalHistory || [];
+        app.approvalHistory.push({
+          stage: app.currentStage || "TECHNICAL",
+          approver: req.user?._id,
+          status: normalizedAction === "reject" ? "rejected" : "changes_requested",
+          remarks: decisionReason,
+          actionDate: new Date(),
+        });
+
         await app.save({ validateBeforeSave: false });
-        return res.status(200).json({ success: true, data: app, message: "Submission rejected." });
+        return res.status(200).json({
+          success: true,
+          data: app,
+          message: `Submission marked as ${mapApplicationStatusToSubmissionStatus(app.status)}.`,
+        });
       }
 
       // Approve VendorApplication
@@ -709,19 +768,20 @@ exports.approveSubmission = async (req, res) => {
           tenantId: req.user?.tenantId,
         });
       } else {
-        if (String(user.role || "").toLowerCase() !== "vendor") {
-          return res.status(409).json({
-            success: false,
-            message: "This email is already used by a non-vendor account.",
-          });
+        // If user already exists, we only update them to 'vendor' if they aren't already an Admin/HR.
+        // If they are an Admin, we just proceed to link/update their Vendor profile.
+        const existingRole = String(user.role || "").toLowerCase();
+        
+        if (existingRole === "vendor") {
+            user.name = app.companyName || user.name || "Vendor User";
+            user.status = "active";
+            user.password = generatedPassword;
+            user.mustChangePassword = true;
+            user.tenantId = req.user?.tenantId;
+            await user.save();
+        } else {
+            console.log(`Bypassing User role update for existing non-vendor account: ${vendorEmail} (Role: ${existingRole})`);
         }
-        user.name = app.companyName || user.name || "Vendor User";
-        user.role = "vendor";
-        user.status = "active";
-        user.password = generatedPassword;
-        user.mustChangePassword = true;
-        user.tenantId = req.user?.tenantId;
-        await user.save();
       }
 
       const VendorModel = require("../models/vendor.model");
@@ -751,6 +811,14 @@ exports.approveSubmission = async (req, res) => {
       app.approvedAt = new Date();
       app.approvedBy = req.user?._id;
       app.currentStage = "COMPLETED";
+      app.approvalHistory = app.approvalHistory || [];
+      app.approvalHistory.push({
+        stage: app.currentStage || "COMPLETED",
+        approver: req.user?._id,
+        status: "approved",
+        remarks: decisionReason || "Approved",
+        actionDate: new Date(),
+      });
       await app.save({ validateBeforeSave: false });
 
       try {
@@ -776,18 +844,50 @@ exports.approveSubmission = async (req, res) => {
       });
     }
 
-    // Original TreeSubmission logic
-    if (submission.status !== "pending") {
+    const actionableTreeStatuses = ["pending", "needs_correction", "on_hold", "escalated", "conditionally_approved"];
+    if (!actionableTreeStatuses.includes(submission.status)) {
       return res.status(400).json({ success: false, message: `Submission already ${submission.status}.` });
     }
 
-    if (action === "rejected") {
-      submission.status = "rejected";
-      submission.rejectionReason = rejectionReason || "Rejected by admin";
+    const previousStatus = submission.status;
+    const nextStatus = DECISION_STATUS_MAP[normalizedAction];
+
+    if (riskLevel && ["low", "medium", "high"].includes(String(riskLevel).toLowerCase())) {
+      submission.riskLevel = String(riskLevel).toLowerCase();
+    }
+    if (riskScore !== undefined && riskScore !== null && !Number.isNaN(Number(riskScore))) {
+      submission.riskScore = Math.max(0, Math.min(100, Number(riskScore)));
+    }
+
+    if (normalizedAction !== "approve") {
+      submission.status = nextStatus;
       submission.reviewedBy = req.user?._id;
       submission.reviewedAt = new Date();
+      submission.decisionReason = decisionReason;
+      if (normalizedAction === "reject") {
+        submission.rejectionReason = decisionReason || "Rejected by admin";
+      } else {
+        submission.rejectionReason = "";
+      }
+      if (normalizedAction === "send_back") {
+        submission.correctionCount = Number(submission.correctionCount || 0) + 1;
+      }
+      submission.decisionHistory = submission.decisionHistory || [];
+      submission.decisionHistory.push({
+        action: normalizedAction,
+        fromStatus: previousStatus,
+        toStatus: nextStatus,
+        reason: decisionReason,
+        reviewerId: req.user?._id,
+        reviewerRole: req.user?.role || "",
+        createdAt: new Date(),
+      });
       await submission.save();
-      return res.status(200).json({ success: true, data: submission });
+      return res.status(200).json({
+        success: true,
+        data: submission,
+        message: `Submission moved to ${nextStatus}.`,
+      });
     }
 
     if (!submission.vendorEmail) {
@@ -824,38 +924,46 @@ exports.approveSubmission = async (req, res) => {
     }
 
     const Vendor = require("../models/vendor.model");
-
-    // Create formal Vendor record
     let vendor = await Vendor.findOne({ email: submission.vendorEmail, tenantId: req.user.tenantId });
     if (!vendor) {
-      // Basic mapping from tree data to vendor fields
-      const getVal = (label) => submission.data.find(d => 
-        d.label?.toLowerCase().includes(label.toLowerCase()) || 
+      const getVal = (label) => submission.data.find(d =>
+        d.label?.toLowerCase().includes(label.toLowerCase()) ||
         d.fieldId?.toLowerCase().includes(label.toLowerCase())
       )?.value || "";
-      
+
       vendor = await Vendor.create({
         name: submission.vendorName || "Active Partner",
         email: submission.vendorEmail,
         companyName: submission.vendorName,
-        status: 'active',
-        phone: String(getVal('mobile') || getVal('phone') || "0000000000").replace(/[^0-9]/g, "").slice(0, 10) || "0000000000",
-        category: submission.formId, 
+        status: "active",
+        phone: String(getVal("mobile") || getVal("phone") || "0000000000").replace(/[^0-9]/g, "").slice(0, 10) || "0000000000",
+        category: submission.formId,
         address: {
-            city: getVal('city') || "N/A",
-            state: getVal('state') || "N/A",
-            pincode: getVal('pincode') || "000000"
+          city: getVal("city") || "N/A",
+          state: getVal("state") || "N/A",
+          pincode: getVal("pincode") || "000000",
         },
         tenantId: req.user.tenantId,
-        createdBy: req.user?._id
+        createdBy: req.user?._id,
       });
     }
 
-    submission.status = "approved";
+    submission.status = nextStatus;
     submission.rejectionReason = "";
+    submission.decisionReason = decisionReason || "Approved";
     submission.vendorUserId = user._id;
     submission.reviewedBy = req.user?._id;
     submission.reviewedAt = new Date();
+    submission.decisionHistory = submission.decisionHistory || [];
+    submission.decisionHistory.push({
+      action: normalizedAction,
+      fromStatus: previousStatus,
+      toStatus: nextStatus,
+      reason: decisionReason || "Approved",
+      reviewerId: req.user?._id,
+      reviewerRole: req.user?.role || "",
+      createdAt: new Date(),
+    });
     await submission.save();
 
     await sendVendorApprovalEmail({

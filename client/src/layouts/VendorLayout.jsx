@@ -11,6 +11,7 @@ const vendorLinks = [
   { to: "/vendor/dashboard", label: "Dashboard", icon: LayoutDashboard, permission: "vendor_dashboard" },
   { to: "/vendor/rfqs", label: "My RFQs", icon: ClipboardList, permission: "vendor_rfq_view" },
   { to: "/vendor/submit-quotation", label: "Submit Quotation", icon: ClipboardList, permission: "vendor_quote_submit" },
+  { to: "/vendor/procurement", label: "Procurement Desk", icon: ClipboardList, permission: "vendor_dashboard" },
   { to: "/vendor/contracts", label: "My Contracts", icon: FileText, permission: "vendor_dashboard" },
   { to: "/vendor/profile", label: "My Profile", icon: UserCircle2, permission: "vendor_dashboard" },
 ];

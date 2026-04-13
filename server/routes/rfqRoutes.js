@@ -3,9 +3,10 @@ const router = express.Router();
 const {
     createRFQ,
     getRFQs,
-    getRFQ,
+    getRFQDetails,
     updateRFQ,
-    updateRFQStatus
+    updateRFQStatus,
+    sendRFQToVendors
 } = require("../controllers/rfqController");
 const { protect } = require("../middlewares/auth.middleware");
 const { restrictToTenant } = require("../middlewares/tenant.middleware");
@@ -20,10 +21,11 @@ router.route("/")
     .post(checkActionAccess("rfq_create"), checkLimit("rfqCount"), createRFQ);
 
 router.route("/:id")
-    .get(checkAnyActionAccess("rfq_view", "vendor_rfq_view"), getRFQ)
+    .get(checkAnyActionAccess("rfq_view", "vendor_rfq_view"), getRFQDetails)
     .patch(checkActionAccess("rfq_create"), updateRFQ);
 
 router.patch("/:id/status", checkActionAccess("rfq_approve"), updateRFQStatus);
+router.post("/:id/send", checkActionAccess("rfq_approve"), sendRFQToVendors);
 
 
 module.exports = router;
