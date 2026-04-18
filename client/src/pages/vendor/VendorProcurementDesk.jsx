@@ -17,8 +17,8 @@ import {
 import Modal from "../../components/Modal";
 export default function VendorProcurementDesk() {
   const navigate = useNavigate();
-  const { purchaseOrders, deliveries, invoices, refreshAll } = useContext(ProcurementContext);
-  const [activeTab, setActiveTab] = useState("orders"); // orders, deliveries, invoices
+  const { purchaseOrders, serviceOrders, deliveries, invoices, refreshAll } = useContext(ProcurementContext);
+  const [activeTab, setActiveTab] = useState("orders"); // orders, services, deliveries, invoices
   const [working, setWorking] = useState(false);
 
   useEffect(() => {
@@ -28,6 +28,7 @@ export default function VendorProcurementDesk() {
 
 
   const myPos = purchaseOrders || [];
+  const mySos = serviceOrders || [];
   const myDeliveries = deliveries || [];
   const myInvoices = invoices || [];
 
@@ -80,6 +81,7 @@ export default function VendorProcurementDesk() {
       <div className="flex items-center gap-8 border-b border-slate-200 px-2 overflow-x-auto no-scrollbar">
          {[
            { id: "orders", label: "Purchase Orders", icon: Package, count: myPos.length },
+           { id: "services", label: "Service Orders", icon: FileText, count: mySos.length },
            { id: "deliveries", label: "Deliveries", icon: Truck, count: myDeliveries.length },
            { id: "invoices", label: "Invoices", icon: FileText, count: myInvoices.length }
          ].map(tab => (
@@ -150,6 +152,55 @@ export default function VendorProcurementDesk() {
            </div>
         )}
 
+        {activeTab === "services" && (
+           <div className="overflow-x-auto">
+              <table className="w-full text-left">
+                 <thead>
+                    <tr className="bg-slate-50 text-[10px] font-black uppercase text-slate-400 tracking-widest border-b border-slate-200">
+                       <th className="px-6 py-4">Service Order ID</th>
+                       <th className="px-6 py-4">Created Date</th>
+                       <th className="px-6 py-4">Contract Value</th>
+                       <th className="px-6 py-4">Status</th>
+                       <th className="px-6 py-4 text-right">Actions</th>
+                    </tr>
+                 </thead>
+                 <tbody className="divide-y divide-slate-100">
+                    {mySos.length > 0 ? mySos.map(so => (
+                       <tr key={so._id} className="hover:bg-slate-50/50 transition-colors">
+                          <td className="px-6 py-4">
+                             <div className="font-bold text-slate-900">{so.poNumber}</div>
+                             <div className="text-[10px] text-indigo-500 font-bold">SO Ref: {String(so._id).slice(-6)}</div>
+                          </td>
+                          <td className="px-6 py-4 text-sm text-slate-600 font-medium">
+                             {new Date(so.createdAt).toLocaleDateString()}
+                          </td>
+                          <td className="px-6 py-4">
+                             <div className="text-sm font-bold text-slate-900">₹{so.totalAmount?.toLocaleString()}</div>
+                          </td>
+                          <td className="px-6 py-4">
+                             <StatusPill status={so.status} />
+                          </td>
+                          <td className="px-6 py-4 text-right">
+                             <button 
+                                onClick={() => navigate(`/vendor/procurement/po/${so._id}`)}
+                                className="p-2 text-slate-400 hover:text-indigo-600 transition-colors"
+                             >
+                                <ArrowUpRight size={18} />
+                             </button>
+                          </td>
+                       </tr>
+                    )) : (
+                       <tr>
+                          <td colSpan="5" className="px-6 py-20 text-center">
+                             <FileText className="mx-auto text-slate-200 mb-4" size={48} />
+                             <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">No service orders found</p>
+                          </td>
+                       </tr>
+                    )}
+                 </tbody>
+              </table>
+           </div>
+        )}
         {activeTab === "deliveries" && (
            <div className="overflow-x-auto">
               <table className="w-full text-left">

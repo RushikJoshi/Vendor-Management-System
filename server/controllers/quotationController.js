@@ -162,9 +162,35 @@ exports.acceptQuotation = asyncHandler(async (req, res, next) => {
     // 4. Provision formal Contract node (Master Agreement)
     const Contract = require("../models/Contract");
     const PurchaseOrder = require("../models/PurchaseOrder");
-    console.log("[Quotation] Creating Contract & PO...");
+    const ProcurementSettings = require("../models/ProcurementSettings");
+    const { generatePO, generateSO } = require("../utils/pdfGenerator");
+    const orderType = req.body.orderType || "PO";
+
+    // Fetch Custom Branding/Terms specifically for this order type from Unified doc
+    let doc = await ProcurementSettings.findOne({ tenantId: req.user.tenantId });
+    if (!doc) {
+        doc = await ProcurementSettings.create({ 
+            tenantId: req.user.tenantId,
+            PO: {}, // Will use defaults in model or controller
+            SO: {} 
+        });
+    }
+    const settings = doc[orderType] || {};
+
+    console.log(`[Quotation] Creating Contract & ${orderType}...`);
+    
+    // Calculate Sequential Order Number
+    const existingCount = await PurchaseOrder.countDocuments({ tenantId: req.user.tenantId, orderType: orderType });
+    
+    // Build Number based on settings
+    const prefix = orderType === "SO" ? (settings.soPrefix || "SO-") : (settings.poPrefix || "PO-");
+    const suffix = orderType === "SO" ? (settings.soSuffix || "") : (settings.poSuffix || "");
+    const startNum = orderType === "SO" ? (settings.soStartNumber || 1) : (settings.poStartNumber || 1);
+    
+    const nextSeq = startNum + existingCount;
+    const orderNumber = `${prefix}${nextSeq.toString().padStart(4, '0')}${suffix}`;
+    
     const contractNumber = `CNT-${Date.now().toString().slice(-6)}-${rfq._id.toString().slice(-4)}`.toUpperCase();
-    const poNumber = `PO-${Date.now().toString().slice(-6)}-${rfq._id.toString().slice(-4)}`.toUpperCase();
     
     // Create Contract
     const contract = await Contract.create({
@@ -177,12 +203,11 @@ exports.acceptQuotation = asyncHandler(async (req, res, next) => {
         status: 'active',
         rfqId: rfq._id,
         quotationId: quotation._id,
-        tenantId: req.user.tenantId, // FIXED: Added missing tenantId
+        tenantId: req.user.tenantId,
         createdBy: req.user._id
     });
 
-    // Create Purchase Order (Execution Node)
-    // Map RFQ items to PO items to preserve quantity info
+    // Create Purchase Order / Service Order (Execution Node)
     const poItems = quotation.items.map(quoteItem => {
         const rfqItem = rfq.items.find(ri => String(ri._id) === String(quoteItem.rfqItemId));
         return {
@@ -193,25 +218,50 @@ exports.acceptQuotation = asyncHandler(async (req, res, next) => {
         };
     });
 
-    const po = await PurchaseOrder.create({
-        poNumber: poNumber,
+    const vendor = await Vendor.findById(quotation.vendorId);
+
+    // Generate PDF based on type
+    let pdfUrl = "";
+    if (orderType === "SO") {
+        pdfUrl = await generateSO({
+            soNumber: orderNumber,
+            vendorName: vendor?.companyName || vendor?.name || "Vendor",
+            items: poItems,
+            totalAmount: quotation.totalAmount,
+            location: "As per Site Requirement",
+            startDate: new Date(),
+            endDate: rfq.deliveryDeadline || new Date(Date.now() + 31536000000)
+        }, settings);
+    } else {
+        pdfUrl = await generatePO({
+            poNumber: orderNumber,
+            vendorName: vendor?.companyName || vendor?.name || "Vendor",
+            items: poItems,
+            totalAmount: quotation.totalAmount
+        }, settings);
+    }
+
+    const order = await PurchaseOrder.create({
+        poNumber: orderNumber,
+        orderType: orderType,
         rfqId: rfq._id,
         vendorId: quotation.vendorId,
         quotationId: quotation._id,
         items: poItems,
         totalAmount: quotation.totalAmount,
         status: 'sent',
+        pdfUrl: pdfUrl,
         tenantId: req.user.tenantId,
         createdBy: req.user._id
     });
 
     res.status(200).json({
         success: true,
-        message: "Procurement Cycle Formalized: Contract & PO Provisioned.",
+        message: `Procurement Cycle Formalized: Contract & ${orderType} Provisioned.`,
         data: {
             quotation,
             contract,
-            purchaseOrder: po
+            order: order
         }
     });
 });

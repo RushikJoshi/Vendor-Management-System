@@ -92,6 +92,8 @@ async function seedDeepMaster() {
           {
             id: "s2_1", title: "1.1.1.3 Statutory Compliances - Domestic Vendors", children: [],
             fields: [
+              { id: "gstStatus", label: "GST Registration Status", type: "dropdown", required: true, options: ["Registered", "Unregistered", "Composition Scheme", "Export/SEZ"] },
+              { id: "gstNum", label: "GST Number", type: "text", required: true },
               { id: "panStatus", label: "PAN Status", type: "dropdown", required: true, options: ["Available", "Not Available"] },
               { id: "panNum", label: "PAN Number", type: "text", required: true },
               { id: "pfStatus", label: "PF Status", type: "dropdown", required: true, options: ["Yes", "No"] },

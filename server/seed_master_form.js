@@ -1,4 +1,4 @@
-require('dotenv').config({ path: './backend/.env' });
+require('dotenv').config({ path: './.env' });
 const mongoose = require('mongoose');
 const dns = require('dns');
 dns.setServers(['8.8.8.8']);
@@ -84,8 +84,8 @@ async function seedMasterForm() {
                         { label: "House Number", fieldId: "houseNumber", type: "text", required: false, order: 3 },
                         { label: "Street 2", fieldId: "street2", type: "text", required: false, order: 4 },
                         { label: "Street 3", fieldId: "street3", type: "text", required: false, order: 5 },
-                        { label: "District", fieldId: "district", type: "text", required: false, order: 6 },
-                        { label: "Postal Code", fieldId: "pincode", type: "text", required: true, order: 7 },
+                        { label: "Postal Code", fieldId: "pincode", type: "text", required: true, order: 6 },
+                        { label: "District", fieldId: "district", type: "text", required: false, order: 7 },
                         { label: "City", fieldId: "city", type: "text", required: true, order: 8 },
                         { label: "Country/Region", fieldId: "country", type: "text", required: true, order: 9 }
                     ]
@@ -94,16 +94,19 @@ async function seedMasterForm() {
                     sectionTitle: "1.1.1.2.3 Other Details",
                     order: 5,
                     fields: [
-                        { label: "Category", fieldId: "serviceCategory", type: "text", required: true, order: 1, placeholder: "Search Category (e.g., CIVIL BULK > ROAD UTILITY)" },
-                        { label: "Region", fieldId: "region", type: "text", required: false, order: 2 },
-                        { label: "Department", fieldId: "department", type: "text", required: false, order: 3 }
+                        { label: "Category", fieldId: "serviceCategory", type: "text", required: true, order: 1, placeholder: "Select Category" },
+                        { label: "Sub Category", fieldId: "subCategory", type: "text", required: true, order: 2, placeholder: "Select Sub Category" },
+                        { label: "Region", fieldId: "region", type: "text", required: false, order: 3 },
+                        { label: "Department", fieldId: "department", type: "text", required: false, order: 4 }
                     ]
                 },
                 {
                     sectionTitle: "1.1.1.3 Statutory Compliances - Domestic Vendors",
                     order: 6,
                     fields: [
-                        { label: "PAN Status", fieldId: "panStatus", type: "dropdown", required: true, options: ["Available", "Not Available"], order: 1 },
+                        { label: "GST Registration Status", fieldId: "gstStatus", type: "dropdown", required: true, options: ["Registered", "Unregistered", "Composition Scheme", "Export/SEZ"], order: 1 },
+                        { label: "GST Number", fieldId: "gstNum", type: "text", required: true, order: 2 },
+                        { label: "PAN Status", fieldId: "panStatus", type: "dropdown", required: true, options: ["Available", "Not Available"], order: 3 },
                         { label: "PAN Number", fieldId: "panNum", type: "text", required: true, order: 2, dependsOn: "panStatus", dependsOnValue: "Available" },
                         { label: "PF Status", fieldId: "pfStatus", type: "dropdown", required: true, options: ["Yes", "No"], order: 3 },
                         { label: "PF No.", fieldId: "pfNo", type: "text", required: true, order: 4, dependsOn: "pfStatus", dependsOnValue: "Yes" },

@@ -313,17 +313,20 @@ export default function Applications() {
                                                 </div>
                                                 <div className="min-w-0">
                                                     <div className="flex items-center gap-2">
-                                                        <p className="text-[14px] font-semibold text-slate-900 group-hover:text-indigo-900 truncate">{app.companyName || "N/A"}</p>
+                                                        <p className="text-[14px] font-bold text-slate-900 group-hover:text-indigo-900 truncate">{app.companyName || "N/A"}</p>
                                                         {app.isNew && <span className="bg-indigo-600 text-white text-[8px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider">New</span>}
                                                     </div>
-                                                    <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mt-0.5">{app.category?.name || "General"}</p>
+                                                    <div className="flex items-center gap-2 mt-1">
+                                                        <span className="text-[10px] font-black font-mono px-1.5 py-0.5 bg-indigo-50 text-indigo-600 rounded border border-indigo-100 uppercase tracking-widest">#{app._id?.slice(-8).toUpperCase()}</span>
+                                                        <span className="h-1 w-1 rounded-full bg-slate-300" />
+                                                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em]">{app.category?.name || "General"}</span>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </td>
                                         <td className="px-6 py-5">
                                             <div className="flex flex-col">
                                                 <span className="text-[13px] font-semibold text-slate-700">{app.email}</span>
-                                                <span className="text-[11px] font-mono text-slate-400 mt-0.5">#{app._id?.slice(-8).toUpperCase()}</span>
                                             </div>
                                         </td>
                                         <td className="px-6 py-5">

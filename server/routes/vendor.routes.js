@@ -12,7 +12,8 @@ const {
     getMe,
     getVendorDashboardStats,
     updateMe,
-    sendPaymentReminder
+    sendPaymentReminder,
+    lookupGstProfile
 } = require("../controllers/vendor.controller");
 
 
@@ -25,6 +26,13 @@ const { createVendor: createSchema, updateVendor: updateSchema } = require("../v
 
 // 1) All routes are protected by JWT
 router.use(protect);
+
+router.get(
+    "/gst-profile/:gstNumber",
+    authorizeRoles("admin", "hr"),
+    checkAnyActionAccess("vendors_add", "vendors_edit", "vendors_view"),
+    lookupGstProfile
+);
 
 // 2) File Upload Routes (Admin/HR only)
 router.put(

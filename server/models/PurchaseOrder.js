@@ -7,6 +7,11 @@ const purchaseOrderSchema = new mongoose.Schema(
             required: true,
             unique: true,
         },
+        orderType: {
+            type: String,
+            enum: ["PO", "SO"],
+            default: "PO",
+        },
         rfqId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "RFQ",
@@ -44,6 +49,11 @@ const purchaseOrderSchema = new mongoose.Schema(
             actualDelivery: Date,
             status: String,
         },
+        servicePeriod: {
+            startDate: Date,
+            endDate: Date,
+        },
+        serviceLocation: String,
         pdfUrl: String,
         tenantId: {
             type: mongoose.Schema.Types.ObjectId,

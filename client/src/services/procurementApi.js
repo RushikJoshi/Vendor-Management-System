@@ -13,6 +13,7 @@ const procurementApi = {
   selectVendor: (quotationId) => api.post(`/procurement/quotations/${quotationId}/select`),
 
   listPOs: () => api.get("/procurement/purchase-orders"),
+  listSOs: () => api.get("/procurement/service-orders"),
   listDeliveries: () => api.get("/procurement/deliveries"),
   upsertDelivery: (payload) => api.post("/procurement/deliveries", payload),
 

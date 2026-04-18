@@ -4,8 +4,9 @@ import api from "../../services/api";
 import { toast } from "react-hot-toast";
 import { 
     Building2, User, Mail, Phone, ShieldCheck, Save, X, Globe, 
-    Landmark, Target, MapPin, Briefcase, Plus, Layout, Info
+    Landmark, Target, MapPin, Briefcase, Plus, Layout, Info, Search, LoaderCircle
 } from "lucide-react";
+import useGstAutofill, { normalizeGstNumber } from "../../hooks/useGstAutofill";
 
 export default function AddVendorModal({ open, onClose, onRefresh }) {
     const [loading, setLoading] = useState(false);
@@ -21,20 +22,27 @@ export default function AddVendorModal({ open, onClose, onRefresh }) {
             pincode: ""
         }
     });
+    const { gstLookup, lookupGst, handleGstBlur, resetGstLookup } = useGstAutofill(setFormData);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
+        const nextValue = name === "gstNumber" ? normalizeGstNumber(value) : value;
+
+        if (name === "gstNumber") {
+            resetGstLookup();
+        }
+
         if (name.includes(".")) {
             const [parent, child] = name.split(".");
             setFormData(prev => ({
                 ...prev,
                 [parent]: {
                     ...prev[parent],
-                    [child]: value
+                    [child]: nextValue
                 }
             }));
         } else {
-            setFormData(prev => ({ ...prev, [name]: value }));
+            setFormData(prev => ({ ...prev, [name]: nextValue }));
         }
     };
 
@@ -56,6 +64,7 @@ export default function AddVendorModal({ open, onClose, onRefresh }) {
                 gstNumber: "",
                 address: { city: "", state: "", pincode: "" }
             });
+            resetGstLookup();
         } catch (err) {
             toast.error(err.response?.data?.message || "Registration failed", { id: toastId });
         } finally {
@@ -111,16 +120,49 @@ export default function AddVendorModal({ open, onClose, onRefresh }) {
                                     required
                                 />
 
-                                <InputGroup 
-                                    label="Tax Identification (GST)" 
-                                    icon={ShieldCheck} 
-                                    name="gstNumber" 
-                                    value={formData.gstNumber} 
-                                    onChange={handleChange} 
-                                    placeholder="GSTIN - 15 Characters"
-                                    className="uppercase"
-                                    required
-                                />
+                                <div className="space-y-2">
+                                    <div className="flex items-end gap-3">
+                                        <div className="flex-1">
+                                            <InputGroup 
+                                                label="Tax Identification (GST)" 
+                                                icon={ShieldCheck} 
+                                                name="gstNumber" 
+                                                value={formData.gstNumber} 
+                                                onChange={handleChange}
+                                                onBlur={() => handleGstBlur(formData.gstNumber)}
+                                                placeholder="GSTIN - 15 Characters"
+                                                className="uppercase"
+                                                required
+                                            />
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={() => lookupGst(formData.gstNumber, { force: true })}
+                                            disabled={gstLookup.loading}
+                                            className="h-12 shrink-0 rounded-xl border border-indigo-200 bg-indigo-50 px-4 text-[12px] font-bold uppercase tracking-wide text-indigo-700 transition-all hover:bg-indigo-100 disabled:cursor-not-allowed disabled:opacity-60"
+                                        >
+                                            <span className="flex items-center gap-2">
+                                                {gstLookup.loading ? <LoaderCircle size={14} className="animate-spin" /> : <Search size={14} />}
+                                                Fetch GST
+                                            </span>
+                                        </button>
+                                    </div>
+                                    {gstLookup.message ? (
+                                        <p className={`text-[11px] font-semibold ${
+                                            gstLookup.tone === "error"
+                                                ? "text-rose-600"
+                                                : gstLookup.tone === "success"
+                                                    ? "text-emerald-600"
+                                                    : "text-amber-600"
+                                        }`}>
+                                            {gstLookup.message}
+                                        </p>
+                                    ) : (
+                                        <p className="text-[11px] font-medium text-slate-400">
+                                            API key ho to legal name/address auto-fill hoga. Warna GSTIN se state jaise basics milenge.
+                                        </p>
+                                    )}
+                                </div>
                             </div>
                         </section>
 
@@ -236,7 +278,7 @@ export default function AddVendorModal({ open, onClose, onRefresh }) {
     );
 }
 
-function InputGroup({ label, icon: Icon, name, value, onChange, placeholder, type = "text", maxLength, className = "", required = false }) {
+function InputGroup({ label, icon: Icon, name, value, onChange, onBlur, placeholder, type = "text", maxLength, className = "", required = false }) {
     return (
         <label className="block group">
             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-2 px-1">{label} {required && <span className="text-rose-500">*</span>}</span>
@@ -248,6 +290,7 @@ function InputGroup({ label, icon: Icon, name, value, onChange, placeholder, typ
                     name={name}
                     value={value}
                     onChange={onChange}
+                    onBlur={onBlur}
                     maxLength={maxLength}
                     placeholder={placeholder}
                     className={`w-full bg-white border border-slate-200 rounded-xl py-3 ${Icon ? 'pl-11' : 'px-4'} pr-4 text-[14px] font-bold text-slate-900 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50 outline-none transition-all placeholder:font-semibold placeholder:text-slate-300 ${className}`}

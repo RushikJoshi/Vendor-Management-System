@@ -11,6 +11,11 @@ const vendorApplicationSchema = new mongoose.Schema(
             type: Number,
             default: 1
         },
+        applicationId: {
+            type: String,
+            unique: true,
+            sparse: true
+        },
         category: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Category"

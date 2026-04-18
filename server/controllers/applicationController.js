@@ -9,16 +9,30 @@ const AuditService = require("../services/AuditService");
 const NotificationService = require("../services/NotificationService");
 const EmailService = require("../services/EmailService");
 const PdfService = require("../services/PdfService");
+const SequenceService = require("../services/SequenceService");
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 const { successResponse, errorResponse } = require("../utils/responseHandler");
 
 const resolveApplicationTenantId = async (application, fallbackTenantId = null) => {
     if (fallbackTenantId) return fallbackTenantId;
-    if (!application?.approvedBy) return null;
+    
+    // 1. Check if it was approved by someone already
+    if (application?.approvedBy) {
+        const approver = await User.findById(application.approvedBy).select("tenantId");
+        if (approver?.tenantId) return approver.tenantId;
+    }
 
-    const approver = await User.findById(application.approvedBy).select("tenantId");
-    return approver?.tenantId || null;
+    // 2. Check if it came from an invitation
+    if (application?.invitationToken) {
+        const Invitation = require("../models/Invitation");
+        const invite = await Invitation.findOne({ token: application.invitationToken }).populate("invitedBy");
+        if (invite?.invitedBy?.tenantId) return invite.invitedBy.tenantId;
+    }
+
+    // 3. Last resort: Get many first admin to find a tenantId if single-tenant environment
+    const firstAdmin = await User.findOne({ role: "admin" }).select("tenantId");
+    return firstAdmin?.tenantId || "DEFAULT";
 };
 
 // @desc Check if email already exists (Public)
@@ -79,7 +93,11 @@ exports.submitApplication = async (req, res) => {
             const category = invite.category;
             if (!category) throw new Error("Category configuration missing for this invitation.");
 
+            const tenantId = await resolveApplicationTenantId(null, req.user?.tenantId);
+            const applicationId = await SequenceService.getNextSequence(tenantId, "application");
+
             application = await VendorApplication.create({
+                applicationId,
                 formTemplate: req.body.formTemplateId || category.formTemplate,
                 formVersion: req.body.formVersion || 1,
                 category: category._id,
@@ -115,7 +133,11 @@ exports.submitApplication = async (req, res) => {
             const effectiveFormTemplateId = req.body.formTemplateId || category.formTemplate;
             if (!effectiveFormTemplateId) throw new Error("Category configuration missing form template.");
 
+            const tenantId = await resolveApplicationTenantId(null, req.user?.tenantId);
+            const applicationId = await SequenceService.getNextSequence(tenantId, "application");
+
             application = await VendorApplication.create({
+                applicationId,
                 formTemplate: effectiveFormTemplateId,
                 formVersion: req.body.formVersion || 1,
                 category: category._id,
@@ -141,8 +163,12 @@ exports.submitApplication = async (req, res) => {
             await EligibilityService.calculateScore(application, category);
         } else if (!application) {
             // No category, using Master Form fallback directly
+            const tenantId = await resolveApplicationTenantId(null, req.user?.tenantId);
+            const applicationId = await SequenceService.getNextSequence(tenantId, "application");
+
             const defaultCategory = await Category.findOne() || null;
             application = await VendorApplication.create({
+                applicationId,
                 formTemplate: req.body.formTemplateId,
                 formVersion: req.body.formVersion || 1,
                 category: defaultCategory ? defaultCategory._id : null,
@@ -494,7 +520,9 @@ exports.approveApplication = async (req, res) => {
             vendor.address = getVal('co_address', 'address', 'registeredAddress');
             await vendor.save();
         } else {
+            const vendorId = await SequenceService.getNextSequence(tenantId, "vendor");
             vendor = await Vendor.create({
+                vendorId,
                 email: application.email,
                 companyName: application.companyName,
                 password: hashedPassword,
@@ -694,6 +722,8 @@ async function createVendorFromApplication(application, fallbackTenantId = null)
     const vendorName = contactNameVal !== 'N/A' ? contactNameVal : application.companyName;
 
     let vendor = await Vendor.findOne({ email: application.email });
+    const tenantId = await resolveApplicationTenantId(application, fallbackTenantId);
+
     if (vendor) {
         vendor.name = vendorName;
         vendor.companyName = application.companyName;
@@ -702,7 +732,9 @@ async function createVendorFromApplication(application, fallbackTenantId = null)
         vendor.address = getVal('co_address', 'address', 'registeredAddress');
         await vendor.save();
     } else {
+        const vendorId = await SequenceService.getNextSequence(tenantId, "vendor");
         vendor = await Vendor.create({
+            vendorId,
             name: vendorName,
             createdBy: application.approvedBy || application.category,
             email: application.email,
@@ -764,8 +796,6 @@ async function createVendorFromApplication(application, fallbackTenantId = null)
             contractsCount: 0
         });
     }
-
-    const tenantId = await resolveApplicationTenantId(application, fallbackTenantId);
 
     // 4. Handle User account for authentication
     let user = await User.findOne({ email: application.email });

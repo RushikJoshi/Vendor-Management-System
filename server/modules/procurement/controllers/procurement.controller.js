@@ -83,7 +83,15 @@ exports.selectVendor = asyncHandler(async (req, res) => {
 });
 
 exports.listPurchaseOrders = asyncHandler(async (req, res) => {
-  const rows = await PurchaseOrder.find(tenantFilter(req))
+  const rows = await PurchaseOrder.find(tenantFilter(req, { orderType: "PO" }))
+    .populate("vendorId", "name companyName email phone address bankAccount")
+    .populate("rfqId", "title")
+    .sort({ createdAt: -1 });
+  res.status(200).json({ success: true, data: rows });
+});
+
+exports.listServiceOrders = asyncHandler(async (req, res) => {
+  const rows = await PurchaseOrder.find(tenantFilter(req, { orderType: "SO" }))
     .populate("vendorId", "name companyName email phone address bankAccount")
     .populate("rfqId", "title")
     .sort({ createdAt: -1 });

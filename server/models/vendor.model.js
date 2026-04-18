@@ -8,6 +8,11 @@ const vendorSchema = new mongoose.Schema(
             required: [true, "Vendor name is required"],
             trim: true,
         },
+        vendorId: {
+            type: String,
+            unique: true,
+            sparse: true
+        },
         email: {
             type: String,
             required: [true, "Vendor email is required"],

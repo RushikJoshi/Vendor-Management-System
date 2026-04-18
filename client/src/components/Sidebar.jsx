@@ -24,7 +24,7 @@ export default function Sidebar({
     },
     {
       title: "Management",
-      items: links.filter(l => ["Vendors", "Form Builder", "Categories", "RFQs", "My RFQs", "Procurement", "Procurement Desk", "Submit Quotation", "Contracts", "My Contracts"].includes(l.label))
+      items: links.filter(l => ["Vendors", "Form Builder", "Categories", "RFQs", "My RFQs", "Procurement", "Procurement Desk", "Submit Quotation", "Contracts", "My Contracts", "Service Orders", "Document Settings"].includes(l.label))
     },
     {
       title: "System",
@@ -82,6 +82,7 @@ export default function Sidebar({
                   <NavLink
                     key={link.to}
                     to={link.to}
+                    end={link.end}
                     onClick={onClose}
                     className={({ isActive }) => `
                       group relative flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-300

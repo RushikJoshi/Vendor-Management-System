@@ -187,8 +187,8 @@ export default function Vendors() {
             <thead>
               <tr className="border-b border-slate-100 bg-slate-50/50">
                 <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-slate-500">Partner & Identity</th>
-                <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-slate-500">Contact Person</th>
-                <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-slate-500">Category</th>
+                <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-slate-500">Contact Details</th>
+                <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-slate-500">Risk Profile</th>
                 <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-slate-500">Status</th>
                 <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-slate-500 text-right">Actions</th>
               </tr>
@@ -227,7 +227,11 @@ export default function Vendors() {
                                 </div>
                                 <div className="min-w-0">
                                     <p className="text-[14px] font-bold text-slate-900 group-hover:text-indigo-900 truncate">{v.companyName}</p>
-                                    <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mt-0.5">#{v._id?.slice(-8).toUpperCase()}</p>
+                                    <div className="flex items-center gap-2 mt-1">
+                                        <span className="text-[10px] font-black font-mono px-1.5 py-0.5 bg-indigo-50 text-indigo-600 rounded border border-indigo-100 uppercase tracking-widest">#{v._id?.slice(-8).toUpperCase()}</span>
+                                        <span className="h-1 w-1 rounded-full bg-slate-200" />
+                                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{v.category?.name || "General"}</span>
+                                    </div>
                                 </div>
                             </div>
                         </td>
@@ -238,9 +242,15 @@ export default function Vendors() {
                             </div>
                         </td>
                         <td className="px-6 py-5">
-                            <span className="inline-flex items-center rounded-lg border border-slate-200 bg-white px-3 py-1 text-[11px] font-bold text-slate-600 shadow-sm">
-                                {v.category?.name || "Uncategorized"}
-                            </span>
+                            <div className="flex flex-col gap-1">
+                                <span className={`inline-flex items-center justify-center w-fit px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-tight rounded-md border ${
+                                    v.riskLevel === 'High' ? 'bg-rose-50 text-rose-600 border-rose-100' : 
+                                    v.riskLevel === 'Medium' ? 'bg-amber-50 text-amber-600 border-amber-100' : 
+                                    'bg-emerald-50 text-emerald-600 border-emerald-100'
+                                }`}>
+                                    {v.riskLevel || 'Low'} Risk
+                                </span>
+                            </div>
                         </td>
                         <td className="px-6 py-5">
                             <StatusBadge status={v.lifecycleStatus || "active"} />

@@ -3,27 +3,46 @@ import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Printer, MapPin } from "lucide-react";
 import { ProcurementContext } from "../../context/ProcurementContext";
 import { AuthContext } from "../../context/AuthContext";
+import api from "../../services/api";
 import StatusPill from "../../components/StatusBadge";
 
 export default function PurchaseOrderDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { purchaseOrders } = useContext(ProcurementContext);
+  const { purchaseOrders, serviceOrders, refreshAll, loading } = useContext(ProcurementContext);
   const { user } = useContext(AuthContext);
-  const company = { name: "Global Tech Enterprise" }; // Mocked or fetched tenant config
+  const [docSettings, setDocSettings] = useState(null);
   const [po, setPo] = useState(null);
   const printRef = useRef(null);
 
   useEffect(() => {
-    if (purchaseOrders && purchaseOrders.length > 0) {
-      const found = purchaseOrders.find(p => p._id === id);
-      setPo(found);
-    }
-  }, [purchaseOrders, id]);
+    refreshAll();
+    // Fetch customization settings
+    api.get("/procurement-settings").then(res => setDocSettings(res.data.data)).catch(console.error);
+  }, [refreshAll]);
 
   const handlePrint = () => {
     window.print();
   };
+
+  useEffect(() => {
+    const allOrders = [...(purchaseOrders || []), ...(serviceOrders || [])];
+    if (allOrders.length > 0) {
+      const found = allOrders.find(p => p._id === id);
+      setPo(found);
+    }
+  }, [purchaseOrders, serviceOrders, id]);
+
+
+
+  if (!po && !loading) return (
+    <div className="flex h-[80vh] flex-col items-center justify-center gap-4">
+       <div className="p-4 bg-rose-50 text-rose-600 rounded-xl border border-rose-100 font-bold uppercase tracking-widest text-xs">
+         Document Reference Not Found
+       </div>
+       <button onClick={() => navigate(-1)} className="text-sm font-bold text-slate-500 hover:text-indigo-600 underline">Go Back</button>
+    </div>
+  );
 
   if (!po) return (
     <div className="flex h-[80vh] items-center justify-center">
@@ -40,10 +59,12 @@ export default function PurchaseOrderDetail() {
            <button onClick={() => navigate(-1)} className="flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors">
               <ArrowLeft size={18} className="text-slate-600"/>
            </button>
-           <div>
-              <h1 className="text-xl font-bold text-slate-900">Purchase Order Details</h1>
-              <p className="text-xs text-slate-500">View and print official document records.</p>
-           </div>
+             <div>
+                <h1 className="text-xl font-bold text-slate-900">
+                  {po.orderType === "SO" ? "Service Order Details" : "Purchase Order Details"}
+                </h1>
+                <p className="text-xs text-slate-500">View and print official document records.</p>
+             </div>
         </div>
         <div className="flex items-center gap-3">
            <button onClick={handlePrint} className="inline-flex items-center gap-2 bg-slate-900 hover:bg-black text-white px-5 py-2.5 rounded-lg text-sm font-bold shadow-sm transition-all focus:ring-4 focus:ring-slate-100">
@@ -59,29 +80,39 @@ export default function PurchaseOrderDetail() {
       >
          
          {/* Document Header */}
-         <div className="border-b-4 border-indigo-600 pb-8 flex justify-between items-start">
+         <div 
+            className="border-b-4 pb-8 flex justify-between items-start"
+            style={{ borderBottomColor: docSettings?.themeColor || '#4f46e5' }}
+         >
             <div>
                {/* Replace this with Company logo image usually */}
                <div className="flex items-center gap-2 mb-4">
-                  <div className="h-10 w-10 rounded bg-indigo-600 flex items-center justify-center text-white font-black text-xl">
-                    {company?.name?.charAt(0) || "GT"}
+                  <div 
+                      className="h-10 w-10 rounded flex items-center justify-center text-white font-black text-xl"
+                      style={{ backgroundColor: docSettings?.themeColor || '#4f46e5' }}
+                  >
+                    {docSettings?.companyName?.charAt(0) || "GT"}
                   </div>
                   <div>
-                    <h2 className="text-2xl font-black text-slate-900 tracking-tight uppercase">{company?.name || "Global Tech Enterprise"}</h2>
+                    <h2 className="text-2xl font-black text-slate-900 tracking-tight uppercase">{docSettings?.companyName || "Global Tech Enterprise"}</h2>
                     <p className="text-xs font-bold text-slate-400 tracking-widest uppercase">Procurement Division</p>
                   </div>
                </div>
                <div className="text-sm text-slate-600 space-y-1">
-                  <p className="flex items-center gap-2"><MapPin size={14} className="text-slate-400"/> HQ Address Line 1, Business Park</p>
-                  <p className="pl-5">City, State - PINCODE</p>
-                  <p className="pl-5">GSTIN: 27AABCT#8XX9Z1</p>
+                  <p className="flex items-center gap-2"><MapPin size={14} className="text-slate-400"/> {docSettings?.companyAddress || "HQ Address Line 1, Business Park"}</p>
+                  <p className="pl-5">GSTIN: {docSettings?.gstNumber || "27AABCT#8XX9Z1"}</p>
                </div>
             </div>
             <div className="text-right">
-               <h1 className="text-4xl font-black text-slate-900 uppercase tracking-tight mb-2">Purchase Order</h1>
+               <h1 
+                  className="text-4xl font-black uppercase tracking-tight mb-2"
+                  style={{ color: docSettings?.themeColor || '#1e293b' }}
+               >
+                 {po.orderType === "SO" ? "Service Order" : "Purchase Order"}
+               </h1>
                <div className="inline-flex flex-col text-right items-end bg-slate-50 p-4 rounded-xl border border-slate-100">
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Document Reference No.</p>
-                  <p className="text-xl font-bold text-indigo-600 mb-3">{po.poNumber}</p>
+                  <p className="text-xl font-bold mb-3" style={{ color: docSettings?.themeColor || '#4f46e5' }}>{po.poNumber}</p>
                   
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Issue Date</p>
                   <p className="text-sm font-bold text-slate-800 mb-3">{new Date(po.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
@@ -105,10 +136,24 @@ export default function PurchaseOrderDetail() {
                </div>
             </div>
             <div className="space-y-3">
-               <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest border-b border-slate-200 pb-2">Ship To / Billing Address</h3>
+               <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest border-b border-slate-200 pb-2">
+                 {po.orderType === "SO" ? "Service Site & Period" : "Ship To / Billing Address"}
+               </h3>
                <div>
-                  <p className="font-bold text-lg text-slate-900">{company?.name || "Global Tech Enterprise"}</p>
-                  <p className="text-sm text-slate-500 mt-2 leading-relaxed">Central Warehouse Operations<br />Sector 45, Phase 2, Industrial Zone<br />Authorized Receiver Desk</p>
+                  {po.orderType === "SO" ? (
+                    <div className="space-y-2">
+                      <p className="font-bold text-lg text-slate-900">{po.serviceLocation || "Project Site"}</p>
+                      <div className="flex items-center gap-2 text-sm text-slate-600 font-medium">
+                         <span className="text-slate-400 text-[10px] uppercase font-black tracking-widest">Duration:</span>
+                         {po.servicePeriod?.startDate ? new Date(po.servicePeriod.startDate).toLocaleDateString() : 'TBD'} — {po.servicePeriod?.endDate ? new Date(po.servicePeriod.endDate).toLocaleDateString() : 'TBD'}
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <p className="font-bold text-lg text-slate-900">{docSettings?.companyName || "Global Tech Enterprise"}</p>
+                      <p className="text-sm text-slate-500 mt-2 leading-relaxed">{docSettings?.companyAddress || "Central Warehouse Operations"}</p>
+                    </>
+                  )}
                </div>
             </div>
          </div>
@@ -161,17 +206,18 @@ export default function PurchaseOrderDetail() {
          <div className="mt-16 pt-8 border-t border-slate-200">
             <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Terms & Conditions</h4>
             <ul className="text-xs text-slate-500 space-y-2 list-disc pl-4 marker:text-indigo-400">
-               <li>Please reference the PO Number on all invoices, shipping logs, and correspondence.</li>
-               <li>Goods must be delivered within the designated SLA timeline mentioned in the original quote.</li>
-               <li>Defective/Non-compliant goods will be auto-discarded at vendor's return expense.</li>
-               <li>Payments are processed against "Approved" invoices within standard clearance cycles.</li>
+               {(po.orderType === "SO" ? docSettings?.soTerms : docSettings?.poTerms)?.map((term, i) => (
+                   <li key={i}>{term}</li>
+               )) || (
+                   <li>Standard terms apply as per the framework agreement.</li>
+               )}
             </ul>
 
             <div className="mt-16 flex justify-between items-end">
                <div>
                   <div className="w-48 border-b-2 border-slate-300 mb-2"></div>
                   <p className="text-xs font-bold text-slate-900 uppercase tracking-widest">Authorized Signatory</p>
-                  <p className="text-xs text-slate-500 mt-1">For {company?.name}</p>
+                  <p className="text-xs text-slate-500 mt-1">For {docSettings?.companyName || "Global Tech Enterprise"}</p>
                </div>
                <div className="text-right flex items-center justify-end text-emerald-600 gap-2 font-bold text-sm bg-emerald-50 px-4 py-2 rounded-lg border border-emerald-200">
                   <span className="text-lg">✓</span>

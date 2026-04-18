@@ -39,6 +39,7 @@ router.post(
 );
 
 router.get("/purchase-orders", authorizeRoles("admin", "procurement", "finance", "vendor"), controller.listPurchaseOrders);
+router.get("/service-orders", authorizeRoles("admin", "procurement", "finance", "vendor"), controller.listServiceOrders);
 
 router
   .route("/deliveries")

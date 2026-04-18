@@ -3,6 +3,7 @@ const Quotation = require("../models/Quotation");
 const asyncHandler = require("../utils/asyncHandler");
 const AppError = require("../utils/AppError");
 const { generatePO } = require("../utils/pdfGenerator");
+const SequenceService = require("../services/SequenceService");
 
 exports.createPO = asyncHandler(async (req, res, next) => {
     const { quotationId } = req.body;
@@ -12,7 +13,7 @@ exports.createPO = asyncHandler(async (req, res, next) => {
         return next(new AppError("Quotation not found", 404));
     }
 
-    const poNumber = `PO-${Date.now()}`;
+    const poNumber = await SequenceService.getNextSequence(req.user.tenantId, "po");
     
     const poData = {
         poNumber,

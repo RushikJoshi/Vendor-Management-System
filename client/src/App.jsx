@@ -56,7 +56,9 @@ import VendorProcurementDesk from "./pages/vendor/VendorProcurementDesk";
 import CreateInvoice from "./pages/vendor/CreateInvoice";
 import UpdateShipment from "./pages/vendor/UpdateShipment";
 import PurchaseOrderDetail from "./pages/admin/PurchaseOrderDetail";
+import ServiceOrders from "./pages/admin/ServiceOrders";
 import PaymentCheckout from "./pages/admin/PaymentCheckout";
+import ProcurementSettings from "./pages/admin/ProcurementSettings";
 import AdminDeliveries from "./pages/admin/AdminDeliveries";
 
 function App() {
@@ -116,6 +118,8 @@ function App() {
             <Route path="rfqs/:id/compare" element={<ProtectedRoute module="rfq"><QuotationsComparison /></ProtectedRoute>} />
             <Route path="contracts" element={<ProtectedRoute module="contracts"><Contracts /></ProtectedRoute>} />
             <Route path="procurement" element={<ProtectedRoute module="procurement"><ProcurementHub /></ProtectedRoute>} />
+            <Route path="procurement/service-orders" element={<ProtectedRoute module="procurement"><ServiceOrders /></ProtectedRoute>} />
+            <Route path="procurement/settings" element={<ProtectedRoute module="procurement"><ProcurementSettings /></ProtectedRoute>} />
             <Route path="procurement/po/:id" element={<ProtectedRoute module="procurement"><PurchaseOrderDetail /></ProtectedRoute>} />
             <Route path="procurement/payment/:id" element={<ProtectedRoute module="procurement"><PaymentCheckout /></ProtectedRoute>} />
             <Route path="procurement/shipments" element={<ProtectedRoute module="procurement"><AdminDeliveries /></ProtectedRoute>} />

@@ -124,7 +124,6 @@ app.use("/api/vendor", require("./routes/vendor.routes"));
 app.use("/api/admin", require("./routes/adminRoutes"));
 app.use("/api/forms", require("./routes/formRoutes"));
 app.use("/api/applications", require("./routes/applicationRoutes"));
-app.use("/api/categories", require("./routes/categoryRoutes"));
 app.use("/api/invitations", require("./routes/invitationRoutes"));
 app.use("/api/notifications", require("./routes/notificationRoutes"));
 app.use("/api/slm", require("./routes/slmRoutes"));
@@ -136,14 +135,35 @@ app.use("/api/rfqs", require("./routes/rfqRoutes"));
 app.use("/api/quotations", require("./routes/quotationRoutes"));
 app.use("/api/departments", require("./routes/departmentRoutes"));
 app.use("/api/purchase-orders", require("./routes/poRoutes"));
+app.use("/api/service-orders", require("./routes/soRoutes"));
+app.use("/api/categories", require("./routes/categoryRoutes"));
 app.use("/api/users", require("./routes/userManagement.routes"));
 app.use("/api/roles", require("./routes/role.routes"));
 app.use("/api/submissions", require("./routes/submissionRoutes"));
 app.use("/api/form", require("./routes/treeFormRoutes"));
 app.use("/api/submission", require("./routes/treeSubmissionRoutes"));
+app.use("/api/procurement-settings", require("./routes/procurementSettingsRoutes"));
 app.use("/api/procurement", require("./modules/procurement/routes/procurement.routes"));
 
-// 7) Handle Undefined Routes
+// 7) Serve Frontend Static Files
+let frontendPath = path.join(__dirname, "public");
+if (!require("fs").existsSync(frontendPath)) {
+    frontendPath = path.join(__dirname, "dist");
+}
+
+app.use(express.static(frontendPath));
+
+// Handle React SPA routing - return index.html for all non-API routes
+app.get(/^\/(?!api).*/, (req, res, next) => {
+    res.sendFile(path.join(frontendPath, "index.html"), (err) => {
+        if (err) {
+            // If index.html is missing, fall through to 404 handler
+            next();
+        }
+    });
+});
+
+// 8) Handle Undefined Routes
 app.use((req, res, next) => {
     next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
 });

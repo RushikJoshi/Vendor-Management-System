@@ -3,9 +3,10 @@ import { useNavigate } from "react-router-dom";
 import api from "../../services/api";
 import { toast } from "react-hot-toast";
 import { 
-    Layout, ArrowLeft, Save, Info, Building2, User, MapPin
+    Layout, ArrowLeft, Save, Info, Building2, User, MapPin, Search, LoaderCircle
 } from "lucide-react";
 import { motion } from "framer-motion";
+import useGstAutofill, { normalizeGstNumber } from "../../hooks/useGstAutofill";
 
 export default function AddVendor() {
     const navigate = useNavigate();
@@ -24,6 +25,7 @@ export default function AddVendor() {
             pincode: ""
         }
     });
+    const { gstLookup, lookupGst, handleGstBlur, resetGstLookup } = useGstAutofill(setFormData);
 
     useEffect(() => {
         const fetchCategories = async () => {
@@ -39,17 +41,23 @@ export default function AddVendor() {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
+        const nextValue = name === "gstNumber" ? normalizeGstNumber(value) : value;
+
+        if (name === "gstNumber") {
+            resetGstLookup();
+        }
+
         if (name.includes(".")) {
             const [parent, child] = name.split(".");
             setFormData(prev => ({
                 ...prev,
                 [parent]: {
                     ...prev[parent],
-                    [child]: value
+                    [child]: nextValue
                 }
             }));
         } else {
-            setFormData(prev => ({ ...prev, [name]: value }));
+            setFormData(prev => ({ ...prev, [name]: nextValue }));
         }
     };
 
@@ -158,15 +166,48 @@ export default function AddVendor() {
                             </select>
                         </div>
 
-                        <InputGroup 
-                            label="GSTIN Identifier" 
-                            name="gstNumber" 
-                            value={formData.gstNumber} 
-                            onChange={handleChange} 
-                            placeholder="Enter 15-digit GSTIN"
-                            className="uppercase"
-                            required
-                        />
+                        <div className="space-y-2">
+                            <div className="flex items-end gap-3">
+                                <div className="flex-1">
+                                    <InputGroup 
+                                        label="GSTIN Identifier" 
+                                        name="gstNumber" 
+                                        value={formData.gstNumber} 
+                                        onChange={handleChange}
+                                        onBlur={() => handleGstBlur(formData.gstNumber)}
+                                        placeholder="Enter 15-digit GSTIN"
+                                        className="uppercase"
+                                        required
+                                    />
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => lookupGst(formData.gstNumber, { force: true })}
+                                    disabled={gstLookup.loading}
+                                    className="h-10 shrink-0 rounded-lg border border-indigo-200 bg-indigo-50 px-4 text-[12px] font-bold text-indigo-700 transition-all hover:bg-indigo-100 disabled:cursor-not-allowed disabled:opacity-60"
+                                >
+                                    <span className="flex items-center gap-2">
+                                        {gstLookup.loading ? <LoaderCircle size={14} className="animate-spin" /> : <Search size={14} />}
+                                        Fetch GST
+                                    </span>
+                                </button>
+                            </div>
+                            {gstLookup.message ? (
+                                <p className={`text-[11px] font-semibold ${
+                                    gstLookup.tone === "error"
+                                        ? "text-rose-600"
+                                        : gstLookup.tone === "success"
+                                            ? "text-emerald-600"
+                                            : "text-amber-600"
+                                }`}>
+                                    {gstLookup.message}
+                                </p>
+                            ) : (
+                                <p className="text-[11px] font-medium text-slate-400">
+                                    Free API configured ho to legal name/address aayega, warna GSTIN se state jaisi basic info derive hogi.
+                                </p>
+                            )}
+                        </div>
                     </div>
                 </motion.section>
 
@@ -258,7 +299,7 @@ export default function AddVendor() {
     );
 }
 
-function InputGroup({ label, name, value, onChange, placeholder, type = "text", maxLength, className = "", required = false, disabled = false }) {
+function InputGroup({ label, name, value, onChange, onBlur, placeholder, type = "text", maxLength, className = "", required = false, disabled = false }) {
     return (
         <div className="flex flex-col gap-1">
             <p className="text-[11px] font-semibold text-slate-500 capitalize leading-none mb-1">
@@ -271,6 +312,7 @@ function InputGroup({ label, name, value, onChange, placeholder, type = "text", 
                 name={name}
                 value={value}
                 onChange={onChange}
+                onBlur={onBlur}
                 maxLength={maxLength}
                 placeholder={placeholder}
                 className={`w-full bg-white border border-slate-200 rounded-lg py-2 px-3 text-[13px] font-medium text-slate-900 focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400 outline-none transition-all placeholder:text-slate-300 disabled:bg-slate-50 disabled:text-slate-500 ${className}`}

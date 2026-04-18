@@ -10,6 +10,7 @@ const { normalizeRole } = require("../config/roles");
 const PurchaseOrder = require("../models/PurchaseOrder");
 const Invoice = require("../modules/procurement/models/Invoice");
 const Notification = require("../models/Notification");
+const { lookupGstProfile: fetchGstProfile } = require("../services/gstLookup.service");
 
 
 // @desc    Upload GST Certificate
@@ -392,6 +393,16 @@ exports.sendPaymentReminder = asyncHandler(async (req, res, next) => {
     });
 
     successResponse(res, "Payment reminder sent successfully", null);
+});
+
+// @desc    Lookup GST profile for vendor onboarding autofill
+// @route   GET /api/vendors/gst-profile/:gstNumber
+// @access  Private/Admin, HR
+exports.lookupGstProfile = asyncHandler(async (req, res) => {
+    const gstNumber = req.params.gstNumber || req.query.gstNumber || req.body.gstNumber;
+    const profile = await fetchGstProfile(gstNumber);
+
+    successResponse(res, "GST profile fetched successfully", profile);
 });
 
 // @desc    Get dashboard statistics for current vendor

@@ -1,11 +1,13 @@
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import { Bell, Save, Shield, User, Settings as SettingsIcon, Info, Lock, Mail, Globe, Building, Clock } from "lucide-react";
 import { toast } from "react-hot-toast";
+import api from "../../services/api";
 import { AuthContext } from "../../context/AuthContext";
 import { motion } from "framer-motion";
 
 const TABS = [
   { id: "profile", label: "Profile", icon: User },
+  { id: "sequences", label: "System Sequences", icon: Globe },
   { id: "security", label: "Security", icon: Shield },
   { id: "notifications", label: "Notifications", icon: Bell },
 ];
@@ -32,6 +34,68 @@ export default function Settings() {
     dashboardAlerts: true,
     weeklySummary: true,
   });
+
+  const [sequences, setSequences] = useState({
+    applicationPrefix: "APP",
+    applicationStartNumber: 1001,
+    vendorPrefix: "VND",
+    vendorStartNumber: 2001,
+    poPrefix: "PO",
+    poStartNumber: 1,
+    poSuffix: "",
+    soPrefix: "SO",
+    soStartNumber: 1,
+    soSuffix: ""
+  });
+
+  const [loadingSequences, setLoadingSequences] = useState(false);
+
+  useEffect(() => {
+    if (activeTab === "sequences") {
+      fetchSequences();
+    }
+  }, [activeTab]);
+
+  // Fetch Sequences
+  const fetchSequences = async () => {
+    setLoadingSequences(true);
+    try {
+      // We use the PO type as a base to get general settings if they are shared
+      const res = await api.get("/procurement-settings?type=PO");
+      if (res.data.success) {
+        const data = res.data.data;
+        setSequences({
+          applicationPrefix: data.applicationPrefix || "APP",
+          applicationStartNumber: data.applicationStartNumber || 1001,
+          vendorPrefix: data.vendorPrefix || "VND",
+          vendorStartNumber: data.vendorStartNumber || 2001,
+          poPrefix: data.poPrefix || "PO",
+          poStartNumber: data.poStartNumber || 1,
+          poSuffix: data.poSuffix || "",
+          soPrefix: data.soPrefix || "SO",
+          soStartNumber: data.soStartNumber || 1,
+          soSuffix: data.soSuffix || ""
+        });
+      }
+    } catch (err) {
+      console.error("Failed to fetch sequences", err);
+    } finally {
+      setLoadingSequences(false);
+    }
+  };
+
+  const onSaveSequences = async (e) => {
+    e.preventDefault();
+    try {
+      // Save for both PO and SO types to keep them in sync for global settings
+      // In a real multi-tenant app, we might have a dedicated 'SYSTEM' type
+      await api.put("/procurement-settings", { ...sequences, type: "PO" });
+      await api.put("/procurement-settings", { ...sequences, type: "SO" });
+      toast.success("System sequences updated successfully");
+    } catch (err) {
+      toast.error("Failed to save sequence settings");
+    }
+  };
 
   const onSaveProfile = (e) => {
     e.preventDefault();
@@ -326,6 +390,116 @@ export default function Settings() {
                   className="px-5 py-2 bg-indigo-600 text-white rounded-lg text-xs font-bold hover:bg-indigo-700 transition-all active:scale-95 flex items-center gap-2 shadow-lg shadow-indigo-100"
                 >
                   Save Preferences <Save size={13} />
+                </button>
+              </motion.div>
+            </form>
+          )}
+
+          {/* SEQUENCES TAB */}
+          {activeTab === "sequences" && (
+            <form onSubmit={onSaveSequences} className="space-y-4">
+              <motion.section 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="rounded-xl border border-slate-200 bg-white overflow-hidden shadow-sm"
+              >
+                <div className="bg-slate-50/50 border-b border-slate-100 px-5 py-3 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Globe size={13} className="text-indigo-600" />
+                    <h2 className="text-[12px] font-bold text-slate-800 tracking-wide uppercase">System Sequence Numbering</h2>
+                  </div>
+                  <button 
+                    type="button"
+                    onClick={fetchSequences}
+                    className="text-[10px] font-extrabold text-indigo-600 hover:text-indigo-700 uppercase"
+                  >
+                    Refresh
+                  </button>
+                </div>
+                <div className="p-6">
+                  {loadingSequences ? (
+                    <div className="py-10 text-center text-slate-400 font-bold text-[10px] uppercase animate-pulse">Fetching sequences...</div>
+                  ) : (
+                    <div className="space-y-8">
+                       {/* Top Row: Apps & Vendors */}
+                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <div className="p-4 rounded-xl bg-slate-50/50 border border-slate-100 space-y-4">
+                            <h3 className="text-[10px] font-black text-indigo-600 uppercase tracking-widest border-b border-indigo-100 pb-2">Application IDs</h3>
+                            <div className="grid grid-cols-2 gap-4">
+                              <InputGroup 
+                                label="Prefix" 
+                                value={sequences.applicationPrefix} 
+                                onChange={(e) => setSequences(prev => ({ ...prev, applicationPrefix: e.target.value }))}
+                                placeholder="APP"
+                              />
+                              <InputGroup 
+                                label="Start #" 
+                                type="number"
+                                value={sequences.applicationStartNumber} 
+                                onChange={(e) => setSequences(prev => ({ ...prev, applicationStartNumber: parseInt(e.target.value) }))}
+                                placeholder="1001"
+                              />
+                            </div>
+                            <p className="text-[10px] font-bold text-slate-400 italic">Next ID: {sequences.applicationPrefix}{sequences.applicationStartNumber}</p>
+                          </div>
+
+                          <div className="p-4 rounded-xl bg-slate-50/50 border border-slate-100 space-y-4">
+                            <h3 className="text-[10px] font-black text-emerald-600 uppercase tracking-widest border-b border-emerald-100 pb-2">Vendor Codes</h3>
+                            <div className="grid grid-cols-2 gap-4">
+                              <InputGroup 
+                                label="Prefix" 
+                                value={sequences.vendorPrefix} 
+                                onChange={(e) => setSequences(prev => ({ ...prev, vendorPrefix: e.target.value }))}
+                                placeholder="VND"
+                              />
+                              <InputGroup 
+                                label="Start #" 
+                                type="number"
+                                value={sequences.vendorStartNumber} 
+                                onChange={(e) => setSequences(prev => ({ ...prev, vendorStartNumber: parseInt(e.target.value) }))}
+                                placeholder="2001"
+                              />
+                            </div>
+                            <p className="text-[10px] font-bold text-slate-400 italic">Next Code: {sequences.vendorPrefix}{sequences.vendorStartNumber}</p>
+                          </div>
+                       </div>
+
+                       {/* Bottom Row: PO & SO */}
+                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-slate-100">
+                          <div className="space-y-4">
+                            <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Purchase Orders (PO)</h3>
+                            <div className="grid grid-cols-3 gap-3">
+                              <InputGroup label="Prefix" value={sequences.poPrefix} onChange={(e) => setSequences(prev => ({ ...prev, poPrefix: e.target.value }))} />
+                              <InputGroup label="Start#" type="number" value={sequences.poStartNumber} onChange={(e) => setSequences(prev => ({ ...prev, poStartNumber: parseInt(e.target.value) }))} />
+                              <InputGroup label="Suffix" value={sequences.poSuffix} onChange={(e) => setSequences(prev => ({ ...prev, poSuffix: e.target.value }))} />
+                            </div>
+                          </div>
+
+                          <div className="space-y-4">
+                            <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Service Orders (SO)</h3>
+                            <div className="grid grid-cols-3 gap-3">
+                              <InputGroup label="Prefix" value={sequences.soPrefix} onChange={(e) => setSequences(prev => ({ ...prev, soPrefix: e.target.value }))} />
+                              <InputGroup label="Start#" type="number" value={sequences.soStartNumber} onChange={(e) => setSequences(prev => ({ ...prev, soStartNumber: parseInt(e.target.value) }))} />
+                              <InputGroup label="Suffix" value={sequences.soSuffix} onChange={(e) => setSequences(prev => ({ ...prev, soSuffix: e.target.value }))} />
+                            </div>
+                          </div>
+                       </div>
+                    </div>
+                  )}
+                </div>
+              </motion.section>
+
+              <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="flex justify-end"
+              >
+                <button
+                  type="submit"
+                  className="px-5 py-2 bg-indigo-600 text-white rounded-lg text-xs font-bold hover:bg-indigo-700 transition-all active:scale-95 flex items-center gap-2 shadow-lg shadow-indigo-100"
+                >
+                  Save Sequence Settings <Save size={13} />
                 </button>
               </motion.div>
             </form>

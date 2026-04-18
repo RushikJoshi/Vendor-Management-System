@@ -35,21 +35,16 @@ export default function QuotationsComparison() {
         fetchData();
     }, [fetchData]);
 
-    const handleAccept = async (quoteId) => {
-        console.log("Accept action initiated for:", quoteId);
-        // Temporarily bypassing confirm to rule out browser interference
+    const handleAccept = async (quoteId, orderType = "PO") => {
+        console.log(`Accept action (${orderType}) initiated for:`, quoteId);
         
-        console.log("Proceeding with acceptance API call...");
         setProcessing(true);
-        const toastId = toast.loading("Formalizing Contract & PO...");
+        const toastId = toast.loading(`Formalizing Contract & ${orderType}...`);
         try {
-            console.log("Post started to:", `/quotations/${quoteId}/accept`);
-            const res = await api.post(`/quotations/${quoteId}/accept`);
-            console.log("API Response:", res.data);
-            toast.success("Success! Contract & PO have been provisioned.", { id: toastId });
+            const res = await api.post(`/quotations/${quoteId}/accept`, { orderType });
+            toast.success(`Success! Contract & ${orderType} have been provisioned.`, { id: toastId });
             navigate("/admin/contracts");
         } catch (err) {
-            console.error("Accept Error:", err);
             toast.error(err.response?.data?.message || "Internal Protocol Error: Failed to finalize acceptance.", { id: toastId });
         } finally {
             setProcessing(false);
@@ -191,11 +186,18 @@ export default function QuotationsComparison() {
                                 ) : (
                                     <>
                                         <button 
-                                            onClick={() => handleAccept(quote._id)}
+                                            onClick={() => handleAccept(quote._id, "PO")}
                                             disabled={processing || rfq.status === 'closed'}
                                             className="w-full h-12 bg-indigo-600 hover:bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-md shadow-indigo-100 active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
                                         >
-                                            {processing ? "Processing..." : "Accept Quotation"} <ArrowRight size={14} />
+                                            {processing ? "Processing..." : "Accept as Purchase Order"} <ArrowRight size={14} />
+                                        </button>
+                                        <button 
+                                            onClick={() => handleAccept(quote._id, "SO")}
+                                            disabled={processing || rfq.status === 'closed'}
+                                            className="w-full h-10 bg-white border-2 border-slate-900 text-slate-900 hover:bg-slate-50 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
+                                        >
+                                            {processing ? "Processing..." : "Accept as Service Order"}
                                         </button>
                                         <button
                                             type="button"

@@ -8,6 +8,7 @@ export function ProcurementProvider({ children }) {
   const [overview, setOverview] = useState(null);
   const [purchaseRequests, setPurchaseRequests] = useState([]);
   const [purchaseOrders, setPurchaseOrders] = useState([]);
+  const [serviceOrders, setServiceOrders] = useState([]);
   const [deliveries, setDeliveries] = useState([]);
   const [invoices, setInvoices] = useState([]);
   const [payments, setPayments] = useState([]);
@@ -29,6 +30,7 @@ export function ProcurementProvider({ children }) {
         overviewRes,
         prRes,
         poRes,
+        soRes,
         deliveryRes,
         invoiceRes,
         paymentRes,
@@ -37,6 +39,7 @@ export function ProcurementProvider({ children }) {
         safeFetch(procurementApi.getOverview(), null),
         safeFetch(procurementApi.listPRs(), []),
         safeFetch(procurementApi.listPOs(), []),
+        safeFetch(procurementApi.listSOs(), []),
         safeFetch(procurementApi.listDeliveries(), []),
         safeFetch(procurementApi.listInvoices(), []),
         safeFetch(procurementApi.listPayments(), []),
@@ -45,6 +48,7 @@ export function ProcurementProvider({ children }) {
       setOverview(overviewRes.data.data || null);
       setPurchaseRequests(prRes.data.data || []);
       setPurchaseOrders(poRes.data.data || []);
+      setServiceOrders(soRes.data.data || []);
       setDeliveries(deliveryRes.data.data || []);
       setInvoices(invoiceRes.data.data || []);
       setPayments(paymentRes.data.data || []);
@@ -60,13 +64,14 @@ export function ProcurementProvider({ children }) {
       overview,
       purchaseRequests,
       purchaseOrders,
+      serviceOrders,
       deliveries,
       invoices,
       payments,
       slaBreaches,
       refreshAll,
     }),
-    [loading, overview, purchaseRequests, purchaseOrders, deliveries, invoices, payments, slaBreaches, refreshAll]
+    [loading, overview, purchaseRequests, purchaseOrders, serviceOrders, deliveries, invoices, payments, slaBreaches, refreshAll]
   );
 
   return <ProcurementContext.Provider value={value}>{children}</ProcurementContext.Provider>;

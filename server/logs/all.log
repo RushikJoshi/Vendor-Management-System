@@ -716,3 +716,418 @@
 2026-04-13 15:15:50:1550 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
 2026-04-13 15:15:50:1550 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
 2026-04-13 15:15:50:1550 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-14 11:38:25:3825 [info] Server running in development mode on port 5000
+2026-04-14 11:38:25:3825 [info] 🎯 Job Processor Initialized
+2026-04-14 11:38:25:3825 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-14 11:38:25:3825 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-14 11:38:25:3825 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-14 11:49:54:4954 [info] Server running in development mode on port 5000
+2026-04-14 11:49:54:4954 [info] 🎯 Job Processor Initialized
+2026-04-14 11:49:54:4954 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-14 11:49:54:4954 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-14 11:49:54:4954 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-14 14:36:51:3651 [info] Server running in development mode on port 5000
+2026-04-14 14:36:51:3651 [info] 🎯 Job Processor Initialized
+2026-04-14 14:36:52:3652 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-14 14:36:52:3652 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-14 14:36:52:3652 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-14 14:43:14:4314 [info] Server running in development mode on port 5000
+2026-04-14 14:43:14:4314 [info] 🎯 Job Processor Initialized
+2026-04-14 14:43:15:4315 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-14 14:43:15:4315 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-14 14:43:15:4315 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-15 10:14:12:1412 [info] Server running in development mode on port 5000
+2026-04-15 10:14:12:1412 [info] 🎯 Job Processor Initialized
+2026-04-15 10:14:12:1412 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-15 10:14:12:1412 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-15 10:14:12:1412 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-16 10:19:03:193 [info] Server running in development mode on port 5001
+2026-04-16 10:19:03:193 [info] 🎯 Job Processor Initialized
+2026-04-16 10:19:04:194 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-16 10:19:04:194 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-16 10:19:04:194 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-16 10:22:49:2249 [info] Server running in development mode on port 5001
+2026-04-16 10:22:49:2249 [info] 🎯 Job Processor Initialized
+2026-04-16 10:22:49:2249 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-16 10:22:49:2249 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-16 10:22:49:2249 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-16 10:23:12:2312 [info] Server running in development mode on port 5001
+2026-04-16 10:23:12:2312 [info] 🎯 Job Processor Initialized
+2026-04-16 10:23:12:2312 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-16 10:23:12:2312 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-16 10:23:12:2312 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-16 10:33:32:3332 [info] Server running in development mode on port 5001
+2026-04-16 10:33:32:3332 [info] 🎯 Job Processor Initialized
+2026-04-16 10:33:33:3333 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-16 10:33:33:3333 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-16 10:33:33:3333 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-16 10:36:35:3635 [info] Server running in development mode on port 5001
+2026-04-16 10:36:35:3635 [info] 🎯 Job Processor Initialized
+2026-04-16 10:36:35:3635 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-16 10:36:35:3635 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-16 10:36:35:3635 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-16 10:36:58:3658 [info] Server running in development mode on port 5001
+2026-04-16 10:36:58:3658 [info] 🎯 Job Processor Initialized
+2026-04-16 10:36:58:3658 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-16 10:36:58:3658 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-16 10:36:58:3658 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-16 10:37:23:3723 [info] Server running in development mode on port 5001
+2026-04-16 10:37:23:3723 [info] 🎯 Job Processor Initialized
+2026-04-16 10:37:23:3723 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-16 10:37:23:3723 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-16 10:37:23:3723 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-16 10:38:27:3827 [info] Server running in development mode on port 5001
+2026-04-16 10:38:27:3827 [info] 🎯 Job Processor Initialized
+2026-04-16 10:38:27:3827 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-16 10:38:27:3827 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-16 10:38:27:3827 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-16 10:50:52:5052 [info] Server running in development mode on port 5001
+2026-04-16 10:50:52:5052 [info] 🎯 Job Processor Initialized
+2026-04-16 10:50:52:5052 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-16 10:50:52:5052 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-16 10:50:52:5052 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-16 10:51:15:5115 [info] Server running in development mode on port 5001
+2026-04-16 10:51:15:5115 [info] 🎯 Job Processor Initialized
+2026-04-16 10:51:15:5115 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-16 10:51:15:5115 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-16 10:51:15:5115 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-16 10:59:47:5947 [info] Server running in development mode on port 5001
+2026-04-16 10:59:47:5947 [info] 🎯 Job Processor Initialized
+2026-04-16 10:59:48:5948 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-16 10:59:48:5948 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-16 10:59:48:5948 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-16 11:02:45:245 [info] Server running in development mode on port 5001
+2026-04-16 11:02:45:245 [info] 🎯 Job Processor Initialized
+2026-04-16 11:02:45:245 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-16 11:02:45:245 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-16 11:02:45:245 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-16 12:33:36:3336 [info] Server running in development mode on port 5001
+2026-04-16 12:33:36:3336 [info] 🎯 Job Processor Initialized
+2026-04-16 12:33:36:3336 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-16 12:33:36:3336 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-16 12:33:36:3336 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-16 12:34:32:3432 [info] Server running in development mode on port 5001
+2026-04-16 12:34:32:3432 [info] 🎯 Job Processor Initialized
+2026-04-16 12:34:32:3432 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-16 12:34:32:3432 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-16 12:34:32:3432 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-16 13:03:28:328 [info] Server running in development mode on port 5001
+2026-04-16 13:03:28:328 [info] 🎯 Job Processor Initialized
+2026-04-16 13:03:28:328 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-16 13:03:28:328 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-16 13:03:28:328 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-16 13:04:07:47 [info] Server running in development mode on port 5001
+2026-04-16 13:04:07:47 [info] 🎯 Job Processor Initialized
+2026-04-16 13:04:07:47 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-16 13:04:07:47 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-16 13:04:07:47 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-16 13:04:16:416 [info] Server running in development mode on port 5001
+2026-04-16 13:04:16:416 [info] 🎯 Job Processor Initialized
+2026-04-16 13:04:16:416 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-16 13:04:16:416 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-16 13:04:16:416 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-16 13:04:23:423 [info] Server running in development mode on port 5001
+2026-04-16 13:04:23:423 [info] 🎯 Job Processor Initialized
+2026-04-16 13:04:23:423 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-16 13:04:23:423 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-16 13:04:23:423 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-16 14:09:23:923 [info] Server running in development mode on port 5000
+2026-04-16 14:09:23:923 [info] 🎯 Job Processor Initialized
+2026-04-16 14:09:23:923 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-16 14:09:23:923 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-16 14:09:23:923 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-16 14:23:59:2359 [info] Server running in development mode on port 5000
+2026-04-16 14:23:59:2359 [info] 🎯 Job Processor Initialized
+2026-04-16 14:23:59:2359 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-16 14:23:59:2359 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-16 14:23:59:2359 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-16 14:24:24:2424 [info] Server running in development mode on port 5000
+2026-04-16 14:24:24:2424 [info] 🎯 Job Processor Initialized
+2026-04-16 14:24:24:2424 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-16 14:24:24:2424 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-16 14:24:24:2424 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-16 14:26:52:2652 [info] Server running in development mode on port 5000
+2026-04-16 14:26:52:2652 [info] 🎯 Job Processor Initialized
+2026-04-16 14:26:52:2652 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-16 14:26:52:2652 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-16 14:26:52:2652 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-16 14:29:35:2935 [info] Server running in development mode on port 5000
+2026-04-16 14:29:35:2935 [info] 🎯 Job Processor Initialized
+2026-04-16 14:29:35:2935 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-16 14:29:35:2935 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-16 14:29:35:2935 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-16 14:31:02:312 [info] Server running in development mode on port 5000
+2026-04-16 14:31:02:312 [info] 🎯 Job Processor Initialized
+2026-04-16 14:31:02:312 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-16 14:31:02:312 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-16 14:31:02:312 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-16 14:38:12:3812 [info] Server running in development mode on port 5000
+2026-04-16 14:38:12:3812 [info] 🎯 Job Processor Initialized
+2026-04-16 14:38:13:3813 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-16 14:38:13:3813 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-16 14:38:13:3813 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-16 14:38:23:3823 [info] Server running in development mode on port 5000
+2026-04-16 14:38:23:3823 [info] 🎯 Job Processor Initialized
+2026-04-16 14:38:24:3824 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-16 14:38:24:3824 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-16 14:38:24:3824 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-16 14:44:34:4434 [info] Server running in development mode on port 5000
+2026-04-16 14:44:34:4434 [info] 🎯 Job Processor Initialized
+2026-04-16 14:44:34:4434 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-16 14:44:34:4434 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-16 14:44:34:4434 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-16 14:46:28:4628 [info] Server running in development mode on port 5000
+2026-04-16 14:46:28:4628 [info] 🎯 Job Processor Initialized
+2026-04-16 14:46:28:4628 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-16 14:46:28:4628 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-16 14:46:28:4628 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-16 14:46:39:4639 [info] Server running in development mode on port 5000
+2026-04-16 14:46:39:4639 [info] 🎯 Job Processor Initialized
+2026-04-16 14:46:39:4639 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-16 14:46:39:4639 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-16 14:46:39:4639 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-16 14:48:08:488 [info] Server running in development mode on port 5000
+2026-04-16 14:48:08:488 [info] 🎯 Job Processor Initialized
+2026-04-16 14:48:08:488 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-16 14:48:08:488 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-16 14:48:08:488 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-16 14:48:36:4836 [info] Server running in development mode on port 5000
+2026-04-16 14:48:36:4836 [info] 🎯 Job Processor Initialized
+2026-04-16 14:48:36:4836 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-16 14:48:36:4836 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-16 14:48:36:4836 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-16 15:10:28:1028 [info] Server running in development mode on port 5000
+2026-04-16 15:10:28:1028 [info] 🎯 Job Processor Initialized
+2026-04-16 15:10:28:1028 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-16 15:10:28:1028 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-16 15:10:28:1028 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-16 15:10:43:1043 [info] Server running in development mode on port 5000
+2026-04-16 15:10:43:1043 [info] 🎯 Job Processor Initialized
+2026-04-16 15:10:43:1043 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-16 15:10:43:1043 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-16 15:10:43:1043 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-16 15:11:00:110 [info] Server running in development mode on port 5000
+2026-04-16 15:11:00:110 [info] 🎯 Job Processor Initialized
+2026-04-16 15:11:00:110 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-16 15:11:00:110 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-16 15:11:00:110 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-16 15:11:18:1118 [info] Server running in development mode on port 5000
+2026-04-16 15:11:18:1118 [info] 🎯 Job Processor Initialized
+2026-04-16 15:11:19:1119 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-16 15:11:19:1119 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-16 15:11:19:1119 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-16 15:11:58:1158 [info] Server running in development mode on port 5000
+2026-04-16 15:11:58:1158 [info] 🎯 Job Processor Initialized
+2026-04-16 15:11:58:1158 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-16 15:11:58:1158 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-16 15:11:58:1158 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-16 15:12:18:1218 [info] Server running in development mode on port 5000
+2026-04-16 15:12:18:1218 [info] 🎯 Job Processor Initialized
+2026-04-16 15:12:18:1218 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-16 15:12:18:1218 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-16 15:12:18:1218 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-16 15:12:34:1234 [info] Server running in development mode on port 5000
+2026-04-16 15:12:34:1234 [info] 🎯 Job Processor Initialized
+2026-04-16 15:12:34:1234 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-16 15:12:34:1234 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-16 15:12:34:1234 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-16 15:15:46:1546 [info] Server running in development mode on port 5000
+2026-04-16 15:15:46:1546 [info] 🎯 Job Processor Initialized
+2026-04-16 15:15:47:1547 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-16 15:15:47:1547 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-16 15:15:47:1547 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-16 15:16:49:1649 [info] Server running in development mode on port 5000
+2026-04-16 15:16:49:1649 [info] 🎯 Job Processor Initialized
+2026-04-16 15:16:49:1649 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-16 15:16:49:1649 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-16 15:16:49:1649 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-16 15:21:53:2153 [info] Server running in development mode on port 5000
+2026-04-16 15:21:53:2153 [info] 🎯 Job Processor Initialized
+2026-04-16 15:21:53:2153 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-16 15:21:53:2153 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-16 15:21:53:2153 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-16 15:24:21:2421 [info] Server running in development mode on port 5000
+2026-04-16 15:24:21:2421 [info] 🎯 Job Processor Initialized
+2026-04-16 15:24:21:2421 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-16 15:24:21:2421 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-16 15:24:21:2421 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-16 15:28:03:283 [info] Server running in development mode on port 5000
+2026-04-16 15:28:03:283 [info] 🎯 Job Processor Initialized
+2026-04-16 15:28:03:283 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-16 15:28:03:283 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-16 15:28:03:283 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-16 15:41:54:4154 [info] Server running in development mode on port 5000
+2026-04-16 15:41:54:4154 [info] 🎯 Job Processor Initialized
+2026-04-16 15:41:54:4154 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-16 15:41:54:4154 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-16 15:41:54:4154 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-16 15:43:02:432 [info] Server running in development mode on port 5000
+2026-04-16 15:43:02:432 [info] 🎯 Job Processor Initialized
+2026-04-16 15:43:03:433 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-16 15:43:03:433 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-16 15:43:03:433 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-16 15:50:11:5011 [info] Server running in development mode on port 5000
+2026-04-16 15:50:11:5011 [info] 🎯 Job Processor Initialized
+2026-04-16 15:50:12:5012 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-16 15:50:12:5012 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-16 15:50:12:5012 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-16 15:52:25:5225 [info] Server running in development mode on port 5000
+2026-04-16 15:52:25:5225 [info] 🎯 Job Processor Initialized
+2026-04-16 15:52:25:5225 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-16 15:52:25:5225 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-16 15:52:25:5225 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-16 15:58:06:586 [info] Server running in development mode on port 5000
+2026-04-16 15:58:06:586 [info] 🎯 Job Processor Initialized
+2026-04-16 15:58:07:587 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-16 15:58:07:587 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-16 15:58:07:587 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-16 16:51:29:5129 [info] Server running in development mode on port 5000
+2026-04-16 16:51:29:5129 [info] 🎯 Job Processor Initialized
+2026-04-16 16:51:29:5129 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-16 16:51:29:5129 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-16 16:51:29:5129 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-16 16:54:44:5444 [info] Server running in development mode on port 5000
+2026-04-16 16:54:44:5444 [info] 🎯 Job Processor Initialized
+2026-04-16 16:54:44:5444 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-16 16:54:44:5444 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-16 16:54:44:5444 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-16 16:56:27:5627 [info] Server running in development mode on port 5000
+2026-04-16 16:56:27:5627 [info] 🎯 Job Processor Initialized
+2026-04-16 16:56:27:5627 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-16 16:56:27:5627 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-16 16:56:27:5627 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-16 17:29:48:2948 [info] Server running in development mode on port 5000
+2026-04-16 17:29:48:2948 [info] 🎯 Job Processor Initialized
+2026-04-16 17:29:49:2949 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-16 17:29:49:2949 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-16 17:29:49:2949 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-16 17:31:21:3121 [info] Server running in development mode on port 5000
+2026-04-16 17:31:21:3121 [info] 🎯 Job Processor Initialized
+2026-04-16 17:31:21:3121 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-16 17:31:21:3121 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-16 17:31:21:3121 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-16 17:37:31:3731 [info] Server running in development mode on port 5000
+2026-04-16 17:37:31:3731 [info] 🎯 Job Processor Initialized
+2026-04-16 17:37:32:3732 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-16 17:37:32:3732 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-16 17:37:32:3732 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-16 17:38:17:3817 [info] Server running in development mode on port 5000
+2026-04-16 17:38:17:3817 [info] 🎯 Job Processor Initialized
+2026-04-16 17:38:17:3817 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-16 17:38:17:3817 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-16 17:38:17:3817 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-16 17:50:17:5017 [info] Server running in development mode on port 5000
+2026-04-16 17:50:17:5017 [info] 🎯 Job Processor Initialized
+2026-04-16 17:50:17:5017 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-16 17:50:17:5017 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-16 17:50:17:5017 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-16 17:50:27:5027 [info] Server running in development mode on port 5000
+2026-04-16 17:50:27:5027 [info] 🎯 Job Processor Initialized
+2026-04-16 17:50:27:5027 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-16 17:50:27:5027 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-16 17:50:27:5027 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-16 18:01:02:12 [info] Server running in development mode on port 5000
+2026-04-16 18:01:02:12 [info] 🎯 Job Processor Initialized
+2026-04-16 18:01:02:12 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-16 18:01:02:12 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-16 18:01:02:12 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-16 18:05:24:524 [info] Server running in development mode on port 5000
+2026-04-16 18:05:24:524 [info] 🎯 Job Processor Initialized
+2026-04-16 18:05:24:524 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-16 18:05:24:524 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-16 18:05:24:524 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-16 18:07:32:732 [info] Server running in development mode on port 5000
+2026-04-16 18:07:32:732 [info] 🎯 Job Processor Initialized
+2026-04-16 18:07:33:733 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-16 18:07:33:733 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-16 18:07:33:733 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-16 18:08:05:85 [info] Server running in development mode on port 5000
+2026-04-16 18:08:05:85 [info] 🎯 Job Processor Initialized
+2026-04-16 18:08:05:85 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-16 18:08:05:85 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-16 18:08:05:85 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-16 18:08:34:834 [info] Server running in development mode on port 5000
+2026-04-16 18:08:34:834 [info] 🎯 Job Processor Initialized
+2026-04-16 18:08:35:835 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-16 18:08:35:835 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-16 18:08:35:835 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-17 10:08:44:844 [info] Server running in development mode on port 5000
+2026-04-17 10:08:44:844 [info] 🎯 Job Processor Initialized
+2026-04-17 10:08:45:845 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-17 10:08:45:845 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-17 10:08:45:845 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-17 10:31:12:3112 [info] Server running in development mode on port 5000
+2026-04-17 10:31:12:3112 [info] 🎯 Job Processor Initialized
+2026-04-17 10:31:12:3112 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-17 10:31:12:3112 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-17 10:31:12:3112 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-17 10:34:51:3451 [info] Server running in development mode on port 5000
+2026-04-17 10:34:51:3451 [info] 🎯 Job Processor Initialized
+2026-04-17 10:34:51:3451 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-17 10:34:51:3451 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-17 10:34:51:3451 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-17 10:39:28:3928 [info] Server running in development mode on port 5000
+2026-04-17 10:39:28:3928 [info] 🎯 Job Processor Initialized
+2026-04-17 10:39:29:3929 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-17 10:39:29:3929 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-17 10:39:29:3929 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-17 11:05:01:51 [info] Server running in development mode on port 5000
+2026-04-17 11:05:01:51 [info] 🎯 Job Processor Initialized
+2026-04-17 11:05:01:51 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-17 11:05:01:51 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-17 11:05:01:51 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-17 12:11:19:1119 [info] Server running in development mode on port 5000
+2026-04-17 12:11:19:1119 [info] 🎯 Job Processor Initialized
+2026-04-17 12:11:20:1120 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-17 12:11:20:1120 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-17 12:11:20:1120 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-17 12:11:35:1135 [info] Server running in development mode on port 5000
+2026-04-17 12:11:35:1135 [info] 🎯 Job Processor Initialized
+2026-04-17 12:11:35:1135 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-17 12:11:35:1135 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-17 12:11:35:1135 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-17 12:12:06:126 [info] Server running in development mode on port 5000
+2026-04-17 12:12:06:126 [info] 🎯 Job Processor Initialized
+2026-04-17 12:12:06:126 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-17 12:12:06:126 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-17 12:12:06:126 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-17 12:12:18:1218 [info] Server running in development mode on port 5000
+2026-04-17 12:12:18:1218 [info] 🎯 Job Processor Initialized
+2026-04-17 12:12:19:1219 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-17 12:12:19:1219 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-17 12:12:19:1219 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-17 12:12:57:1257 [info] Server running in development mode on port 5000
+2026-04-17 12:12:57:1257 [info] 🎯 Job Processor Initialized
+2026-04-17 12:12:57:1257 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-17 12:12:57:1257 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-17 12:12:57:1257 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-17 12:13:12:1312 [info] Server running in development mode on port 5000
+2026-04-17 12:13:12:1312 [info] 🎯 Job Processor Initialized
+2026-04-17 12:13:12:1312 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-17 12:13:12:1312 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-17 12:13:12:1312 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-17 12:13:37:1337 [info] Server running in development mode on port 5000
+2026-04-17 12:13:37:1337 [info] 🎯 Job Processor Initialized
+2026-04-17 12:13:37:1337 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-17 12:13:37:1337 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-17 12:13:37:1337 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-17 12:14:16:1416 [info] Server running in development mode on port 5000
+2026-04-17 12:14:16:1416 [info] 🎯 Job Processor Initialized
+2026-04-17 12:14:16:1416 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-17 12:14:16:1416 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-17 12:14:16:1416 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-17 12:18:09:189 [info] Server running in development mode on port 5000
+2026-04-17 12:18:09:189 [info] 🎯 Job Processor Initialized
+2026-04-17 12:18:09:189 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-17 12:18:09:189 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-17 12:18:09:189 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-17 12:24:35:2435 [info] Server running in development mode on port 5000
+2026-04-17 12:24:35:2435 [info] 🎯 Job Processor Initialized
+2026-04-17 12:24:35:2435 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-17 12:24:35:2435 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-04-17 12:24:35:2435 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-18 10:05:48:548 [info] Server running in development mode on port 5000
+2026-04-18 10:05:48:548 [info] 🎯 Job Processor Initialized
+2026-04-18 10:05:49:549 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-04-18 10:05:49:549 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-04-18 10:05:49:549 [warn] Background Job system (Email) is offline (No local Redis detected).
