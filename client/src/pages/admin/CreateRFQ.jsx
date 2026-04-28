@@ -34,6 +34,7 @@ const CreateRFQ = () => {
         s5: true,
         s6: true
     });
+    const requiresApproval = formData.approvals.manager.required || formData.approvals.finance.required;
 
     const toggleCollapse = (section) => {
         setCollapsed(prev => ({ ...prev, [section]: !prev[section] }));
@@ -139,8 +140,15 @@ const CreateRFQ = () => {
         const toastId = toast.loading(`Committing Asset: ${status === 'draft' ? 'Draft Registry' : 'Active Transmission'}...`);
         try {
             const finalData = { ...formData, status };
-            await api.post('/rfqs', finalData);
-            toast.success(`Protocol ${status === 'draft' ? 'comitted' : 'published'} successfully`, { id: toastId });
+            const res = await api.post('/rfqs', finalData);
+            const savedStatus = String(res.data?.data?.status || status).toLowerCase();
+            const successMessage =
+                savedStatus === 'pending_approval'
+                    ? 'RFQ submitted for approval successfully'
+                    : savedStatus === 'published'
+                    ? 'RFQ published successfully'
+                    : 'RFQ draft saved successfully';
+            toast.success(successMessage, { id: toastId });
             navigate('/admin/rfqs');
         } catch (err) {
             toast.error(err.response?.data?.message || 'Operation failed', { id: toastId });
@@ -400,7 +408,7 @@ const CreateRFQ = () => {
                         Registry Draft
                     </button>
                     <button onClick={() => handleSubmit('published')} disabled={loading} className="w-full sm:w-auto rounded-lg bg-blue-700 px-8 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow-lg shadow-blue-700/30 transition-all hover:bg-blue-800 disabled:opacity-60 flex items-center gap-2">
-                        {loading ? 'Transmitting...' : 'Transmit Protocol'} <Check size={16} />
+                        {loading ? 'Transmitting...' : requiresApproval ? 'Submit For Approval' : 'Transmit Protocol'} <Check size={16} />
                     </button>
                 </div>
             </div>

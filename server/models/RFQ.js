@@ -60,20 +60,51 @@ const rfqSchema = new mongoose.Schema(
         approvals: {
             manager: {
                 required: { type: Boolean, default: false },
-                status: { type: String, enum: ["pending", "approved", "rejected"], default: "pending" },
+                status: { type: String, enum: ["not_required", "pending", "approved", "rejected"], default: "not_required" },
                 approvedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
                 approvedAt: Date,
+                rejectedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+                rejectedAt: Date,
+                remarks: String,
             },
             finance: {
                 required: { type: Boolean, default: false },
-                status: { type: String, enum: ["pending", "approved", "rejected"], default: "pending" },
+                status: { type: String, enum: ["not_required", "pending", "approved", "rejected"], default: "not_required" },
                 approvedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
                 approvedAt: Date,
+                rejectedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+                rejectedAt: Date,
+                remarks: String,
             }
+        },
+        approvalHistory: [
+            {
+                stage: {
+                    type: String,
+                    enum: ["manager", "finance"],
+                },
+                action: {
+                    type: String,
+                    enum: ["approved", "rejected"],
+                },
+                actedBy: {
+                    type: mongoose.Schema.Types.ObjectId,
+                    ref: "User",
+                },
+                actedAt: {
+                    type: Date,
+                    default: Date.now,
+                },
+                remarks: String,
+            },
+        ],
+        rejectionReason: {
+            type: String,
+            default: "",
         },
         status: {
             type: String,
-            enum: ["draft", "published", "closed", "cancelled"],
+            enum: ["draft", "pending_approval", "approved", "rejected", "published", "closed", "cancelled"],
             default: "draft",
         },
         sourcePrId: {

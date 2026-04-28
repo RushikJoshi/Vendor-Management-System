@@ -208,6 +208,64 @@ const fetchFromAttestr = async (gstNumber, fallbackProfile) => {
     return normalizeAttestrProfile(response.data, fallbackProfile);
 };
 
+const fetchFromGstincheck = async (gstNumber, fallbackProfile) => {
+    if (!configs.GST_GSTINCHECK_API_KEY) {
+        return null;
+    }
+
+    const url = `http://sheet.gstincheck.co.in/check/${configs.GST_GSTINCHECK_API_KEY}/${gstNumber}`;
+    const response = await axios.get(url, { timeout: configs.GST_LOOKUP_TIMEOUT_MS });
+    
+    const payload = response.data;
+    
+    if (payload?.flag === false) {
+        throw new AppError(payload.message || "Invalid GST Number", 400);
+    }
+    
+    const data = payload?.data || {};
+    const addr = data.pradr?.addr || {};
+    
+    const normalizedAddress = normalizeAddress({
+        building: addr.bno,
+        street: addr.st,
+        locality: addr.loc,
+        city: addr.city,
+        pincode: addr.pncd,
+        state: addr.stcd || fallbackProfile.state
+    }, fallbackProfile.state);
+    
+    const legalName = pickValue(data.lgnm, data.tradeNam);
+    const tradeName = pickValue(data.tradeNam, data.lgnm);
+
+    return {
+        gstNumber: fallbackProfile.gstNumber,
+        source: "provider",
+        provider: "gstincheck",
+        valid: true,
+        active: String(data.sts).toLowerCase() === "active",
+        message: "GST profile fetched from gstincheck.",
+        legalName,
+        tradeName,
+        pan: fallbackProfile.pan,
+        constitution: null,
+        taxpayerType: null,
+        gstStatus: data.sts || null,
+        registrationDate: data.rgdt || null,
+        filingStatus: null,
+        stateCode: fallbackProfile.stateCode,
+        state: pickValue(normalizedAddress.state, fallbackProfile.state),
+        principalAddress: normalizedAddress,
+        autofill: {
+            companyName: legalName || tradeName || null,
+            address: {
+                city: normalizedAddress.city,
+                state: pickValue(normalizedAddress.state, fallbackProfile.state),
+                pincode: normalizedAddress.pincode,
+            },
+        },
+    };
+};
+
 const lookupGstProfile = async (gstNumber) => {
     const fallbackProfile = createDerivedProfile(gstNumber);
     const provider = String(configs.GST_LOOKUP_PROVIDER || "derived").trim().toLowerCase();
@@ -230,6 +288,24 @@ const lookupGstProfile = async (gstNumber) => {
             return {
                 ...fallbackProfile,
                 message: "External GST lookup is unavailable right now, so only GSTIN-derived basics were applied.",
+            };
+        }
+    }
+
+    if (provider === "gstincheck") {
+        try {
+            const providerProfile = await fetchFromGstincheck(fallbackProfile.gstNumber, fallbackProfile);
+            if (providerProfile) {
+                return providerProfile;
+            }
+        } catch (error) {
+            logger.warn(
+                `GST lookup provider failed for ${fallbackProfile.gstNumber}: ${error.response?.data?.message || error.message}`
+            );
+
+            return {
+                ...fallbackProfile,
+                message: error.message || "External GST lookup is unavailable right now, so only GSTIN-derived basics were applied.",
             };
         }
     }

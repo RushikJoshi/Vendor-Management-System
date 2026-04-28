@@ -6,7 +6,8 @@ const {
     getRFQDetails,
     updateRFQ,
     updateRFQStatus,
-    sendRFQToVendors
+    sendRFQToVendors,
+    reviewRFQ,
 } = require("../controllers/rfqController");
 const { protect } = require("../middlewares/auth.middleware");
 const { restrictToTenant } = require("../middlewares/tenant.middleware");
@@ -24,8 +25,9 @@ router.route("/:id")
     .get(checkAnyActionAccess("rfq_view", "vendor_rfq_view"), getRFQDetails)
     .patch(checkActionAccess("rfq_create"), updateRFQ);
 
-router.patch("/:id/status", checkActionAccess("rfq_approve"), updateRFQStatus);
-router.post("/:id/send", checkActionAccess("rfq_approve"), sendRFQToVendors);
+router.patch("/:id/status", checkAnyActionAccess("rfq_create", "rfq_approve"), updateRFQStatus);
+router.post("/:id/review", checkActionAccess("rfq_approve"), reviewRFQ);
+router.post("/:id/send", checkAnyActionAccess("rfq_create", "rfq_approve"), sendRFQToVendors);
 
 
 module.exports = router;

@@ -9,6 +9,8 @@ const { sendEmail } = require("../utils/emailService");
 const NotificationService = require("../services/NotificationService");
 const { normalizeRole } = require("../config/roles");
 
+const APPROVAL_STAGES = ["manager", "finance"];
+
 const resolveVendorProfile = async (user) => {
   if (!user) return null;
   const tenantId = user.tenantId;
@@ -25,6 +27,61 @@ const mapPrItemsToRfqItems = (items = []) =>
     unit: item.unit || item.uom || "Nos",
     specifications: item.specs || item.specifications || "",
   }));
+
+const initializeApprovals = (approvals = {}) => {
+  const normalized = {};
+
+  for (const stage of APPROVAL_STAGES) {
+    const config = approvals?.[stage] || {};
+    const required = config.required === true;
+    normalized[stage] = {
+      required,
+      status: required ? "pending" : "not_required",
+      approvedBy: null,
+      approvedAt: null,
+      rejectedBy: null,
+      rejectedAt: null,
+      remarks: "",
+    };
+  }
+
+  return normalized;
+};
+
+const hasRequiredApprovals = (rfq) =>
+  APPROVAL_STAGES.some((stage) => rfq?.approvals?.[stage]?.required === true);
+
+const getNextPendingStage = (rfq) => {
+  for (const stage of APPROVAL_STAGES) {
+    const approval = rfq?.approvals?.[stage];
+    if (approval?.required && approval.status === "pending") {
+      return stage;
+    }
+  }
+  return null;
+};
+
+const allRequiredApprovalsGranted = (rfq) => {
+  const requiredStages = APPROVAL_STAGES.filter((stage) => rfq?.approvals?.[stage]?.required === true);
+  if (requiredStages.length === 0) return true;
+  return requiredStages.every((stage) => rfq?.approvals?.[stage]?.status === "approved");
+};
+
+const hasRejectedApproval = (rfq) =>
+  APPROVAL_STAGES.some((stage) => rfq?.approvals?.[stage]?.status === "rejected");
+
+const resolveStatusForCreate = (requestedStatus, approvals) => {
+  const normalizedApprovals = initializeApprovals(approvals);
+  const requiresApproval = hasRequiredApprovals({ approvals: normalizedApprovals });
+
+  if (requestedStatus === "published") {
+    return requiresApproval ? "pending_approval" : "published";
+  }
+  if (requestedStatus === "pending_approval") {
+    return requiresApproval ? "pending_approval" : "approved";
+  }
+  return "draft";
+};
 
 const ensureAutoStatus = async (rfq) => {
   if (!rfq || rfq.status !== "published") return rfq;
@@ -73,6 +130,8 @@ exports.createRFQ = asyncHandler(async (req, res, next) => {
     }
   }
 
+  const approvalConfig = req.body.approvals || { manager: { required: false }, finance: { required: false } };
+
   const rfqPayload = {
     title: req.body.title || pr?.title,
     description: req.body.description || pr?.description || "RFQ created from PR",
@@ -83,7 +142,8 @@ exports.createRFQ = asyncHandler(async (req, res, next) => {
     deliveryDeadline: req.body.deliveryDeadline || pr?.requiredBy || null,
     vendorSelection: req.body.vendorSelection || { type: "targeted", targetedVendors: [] },
     termsAndConditions: req.body.termsAndConditions || "",
-    status: req.body.status || "draft",
+    approvals: initializeApprovals(approvalConfig),
+    status: resolveStatusForCreate(req.body.status || "draft", approvalConfig),
     tenantId: req.user.tenantId,
     createdBy: req.user._id,
     sourcePrId: pr?._id || null,
@@ -112,6 +172,9 @@ exports.createRFQ = asyncHandler(async (req, res, next) => {
 exports.sendRFQToVendors = asyncHandler(async (req, res, next) => {
   const rfq = await RFQ.findOne({ _id: req.params.id, tenantId: req.user.tenantId });
   if (!rfq) return next(new AppError("RFQ not found.", 404));
+  if (hasRequiredApprovals(rfq) && !["approved", "published"].includes(rfq.status)) {
+    return next(new AppError("RFQ must be fully approved before it can be sent to vendors.", 400));
+  }
 
   await exports.sendRFQToVendorsInternal(rfq, req);
   res.status(200).json({ success: true, message: "RFQ sent to vendors.", data: rfq });
@@ -232,19 +295,120 @@ exports.getRFQs = asyncHandler(async (req, res, next) => {
 
 exports.updateRFQStatus = asyncHandler(async (req, res, next) => {
   const { status } = req.body;
-  const rfq = await RFQ.findOneAndUpdate(
-    { _id: req.params.id, tenantId: req.user.tenantId },
-    { status },
-    { new: true, runValidators: true }
-  );
+  const allowedStatuses = ["pending_approval", "published", "closed", "cancelled"];
+  if (!allowedStatuses.includes(status)) {
+    return next(new AppError("Unsupported RFQ status transition.", 400));
+  }
+
+  const rfq = await RFQ.findOne({ _id: req.params.id, tenantId: req.user.tenantId });
 
   if (!rfq) return next(new AppError("RFQ not found", 404));
+
+  if (status === "pending_approval") {
+    if (!hasRequiredApprovals(rfq)) {
+      return next(new AppError("This RFQ has no approval stages configured.", 400));
+    }
+    rfq.status = hasRejectedApproval(rfq) ? "rejected" : "pending_approval";
+  } else if (status === "published") {
+    if (hasRequiredApprovals(rfq) && rfq.status !== "approved") {
+      return next(new AppError("RFQ must be fully approved before publishing.", 400));
+    }
+    rfq.status = "published";
+  } else {
+    rfq.status = status;
+  }
+
+  await rfq.save({ validateBeforeSave: false });
 
   if (status === "published") {
     await exports.sendRFQToVendorsInternal(rfq, req);
   }
 
   res.status(200).json({ success: true, data: rfq });
+});
+
+exports.reviewRFQ = asyncHandler(async (req, res, next) => {
+  const { action, stage, remarks = "" } = req.body || {};
+  if (!["approve", "reject"].includes(action)) {
+    return next(new AppError("Action must be approve or reject.", 400));
+  }
+
+  const rfq = await RFQ.findOne({ _id: req.params.id, tenantId: req.user.tenantId });
+  if (!rfq) return next(new AppError("RFQ not found", 404));
+
+  if (!hasRequiredApprovals(rfq)) {
+    return next(new AppError("This RFQ does not require approval.", 400));
+  }
+
+  if (!["pending_approval", "approved", "rejected"].includes(rfq.status)) {
+    return next(new AppError("RFQ is not in an approval review state.", 400));
+  }
+
+  const nextPendingStage = getNextPendingStage(rfq);
+  const resolvedStage = stage || nextPendingStage;
+
+  if (!resolvedStage || !APPROVAL_STAGES.includes(resolvedStage)) {
+    return next(new AppError("No pending approval stage available.", 400));
+  }
+
+  const approval = rfq.approvals?.[resolvedStage];
+  if (!approval?.required) {
+    return next(new AppError("Selected approval stage is not required.", 400));
+  }
+
+  if (nextPendingStage && resolvedStage !== nextPendingStage) {
+    return next(new AppError(`Please complete ${nextPendingStage} approval first.`, 400));
+  }
+
+  if (approval.status !== "pending") {
+    return next(new AppError(`The ${resolvedStage} approval has already been reviewed.`, 400));
+  }
+
+  if (action === "reject" && !String(remarks || "").trim()) {
+    return next(new AppError("Rejection reason is required.", 400));
+  }
+
+  approval.remarks = remarks;
+
+  if (action === "approve") {
+    approval.status = "approved";
+    approval.approvedBy = req.user._id;
+    approval.approvedAt = new Date();
+    approval.rejectedBy = null;
+    approval.rejectedAt = null;
+  } else {
+    approval.status = "rejected";
+    approval.rejectedBy = req.user._id;
+    approval.rejectedAt = new Date();
+    approval.approvedBy = null;
+    approval.approvedAt = null;
+    rfq.rejectionReason = remarks;
+  }
+
+  rfq.approvalHistory.push({
+    stage: resolvedStage,
+    action: action === "approve" ? "approved" : "rejected",
+    actedBy: req.user._id,
+    actedAt: new Date(),
+    remarks,
+  });
+
+  if (action === "reject") {
+    rfq.status = "rejected";
+  } else if (allRequiredApprovalsGranted(rfq)) {
+    rfq.status = "approved";
+    rfq.rejectionReason = "";
+  } else {
+    rfq.status = "pending_approval";
+  }
+
+  await rfq.save();
+
+  res.status(200).json({
+    success: true,
+    message: `RFQ ${action === "approve" ? "approved" : "rejected"} for ${resolvedStage} stage.`,
+    data: rfq,
+  });
 });
 
 exports.updateRFQ = asyncHandler(async (req, res, next) => {

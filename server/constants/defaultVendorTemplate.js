@@ -14,12 +14,12 @@ const defaultVendorTemplate = {
           title: "Company Basic Details",
           children: [],
           fields: [
+            { id: "gst_number", label: "GST Number", type: "text", required: true, options: [], validation: { pattern: "gst", apiIntegration: { enabled: true, provider: "GST_API", trigger: "onBlur", autofillTargets: ["company_name", "legal_name"] } } },
             { id: "company_name", label: "Company Name", type: "text", required: true, options: [], validation: { pattern: "none", minLength: 2, maxLength: 150 } },
             { id: "legal_name", label: "Legal Name", type: "text", required: true, options: [], validation: { pattern: "none", minLength: 2, maxLength: 150 } },
             { id: "trade_name", label: "Trade Name", type: "text", required: false, options: [], validation: { pattern: "none", maxLength: 150 } },
             { id: "vendor_category", label: "Vendor Category", type: "dropdown", required: true, options: ["Raw Material", "Civil Contractor", "Mechanical", "Electrical", "IT", "Consultancy", "Transport", "Other"], validation: { pattern: "none" } },
             { id: "registration_number", label: "Registration Number", type: "text", required: true, options: [], validation: { pattern: "none", maxLength: 50 } },
-            { id: "gst_number", label: "GST Number", type: "text", required: true, options: [], validation: { pattern: "gst", apiIntegration: { enabled: true, provider: "GST_API", trigger: "onBlur", autofillTargets: ["company_name", "legal_name"] } } },
             { id: "pan_number", label: "PAN Number", type: "text", required: true, options: [], validation: { pattern: "pan", minLength: 10, maxLength: 10 } },
             { id: "msme_number", label: "MSME Number", type: "text", required: false, options: [], validation: { pattern: "none", maxLength: 30 } },
             { id: "cin_number", label: "CIN Number", type: "text", required: false, options: [], validation: { pattern: "none", maxLength: 21 } }

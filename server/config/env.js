@@ -33,7 +33,8 @@ const configs = {
     GST_LOOKUP_TIMEOUT_MS: env.get("GST_LOOKUP_TIMEOUT_MS").default("8000").asIntPositive(),
     GST_ATTESTR_BASE_URL: env.get("GST_ATTESTR_BASE_URL").default("https://api.attestr.com").asString(),
     GST_ATTESTR_VERSION: env.get("GST_ATTESTR_VERSION").default("v2").asString(),
-    GST_ATTESTR_AUTH_TOKEN: env.get("GST_ATTESTR_AUTH_TOKEN").asString()
+    GST_ATTESTR_AUTH_TOKEN: env.get("GST_ATTESTR_AUTH_TOKEN").asString(),
+    GST_GSTINCHECK_API_KEY: env.get("GST_GSTINCHECK_API_KEY").asString()
 };
 
 module.exports = configs;

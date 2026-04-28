@@ -297,7 +297,7 @@ const CategoryAutocomplete = ({ value, onChange, placeholder, required, type = "
     );
 };
 
-function TreeNodeRenderer({ node, number, values, files, setValues, setFiles, collapsed, setCollapsed, repeatIndex, isAadhaarVerified, setShowDigilocker }) {
+function TreeNodeRenderer({ node, number, values, files, setValues, setFiles, collapsed, setCollapsed, repeatIndex, isAadhaarVerified, setShowDigilocker, autoFillFromApi, gstPreview }) {
   const key = node.id;
   const defaultCollapsed = false; // Always open by default or rely on config
   const isCollapsed = collapsed[key] ?? defaultCollapsed;
@@ -343,6 +343,8 @@ function TreeNodeRenderer({ node, number, values, files, setValues, setFiles, co
                   repeatIndex={repeatIndex} 
                   isAadhaarVerified={isAadhaarVerified}
                   setShowDigilocker={setShowDigilocker}
+                  autoFillFromApi={autoFillFromApi}
+                  gstPreview={gstPreview}
                 />
               ))}
             </div>
@@ -385,6 +387,8 @@ function TreeNodeRenderer({ node, number, values, files, setValues, setFiles, co
                       repeatIndex={num}
                       isAadhaarVerified={isAadhaarVerified}
                       setShowDigilocker={setShowDigilocker}
+                      autoFillFromApi={autoFillFromApi}
+                      gstPreview={gstPreview}
                     />
                   ));
                 }
@@ -403,6 +407,8 @@ function TreeNodeRenderer({ node, number, values, files, setValues, setFiles, co
                     repeatIndex={repeatIndex}
                     isAadhaarVerified={isAadhaarVerified}
                     setShowDigilocker={setShowDigilocker}
+                    autoFillFromApi={autoFillFromApi}
+                    gstPreview={gstPreview}
                   />
                 );
               })}
@@ -414,7 +420,7 @@ function TreeNodeRenderer({ node, number, values, files, setValues, setFiles, co
   );
 }
 
-function FieldRenderer({ field, values, files, setValues, setFiles, repeatIndex, isAadhaarVerified, setShowDigilocker }) {
+function FieldRenderer({ field, values, files, setValues, setFiles, repeatIndex, isAadhaarVerified, setShowDigilocker, autoFillFromApi, gstPreview }) {
   const fieldKey = repeatIndex ? `${field.id}_${repeatIndex}` : field.id;
   const setValue = (v) => setValues((p) => ({ ...p, [fieldKey]: v }));
   const current = values[fieldKey] ?? (field.type === "checkbox" ? [] : "");
@@ -595,6 +601,9 @@ function FieldRenderer({ field, values, files, setValues, setFiles, repeatIndex,
           placeholder={field.placeholder || ""}
           value={current}
           onChange={handleInputChange}
+          onBlur={(e) => {
+             if (autoFillFromApi) autoFillFromApi(field, e.target.value);
+          }}
         />
         {isAadhaarField && (
             <div className="absolute right-2 flex items-center gap-1.5 pointer-events-auto">
@@ -615,6 +624,13 @@ function FieldRenderer({ field, values, files, setValues, setFiles, repeatIndex,
             </div>
         )}
       </div>
+      {(field.validation?.pattern === "gst" || field.label?.toLowerCase().includes("gst number") || field.label?.toLowerCase().includes("gstin")) && gstPreview && gstPreview.company && (
+        <div className="mt-2 p-3 bg-blue-50/50 border border-blue-100 rounded-lg animate-in fade-in zoom-in-95">
+            <p className="text-[11px] font-bold text-blue-800 uppercase mb-1 flex items-center gap-1.5"><ShieldCheck size={14}/> GST Profile Fetched</p>
+            <p className="text-sm font-semibold text-slate-800">{gstPreview.company}</p>
+            <p className="text-[12px] text-slate-600 mt-0.5">{gstPreview.city}{gstPreview.state ? `, ${gstPreview.state}` : ''}{gstPreview.pincode ? ` - ${gstPreview.pincode}` : ''}</p>
+        </div>
+      )}
       {hintText ? <p className="text-[11px] text-slate-500">{hintText}</p> : null}
     </div>
   );
@@ -640,6 +656,7 @@ export default function TreeFormRenderer() {
   const [verifyingAadhaar, setVerifyingAadhaar] = useState(false);
   const [digilockerStage, setDigilockerStage] = useState("authorize"); // authorize, otp, verifying
   const [otpValue, setOtpValue] = useState("");
+  const [gstPreview, setGstPreview] = useState(null);
 
   // DigiLocker Mock Component
   const DigilockerPopup = () => (
@@ -788,23 +805,45 @@ export default function TreeFormRenderer() {
     const normalizedValue = String(value || "").trim().toUpperCase();
     if (!normalizedValue) return;
 
-    if (pattern === "gst" && GST_REGEX.test(normalizedValue)) {
+    const isGstField = pattern === "gst" || label.includes("gst number") || label.includes("gstin");
+    
+    if (isGstField && GST_REGEX.test(normalizedValue)) {
       try {
         const res = await axios.post(`${apiBase}/form/autofill/gst`, { gstNumber: normalizedValue });
-        const company = res.data?.data?.companyName || "";
-        if (company) {
+        const data = res.data?.data || {};
+        const company = data.companyName || "";
+        const city = data.city || data.address?.city || "";
+        const state = data.state || data.address?.state || "";
+        const pincode = data.pincode || data.address?.pincode || "";
+        const extractedPan = normalizedValue.slice(2, 12);
+        
+        if (company || city || state || pincode || extractedPan) {
           const allNodes = flattenNodes(form?.structure || []);
-          const candidate = allNodes
-            .flatMap((n) => n.fields || [])
-            .find((f) => /company name/i.test(f.label) || /company_name/i.test(f.id));
-          if (candidate) {
-            setValues((p) => {
-              if (p[candidate.id] === company) return p;
-              return { ...p, [candidate.id]: company };
-            });
-          }
+          const fields = allNodes.flatMap((n) => n.fields || []);
+          
+          const companyField = fields.find((f) => /company name/i.test(f.label) || /trade name/i.test(f.label));
+          const cityField = fields.find((f) => /city/i.test(f.label));
+          const stateField = fields.find((f) => /state/i.test(f.label) && !/gst/i.test(f.label)); // avoid 'GST State'
+          const pincodeField = fields.find((f) => isPostalLabel(f.label));
+          const gstStateField = fields.find((f) => /gst state/i.test(f.label) || f.id === "gstState");
+          const panField = fields.find((f) => /pan number/i.test(f.label) || f.id === "panNum" || /pan no/i.test(f.label));
+
+          setValues((p) => {
+            const updates = { ...p };
+            if (company && companyField && !p[companyField.id]) updates[companyField.id] = company;
+            if (city && cityField && !p[cityField.id]) updates[cityField.id] = city;
+            if (state && stateField && !p[stateField.id]) updates[stateField.id] = state;
+            if (pincode && pincodeField && !p[pincodeField.id]) updates[pincodeField.id] = pincode;
+            if (state && gstStateField && !p[gstStateField.id]) updates[gstStateField.id] = state;
+            if (extractedPan && panField && !p[panField.id]) updates[panField.id] = extractedPan;
+            return updates;
+          });
+          setGstPreview({ company, city, state, pincode });
+          toast.success("GST details auto-filled successfully!");
         }
-      } catch {}
+      } catch (err) {
+        toast.error(err.response?.data?.message || "Could not fetch GST details");
+      }
     }
     if (pattern === "ifsc" && IFSC_REGEX.test(normalizedValue)) {
       try {
@@ -1142,6 +1181,8 @@ export default function TreeFormRenderer() {
                             setCollapsed={setCollapsed}
                             isAadhaarVerified={isAadhaarVerified}
                             setShowDigilocker={setShowDigilocker}
+                            autoFillFromApi={autoFillFromApi}
+                            gstPreview={gstPreview}
                         />
                     </div>
                 )}

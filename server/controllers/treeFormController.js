@@ -1042,23 +1042,21 @@ exports.gstAutofill = async (req, res) => {
       return res.status(400).json({ success: false, message: "Invalid GST number." });
     }
 
-    const externalUrl = process.env.GST_API_URL;
-    if (externalUrl) {
-      try {
-        const apiRes = await axios.get(`${externalUrl}${gstNumber}`);
-        return res.status(200).json({ success: true, data: apiRes.data });
-      } catch (e) {
-        // fallback below
-      }
-    }
+    const { lookupGstProfile } = require("../services/gstLookup.service");
+    const profile = await lookupGstProfile(gstNumber.toUpperCase());
 
     return res.status(200).json({
       success: true,
       data: {
-        gstNumber: gstNumber.toUpperCase(),
-        companyName: "Mock GST Registered Company Pvt Ltd",
+        gstNumber: profile.gstNumber,
+        companyName: profile.autofill?.companyName || profile.legalName || profile.tradeName || "",
+        address: profile.autofill?.address || {},
+        state: profile.state || "",
+        city: profile.principalAddress?.city || "",
+        pincode: profile.principalAddress?.pincode || ""
       },
-      source: "mock",
+      source: profile.source,
+      provider: profile.provider,
     });
   } catch (error) {
     return res.status(500).json({ success: false, message: error.message });

@@ -35,6 +35,9 @@ const getDaysUntil = (value) => {
 const getStatusTone = (status) => {
   const normalized = String(status || "draft").toLowerCase();
   if (normalized === "published") return "bg-emerald-50 text-emerald-700 border-emerald-100";
+  if (normalized === "approved") return "bg-sky-50 text-sky-700 border-sky-100";
+  if (normalized === "pending_approval") return "bg-amber-50 text-amber-700 border-amber-100";
+  if (normalized === "rejected") return "bg-rose-50 text-rose-700 border-rose-100";
   if (normalized === "closed") return "bg-rose-50 text-rose-700 border-rose-100";
   if (normalized === "cancelled") return "bg-amber-50 text-amber-700 border-amber-100";
   return "bg-slate-100 text-slate-700 border-slate-200";
@@ -47,11 +50,35 @@ const getVendorLabel = (rfq) => {
   return "All vendors";
 };
 
+const requiresApproval = (rfq) =>
+  Boolean(rfq?.approvals?.manager?.required || rfq?.approvals?.finance?.required);
+
+const getPendingApprovalStage = (rfq) => {
+  if (rfq?.approvals?.manager?.required && rfq?.approvals?.manager?.status === "pending") {
+    return "manager";
+  }
+  if (rfq?.approvals?.finance?.required && rfq?.approvals?.finance?.status === "pending") {
+    return "finance";
+  }
+  return null;
+};
+
+const getApprovalSummary = (rfq) => {
+  const stage = getPendingApprovalStage(rfq);
+  if (stage === "manager") return "Awaiting Manager Approval";
+  if (stage === "finance") return "Awaiting Finance Approval";
+  if (String(rfq?.status || "").toLowerCase() === "approved") return "Approved for Publish";
+  if (String(rfq?.status || "").toLowerCase() === "rejected") return rfq?.rejectionReason || "RFQ Rejected";
+  return "No approval required";
+};
+
 const RFQList = () => {
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
   const canCreateRFQ =
     String(user?.role || "").toLowerCase() === "admin" || hasPermission(user, "rfq_create");
+  const canApproveRFQ =
+    String(user?.role || "").toLowerCase() === "admin" || hasPermission(user, "rfq_approve");
   const [rfqs, setRfqs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -82,6 +109,26 @@ const RFQList = () => {
     window.addEventListener("GLOBAL_SEARCH", handleGlobalSearch);
     return () => window.removeEventListener("GLOBAL_SEARCH", handleGlobalSearch);
   }, []);
+
+  const handleApprovalReview = async (rfqId, action) => {
+    const remarks =
+      action === "reject"
+        ? window.prompt("Reject reason likhiye")?.trim()
+        : window.prompt("Optional remarks likhiye (chahe to blank chhod dijiye)")?.trim() || "";
+
+    if (action === "reject" && !remarks) {
+      toast.error("Reject karne ke liye reason zaroori hai");
+      return;
+    }
+
+    try {
+      await api.post(`/rfqs/${rfqId}/review`, { action, remarks });
+      toast.success(action === "approve" ? "RFQ approval recorded" : "RFQ rejected");
+      fetchRFQs();
+    } catch (err) {
+      toast.error(err.response?.data?.message || "RFQ review failed");
+    }
+  };
 
   const totalRfqs = rfqs.length;
   const activeRfqs = rfqs.filter((rfq) => String(rfq.status || "").toLowerCase() === "published").length;
@@ -229,11 +276,18 @@ const RFQList = () => {
                       </td>
                       <td className="whitespace-nowrap px-4 py-4 text-sm text-slate-600">{getVendorLabel(rfq)}</td>
                       <td className="whitespace-nowrap px-4 py-4">
-                        <span
-                          className={`inline-flex rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide ${getStatusTone(normalizedStatus)}`}
-                        >
-                          {normalizedStatus}
-                        </span>
+                        <div className="space-y-2">
+                          <span
+                            className={`inline-flex rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide ${getStatusTone(normalizedStatus)}`}
+                          >
+                            {normalizedStatus}
+                          </span>
+                          {requiresApproval(rfq) && (
+                            <p className="max-w-[180px] text-[10px] font-semibold text-slate-500">
+                              {getApprovalSummary(rfq)}
+                            </p>
+                          )}
+                        </div>
                       </td>
                       <td className="whitespace-nowrap px-4 py-4 text-sm text-slate-600">{formatDate(rfq.quoteDeadline)}</td>
                       <td className="whitespace-nowrap px-4 py-4 text-right">
@@ -244,17 +298,22 @@ const RFQList = () => {
                                 type="button"
                                 onClick={async () => {
                                   try {
-                                    await api.patch(`/rfqs/${rfq._id}/status`, { status: 'published' });
-                                    toast.success("Protocol Transmitted (Published)");
+                                    const nextStatus = requiresApproval(rfq) ? "pending_approval" : "published";
+                                    await api.patch(`/rfqs/${rfq._id}/status`, { status: nextStatus });
+                                    toast.success(
+                                      nextStatus === "published"
+                                        ? "RFQ published successfully"
+                                        : "RFQ sent for approval"
+                                    );
                                     fetchRFQs();
                                   } catch (err) {
-                                    toast.error("Transmission failed");
+                                    toast.error(err.response?.data?.message || "Transmission failed");
                                   }
                                 }}
                                 className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-100 bg-emerald-50 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-emerald-700 transition hover:bg-emerald-600 hover:text-white"
-                                title="Publish to Market"
+                                title={requiresApproval(rfq) ? "Send for approval" : "Publish to Market"}
                               >
-                                <Send size={12} /> Publish
+                                <Send size={12} /> {requiresApproval(rfq) ? "Request Approval" : "Publish"}
                               </button>
                                <button
                                 type="button"
@@ -273,6 +332,43 @@ const RFQList = () => {
                                 <Trash2 size={14} />
                               </button>
                             </>
+                          )}
+
+                          {normalizedStatus === "pending_approval" && canApproveRFQ && (
+                            <>
+                              <button
+                                type="button"
+                                onClick={() => handleApprovalReview(rfq._id, "approve")}
+                                className="inline-flex items-center gap-1.5 rounded-lg border border-sky-100 bg-sky-50 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-sky-700 transition hover:bg-sky-600 hover:text-white"
+                              >
+                                <CheckCircle size={12} /> Approve
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleApprovalReview(rfq._id, "reject")}
+                                className="inline-flex items-center gap-1.5 rounded-lg border border-rose-100 bg-rose-50 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-rose-700 transition hover:bg-rose-600 hover:text-white"
+                              >
+                                <XCircle size={12} /> Reject
+                              </button>
+                            </>
+                          )}
+
+                          {normalizedStatus === "approved" && (
+                            <button
+                              type="button"
+                              onClick={async () => {
+                                try {
+                                  await api.patch(`/rfqs/${rfq._id}/status`, { status: "published" });
+                                  toast.success("Approved RFQ published");
+                                  fetchRFQs();
+                                } catch (err) {
+                                  toast.error(err.response?.data?.message || "Publish failed");
+                                }
+                              }}
+                              className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-100 bg-emerald-50 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-emerald-700 transition hover:bg-emerald-600 hover:text-white"
+                            >
+                              <Send size={12} /> Publish
+                            </button>
                           )}
 
                           {normalizedStatus === "published" && (

@@ -43,9 +43,9 @@ const DEFAULT_ROLE_PERMISSIONS = {
     admin: ["*"],
     hr: ["dashboard_view", "users_view", "users_create", "users_edit", "vendors_view", "vendors_add", "vendors_edit"],
     procurement: ["dashboard_view", "vendors_view", "vendors_add", "vendors_edit", "rfq_view", "rfq_create", "rfq_approve", "contracts_view", "contracts_manage"],
-    manager: ["dashboard_view", "vendors_view", "rfq_view", "contracts_view", "users_view"],
+    manager: ["dashboard_view", "vendors_view", "rfq_view", "rfq_approve", "contracts_view", "users_view"],
     sales: ["dashboard_view", "rfq_view", "rfq_create", "contracts_view"],
-    finance: ["dashboard_view", "contracts_view", "contracts_manage"],
+    finance: ["dashboard_view", "rfq_view", "rfq_approve", "contracts_view", "contracts_manage"],
     viewer: ["dashboard_view"],
     vendor: ["vendor_dashboard", "vendor_rfq_view", "vendor_quote_submit"],
 };
