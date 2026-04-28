@@ -13,11 +13,26 @@ exports.createCategory = async (req, res) => {
     }
 };
 
+const Vendor = require("../models/vendor.model");
+const VendorApplication = require("../models/VendorApplication");
+
 // Get All Categories (Master Module)
 exports.getCategories = async (req, res) => {
     try {
         const categories = await Category.find().sort({ createdAt: -1 });
-        res.status(200).json({ success: true, count: categories.length, data: categories });
+        
+        // Enrich with vendor and applicant counts
+        const enriched = await Promise.all(categories.map(async (cat) => {
+            const vendorCount = await Vendor.countDocuments({ category: cat._id });
+            const applicantCount = await VendorApplication.countDocuments({ category: cat._id, status: { $ne: "APPROVED" } });
+            
+            const obj = cat.toObject();
+            obj.vendorCount = vendorCount;
+            obj.applicantCount = applicantCount;
+            return obj;
+        }));
+
+        res.status(200).json({ success: true, count: enriched.length, data: enriched });
     } catch (error) {
         res.status(400).json({ success: false, message: error.message });
     }

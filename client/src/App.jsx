@@ -44,6 +44,7 @@ import CreateContract from "./pages/admin/CreateContract";
 import CreateUser from "./pages/admin/CreateUser";
 import Categories from "./pages/admin/Categories";
 import CategoryForm from "./pages/admin/CategoryForm";
+import CategoryDetail from "./pages/admin/CategoryDetail";
 
 
 
@@ -60,6 +61,8 @@ import ServiceOrders from "./pages/admin/ServiceOrders";
 import PaymentCheckout from "./pages/admin/PaymentCheckout";
 import ProcurementSettings from "./pages/admin/ProcurementSettings";
 import AdminDeliveries from "./pages/admin/AdminDeliveries";
+
+import AboutUs from "./pages/public/AboutUs";
 
 function App() {
   return (
@@ -87,6 +90,7 @@ function App() {
           {/* public */}
           <Route element={<PublicLayout />}>
             <Route path="/" element={<Landing />} />
+            <Route path="/about" element={<AboutUs />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<RegistrationWizard />} />
             <Route path="/register/:formId" element={<RegistrationWizard />} />
@@ -136,7 +140,7 @@ function App() {
             <Route path="roles" element={<ProtectedRoute module="roles"><RoleManagement /></ProtectedRoute>} />
             <Route path="categories" element={<ProtectedRoute module="vendor_forms"><Categories /></ProtectedRoute>} />
             <Route path="categories/create" element={<ProtectedRoute module="vendor_forms"><CategoryForm /></ProtectedRoute>} />
-            <Route path="categories/:id" element={<ProtectedRoute module="vendor_forms"><CategoryForm /></ProtectedRoute>} />
+            <Route path="categories/:id" element={<ProtectedRoute module="vendor_forms"><CategoryDetail /></ProtectedRoute>} />
             <Route path="profile" element={<ProtectedRoute module="users"><Settings /></ProtectedRoute>} />
             <Route path="settings" element={<ProtectedRoute module="settings"><Settings /></ProtectedRoute>} />
             <Route path="audit-logs" element={<ProtectedRoute module="analytics"><AuditLogs /></ProtectedRoute>} />

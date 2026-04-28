@@ -4,6 +4,7 @@ const crypto = require("crypto");
 const TreeForm = require("../models/TreeForm");
 const TreeSubmission = require("../models/TreeSubmission");
 const User = require("../models/User");
+const Category = require("../models/Category");
 const sendEmail = require("../utils/email");
 const defaultVendorTemplate = require("../constants/defaultVendorTemplate");
 
@@ -325,7 +326,20 @@ exports.submitForm = async (req, res) => {
       ].filter(Boolean);
       const upload = files.find((f) => candidateKeys.some((key) => f.fieldname === `file_${key}`));
       const valueKey = candidateKeys.find((key) => Object.prototype.hasOwnProperty.call(values, key));
-      const directValue = valueKey ? values[valueKey] : undefined;
+      
+      // DEEP FALLBACK: Check for ANY instance of this field (ID_1, ID_2, etc.)
+      let resolvedValue = valueKey ? values[valueKey] : undefined;
+      if (resolvedValue === undefined) {
+        for (const k of candidateKeys) {
+          const suffixKey = Object.keys(values).find(vk => vk.startsWith(`${k}_`));
+          if (suffixKey) {
+            resolvedValue = values[suffixKey];
+            break;
+          }
+        }
+      }
+
+      const directValue = resolvedValue;
       const normalizedKey = candidateKeys.map((k) => normalizeKey(k)).find((k) => Object.prototype.hasOwnProperty.call(normalizedValues, k));
       const value = directValue !== undefined ? directValue : normalizedKey ? normalizedValues[normalizedKey] : undefined;
       const activeField = isFieldActive(field, meta, values, normalizedValues);
@@ -405,17 +419,50 @@ exports.submitForm = async (req, res) => {
       });
     }
 
+    // 🎯 DYNAMIC CATEGORY SYNC
+    // Detect if vendor filled 'Category' or 'Sub Category' and ensure it exists in registry
+    try {
+      const categoryEntries = data.filter(x => 
+        (x.label === "Category" || x.label === "Sub Category" || x.label === "serviceCategory") && 
+        x.value && typeof x.value === "string"
+      );
+
+      for (const entry of categoryEntries) {
+        let finalName = entry.value.trim();
+        if (finalName.includes(' > ')) {
+            const parts = finalName.split(' > ');
+            finalName = parts[parts.length - 1].split(' (')[0].trim();
+        }
+
+        if (finalName) {
+            let existingCat = await Category.findOne({ name: { $regex: new RegExp(`^${finalName}$`, "i") } });
+            if (!existingCat) {
+                const baseCode = finalName.toUpperCase().replace(/[^A-Z0-9]/g, '_').slice(0, 10);
+                await Category.create({
+                    name: finalName,
+                    code: `${baseCode}_${Math.floor(Math.random() * 10000)}`,
+                    description: `Auto-created from Tree Form submission: ${entry.value}`,
+                    status: "active"
+                });
+                console.log(`✨ New category auto-registered from tree form: ${finalName}`);
+            }
+        }
+      }
+    } catch (catError) {
+      console.error("Category Sync Error:", catError.message);
+    }
+
     const emailEntry = data.find((x) => x.type === "email");
     const nameEntry = data.find((x) => /name/i.test(x.fieldId) || /name/i.test(x.label));
 
     const submission = await TreeSubmission.create({
-      formId: form._id,
-      formName: form.name,
-      categoryName: form.categoryName || "",
-      data,
-      status: "pending",
-      vendorEmail: (emailEntry?.value || "").toString().trim().toLowerCase(),
-      vendorName: (nameEntry?.value || "").toString().trim(),
+        formId: form._id,
+        formName: form.name,
+        categoryName: form.categoryName || "",
+        data,
+        status: "pending",
+        vendorEmail: (emailEntry?.value || "").toString().trim().toLowerCase(),
+        vendorName: (nameEntry?.value || "").toString().trim(),
     });
 
     return res.status(201).json({ success: true, data: submission });

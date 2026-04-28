@@ -8,10 +8,11 @@ import { toast } from "react-hot-toast";
 const publicApi = axios.create({
     baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000/api",
 });
+import { motion } from "framer-motion";
 import {
     Search,
     Activity,
-    CheckCircle,
+    CheckCircle2,
     ArrowRight,
     ArrowLeft,
     Upload,
@@ -442,11 +443,28 @@ const enrichRegistrationTemplate = (formTemplate) => ({
         : [],
 });
 
-const SuggestSearchField = ({ value, onChange, required, mockData, placeholder }) => {
+const SuggestSearchField = ({ value, onChange, required, fieldName, placeholder }) => {
     const [query, setQuery] = useState(value);
     const [results, setResults] = useState([]);
     const [showResults, setShowResults] = useState(false);
+    const [dynamicCats, setDynamicCats] = useState([]); // Dynamic DB data
     const containerRef = useRef(null);
+
+    useEffect(() => {
+        if (fieldName === "serviceCategory") {
+            publicApi.get("/categories/public-list")
+                .then(res => setDynamicCats((res.data?.data || []).map(c => c.name)))
+                .catch(err => console.error("Category fetch error", err));
+        }
+    }, [fieldName]);
+
+    const mockData = useMemo(() => {
+        const base = fieldName === "serviceCategory" ? MOCK_CATEGORIES : fieldName === "region" ? MOCK_REGIONS : MOCK_DEPARTMENTS;
+        if (fieldName === "serviceCategory") {
+            return Array.from(new Set([...base, ...dynamicCats]));
+        }
+        return base;
+    }, [fieldName, dynamicCats]);
 
     useEffect(() => {
         if (query.length > 0) {
@@ -475,7 +493,10 @@ const SuggestSearchField = ({ value, onChange, required, mockData, placeholder }
                     required={required}
                     value={query}
                     onFocus={() => setShowResults(true)}
-                    onChange={(e) => { setQuery(e.target.value); if (!e.target.value) onChange(""); }}
+                    onChange={(e) => { 
+                        setQuery(e.target.value); 
+                        onChange(e.target.value); 
+                    }}
                     placeholder={placeholder}
                     className="w-full h-12 border border-slate-300 bg-white pl-5 pr-12 text-[12px] font-bold text-slate-900 outline-none transition-all focus:border-blue-700 focus:ring-4 focus:ring-blue-100"
                 />
@@ -540,6 +561,104 @@ export default function RegistrationWizard() {
     const [emailError, setEmailError] = useState("");
     const [expanded, setExpanded] = useState({});
     const [validationErrors, setValidationErrors] = useState({});
+    const [showDigilocker, setShowDigilocker] = useState(false);
+    const [isAadhaarVerified, setIsAadhaarVerified] = useState(false);
+    const [verifyingAadhaar, setVerifyingAadhaar] = useState(false);
+    const [digilockerStage, setDigilockerStage] = useState("authorize"); // authorize, otp, verifying
+    const [otpValue, setOtpValue] = useState("");
+
+    // DigiLocker Mock Component
+    const DigilockerPopup = () => (
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+            <motion.div 
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden border border-slate-200"
+            >
+                <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                    <div className="flex items-center gap-3">
+                        <div className="bg-blue-600 p-1.5 rounded-lg text-white">
+                            <ShieldCheck size={18} />
+                        </div>
+                        <h3 className="text-md font-bold text-slate-800">DigiLocker KYC Gateway</h3>
+                    </div>
+                    <button onClick={() => setShowDigilocker(false)} className="text-slate-400 hover:text-slate-600">
+                        <X size={20} />
+                    </button>
+                </div>
+                
+                <div className="p-8">
+                    <div className="mb-6 flex justify-center">
+                        <img src="https://img.etimg.com/thumb/msid-71110052,width-1200,height-900,imgsize-105151,overlay-etpanache/photo.jpg" alt="DigiLocker" className="h-12 object-contain grayscale opacity-80" />
+                    </div>
+
+                    {digilockerStage === "authorize" && (
+                        <div className="text-center animate-in fade-in zoom-in-95">
+                            <p className="text-sm font-medium text-slate-600 mb-8 leading-relaxed">
+                                Authorize **GT Vendor Portal** to fetch your verified identity documents from DigiLocker.
+                            </p>
+                            <button 
+                                onClick={() => setDigilockerStage("otp")}
+                                className="w-full bg-blue-600 text-white py-3.5 rounded-xl text-sm font-bold shadow-lg hover:bg-blue-700 transition-all active:scale-95"
+                            >
+                                Get OTP on Registered Mobile
+                            </button>
+                        </div>
+                    )}
+
+                    {digilockerStage === "otp" && (
+                        <div className="text-center animate-in slide-in-from-right-4">
+                            <div className="mb-4 inline-flex items-center gap-2 px-3 py-1 bg-amber-50 rounded-full border border-amber-100">
+                                <span className="flex h-2 w-2 rounded-full bg-amber-400 animate-pulse" />
+                                <span className="text-[10px] font-bold text-amber-700 uppercase tracking-widest">OTP Sent to ******9021</span>
+                            </div>
+                            <p className="text-sm font-bold text-slate-800 mb-6 font-mono tracking-tight">Enter 6-Digit OTP</p>
+                            <input 
+                                type="text"
+                                maxLength={6}
+                                value={otpValue}
+                                onChange={(e) => setOtpValue(e.target.value.replace(/\D/g, ""))}
+                                className="w-full text-center text-2xl font-black tracking-[0.5em] border-2 border-slate-200 rounded-xl py-3 focus:border-blue-500 outline-none bg-slate-50 mb-6"
+                                placeholder="000000"
+                            />
+                            <button 
+                                onClick={() => {
+                                    if(otpValue.length !== 6) return toast.error("Please enter 6 digit OTP");
+                                    setVerifyingAadhaar(true);
+                                    setDigilockerStage("verifying");
+                                    setTimeout(() => {
+                                        setIsAadhaarVerified(true);
+                                        setVerifyingAadhaar(false);
+                                        setShowDigilocker(false);
+                                        toast.success("Identity Verified Successfully!");
+                                    }, 2000);
+                                }}
+                                className="w-full bg-blue-600 text-white py-3.5 rounded-xl text-sm font-bold shadow-lg hover:bg-blue-700 transition-all active:scale-95"
+                            >
+                                Validate & Verify Aadhaar
+                            </button>
+                            <p className="mt-4 text-[10px] text-slate-400 font-bold uppercase cursor-pointer hover:text-blue-600">Resend OTP in 24s</p>
+                        </div>
+                    )}
+
+                    {digilockerStage === "verifying" && (
+                        <div className="flex flex-col items-center gap-6 py-8 animate-pulse text-center">
+                            <div className="w-14 h-14 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                            <div>
+                                <p className="text-[11px] font-black text-blue-600 tracking-[0.2em] uppercase">Secure Verification</p>
+                                <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase">Checking UIDAI Database...</p>
+                            </div>
+                        </div>
+                    )}
+                </div>
+
+                <div className="px-8 py-4 bg-slate-50 border-t border-slate-100 flex items-center justify-center gap-2">
+                    <ShieldCheck size={12} className="text-emerald-500" />
+                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">UIDAI Trusted e-KYC Gateway</span>
+                </div>
+            </motion.div>
+        </div>
+    );
 
     // Fetch categories for Step 1
     useEffect(() => {
@@ -1032,25 +1151,49 @@ export default function RegistrationWizard() {
                     value={formValues[fieldName] || ""}
                     onChange={(val) => handleInputChange(fieldName, val)}
                     required={field.required}
-                    mockData={fieldName === "serviceCategory" ? MOCK_CATEGORIES : fieldName === "region" ? MOCK_REGIONS : MOCK_DEPARTMENTS}
+                    fieldName={fieldName}
                     placeholder={fieldName === "serviceCategory" ? "Search Category..." : fieldName === "region" ? "Search Region..." : "Search Department..."}
                 />
             );
         }
 
         if (field.type === "text" || field.type === "number" || field.type === "date" || field.type === "email") {
+            const isAadhaarField = field.label?.toLowerCase().includes("aadhaar") || field.fieldId === "aadhaarCardNo";
+            
             return (
-                <input
-                    type={effectiveType}
-                    required={field.required}
-                    value={formValues[fieldName] || ""}
-                    inputMode={isMobileLike ? "numeric" : undefined}
-                    maxLength={isMobileLike ? 10 : undefined}
-                    autoComplete={isEmailLike ? "email" : isMobileLike ? "tel" : undefined}
-                    placeholder={isEmailLike ? "name@company.com" : isMobileLike ? "10 digit mobile number" : undefined}
-                    onChange={(e) => handleInputChange(fieldName, sanitizeFieldValue(field, fieldName, e.target.value))}
-                    className={controlClass}
-                />
+                <div className="flex flex-col gap-2">
+                    <div className="relative flex items-center group">
+                        <input
+                            type={effectiveType}
+                            required={field.required}
+                            value={formValues[fieldName] || ""}
+                            inputMode={isMobileLike ? "numeric" : undefined}
+                            maxLength={isMobileLike ? 10 : undefined}
+                            autoComplete={isEmailLike ? "email" : isMobileLike ? "tel" : undefined}
+                            placeholder={field.placeholder || (isEmailLike ? "name@company.com" : isMobileLike ? "10 digit mobile number" : undefined)}
+                            onChange={(e) => handleInputChange(fieldName, sanitizeFieldValue(field, fieldName, e.target.value))}
+                            className={`${controlClass} ${isAadhaarField && isAadhaarVerified ? "border-emerald-500 bg-emerald-50/30 text-emerald-900 pr-24" : ""}`}
+                        />
+                        {isAadhaarField && (
+                            <div className="absolute right-2 flex items-center gap-1.5">
+                                {isAadhaarVerified ? (
+                                    <div className="flex items-center gap-1 bg-emerald-500 text-white text-[9px] font-black uppercase px-2 py-1 rounded-lg shadow-sm animate-in zoom-in-75">
+                                        <CheckCircle2 size={12} strokeWidth={3} /> Verified
+                                    </div>
+                                ) : (
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowDigilocker(true)}
+                                        className="h-8 px-3 bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-bold uppercase rounded-lg shadow-sm transition-all active:scale-95 flex items-center gap-1.5"
+                                    >
+                                        <img src="https://static.abplive.com/wp-content/uploads/2021/04/23115456/Digilocker.jpg" className="h-3 w-3 rounded-full object-cover invert" alt="" />
+                                        Verify
+                                    </button>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                </div>
             );
         }
 
@@ -1331,6 +1474,7 @@ export default function RegistrationWizard() {
                     </div>
                 </div>
             </main>
+            {showDigilocker && <DigilockerPopup />}
         </div>
     );
 }

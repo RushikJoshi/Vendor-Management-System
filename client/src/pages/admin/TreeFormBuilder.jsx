@@ -3,6 +3,8 @@ import { CheckCircle2, ChevronDown, Copy, ExternalLink, GripVertical, Plus, Tras
 import { Link } from "react-router-dom";
 import api from "../../services/api";
 
+const cleanTitle = (t) => String(t || "").replace(/^\d+(\.\d+)*\s*/, "").trim();
+
 const makeSection = (title = "New Section") => ({
   id: `section_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
   title,
@@ -38,7 +40,7 @@ const mapSectionFromApi = (node) => {
   const children = Array.isArray(node.children) ? node.children : [];
   let subsections = children.map((child, idx) => ({
     id: child.id,
-    title: child.title || `Subsection ${idx + 1}`,
+    title: cleanTitle(child.title) || `Subsection ${idx + 1}`,
     collapsed: idx !== 0,
     repeatable: !!child.repeatable,
     repeatSourceFieldId: child.repeatSourceFieldId || "",
@@ -59,7 +61,7 @@ const mapSectionFromApi = (node) => {
 
   return {
     id: node.id,
-    title: node.title,
+    title: cleanTitle(node.title),
     subsections,
   };
 };
@@ -405,7 +407,7 @@ export default function TreeFormBuilder() {
                     No subsections. Click <span className="font-medium">Add Subsection</span>.
                   </div>
                 ) : (
-                  selectedSection.subsections.map((subsection) => (
+                  selectedSection.subsections.map((subsection, idx) => (
                     <div key={subsection.id} className="rounded-xl border border-slate-200 bg-slate-50/60">
                       <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 px-3 py-2">
                         <button
@@ -417,12 +419,15 @@ export default function TreeFormBuilder() {
                         >
                           <ChevronDown size={14} className={`transition-transform ${subsection.collapsed ? "-rotate-90" : ""}`} />
                         </button>
-                        <input
-                          className="min-w-[220px] flex-1 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm"
-                          value={subsection.title}
-                          onChange={(e) => updateSubsection(selectedSection.id, subsection.id, (sub) => ({ ...sub, title: e.target.value }))}
-                          placeholder="Subsection title"
-                        />
+                        <div className="flex items-center bg-white border border-slate-300 rounded-lg px-3 py-1.5 shadow-sm">
+                           <span className="text-[10px] font-black text-blue-600 mr-2">{sections.indexOf(selectedSection) + 1}.{idx + 1}</span>
+                           <input
+                             className="min-w-[200px] flex-1 border-none bg-transparent p-0 text-sm outline-none"
+                             value={subsection.title}
+                             onChange={(e) => updateSubsection(selectedSection.id, subsection.id, (sub) => ({ ...sub, title: e.target.value }))}
+                             placeholder="Subsection title"
+                           />
+                        </div>
 
                         {/* REPEATABLE CONTROLS */}
                         <div className="flex items-center gap-2 px-3 py-1 bg-white rounded-lg border border-slate-200">

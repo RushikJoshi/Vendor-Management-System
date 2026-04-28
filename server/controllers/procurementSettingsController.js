@@ -9,15 +9,31 @@ const DEFAULT_DOC_CONFIG = {
     companyName: "Global Tech",
     companyAddress: "HQ Address",
     gstNumber: "GSTIN-PENDING",
-    poTerms: ["Term 1", "Term 2"],
-    soTerms: ["Service Term 1"],
+    cinNumber: "CIN-PENDING",
+    panNumber: "PAN-PENDING",
+    contactEmail: "procurement@globaltech.com",
+    contactPhone: "+91-XXXXXXXXXX",
+    bankName: "PENDING BANK",
+    accountNumber: "XXXXXXXXXXXX",
+    ifscCode: "XXXX0000000",
+    accountName: "Global Tech Pvt Ltd",
+    branch: "PENDING BRANCH",
+    poTerms: [
+        { term: 'AGAINST FORM NO', desc: 'NOT APPLICABLE' },
+        { term: 'TEST CERTIFICATE', desc: 'REQUIRED' }
+    ],
+    soTerms: [
+        { term: 'SERVICE PERIOD', desc: 'AS PER SCOPE' }
+    ],
     themeColor: "#1e3a8a",
     secondaryColor: "#64748b",
     fontFamily: "Inter",
     headerHeight: 80,
     logoSize: 48,
     layoutPositions: {},
-    authorizedSignatory: { name: "Authorized Desk", designation: "Procurement Manager" }
+    authorizedSignatory: { name: "Authorized Desk", designation: "Procurement Manager" },
+    showWatermark: false,
+    watermarkText: "DRAFT"
 };
 
 const normalizeType = (type) => (ALLOWED_TYPES.includes(type) ? type : "PO");

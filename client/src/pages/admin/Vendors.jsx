@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import api from "../../services/api";
 import AddVendorModal from "./AddVendorModal";
 import { toast } from "react-hot-toast";
@@ -15,6 +15,8 @@ import { motion, AnimatePresence } from "framer-motion";
 
 export default function Vendors() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const categoryId = searchParams.get("categoryId");
   const [vendors, setVendors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState(null);
@@ -30,9 +32,10 @@ export default function Vendors() {
 
   const fetchVendors = async () => {
     try {
-      const res = await api.get("/vendors", {
-        params: { status: "active" }
-      });
+      const params = { status: "active" };
+      if (categoryId) params.category = categoryId;
+      
+      const res = await api.get("/vendors", { params });
       const data = res.data.data;
       setVendors(data);
       
@@ -103,7 +106,7 @@ export default function Vendors() {
     };
     window.addEventListener('GLOBAL_SEARCH', handleGlobalSearch);
     return () => window.removeEventListener('GLOBAL_SEARCH', handleGlobalSearch);
-  }, []);
+  }, [categoryId]);
 
   const filtered = vendors.filter(v =>
     v.companyName?.toLowerCase().includes(search.toLowerCase()) ||
@@ -175,11 +178,21 @@ export default function Vendors() {
                 <Filter size={16} className="text-indigo-500" />
                 <span>Registry Index: {filtered.length} Partners</span>
             </div>
-            {search && (
-                <div className="hidden sm:flex items-center gap-2 px-3 py-1 bg-indigo-50 text-indigo-700 border border-indigo-100 rounded-full text-[11px] font-bold uppercase tracking-wider">
-                    Searching: {search}
-                </div>
-            )}
+            <div className="flex items-center gap-3">
+                {categoryId && (
+                    <button 
+                        onClick={() => setSearchParams({})}
+                        className="flex items-center gap-2 px-3 py-1 bg-rose-50 text-rose-700 border border-rose-100 rounded-full text-[11px] font-bold uppercase tracking-wider hover:bg-rose-100 transition-colors"
+                    >
+                        Category: {vendors[0]?.category?.name || "Filtered"} <X size={12} />
+                    </button>
+                )}
+                {search && (
+                    <div className="hidden sm:flex items-center gap-2 px-3 py-1 bg-indigo-50 text-indigo-700 border border-indigo-100 rounded-full text-[11px] font-bold uppercase tracking-wider">
+                        Searching: {search}
+                    </div>
+                )}
+            </div>
         </div>
 
         <div className="overflow-x-auto">

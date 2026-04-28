@@ -4,6 +4,8 @@ const asyncHandler = require("../utils/asyncHandler");
 const AppError = require("../utils/AppError");
 const { generatePO } = require("../utils/pdfGenerator");
 const SequenceService = require("../services/SequenceService");
+const ProcurementSettings = require("../models/ProcurementSettings");
+const numberToWords = require("../utils/numberToWords");
 
 exports.createPO = asyncHandler(async (req, res, next) => {
     const { quotationId } = req.body;
@@ -13,30 +15,50 @@ exports.createPO = asyncHandler(async (req, res, next) => {
         return next(new AppError("Quotation not found", 404));
     }
 
+    const settings = await ProcurementSettings.findOne({ tenantId: req.user.tenantId });
+    const poConfig = settings ? settings.PO : {};
+
     const poNumber = await SequenceService.getNextSequence(req.user.tenantId, "po");
     
+    const vendor = quotation.vendorId;
     const poData = {
         poNumber,
         rfqId: quotation.rfqId,
-        vendorId: quotation.vendorId._id,
+        vendorId: vendor._id,
         quotationId: quotation._id,
+        vendorName: vendor.companyName || vendor.name,
+        vendorAddress: `${vendor.address?.city || ''}, ${vendor.address?.state || ''}`,
+        vendorCity: vendor.address?.city || 'N/A',
+        vendorPAN: vendor.gstNumber ? vendor.gstNumber.substring(2, 12) : 'N/A',
+        vendorGST: vendor.gstNumber || 'N/A',
+        vendorPhone: vendor.phone || 'N/A',
+        vendorEmail: vendor.email || 'N/A',
+        vendorContactPerson: vendor.name,
+        vendorCode: vendor.vendorId || 'N/A',
         items: quotation.items.map(item => ({
-            name: "Item", // Should fetch from RFQ
-            quantity: 1, // Placeholder
+            name: item.description || "Operational Component",
+            quantity: item.quantity || 1,
             unitPrice: item.unitPrice,
-            totalPrice: item.totalPrice
+            totalPrice: item.totalPrice,
+            hsn: item.hsn || '847130',
+            uom: item.uom || 'Nos'
         })),
         totalAmount: quotation.totalAmount,
+        totalAmountInWords: numberToWords(Math.round(quotation.totalAmount * 1.18)), // Including 18% GST for words
         tenantId: req.user.tenantId,
         createdBy: req.user._id
     };
 
-    // Generate PDF
-    const pdfUrl = await generatePO({
-        poNumber,
-        vendorName: quotation.vendorId.name,
-        items: poData.items,
-        totalAmount: poData.totalAmount
+    // Generate PDF with settings
+    const pdfUrl = await generatePO(poData, {
+        companyName: poConfig?.get('companyName') || 'GITAKSHMI TECHNOLOGIES PRIVATE LIMITED',
+        companyAddress: poConfig?.get('companyAddress'),
+        companyWebsite: poConfig?.get('companyWebsite'),
+        cin: poConfig?.get('cin'),
+        gstNumber: poConfig?.get('gstNumber'),
+        jurisdiction: poConfig?.get('jurisdiction'),
+        billingAddress: poConfig?.get('billingAddress'),
+        deliveryAddress: poConfig?.get('deliveryAddress'),
     });
 
     poData.pdfUrl = pdfUrl;
@@ -67,5 +89,61 @@ exports.getPOs = asyncHandler(async (req, res, next) => {
     res.status(200).json({
         success: true,
         data: pos,
+    });
+});
+
+exports.regenerateAllPOs = asyncHandler(async (req, res, next) => {
+    const query = req.user ? { tenantId: req.user.tenantId } : {};
+    const orders = await PurchaseOrder.find(query).populate('vendorId');
+    
+    const results = [];
+    for (const order of orders) {
+        const settings = await ProcurementSettings.findOne({ tenantId: order.tenantId });
+        const poConfig = settings ? settings.PO : {};
+
+        const vendor = order.vendorId;
+        const poData = {
+            poNumber: order.poNumber,
+            vendorName: vendor?.companyName || vendor?.name || 'N/A',
+            vendorAddress: `${vendor?.address?.city || ''}, ${vendor?.address?.state || ''}`,
+            vendorCity: vendor?.address?.city || 'N/A',
+            vendorPAN: vendor?.gstNumber ? vendor.gstNumber.substring(2, 12) : 'N/A',
+            vendorGST: vendor?.gstNumber || 'N/A',
+            vendorPhone: vendor?.phone || 'N/A',
+            vendorEmail: vendor?.email || 'N/A',
+            vendorContactPerson: vendor?.name,
+            vendorCode: vendor?.vendorId || 'N/A',
+            items: order.items.map(item => ({
+                name: item.name,
+                quantity: item.quantity,
+                unitPrice: item.unitPrice,
+                totalPrice: item.totalPrice,
+                hsn: '847130',
+                uom: 'Nos'
+            })),
+            totalAmount: order.totalAmount,
+            totalAmountInWords: numberToWords(Math.round(order.totalAmount * 1.18))
+        };
+
+        const pdfUrl = await generatePO(poData, {
+            companyName: poConfig?.get('companyName') || 'GITAKSHMI TECHNOLOGIES PRIVATE LIMITED',
+            companyAddress: poConfig?.get('companyAddress'),
+            companyWebsite: poConfig?.get('companyWebsite'),
+            cin: poConfig?.get('cin'),
+            gstNumber: poConfig?.get('gstNumber'),
+            jurisdiction: poConfig?.get('jurisdiction'),
+            billingAddress: poConfig?.get('billingAddress'),
+            deliveryAddress: poConfig?.get('deliveryAddress'),
+        });
+
+        order.pdfUrl = pdfUrl;
+        await order.save();
+        results.push({ poNumber: order.poNumber, status: 'Success' });
+    }
+
+    res.status(200).json({
+        success: true,
+        message: `${results.length} POs regenerated successfully.`,
+        data: results
     });
 });

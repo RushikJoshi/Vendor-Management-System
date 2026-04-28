@@ -2,19 +2,16 @@ const PDFDocument = require('pdfkit');
 const fs = require('fs');
 const path = require('path');
 
-// Conversion helper: 1 React Pixel (at 96 DPI) to 0.75 PDF Points (at 72 DPI)
-const pxToPt = (px) => (px || 0) * 0.75;
-const MARGIN = 50;
+const MARGIN = 40;
+const PAGE_WIDTH = 595.28; // A4
+const PAGE_HEIGHT = 841.89;
+const CONTENT_WIDTH = PAGE_WIDTH - (MARGIN * 2);
 
 exports.generatePO = async (poData, settings = {}) => {
     return new Promise((resolve, reject) => {
         const doc = new PDFDocument({ margin: MARGIN, size: 'A4' });
-        const themeColor = settings.themeColor || '#1e3a8a';
-        const secondaryColor = settings.secondaryColor || '#64748b';
         const filename = `PO-${poData.poNumber}.pdf`;
         const filePath = path.join(__dirname, '../uploads/po', filename);
-
-        const positions = settings.layoutPositions || {};
 
         const dir = path.join(__dirname, '../uploads/po');
         if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
@@ -22,68 +19,290 @@ exports.generatePO = async (poData, settings = {}) => {
         const stream = fs.createWriteStream(filePath);
         doc.pipe(stream);
 
-        // Background Watermark
-        if (settings.isWatermarkEnabled) {
-            doc.save()
-               .opacity(0.03)
-               .fontSize(60)
-               .fillColor('#000')
-               .rotate(-30, { origin: [300, 400] })
-               .text(`${settings.companyName || 'AUTHORIZED'}\nDOCUMENT`, 100, 300, { align: 'center', width: 400 })
-               .restore();
+        // Helper: Draw a horizontal line
+        const line = (y) => doc.moveTo(MARGIN, y).lineTo(PAGE_WIDTH - MARGIN, y).stroke();
+        
+        // Helper: Draw a vertical line
+        const vLine = (x, y1, y2) => doc.moveTo(x, y1).lineTo(x, y2).stroke();
+
+        // --- HEADER ---
+        doc.font('Helvetica-Bold').fontSize(14).fillColor('#000');
+        doc.text(settings.companyName || 'GITAKSHMI TECHNOLOGIES PRIVATE LIMITED', MARGIN, MARGIN);
+        doc.font('Helvetica').fontSize(9);
+        doc.text(settings.companyAddress || 'OFFICE NO.701, 7TH FLOOR,\nKAIVANNA COMPLEX, OFF C.G. ROAD,\nAMBAWADI, AHMEDABAD GJ 380006', MARGIN, MARGIN + 18);
+        doc.text(settings.companyWebsite || 'www.gitakshmi.com', MARGIN, MARGIN + 55);
+
+        // Logo (Top Right)
+        const logoPath = path.join(__dirname, '../../client/public/hgiel_logo.png');
+        if (fs.existsSync(logoPath)) {
+            doc.image(logoPath, PAGE_WIDTH - MARGIN - 150, MARGIN, { width: 150 });
         }
 
-        // 1. Header Area
-        const hPos = positions.header || { x: 0, y: 0 };
-        const hX = MARGIN + pxToPt(hPos.x);
-        const hY = MARGIN + pxToPt(hPos.y);
+        let currentY = MARGIN + 80;
+
+        // TITLE
+        doc.rect(MARGIN, currentY, CONTENT_WIDTH, 15).fill('#fff').stroke();
+        doc.font('Helvetica-Bold').fontSize(10).fillColor('#000');
+        doc.text('PURCHASE ORDER', MARGIN, currentY + 3, { align: 'center', width: CONTENT_WIDTH });
+        currentY += 15;
+
+        // INFO GRID
+        const gridTop = currentY;
+        const col1 = MARGIN;
+        const col2 = MARGIN + 250;
+        const col3 = MARGIN + 350;
+        const rowH = 14;
+
+        doc.fontSize(8).font('Helvetica');
         
-        doc.fillColor(themeColor).fontSize(20).text(settings.companyName || 'GLOBAL TECH ENTERPRISE', hX, hY, { bold: true });
-        doc.strokeColor(themeColor).lineWidth(2).moveTo(hX, hY + 25).lineTo(hX + 500, hY + 25).stroke();
+        // Row 1: Supplier / PAN / Order No
+        doc.font('Helvetica-Bold').text('Supplier', col1 + 2, currentY + 3);
+        doc.font('Helvetica').text(`: ${poData.vendorName || 'N/A'}`, col1 + 60, currentY + 3);
+        doc.font('Helvetica-Bold').text('Order No', col3 + 2, currentY + 3);
+        doc.font('Helvetica').text(`: ${poData.poNumber}`, col3 + 70, currentY + 3);
+        currentY += rowH;
+        line(currentY);
 
-        // 2. Buyer Info
-        const bPos = positions.buyerInfo || { x: 0, y: 180 };
-        const bX = MARGIN + pxToPt(bPos.x);
-        const bY = MARGIN + pxToPt(bPos.y);
-        doc.fillColor(secondaryColor).fontSize(10).text('BUYER REGISTRATION', bX, bY, { characterSpacing: 1 });
-        doc.fillColor('#334155').fontSize(11).text(settings.companyAddress || 'Office Location Address', bX, bY + 15, { width: 250 });
-        doc.fillColor(themeColor).fontSize(10).text(`GSTIN: ${settings.gstNumber || 'N/A'}`, bX, bY + 45);
+        // Row 2: Address / Order Date
+        doc.font('Helvetica-Bold').text('Address', col1 + 2, currentY + 3);
+        doc.font('Helvetica').text(`: ${poData.vendorAddress || 'N/A'}`, col1 + 60, currentY + 3, { width: 180 });
+        doc.font('Helvetica-Bold').text('Order Date', col3 + 2, currentY + 3);
+        doc.font('Helvetica').text(`: ${new Date().toLocaleDateString('en-GB')}`, col3 + 70, currentY + 3);
+        currentY += rowH * 2;
+        line(currentY);
 
-        // 3. Order Title/Meta
-        const tPos = positions.orderTitle || { x: 450, y: 50 };
-        const tX = MARGIN + pxToPt(tPos.x);
-        const tY = MARGIN + pxToPt(tPos.y);
-        doc.fillColor('#0f172a').fontSize(35).text('ORDER', tX - 100, tY, { align: 'right', width: 200 });
-        doc.fillColor('#10b981').fontSize(10).text('CERTIFIED INSTRUMENT', tX - 100, tY + 40, { align: 'right', width: 200, characterSpacing: 2 });
-        doc.fillColor('#475569').fontSize(10).text(`Ref: ${poData.poNumber}`, tX - 100, tY + 60, { align: 'right', width: 200 });
+        // Row 3: City / PAN / Quote No
+        doc.font('Helvetica-Bold').text('City', col1 + 2, currentY + 3);
+        doc.font('Helvetica').text(`: ${poData.vendorCity || 'N/A'}`, col1 + 60, currentY + 3);
+        doc.font('Helvetica-Bold').text('PAN', col2 + 2, currentY + 3);
+        doc.font('Helvetica').text(`: ${poData.vendorPAN || 'N/A'}`, col2 + 60, currentY + 3);
+        doc.font('Helvetica-Bold').text('Quote No', col3 + 2, currentY + 3);
+        doc.font('Helvetica').text(`: ${poData.quoteNo || 'By Mail'}`, col3 + 70, currentY + 3);
+        currentY += rowH;
+        line(currentY);
 
-        // 4. Items Table
-        const tblPos = positions.table || { x: 0, y: 400 };
-        const tblX = MARGIN + pxToPt(tblPos.x);
-        let tblY = MARGIN + pxToPt(tblPos.y);
+        // Row 4: Contact / Contact No / Quote Date
+        doc.font('Helvetica-Bold').text('Contact', col1 + 2, currentY + 3);
+        doc.font('Helvetica').text(`: ${poData.vendorContactPerson || 'N/A'}`, col1 + 60, currentY + 3);
+        doc.font('Helvetica-Bold').text('Contact No', col2 + 2, currentY + 3);
+        doc.font('Helvetica').text(`: ${poData.vendorPhone || 'N/A'}`, col2 + 60, currentY + 3);
+        doc.font('Helvetica-Bold').text('Quote Date', col3 + 2, currentY + 3);
+        doc.font('Helvetica').text(`: ${poData.quoteDate || 'N/A'}`, col3 + 70, currentY + 3);
+        currentY += rowH;
+        line(currentY);
 
-        doc.fillColor(settings.tableHeaderColor || '#f8fafc').rect(tblX, tblY, 500, 25).fill();
-        doc.fillColor('#64748b').fontSize(9).text('DESCRIPTION', tblX + 10, tblY + 8);
-        doc.text('TOTAL VALUATION', tblX + 400, tblY + 8, { width: 90, align: 'right' });
+        // Row 5: State / GST / Vendor Code
+        doc.font('Helvetica-Bold').text('State Name', col1 + 2, currentY + 3);
+        doc.font('Helvetica').text(`: ${poData.vendorState || 'N/A'}`, col1 + 60, currentY + 3);
+        doc.font('Helvetica-Bold').text('GST', col2 + 2, currentY + 3);
+        doc.font('Helvetica').text(`: ${poData.vendorGST || 'N/A'}`, col2 + 60, currentY + 3);
+        doc.font('Helvetica-Bold').text('Vendor Code', col3 + 2, currentY + 3);
+        doc.font('Helvetica').text(`: ${poData.vendorCode || 'N/A'}`, col3 + 70, currentY + 3);
+        currentY += rowH;
+        line(currentY);
 
-        tblY += 35;
-        (poData.items || []).forEach(item => {
-            doc.fillColor('#1e293b').fontSize(11).text(String(item.name || 'Operational Component'), tblX + 10, tblY, { width: 350 });
-            doc.fillColor(themeColor).fontSize(11).text(`₹ ${item.totalPrice.toLocaleString()}`, tblX + 400, tblY, { width: 90, align: 'right', bold: true });
-            tblY += 30;
+        // Row 6: Email / Contact
+        doc.font('Helvetica-Bold').text('Email', col1 + 2, currentY + 3);
+        doc.font('Helvetica').text(`: ${poData.vendorEmail || 'N/A'}`, col1 + 60, currentY + 3);
+        doc.font('Helvetica-Bold').text('Contact', col3 + 2, currentY + 3);
+        doc.font('Helvetica').text(`: -`, col3 + 70, currentY + 3);
+        currentY += rowH;
+        line(currentY);
+
+        // Vertical lines for the grid
+        vLine(MARGIN, gridTop, currentY);
+        vLine(col2, gridTop + rowH * 3, currentY);
+        vLine(col3, gridTop, currentY);
+        vLine(PAGE_WIDTH - MARGIN, gridTop, currentY);
+
+        // --- ITEMS TABLE ---
+        currentY += 5;
+        const tblTop = currentY;
+        const tblCols = [40, 240, 60, 40, 30, 60, 45]; // SlNo, Desc, HSN, UOM, QTY, Price, Amount
+        let x = MARGIN;
+        const headers = ['Sl No', 'Description', 'HSN / SAC', 'UOM', 'QTY', 'Unit Price', 'Amount'];
+        
+        doc.font('Helvetica-Bold').fontSize(8);
+        headers.forEach((h, i) => {
+            doc.rect(x, currentY, tblCols[i], 20).stroke();
+            doc.text(h, x, currentY + 6, { width: tblCols[i], align: 'center' });
+            x += tblCols[i];
+        });
+        currentY += 20;
+
+        doc.font('Helvetica').fontSize(8);
+        const rowStart = currentY;
+        (poData.items || []).forEach((item, idx) => {
+            let x = MARGIN;
+            const itemRowH = 40; // Fixed height for simplicity or use dynamic
+            
+            doc.text(idx + 1, x, currentY + 5, { width: tblCols[0], align: 'center' });
+            x += tblCols[0];
+            doc.text(item.name || 'N/A', x + 5, currentY + 5, { width: tblCols[1] - 10 });
+            x += tblCols[1];
+            doc.text(item.hsn || '847130', x, currentY + 5, { width: tblCols[2], align: 'center' });
+            x += tblCols[2];
+            doc.text(item.uom || 'Nos', x, currentY + 5, { width: tblCols[3], align: 'center' });
+            x += tblCols[3];
+            doc.text(item.quantity || 1, x, currentY + 5, { width: tblCols[4], align: 'center' });
+            x += tblCols[4];
+            doc.text(`\u20B9 ${item.unitPrice?.toLocaleString()}`, x, currentY + 5, { width: tblCols[5], align: 'center' });
+            x += tblCols[5];
+            doc.text(`\u20B9 ${item.totalPrice?.toLocaleString()}`, x, currentY + 5, { width: tblCols[6], align: 'center' });
+            
+            currentY += itemRowH;
         });
 
-        doc.fillColor('#f8fafc').rect(tblX, tblY, 500, 40).fill();
-        doc.fillColor('#64748b').fontSize(9).text('GRANT TOTAL PAYABLE', tblX + 10, tblY + 15);
-        doc.fillColor(themeColor).fontSize(18).text(`₹ ${(poData.totalAmount || 0).toLocaleString()}`, tblX + 300, tblY + 12, { width: 190, align: 'right', bold: true });
+        // Vertical lines for table rows
+        const tblBottom = 600; // Fixed height for items area to match sample
+        x = MARGIN;
+        tblCols.forEach(w => {
+            vLine(x, rowStart, tblBottom);
+            x += w;
+        });
+        vLine(PAGE_WIDTH - MARGIN, rowStart, tblBottom);
+        line(tblBottom);
 
-        // 5. Signatory
-        const sPos = positions.signatory || { x: 450, y: 750 };
-        const sX = MARGIN + pxToPt(sPos.x);
-        const sY = MARGIN + pxToPt(sPos.y);
-        doc.strokeColor('#e2e8f0').lineWidth(1).moveTo(sX - 150, sY).lineTo(sX, sY).stroke();
-        doc.fillColor('#0f172a').fontSize(10).text(settings.authorizedSignatory?.name || 'Authorized Official', sX - 150, sY + 10, { align: 'right', width: 150, bold: true });
-        doc.fillColor(themeColor).fontSize(8).text(`For ${settings.companyName || 'the Entity'}`, sX - 150, sY + 22, { align: 'right', width: 150 });
+        currentY = tblBottom;
+
+        // --- SUMMARY ---
+        doc.fontSize(8);
+        const sumLeft = MARGIN;
+        const sumRight = MARGIN + 350;
+
+        // CIN / Basic Price
+        doc.font('Helvetica-Bold').text('CIN', sumLeft + 2, currentY + 3);
+        doc.font('Helvetica').text(`: ${settings.cin || 'U72900GJ2019PTC110363'}`, sumLeft + 60, currentY + 3);
+        doc.font('Helvetica').text('Basic Price', sumRight + 2, currentY + 3);
+        doc.text(`: \u20B9 ${(poData.totalAmount || 0).toLocaleString()}`, sumRight + 80, currentY + 3, { align: 'right', width: 80 });
+        currentY += 12;
+        line(currentY);
+
+        // GST NO / Tax
+        doc.font('Helvetica-Bold').text('GST NO', sumLeft + 2, currentY + 3);
+        doc.font('Helvetica').text(`: ${settings.gstNumber || '24AAICG0391B1Z2'}`, sumLeft + 60, currentY + 3);
+        doc.font('Helvetica').text('Input - CGST+ IGST 18%', sumRight + 2, currentY + 3);
+        doc.text(`: \u20B9 ${(poData.totalAmount * 0.18).toLocaleString()}`, sumRight + 80, currentY + 3, { align: 'right', width: 80 });
+        currentY += 12;
+        line(currentY);
+
+        // JURIDICTION / Grand Total
+        doc.font('Helvetica-Bold').text('JURIDICTION', sumLeft + 2, currentY + 3);
+        doc.font('Helvetica').text(`: ${settings.jurisdiction || 'MUNDRA'}`, sumLeft + 60, currentY + 3);
+        doc.font('Helvetica-Bold').text('Grand Total', sumRight + 2, currentY + 3);
+        doc.text(`: \u20B9 ${(poData.totalAmount * 1.18).toLocaleString()}`, sumRight + 80, currentY + 3, { align: 'right', width: 80 });
+        currentY += 12;
+        line(currentY);
+
+        // In Words
+        doc.font('Helvetica-Bold').text('In words', sumLeft + 2, currentY + 3);
+        doc.font('Helvetica').text(`: ****INR ${poData.totalAmountInWords || 'Forty Four Thousand Eight Hundred Forty Rupees Only'}`, sumLeft + 60, currentY + 3);
+        currentY += 15;
+        line(currentY);
+
+        // --- BILLING / DELIVERY ---
+        doc.font('Helvetica-Bold').text('Billing Address', MARGIN + 2, currentY + 3);
+        doc.text('Delivery Address', MARGIN + 260, currentY + 3);
+        currentY += 12;
+        line(currentY);
+        
+        doc.font('Helvetica').fontSize(7);
+        doc.text(settings.billingAddress || 'CORP. OFFICE\nOFFICE NO.701, 7TH FLOOR,\nKAIVANNA COMPLEX, OFF C.G. ROAD\nAMBAWADI, AHMEDABAD GJ 380006', MARGIN + 2, currentY + 5, { width: 240 });
+        doc.text(settings.deliveryAddress || 'CORP. OFFICE\nOFFICE NO.701, 7TH FLOOR,\nKAIVANNA COMPLEX, OFF C.G. ROAD\nAMBAWADI, AHMEDABAD GJ 380006', MARGIN + 260, currentY + 5, { width: 240 });
+        currentY += 45;
+        line(currentY);
+
+        // Indent No
+        doc.font('Helvetica-Bold').fontSize(8).text('Indent No:', MARGIN + 2, currentY + 3);
+        currentY += 12;
+        line(currentY);
+
+        // Payment / Credit / Delivery
+        doc.text('Payment Term', MARGIN + 2, currentY + 3, { width: 150 });
+        doc.text('Credit', MARGIN + 160, currentY + 3, { width: 150 });
+        doc.text('Delivery Details', MARGIN + 350, currentY + 3, { width: 150 });
+        currentY += 12;
+        line(currentY);
+        doc.font('Helvetica').text('AFTER DELIVERY', MARGIN + 2, currentY + 3);
+        doc.text('WITHIN 30 DAYS', MARGIN + 160, currentY + 3);
+        doc.text('IMMEDIATE', MARGIN + 350, currentY + 3);
+        currentY += 12;
+        line(currentY);
+
+        // Vertical lines for the bottom grid
+        vLine(MARGIN, sumLeft + 36, currentY);
+        vLine(MARGIN + 250, currentY - 69, currentY);
+        vLine(MARGIN + 155, currentY - 24, currentY);
+        vLine(MARGIN + 345, currentY - 24, currentY);
+        vLine(PAGE_WIDTH - MARGIN, sumLeft + 36, currentY);
+
+        // Terms Table Header
+        doc.font('Helvetica-Bold').text('Sr. No', MARGIN + 2, currentY + 3);
+        doc.text('Term', MARGIN + 30, currentY + 3);
+        doc.text('Description', MARGIN + 160, currentY + 3);
+        currentY += 12;
+        line(currentY);
+
+        const terms = [
+            { term: 'AGAINST FORM NO', desc: 'NOT APPLICABLE' },
+            { term: 'TEST CERTIFICATE', desc: 'REQUIRED' },
+            { term: 'TRANSPORTATION', desc: 'Included' },
+            { term: 'BRAND / SUPPORT / WARRANTY', desc: 'SONY/ Yes / As and when Required' }
+        ];
+
+        terms.forEach((t, i) => {
+            doc.font('Helvetica').text(i + 1, MARGIN + 2, currentY + 3);
+            doc.text(t.term, MARGIN + 30, currentY + 3);
+            doc.text(`: ${t.desc}`, MARGIN + 160, currentY + 3);
+            currentY += 12;
+            line(currentY);
+        });
+
+        // Vertical lines for terms
+        vLine(MARGIN, currentY - (12 * 5), currentY);
+        vLine(MARGIN + 25, currentY - (12 * 5), currentY);
+        vLine(MARGIN + 155, currentY - (12 * 5), currentY);
+        vLine(PAGE_WIDTH - MARGIN, currentY - (12 * 5), currentY);
+
+        // Remarks
+        doc.font('Helvetica-Bold').text(`Remarks: `, MARGIN + 2, currentY + 3);
+        doc.font('Helvetica').text('Please provide Serial Number in billing', MARGIN + 45, currentY + 3);
+        currentY += 15;
+        line(currentY);
+        vLine(MARGIN, currentY - 15, currentY);
+        vLine(PAGE_WIDTH - MARGIN, currentY - 15, currentY);
+
+        // Footer
+        currentY += 20;
+        doc.font('Helvetica-Bold').text(`for, ${settings.companyName || 'GITAKSHMI TECHNOLOGIES PVT. LTD.'}`, PAGE_WIDTH - MARGIN - 200, currentY, { align: 'right', width: 200 });
+        
+        // Authorized Signatory
+        currentY += 60;
+        doc.text('Authorized signatory', PAGE_WIDTH - MARGIN - 200, currentY, { align: 'right', width: 200 });
+
+        doc.fontSize(8).text('Page 1 of 2', 0, PAGE_HEIGHT - 30, { align: 'center', width: PAGE_WIDTH });
+
+        // --- SECOND PAGE (Terms & Conditions) ---
+        doc.addPage();
+        doc.fontSize(10).font('Helvetica-Bold').text(settings.companyName || 'Gitakshmi Technologies Private Limited', MARGIN, MARGIN);
+        doc.text(`PO number/date           ${poData.poNumber} / ${new Date().toLocaleDateString('en-GB')}`, MARGIN + 300, MARGIN);
+        line(MARGIN + 15);
+
+        currentY = MARGIN + 30;
+        doc.text('Special Terms & Conditions', MARGIN, currentY);
+        currentY += 15;
+        doc.font('Helvetica-Bold').text('VENDOR BANK DETAIL', MARGIN, currentY);
+        doc.font('Helvetica').text(`: BANK NAME        : ${poData.bankName || 'HDFC BANK LIMITED'}    A/C No.: ${poData.accountNo || '07838640000120'}`, MARGIN + 120, currentY);
+        currentY += 15;
+        doc.font('Helvetica-Bold').text('Special Instructions', MARGIN, currentY);
+        doc.font('Helvetica').text(`: Please send us your order acceptance immediately...`, MARGIN + 120, currentY, { width: 350 });
+        
+        currentY += 80;
+        doc.font('Helvetica-Bold').text('GENERAL TERMS & CONDITIONS', MARGIN, currentY);
+        currentY += 15;
+        doc.font('Helvetica').fontSize(8).text(`Following are the General Terms & Conditions applicable to this PO...`, MARGIN, currentY, { width: CONTENT_WIDTH });
+
+        doc.fontSize(8).text('Page 2 of 2', 0, PAGE_HEIGHT - 30, { align: 'center', width: PAGE_WIDTH });
 
         doc.end();
         stream.on('finish', () => resolve(`/uploads/po/${filename}`));
@@ -92,6 +311,6 @@ exports.generatePO = async (poData, settings = {}) => {
 };
 
 exports.generateSO = async (soData, settings = {}) => {
-    // Service Order uses same logic but different title
-    return exports.generatePO({ ...soData, poNumber: soData.soNumber }, { ...settings, titleType: 'SERVICE' });
+    return exports.generatePO({ ...soData, poNumber: soData.soNumber, orderType: 'SO' }, { ...settings, titleType: 'SERVICE' });
 };
+

@@ -1,10 +1,10 @@
-require('dotenv').config();
-const mongoose = require('mongoose');
 const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '../.env') });
+const mongoose = require('mongoose');
 const fs = require('fs');
 
 // Connect to Database
-mongoose.connect(process.env.MONGO_URI)
+mongoose.connect(process.env.MONGO_URI, { family: 4 })
   .then(() => console.log('Connected to MongoDB for PDF Regeneration...'))
   .catch(err => console.error('MongoDB connection error:', err));
 

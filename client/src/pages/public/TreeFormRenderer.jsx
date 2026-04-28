@@ -1,5 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
+import { motion } from "framer-motion";
+import { ShieldCheck, X, CheckCircle2 } from "lucide-react";
+import { toast } from "react-hot-toast";
 import axios from "axios";
 
 const apiBase = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
@@ -105,9 +108,29 @@ const CategoryAutocomplete = ({ value, onChange, placeholder, required, type = "
     const [results, setResults] = useState([]);
     const [showResults, setShowResults] = useState(false);
     const [selectedLevels, setSelectedLevels] = useState([]);
+    const [dynamicCats, setDynamicCats] = useState([]); // New state for DB categories
     const containerRef = useRef(null);
 
-    const mockData = useMemo(() => (type === "region" ? MOCK_REGIONS : MOCK_CATEGORIES), [type]);
+    // Fetch real categories from DB
+    useEffect(() => {
+        if (type === "category") {
+            axios.get(`${apiBase}/categories/public-list`)
+                .then(res => {
+                    const names = (res.data?.data || []).map(c => c.name);
+                    setDynamicCats(names);
+                })
+                .catch(err => console.error("Could not fetch categories", err));
+        }
+    }, [type]);
+
+    const mockData = useMemo(() => {
+        const base = type === "region" ? MOCK_REGIONS : MOCK_CATEGORIES;
+        if (type === "category") {
+            // Merge mock breadcrumbs with dynamic names from DB
+            return Array.from(new Set([...base, ...dynamicCats]));
+        }
+        return base;
+    }, [type, dynamicCats]);
 
     // Parse the current value into levels
     useEffect(() => {
@@ -223,7 +246,10 @@ const CategoryAutocomplete = ({ value, onChange, placeholder, required, type = "
                         required={required && !value}
                         value={query}
                         onFocus={() => setShowResults(true)}
-                        onChange={(e) => { setQuery(e.target.value); if (!e.target.value && !selectedLevels.length) onChange(""); }}
+                        onChange={(e) => { 
+                            setQuery(e.target.value); 
+                            onChange(e.target.value); 
+                        }}
                         placeholder={selectedLevels.length > 0 ? `Add Sub-${type === 'category' ? 'Category' : 'Level'}...` : placeholder}
                         className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100 pr-12"
                     />
@@ -271,7 +297,7 @@ const CategoryAutocomplete = ({ value, onChange, placeholder, required, type = "
     );
 };
 
-function TreeNodeRenderer({ node, number, values, files, setValues, setFiles, collapsed, setCollapsed, repeatIndex }) {
+function TreeNodeRenderer({ node, number, values, files, setValues, setFiles, collapsed, setCollapsed, repeatIndex, isAadhaarVerified, setShowDigilocker }) {
   const key = node.id;
   const defaultCollapsed = false; // Always open by default or rely on config
   const isCollapsed = collapsed[key] ?? defaultCollapsed;
@@ -297,15 +323,15 @@ function TreeNodeRenderer({ node, number, values, files, setValues, setFiles, co
         <span className={`flex items-center text-slate-400 ${isTopLevel ? "" : "text-blue-500"}`}>
             {isCollapsed ? "→" : "↓"}
         </span>
-        <span className={`font-semibold tracking-tight ${isTopLevel ? "text-lg text-slate-900" : "text-[13px] text-blue-700"}`}>
-            {node.title} {repeatIndex ? `#${repeatIndex}` : ""}
+        <span className={`tracking-tight uppercase ${isTopLevel ? "text-3xl font-black text-slate-900" : "text-[16px] font-bold text-blue-700"}`}>
+            {number} {node.title?.replace(/^\d+(\.\d+)*\s*/, "")} {repeatIndex ? `#${repeatIndex}` : ""}
         </span>
       </div>
 
       {!isCollapsed ? (
         <div className={`transition-all ${isTopLevel ? "pt-2" : "border-t border-slate-100 p-5 bg-slate-50/30"}`}>
           {node.fields && node.fields.length > 0 && (
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 mb-4">
+            <div className="flex flex-wrap items-start gap-4 mb-4">
               {node.fields.map((field) => (
                 <FieldRenderer 
                   key={field.id} 
@@ -315,6 +341,8 @@ function TreeNodeRenderer({ node, number, values, files, setValues, setFiles, co
                   setValues={setValues} 
                   setFiles={setFiles} 
                   repeatIndex={repeatIndex} 
+                  isAadhaarVerified={isAadhaarVerified}
+                  setShowDigilocker={setShowDigilocker}
                 />
               ))}
             </div>
@@ -343,7 +371,7 @@ function TreeNodeRenderer({ node, number, values, files, setValues, setFiles, co
                   
                   const repeatArray = Array.from({ length: Math.min(count, 10) }, (_, i) => i + 1); 
                   
-                  return repeatArray.map((num) => (
+                   return repeatArray.map((num) => (
                     <TreeNodeRenderer
                       key={`${child.id}_${num}`}
                       node={child}
@@ -355,6 +383,8 @@ function TreeNodeRenderer({ node, number, values, files, setValues, setFiles, co
                       collapsed={collapsed}
                       setCollapsed={setCollapsed}
                       repeatIndex={num}
+                      isAadhaarVerified={isAadhaarVerified}
+                      setShowDigilocker={setShowDigilocker}
                     />
                   ));
                 }
@@ -371,6 +401,8 @@ function TreeNodeRenderer({ node, number, values, files, setValues, setFiles, co
                     collapsed={collapsed}
                     setCollapsed={setCollapsed}
                     repeatIndex={repeatIndex}
+                    isAadhaarVerified={isAadhaarVerified}
+                    setShowDigilocker={setShowDigilocker}
                   />
                 );
               })}
@@ -382,16 +414,27 @@ function TreeNodeRenderer({ node, number, values, files, setValues, setFiles, co
   );
 }
 
-function FieldRenderer({ field, values, files, setValues, setFiles, repeatIndex }) {
+function FieldRenderer({ field, values, files, setValues, setFiles, repeatIndex, isAadhaarVerified, setShowDigilocker }) {
   const fieldKey = repeatIndex ? `${field.id}_${repeatIndex}` : field.id;
   const setValue = (v) => setValues((p) => ({ ...p, [fieldKey]: v }));
   const current = values[fieldKey] ?? (field.type === "checkbox" ? [] : "");
-  const isWideField = field.type === "checkbox" || field.type === "radio" || field.type === "file";
-  const wideSpanClass = isWideField ? "md:col-span-2 xl:col-span-3" : "";
+  const isTitleField = field.label?.toLowerCase().includes("title");
+  const isDropdown = field.type === "dropdown";
+  const isWideField = field.type === "checkbox" || field.type === "radio" || field.type === "file" || field.label === "Category" || field.label === "Sub Category" || field.label === "Region";
+  
+  let flexClass = "flex-1 min-w-[280px]"; // Default for text inputs
+  
+  if (isWideField) {
+    flexClass = "w-full flex-none";
+  } else if (isTitleField) {
+    flexClass = "flex-none w-[100px]"; 
+  } else if (isDropdown) {
+    flexClass = "flex-none w-fit min-w-[160px]";
+  }
   const pattern = field.validation?.pattern;
   const hintText = pattern === "gst" ? "Format: 22AAAAA0000A1Z5" : pattern === "ifsc" ? "Format: HDFC0001234" : "";
   const inputBaseClass =
-    "w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100";
+    "w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-[16px] font-medium text-slate-800 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100";
 
   // ==========================================
   // HARDCODED FIELD DEPENDENCY VISIBILITY
@@ -400,11 +443,17 @@ function FieldRenderer({ field, values, files, setValues, setFiles, repeatIndex 
   if (field.id === "pfNo" && values["pfStatus"] !== "Yes") return null;
   if (field.id === "esiNo" && values["esiStatus"] !== "Yes") return null;
 
+  // 🎯 HIDE REPEAT-SOURCE FIELDS IN SUBSEQUENT BLOCKS
+  const isRepeatSource = field.label?.toLowerCase().includes("how many") && field.label?.toLowerCase().includes("bank");
+  if (isRepeatSource && repeatIndex > 1) {
+      return null;
+  }
+
   if (field.type === "dropdown" || field.type === "radio") {
     if (field.type === "dropdown") {
       return (
-        <div className={`space-y-1 ${wideSpanClass}`}>
-          <label className="text-xs font-semibold tracking-wide text-slate-700">
+        <div className={`space-y-1 ${flexClass}`}>
+          <label className="text-[15px] font-bold tracking-tight text-slate-700 block mb-1.5">
             {field.label} {field.required ? <span className="text-rose-500">*</span> : null}
           </label>
           <select className={inputBaseClass} value={current} onChange={(e) => setValue(e.target.value)}>
@@ -419,8 +468,8 @@ function FieldRenderer({ field, values, files, setValues, setFiles, repeatIndex 
       );
     }
     return (
-      <div className={`space-y-1 ${wideSpanClass}`}>
-        <label className="text-xs font-semibold tracking-wide text-slate-700">
+      <div className={`space-y-1 ${flexClass}`}>
+        <label className="text-[15px] font-bold tracking-tight text-slate-700 block mb-1.5">
           {field.label} {field.required ? <span className="text-rose-500">*</span> : null}
         </label>
         <div className="flex flex-wrap gap-2 rounded-xl border border-slate-200 bg-slate-50 p-2">
@@ -437,8 +486,8 @@ function FieldRenderer({ field, values, files, setValues, setFiles, repeatIndex 
 
   if (field.type === "checkbox") {
     return (
-      <div className={`space-y-1 ${wideSpanClass}`}>
-        <label className="text-xs font-semibold tracking-wide text-slate-700">
+      <div className={`space-y-1 ${flexClass}`}>
+        <label className="text-[15px] font-bold tracking-tight text-slate-700 block mb-1.5">
           {field.label} {field.required ? <span className="text-rose-500">*</span> : null}
         </label>
         <div className="flex flex-wrap gap-2 rounded-xl border border-slate-200 bg-slate-50 p-2">
@@ -464,8 +513,8 @@ function FieldRenderer({ field, values, files, setValues, setFiles, repeatIndex 
 
   if (field.type === "file") {
     return (
-      <div className={`space-y-1 ${wideSpanClass}`}>
-        <label className="text-xs font-semibold tracking-wide text-slate-700">
+      <div className={`space-y-1 ${flexClass}`}>
+        <label className="text-[15px] font-bold tracking-tight text-slate-700 block mb-1.5">
           {field.label} {field.required ? <span className="text-rose-500">*</span> : null}
         </label>
         <input
@@ -511,8 +560,8 @@ function FieldRenderer({ field, values, files, setValues, setFiles, repeatIndex 
     const categoryVal = values["serviceCategory"] || "";
     
     return (
-      <div className={`space-y-1 ${wideSpanClass} relative focus-within:z-50`}>
-        <label className="text-xs font-semibold tracking-wide text-slate-700">
+      <div className={`space-y-1 ${flexClass} relative focus-within:z-50`}>
+        <label className="text-[15px] font-bold tracking-tight text-slate-700 block mb-1.5">
           {field.label} {field.required ? <span className="text-rose-500">*</span> : null}
         </label>
         <CategoryAutocomplete
@@ -532,18 +581,40 @@ function FieldRenderer({ field, values, files, setValues, setFiles, repeatIndex 
     );
   }
 
+  const isAadhaarField = field.label?.toLowerCase().includes("aadhaar");
+
   return (
-    <div className={`space-y-1 ${wideSpanClass} relative focus-within:z-50`}>
-      <label className="text-xs font-semibold tracking-wide text-slate-700">
+    <div className={`space-y-1 ${flexClass} relative focus-within:z-50`}>
+      <label className="text-[15px] font-bold tracking-tight text-slate-700 block mb-1.5">
         {field.label} {field.required ? <span className="text-rose-500">*</span> : null}
       </label>
-      <input
-        type={field.type === "date" ? "date" : field.type === "email" ? "email" : "text"}
-        className={inputBaseClass}
-        placeholder={field.placeholder || ""}
-        value={current}
-        onChange={handleInputChange}
-      />
+      <div className="relative flex items-center group">
+        <input
+          type={field.type === "date" ? "date" : field.type === "email" ? "email" : "text"}
+          className={`${inputBaseClass} ${isAadhaarField && isAadhaarVerified ? "border-emerald-500 bg-emerald-50/30 text-emerald-900 pr-24" : ""}`}
+          placeholder={field.placeholder || ""}
+          value={current}
+          onChange={handleInputChange}
+        />
+        {isAadhaarField && (
+            <div className="absolute right-2 flex items-center gap-1.5 pointer-events-auto">
+                {isAadhaarVerified ? (
+                    <div className="flex items-center gap-1 bg-emerald-500 text-white text-[9px] font-black uppercase px-2 py-1 rounded-lg shadow-sm animate-in zoom-in-75">
+                        <CheckCircle2 size={12} strokeWidth={3} /> Verified
+                    </div>
+                ) : (
+                    <button
+                        type="button"
+                        onClick={() => setShowDigilocker(true)}
+                        className="h-8 px-3 bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-bold uppercase rounded-lg shadow-sm transition-all active:scale-95 flex items-center gap-1.5"
+                    >
+                        <img src="https://static.abplive.com/wp-content/uploads/2021/04/23115456/Digilocker.jpg" className="h-3 w-3 rounded-full object-cover invert" alt="" />
+                        Verify
+                    </button>
+                )}
+            </div>
+        )}
+      </div>
       {hintText ? <p className="text-[11px] text-slate-500">{hintText}</p> : null}
     </div>
   );
@@ -563,6 +634,105 @@ export default function TreeFormRenderer() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [verifying, setVerifying] = useState(false);
+  const [showDigilocker, setShowDigilocker] = useState(false);
+  const [isAadhaarVerified, setIsAadhaarVerified] = useState(false);
+  const [verifyingAadhaar, setVerifyingAadhaar] = useState(false);
+  const [digilockerStage, setDigilockerStage] = useState("authorize"); // authorize, otp, verifying
+  const [otpValue, setOtpValue] = useState("");
+
+  // DigiLocker Mock Component
+  const DigilockerPopup = () => (
+    <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+      <motion.div 
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden border border-slate-200"
+      >
+        <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+          <div className="flex items-center gap-3">
+            <div className="bg-blue-600 p-1.5 rounded-lg text-white">
+              <ShieldCheck size={18} />
+            </div>
+            <h3 className="text-md font-bold text-slate-800">DigiLocker KYC Gateway</h3>
+          </div>
+          <button onClick={() => setShowDigilocker(false)} className="text-slate-400 hover:text-slate-600">
+            <X size={20} />
+          </button>
+        </div>
+        
+        <div className="p-8">
+          <div className="mb-6 flex justify-center">
+            <img src="https://img.etimg.com/thumb/msid-71110052,width-1200,height-900,imgsize-105151,overlay-etpanache/photo.jpg" alt="DigiLocker" className="h-12 object-contain grayscale opacity-80" />
+          </div>
+
+          {digilockerStage === "authorize" && (
+            <div className="text-center animate-in fade-in zoom-in-95">
+              <p className="text-sm font-medium text-slate-600 mb-8 leading-relaxed">
+                Authorize **GT Vendor Portal** to fetch your verified identity documents from DigiLocker.
+              </p>
+              <button 
+                onClick={() => setDigilockerStage("otp")}
+                className="w-full bg-blue-600 text-white py-3.5 rounded-xl text-sm font-bold shadow-lg hover:bg-blue-700 transition-all active:scale-95"
+              >
+                Get OTP on Registered Mobile
+              </button>
+            </div>
+          )}
+
+          {digilockerStage === "otp" && (
+            <div className="text-center animate-in slide-in-from-right-4">
+              <div className="mb-4 inline-flex items-center gap-2 px-3 py-1 bg-amber-50 rounded-full border border-amber-100">
+                <span className="flex h-2 w-2 rounded-full bg-amber-400 animate-pulse" />
+                <span className="text-[10px] font-bold text-amber-700 uppercase tracking-widest">OTP Sent to ******9021</span>
+              </div>
+              <p className="text-sm font-bold text-slate-800 mb-6 font-mono tracking-tight">Enter 6-Digit OTP</p>
+              <input 
+                type="text"
+                maxLength={6}
+                value={otpValue}
+                onChange={(e) => setOtpValue(e.target.value.replace(/\D/g, ""))}
+                className="w-full text-center text-2xl font-black tracking-[0.5em] border-2 border-slate-200 rounded-xl py-3 focus:border-blue-500 outline-none bg-slate-50 mb-6"
+                placeholder="000000"
+              />
+              <button 
+                onClick={() => {
+                  if(otpValue.length !== 6) return toast.error("Please enter 6 digit OTP");
+                  setVerifyingAadhaar(true);
+                  setDigilockerStage("verifying");
+                  setTimeout(() => {
+                    setIsAadhaarVerified(true);
+                    setVerifyingAadhaar(false);
+                    setShowDigilocker(false);
+                    toast.success("Identity Verified Successfully!");
+                  }, 2000);
+                }}
+                className="w-full bg-blue-600 text-white py-3.5 rounded-xl text-sm font-bold shadow-lg hover:bg-blue-700 transition-all active:scale-95"
+              >
+                Validate & Verify Aadhaar
+              </button>
+              <p className="mt-4 text-[10px] text-slate-400 font-bold uppercase cursor-pointer hover:text-blue-600">Resend OTP in 24s</p>
+            </div>
+          )}
+
+          {digilockerStage === "verifying" && (
+            <div className="flex flex-col items-center gap-6 py-8 animate-pulse text-center">
+              <div className="w-14 h-14 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+              <div>
+                <p className="text-[11px] font-black text-blue-600 tracking-[0.2em] uppercase">Secure Verification</p>
+                <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase">Checking UIDAI Database...</p>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="px-8 py-4 bg-slate-50 border-t border-slate-100 flex items-center justify-center gap-2">
+          <ShieldCheck size={12} className="text-emerald-500" />
+          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">UIDAI Trusted e-KYC Gateway</span>
+        </div>
+      </motion.div>
+    </div>
+  );
   const draftStorageKey = useMemo(() => `tree_form_draft_${id}`, [id]);
   const previousAutofillValuesRef = useRef({});
   const requestedAutofillValuesRef = useRef({});
@@ -800,8 +970,16 @@ export default function TreeFormRenderer() {
         if (f.id === "esiNo" && values["esiStatus"] !== "Yes") return;
 
         const fieldKey = repeatIndex ? `${f.id}_${repeatIndex}` : f.id;
+        
+        // Skip validation for hidden repeat-source fields in sub-blocks
+        if (repeatIndex > 1) {
+            const isRepeatSource = f.label?.toLowerCase().includes("how many") && f.label?.toLowerCase().includes("bank");
+            if (isRepeatSource) return;
+        }
+
         if (!values[fieldKey]) {
-          missing.push(f.label);
+          const labelWithIndex = repeatIndex ? `${f.label} (#${repeatIndex})` : f.label;
+          missing.push(labelWithIndex);
         }
       });
 
@@ -908,8 +1086,8 @@ export default function TreeFormRenderer() {
         {/* Original Header */}
         <header className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between sticky top-0 z-50">
             <div>
-                <h1 className="text-[14px] font-black tracking-tight text-[#1e1e1e] uppercase">{form.name}</h1>
-                <p className="text-[10px] text-slate-500 font-medium tracking-widest uppercase mt-0.5">{form.description || "Vendor Onboarding Portal"}</p>
+                <h1 className="text-[18px] font-black tracking-tight text-[#1e1e1e] uppercase">{form.name}</h1>
+                <p className="text-[12px] text-slate-500 font-medium tracking-widest uppercase mt-0.5">{form.description || "Vendor Onboarding Portal"}</p>
             </div>
             <div className="hidden sm:flex items-center gap-3">
                 <span className="text-[10px] font-bold tracking-widest text-[#1e1e1e] uppercase">Portal Active</span>
@@ -943,9 +1121,9 @@ export default function TreeFormRenderer() {
 
         <main className="flex-1 w-full p-4 md:p-6 space-y-6 pb-40">
             <div className="mb-2 px-2">
-                <h2 className="text-xl font-black text-[#1e1e1e]">Step {activeStep + 1} of {topSections.length}</h2>
+                <h2 className="text-3xl font-black text-[#1e1e1e]">Step {activeStep + 1} of {topSections.length}</h2>
                 <div className="flex items-center gap-2 mt-1">
-                    <span className="text-[10px] font-bold text-blue-600 uppercase tracking-widest">{topSections[activeStep]?.title}</span>
+                    <span className="text-[13px] font-bold text-blue-600 uppercase tracking-widest">{topSections[activeStep]?.title}</span>
                 </div>
             </div>
 
@@ -962,6 +1140,8 @@ export default function TreeFormRenderer() {
                             setFiles={setFiles}
                             collapsed={collapsed}
                             setCollapsed={setCollapsed}
+                            isAadhaarVerified={isAadhaarVerified}
+                            setShowDigilocker={setShowDigilocker}
                         />
                     </div>
                 )}
@@ -1017,6 +1197,7 @@ export default function TreeFormRenderer() {
                 {success && <p className="mb-2 rounded-xl border border-emerald-200 bg-emerald-50 p-4 font-semibold text-emerald-700 shadow-xl text-xs">{success}</p>}
             </div>
         )}
+        {showDigilocker && <DigilockerPopup />}
       </div>
   );
 }

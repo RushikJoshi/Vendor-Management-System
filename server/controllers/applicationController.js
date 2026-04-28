@@ -53,6 +53,34 @@ exports.submitApplication = async (req, res) => {
         const { invitationToken, categoryId, data, companyName } = req.body;
         const incomingData = typeof data === "string" ? JSON.parse(data) : (data || {});
 
+        // 1) Dynamic Category Resolution
+        // If the vendor types a category in the form, we ensure it exists in the registry
+        let resolvedCategoryId = categoryId && categoryId !== 'null' ? categoryId : null;
+        const dynamicCatName = incomingData.serviceCategory || incomingData.vendor_category || incomingData.category;
+
+        if (dynamicCatName && typeof dynamicCatName === 'string' && dynamicCatName.trim() !== '') {
+            let finalName = dynamicCatName.trim();
+            // Handle breadcrumb if present: "A > B > C" -> "C"
+            if (finalName.includes(' > ')) {
+                const parts = finalName.split(' > ');
+                finalName = parts[parts.length - 1].split(' (')[0].trim();
+            }
+
+            let category = await Category.findOne({ name: { $regex: new RegExp(`^${finalName}$`, "i") } });
+            if (!category) {
+                // Auto-create new category
+                const baseCode = finalName.toUpperCase().replace(/[^A-Z0-9]/g, '_').slice(0, 10);
+                category = await Category.create({
+                    name: finalName,
+                    code: `${baseCode}_${Math.floor(Math.random() * 10000)}`,
+                    description: `Auto-created from form submission`,
+                    status: "active"
+                });
+                console.log(`✨ New category created: ${finalName}`);
+            }
+            resolvedCategoryId = category._id;
+        }
+
         // Priority: explicit body email → form field email → form field co_email
         const email =
             req.body.email ||
@@ -86,10 +114,6 @@ exports.submitApplication = async (req, res) => {
 
             if (!invite) throw new Error("Invalid or expired invitation token.");
 
-            // Allow if status is 'sent' OR 'accepted' (meaning they already started)
-            // But we already checked for 'application' above. If invitation is accepted but no application, 
-            // it's a weird state, but we should probably allow recreate or find it.
-
             const category = invite.category;
             if (!category) throw new Error("Category configuration missing for this invitation.");
 
@@ -100,7 +124,7 @@ exports.submitApplication = async (req, res) => {
                 applicationId,
                 formTemplate: req.body.formTemplateId || category.formTemplate,
                 formVersion: req.body.formVersion || 1,
-                category: category._id,
+                category: resolvedCategoryId || category._id,
                 invitationToken,
                 email: email,
                 vendorEmail: email,
@@ -125,20 +149,23 @@ exports.submitApplication = async (req, res) => {
 
             invite.status = "accepted";
             await invite.save();
-        } else if (!application && categoryId && categoryId !== 'null') {
-            // New application from public category registration
-            const category = await Category.findById(categoryId);
+        } else if (!application && resolvedCategoryId) {
+            // New application from public category registration (resolved either by ID or dynamic name)
+            const category = await Category.findById(resolvedCategoryId);
             if (!category || category.status !== "active") throw new Error("Invalid or inactive category.");
 
             const effectiveFormTemplateId = req.body.formTemplateId || category.formTemplate;
-            if (!effectiveFormTemplateId) throw new Error("Category configuration missing form template.");
+            // Fallback for auto-created categories which might not have a form template linked yet
+            const finalFormTemplateId = effectiveFormTemplateId || (await Category.findOne({ formTemplate: { $exists: true } }).select("formTemplate")).formTemplate;
+
+            if (!finalFormTemplateId) throw new Error("Category configuration missing form template.");
 
             const tenantId = await resolveApplicationTenantId(null, req.user?.tenantId);
             const applicationId = await SequenceService.getNextSequence(tenantId, "application");
 
             application = await VendorApplication.create({
                 applicationId,
-                formTemplate: effectiveFormTemplateId,
+                formTemplate: finalFormTemplateId,
                 formVersion: req.body.formVersion || 1,
                 category: category._id,
                 email: email,
@@ -240,13 +267,17 @@ exports.submitApplication = async (req, res) => {
                     documents: application.documents,
                     invitationToken: application.invitationToken,
                     currentStage: application.currentStage,
-                    workflowStages: application.workflowStages
+                    workflowStages: application.workflowStages,
+                    category: resolvedCategoryId || application.category
                 }
             });
 
             // Recalculate score on update
-            if (category) {
-                await EligibilityService.calculateScore(application, category);
+            if (resolvedCategoryId || application.category) {
+                const finalCat = await Category.findById(resolvedCategoryId || application.category);
+                if (finalCat) {
+                    await EligibilityService.calculateScore(application, finalCat);
+                }
             }
         } else {
             throw new Error("Application Dossier not found. Please ensure you are using a valid invitation link.");

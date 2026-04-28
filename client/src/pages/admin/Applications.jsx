@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import api from "../../services/api";
 import Modal from "../../components/Modal";
 import { toast } from "react-hot-toast";
@@ -16,6 +16,8 @@ import { motion, AnimatePresence } from "framer-motion";
 
 export default function Applications() {
     const navigate = useNavigate();
+    const [searchParams, setSearchParams] = useSearchParams();
+    const urlCategoryId = searchParams.get("categoryId");
     const [apps, setApps] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedApp, setSelectedApp] = useState(null);
@@ -36,7 +38,14 @@ export default function Applications() {
     });
 
     useEffect(() => {
-        fetchApps();
+        fetchApps().then(data => {
+            if (urlCategoryId && data) {
+                const appWithCat = data.find(a => a.category?._id === urlCategoryId);
+                if (appWithCat) {
+                    setPipelineCategory(appWithCat.category.name || "General");
+                }
+            }
+        });
         
         // Listen for global search from Navbar
         const handleGlobalSearch = (e) => {
@@ -44,7 +53,7 @@ export default function Applications() {
         };
         window.addEventListener('GLOBAL_SEARCH', handleGlobalSearch);
         return () => window.removeEventListener('GLOBAL_SEARCH', handleGlobalSearch);
-    }, [filterStatus]);
+    }, [filterStatus, urlCategoryId]);
 
     const fetchApps = async () => {
         setLoading(true);
@@ -59,6 +68,7 @@ export default function Applications() {
                 highRisk: data.filter(a => a.riskLevel === 'High').length,
                 approved: data.filter(a => a.status === 'approved').length
             });
+            return data;
         } catch (err) {
             toast.error("Failed to load applications.");
         } finally {
@@ -250,11 +260,24 @@ export default function Applications() {
                             </button>
                         ))}
                     </div>
-                    {search && (
-                        <div className="flex items-center gap-2 px-3 py-1 bg-indigo-50 text-indigo-700 border border-indigo-100 rounded-full text-[11px] font-bold uppercase tracking-wider">
-                            Searching: {search}
-                        </div>
-                    )}
+                    <div className="flex items-center gap-3">
+                        {urlCategoryId && (
+                            <button 
+                                onClick={() => {
+                                    setSearchParams({});
+                                    setPipelineCategory('all');
+                                }}
+                                className="flex items-center gap-2 px-3 py-1 bg-rose-50 text-rose-700 border border-rose-100 rounded-full text-[11px] font-bold uppercase tracking-wider hover:bg-rose-100 transition-colors"
+                            >
+                                Category Filter active <X size={12} />
+                            </button>
+                        )}
+                        {search && (
+                            <div className="flex items-center gap-2 px-3 py-1 bg-indigo-50 text-indigo-700 border border-indigo-100 rounded-full text-[11px] font-bold uppercase tracking-wider">
+                                Searching: {search}
+                            </div>
+                        )}
+                    </div>
                 </div>
 
                 <div className="overflow-x-auto">
