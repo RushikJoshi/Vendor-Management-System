@@ -8,7 +8,7 @@ import {
     RefreshCcw, 
     Info,
     Calendar,
-    DollarSign,
+    IndianRupee,
     Building2,
     X,
     Eye

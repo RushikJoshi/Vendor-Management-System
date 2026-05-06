@@ -421,6 +421,7 @@ exports.submitForm = async (req, res) => {
 
     // 🎯 DYNAMIC CATEGORY SYNC
     // Detect if vendor filled 'Category' or 'Sub Category' and ensure it exists in registry
+    let resolvedCategoryId = null;
     try {
       const categoryEntries = data.filter(x => 
         (x.label === "Category" || x.label === "Sub Category" || x.label === "serviceCategory") && 
@@ -438,7 +439,7 @@ exports.submitForm = async (req, res) => {
             let existingCat = await Category.findOne({ name: { $regex: new RegExp(`^${finalName}$`, "i") } });
             if (!existingCat) {
                 const baseCode = finalName.toUpperCase().replace(/[^A-Z0-9]/g, '_').slice(0, 10);
-                await Category.create({
+                existingCat = await Category.create({
                     name: finalName,
                     code: `${baseCode}_${Math.floor(Math.random() * 10000)}`,
                     description: `Auto-created from Tree Form submission: ${entry.value}`,
@@ -446,6 +447,7 @@ exports.submitForm = async (req, res) => {
                 });
                 console.log(`✨ New category auto-registered from tree form: ${finalName}`);
             }
+            resolvedCategoryId = existingCat._id;
         }
       }
     } catch (catError) {
@@ -459,6 +461,7 @@ exports.submitForm = async (req, res) => {
         formId: form._id,
         formName: form.name,
         categoryName: form.categoryName || "",
+        category: resolvedCategoryId,
         data,
         status: "pending",
         vendorEmail: (emailEntry?.value || "").toString().trim().toLowerCase(),
@@ -978,13 +981,20 @@ exports.approveSubmission = async (req, res) => {
         d.fieldId?.toLowerCase().includes(label.toLowerCase())
       )?.value || "";
 
+      // Resolve real category ID if possible
+      let finalCategoryId = submission.category;
+      if (!finalCategoryId && submission.categoryName) {
+          const cat = await Category.findOne({ name: { $regex: new RegExp(`^${submission.categoryName}$`, "i") } });
+          if (cat) finalCategoryId = cat._id;
+      }
+
       vendor = await Vendor.create({
         name: submission.vendorName || "Active Partner",
         email: submission.vendorEmail,
         companyName: submission.vendorName,
         status: "active",
         phone: String(getVal("mobile") || getVal("phone") || "0000000000").replace(/[^0-9]/g, "").slice(0, 10) || "0000000000",
-        category: submission.formId,
+        category: finalCategoryId || submission.formId,
         address: {
           city: getVal("city") || "N/A",
           state: getVal("state") || "N/A",

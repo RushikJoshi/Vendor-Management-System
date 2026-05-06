@@ -22,9 +22,8 @@ export default function AdminLayout() {
 
       <div
         onClick={() => setIsSidebarOpen(false)}
-        className={`fixed inset-0 z-40 bg-slate-900/35 backdrop-blur-[2px] transition-opacity duration-300 lg:hidden ${
-          isSidebarOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
-        }`}
+        className={`fixed inset-0 z-40 bg-slate-900/35 backdrop-blur-[2px] transition-opacity duration-300 lg:hidden ${isSidebarOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
+          }`}
       />
 
       <Sidebar
@@ -36,9 +35,8 @@ export default function AdminLayout() {
       />
 
       <div
-        className={`relative z-10 flex min-h-screen flex-1 flex-col pl-0 transition-all duration-300 ${
-          isSidebarCollapsed ? "lg:pl-[5.5rem]" : "lg:pl-[17rem]"
-        }`}
+        className={`relative z-10 flex min-h-screen flex-1 flex-col pl-0 transition-all duration-300 ${isSidebarCollapsed ? "lg:pl-[5.5rem]" : "lg:pl-[17rem]"
+          }`}
       >
         <Navbar
           onMenuToggle={() => setIsSidebarOpen((prev) => !prev)}

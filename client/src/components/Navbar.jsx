@@ -17,8 +17,8 @@ import NotificationBell from "./NotificationBell";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function Navbar({
-  onMenuToggle = () => {},
-  onDesktopToggle = () => {},
+  onMenuToggle = () => { },
+  onDesktopToggle = () => { },
   isSidebarCollapsed = false,
 }) {
   const { logout, user } = useContext(AuthContext);
@@ -42,9 +42,8 @@ export default function Navbar({
 
   return (
     <nav
-      className={`fixed left-0 right-0 top-0 z-40 flex h-[4.25rem] items-center justify-between border-b border-white/60 bg-[#fbfaf7]/90 px-3 backdrop-blur-xl transition-all duration-500 sm:px-4 lg:h-[4.5rem] lg:px-6 ${
-        isSidebarCollapsed ? "lg:left-[6rem]" : "lg:left-[16rem]"
-      }`}
+      className={`fixed left-0 right-0 top-0 z-40 flex h-[4.25rem] items-center justify-between border-b border-white/60 bg-[#fbfaf7]/90 px-3 backdrop-blur-xl transition-all duration-500 sm:px-4 lg:h-[4.5rem] lg:px-6 ${isSidebarCollapsed ? "lg:left-[6rem]" : "lg:left-[16rem]"
+        }`}
     >
       <div className="flex items-center gap-3">
         <button

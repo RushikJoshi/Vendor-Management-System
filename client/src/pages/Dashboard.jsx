@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import api from "../services/api";
 import MonthlyVendorChart from "../components/MonthlyVendorChart";
 import { 
-    Users, CheckCircle2, CircleDollarSign, Star, 
+    Users, CheckCircle2, IndianRupee, Star, 
     ArrowUpRight, RefreshCw, BarChart3, Activity, Globe
 } from "lucide-react";
 import { toast } from "react-hot-toast";
@@ -104,7 +104,7 @@ const Dashboard = () => {
                 <KPICard 
                     title="Pending Payments" 
                     value={`₹${stats.totalPendingPayments.toLocaleString("en-IN")}`} 
-                    icon={CircleDollarSign} 
+                    icon={IndianRupee} 
                     color="amber" 
                 />
                 <KPICard 

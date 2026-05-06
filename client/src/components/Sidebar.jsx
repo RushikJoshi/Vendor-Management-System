@@ -1,8 +1,8 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { 
-  ChevronLeft, 
-  ChevronRight, 
-  X, 
+import {
+  ChevronLeft,
+  ChevronRight,
+  X,
   Building2,
   Circle
 } from "lucide-react";
@@ -11,8 +11,8 @@ export default function Sidebar({
   links = [],
   isMobileOpen = false,
   isCollapsed = false,
-  onClose = () => {},
-  onToggleCollapse = () => {},
+  onClose = () => { },
+  onToggleCollapse = () => { },
 }) {
   const location = useLocation();
 
@@ -34,9 +34,8 @@ export default function Sidebar({
 
   return (
     <aside
-      className={`fixed left-0 top-0 bottom-0 z-50 flex flex-col overflow-hidden border-r border-slate-200/60 bg-white/80 backdrop-blur-xl text-slate-600 shadow-xl transition-all duration-500 ease-in-out lg:translate-x-0 ${
-        isMobileOpen ? "translate-x-0" : "-translate-x-full"
-      } ${isCollapsed ? "lg:w-[5.5rem]" : "lg:w-[17rem]"}`}
+      className={`fixed left-0 top-0 bottom-0 z-50 flex flex-col overflow-hidden border-r border-slate-200/60 bg-white/80 backdrop-blur-xl text-slate-600 shadow-xl transition-all duration-500 ease-in-out lg:translate-x-0 ${isMobileOpen ? "translate-x-0" : "-translate-x-full"
+        } ${isCollapsed ? "lg:w-[5.5rem]" : "lg:w-[17rem]"}`}
     >
       {/* Brand Header */}
       <div className="relative flex h-20 items-center border-b border-slate-100 bg-white/50 px-6 backdrop-blur-xl">
@@ -51,7 +50,7 @@ export default function Sidebar({
             </div>
           )}
         </div>
-        
+
         {/* Collapse Trigger (Floating) */}
         {!isMobileOpen && (
           <button
@@ -86,8 +85,8 @@ export default function Sidebar({
                     onClick={onClose}
                     className={({ isActive }) => `
                       group relative flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-300
-                      ${isActive 
-                        ? "bg-indigo-600 text-white shadow-lg shadow-indigo-200" 
+                      ${isActive
+                        ? "bg-indigo-600 text-white shadow-lg shadow-indigo-200"
                         : "text-slate-600 hover:bg-slate-50 hover:text-indigo-600"
                       }
                       ${isCollapsed ? "justify-center px-0" : ""}

@@ -6,7 +6,7 @@ import {
     Save, 
     Building2, 
     Calendar, 
-    DollarSign, 
+    IndianRupee, 
     Users, 
     ShieldCheck,
     Info,

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ChevronLeft, ArrowRight, Info, Send, ListChecks, DollarSign, Calendar, ShieldCheck } from "lucide-react";
+import { ChevronLeft, ArrowRight, Info, Send, ListChecks, IndianRupee, Calendar, ShieldCheck } from "lucide-react";
 import { toast } from "react-hot-toast";
 import api from "../../services/api";
 import {
@@ -228,7 +228,7 @@ export default function SubmitQuotation() {
                                 <div className="absolute inset-0 opacity-10 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-indigo-300 via-transparent to-transparent"></div>
                                 <div className="relative z-10">
                                     <p className="text-[10px] font-bold text-indigo-300 uppercase tracking-[0.15em] mb-2 flex items-center gap-2">
-                                        <DollarSign size={14} /> Total Bid Valuation
+                                        <IndianRupee size={14} /> Total Bid Valuation
                                     </p>
                                     <h3 className="text-3xl font-semibold tracking-[-0.03em] text-white">
                                         {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(formData.totalAmount)}

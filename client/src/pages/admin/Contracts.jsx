@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FileText, ShieldCheck, Clock3, Search, RefreshCcw, Plus, Calendar, DollarSign, Building2, Users } from "lucide-react";
+import { FileText, ShieldCheck, Clock3, Search, RefreshCcw, Plus, Calendar, IndianRupee, Building2, Users } from "lucide-react";
 import { toast } from "react-hot-toast";
 import api from "../../services/api";
 

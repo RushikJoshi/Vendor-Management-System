@@ -8,7 +8,7 @@ const Category = require('./models/Category');
 async function seedMasterForm() {
     try {
         await mongoose.connect(process.env.MONGO_URI);
-        console.log("Connected to MongoDB");
+        console.log("🚀 Connected to MongoDB");
 
         // 1. Cleanup
         await Category.deleteMany({ $or: [{ code: "STRAT-PARTNER" }, { name: "Enterprise Strategic Partner" }] });
@@ -107,18 +107,18 @@ async function seedMasterForm() {
                         { label: "GST Registration Status", fieldId: "gstStatus", type: "dropdown", required: true, options: ["Registered", "Unregistered", "Composition Scheme", "Export/SEZ"], order: 1 },
                         { label: "GST Number", fieldId: "gstNum", type: "text", required: true, order: 2 },
                         { label: "PAN Status", fieldId: "panStatus", type: "dropdown", required: true, options: ["Available", "Not Available"], order: 3 },
-                        { label: "PAN Number", fieldId: "panNum", type: "text", required: true, order: 2, dependsOn: "panStatus", dependsOnValue: "Available" },
-                        { label: "PF Status", fieldId: "pfStatus", type: "dropdown", required: true, options: ["Yes", "No"], order: 3 },
-                        { label: "PF No.", fieldId: "pfNo", type: "text", required: true, order: 4, dependsOn: "pfStatus", dependsOnValue: "Yes" },
-                        { label: "ESI Status", fieldId: "esiStatus", type: "dropdown", required: true, options: ["Yes", "No"], order: 5 },
-                        { label: "ESI No.", fieldId: "esiNo", type: "text", required: true, order: 6, dependsOn: "esiStatus", dependsOnValue: "Yes" },
-                        { label: "Is E-Invoice applicable to you?", fieldId: "eInvoiceApplicable", type: "dropdown", required: true, options: ["Yes", "No"], order: 7 },
-                        { label: "LY1 Turnover (Indian Rupee)", fieldId: "ly1Turnover", type: "number", required: true, order: 8 },
-                        { label: "LY2 Turnover (Indian Rupee)", fieldId: "ly2Turnover", type: "number", required: true, order: 9 },
-                        { label: "LY3 Turnover (Indian Rupee)", fieldId: "ly3Turnover", type: "number", required: true, order: 10 },
-                        { label: "LY4 Turnover (Indian Rupee)", fieldId: "ly4Turnover", type: "number", required: true, order: 11 },
-                        { label: "LY5 Turnover (Indian Rupee)", fieldId: "ly5Turnover", type: "number", required: true, order: 12 },
-                        { label: "LY6 Turnover (Indian Rupee)", fieldId: "ly6Turnover", type: "number", required: true, order: 13 }
+                        { label: "PAN Number", fieldId: "panNum", type: "text", required: true, order: 4, dependsOn: "panStatus", dependsOnValue: "Available" },
+                        { label: "PF Status", fieldId: "pfStatus", type: "dropdown", required: true, options: ["Yes", "No"], order: 5 },
+                        { label: "PF No.", fieldId: "pfNo", type: "text", required: true, order: 6, dependsOn: "pfStatus", dependsOnValue: "Yes" },
+                        { label: "ESI Status", fieldId: "esiStatus", type: "dropdown", required: true, options: ["Yes", "No"], order: 7 },
+                        { label: "ESI No.", fieldId: "esiNo", type: "text", required: true, order: 8, dependsOn: "esiStatus", dependsOnValue: "Yes" },
+                        { label: "Is E-Invoice applicable to you?", fieldId: "eInvoiceApplicable", type: "dropdown", required: true, options: ["Yes", "No"], order: 9 },
+                        { label: "LY1 Turnover (Indian Rupee)", fieldId: "ly1Turnover", type: "number", required: true, order: 10 },
+                        { label: "LY2 Turnover (Indian Rupee)", fieldId: "ly2Turnover", type: "number", required: true, order: 11 },
+                        { label: "LY3 Turnover (Indian Rupee)", fieldId: "ly3Turnover", type: "number", required: true, order: 12 },
+                        { label: "LY4 Turnover (Indian Rupee)", fieldId: "ly4Turnover", type: "number", required: true, order: 13 },
+                        { label: "LY5 Turnover (Indian Rupee)", fieldId: "ly5Turnover", type: "number", required: true, order: 14 },
+                        { label: "LY6 Turnover (Indian Rupee)", fieldId: "ly6Turnover", type: "number", required: true, order: 15 }
                     ]
                 },
                 {
@@ -274,18 +274,21 @@ async function seedMasterForm() {
 
         // 5. Create new template
         const template = await FormTemplate.create(MASTER_TEMPLATE_DATA);
-        console.log("Master Form Template Seeded Successfully:", template._id);
+        console.log("✅ Master Form Template Seeded Successfully:", template._id);
 
         // 6. Link to category
         category.formTemplate = template._id;
         category.hasPublishedForm = true;
         await category.save();
-        console.log("Category linked and published.");
+        console.log("🔗 Category linked and published.");
 
-        process.exit(0);
     } catch (err) {
-        console.error("Seeding Error:", err);
-        process.exit(1);
+        console.error("❌ Seeding Error:", err);
+        process.exitCode = 1;
+    } finally {
+        await mongoose.disconnect();
+        console.log("🔌 Database disconnected.");
+        process.exit();
     }
 }
 

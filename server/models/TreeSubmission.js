@@ -62,6 +62,7 @@ const treeSubmissionSchema = new mongoose.Schema(
     vendorEmail: { type: String, default: "" },
     vendorName: { type: String, default: "" },
     vendorUserId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    category: { type: mongoose.Schema.Types.ObjectId, ref: "Category" },
     reviewedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     reviewedAt: { type: Date, default: null },
   },
@@ -69,6 +70,7 @@ const treeSubmissionSchema = new mongoose.Schema(
 );
 
 treeSubmissionSchema.index({ formId: 1, status: 1 });
+treeSubmissionSchema.index({ category: 1 });
 treeSubmissionSchema.index({ vendorEmail: 1 });
 
 module.exports = mongoose.model("TreeSubmission", treeSubmissionSchema);

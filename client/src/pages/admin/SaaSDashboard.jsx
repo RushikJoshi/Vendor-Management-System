@@ -1,5 +1,5 @@
 import { useContext, useEffect, useMemo, useState } from "react";
-import { BellRing, Users, FileText, Clock3, CircleDollarSign, TrendingUp, PieChart as PieChartIcon } from "lucide-react";
+import { BellRing, Users, FileText, Clock3, IndianRupee, TrendingUp, PieChart as PieChartIcon } from "lucide-react";
 import {
   ResponsiveContainer,
   LineChart,
@@ -40,19 +40,19 @@ export default function SaaSDashboard() {
 
         const trendData = Array.isArray(d.monthlyVendorStats)
           ? d.monthlyVendorStats.map((item) => ({
-              month: item.month,
-              value: Number(item.count || 0),
-            }))
+            month: item.month,
+            value: Number(item.count || 0),
+          }))
           : [];
 
         const categoryData = Array.isArray(d.categoryMix)
           ? d.categoryMix
-              .filter((item) => Number(item.value || 0) > 0)
-              .map((item, idx) => ({
-                name: item.name || `Category ${idx + 1}`,
-                value: Number(item.value || 0),
-                color: CHART_COLORS[idx % CHART_COLORS.length],
-              }))
+            .filter((item) => Number(item.value || 0) > 0)
+            .map((item, idx) => ({
+              name: item.name || `Category ${idx + 1}`,
+              value: Number(item.value || 0),
+              color: CHART_COLORS[idx % CHART_COLORS.length],
+            }))
           : [];
 
         setData({
@@ -109,12 +109,12 @@ export default function SaaSDashboard() {
           </div>
           <div className="flex items-center gap-3">
             <button
-                type="button"
-                onClick={() => navigate("/admin/submissions")}
-                className="inline-flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-4 py-2 text-[13px] font-bold text-amber-800 transition hover:bg-amber-100 active:scale-95 shadow-sm"
+              type="button"
+              onClick={() => navigate("/admin/submissions")}
+              className="inline-flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-4 py-2 text-[13px] font-bold text-amber-800 transition hover:bg-amber-100 active:scale-95 shadow-sm"
             >
-                <BellRing size={16} />
-                {data.pendingApprovals} approvals pending
+              <BellRing size={16} />
+              {data.pendingApprovals} approvals pending
             </button>
           </div>
         </div>
@@ -124,7 +124,7 @@ export default function SaaSDashboard() {
         <StatCard icon={Users} label="Active Vendors" value={data.activeVendors.toLocaleString()} />
         <StatCard icon={FileText} label="Open RFQs" value={data.openRFQs.toLocaleString()} />
         <StatCard icon={Clock3} label="Pending Approvals" value={data.pendingApprovals.toLocaleString()} />
-        <StatCard icon={CircleDollarSign} label="Total Spend" value={`$${data.totalSpend.toLocaleString()}`} />
+        <StatCard icon={IndianRupee} label="Total Spend" value={`₹${data.totalSpend.toLocaleString()}`} />
       </section>
 
       <section className="grid grid-cols-1 gap-4 xl:grid-cols-2">
