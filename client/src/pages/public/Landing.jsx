@@ -78,10 +78,10 @@ export default function Landing() {
               <div className="h-px w-12 bg-[#0097a7]" />
             </div>
             <h1 className="mb-8 text-4xl font-extrabold leading-tight text-white sm:text-5xl md:text-7xl">
-              Excellence in <span className="text-[#0097a7]">Engineering</span> & Infrastructure
+              Excellence in <span className="text-[#0097a7]">Procurement</span> & Vendor Management
             </h1>
             <p className="mb-10 max-w-2xl text-lg leading-relaxed text-slate-200 md:text-xl">
-              Forging path-breaking infrastructure solutions across Highways, Railways, and Water Management with over two decades of technical brilliance.
+              Forging path-breaking solutions for vendor onboarding, compliance, and lifecycle management with over two decades of operational brilliance.
             </p>
             <div className="mb-12 flex flex-col gap-4 sm:flex-row">
               <Link
@@ -145,7 +145,7 @@ export default function Landing() {
               Redefining the Future of <br />Infrastructure
             </h2>
             <p className="mb-8 text-lg leading-relaxed text-slate-600">
-              HG Infra Engineering Limited is an ISO certified company, leading the way in the construction and infrastructure sector. We are committed to transparency, reliability, and excellence in every project we undertake.
+              GT Vendor Management is a leading solution for procurement and infrastructure partnerships. We are committed to transparency, reliability, and excellence in every collaboration we undertake.
             </p>
 
             <div className="mb-10 space-y-6">

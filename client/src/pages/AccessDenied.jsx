@@ -14,7 +14,14 @@ export default function AccessDenied() {
 
         const userRole = normalizeRole(user?.role || user?.roleName || "");
         const adminLinks = getAdminLinksForUser(user, user?.allowedModules || []);
-        const target = userRole === "vendor" ? "/vendor/dashboard" : adminLinks[0]?.to || "/admin/dashboard";
+        let target;
+        if (userRole === "vendor") {
+            target = "/vendor/dashboard";
+        } else if (userRole === "client") {
+            target = "/client/dashboard";
+        } else {
+            target = adminLinks[0]?.to || "/admin/dashboard";
+        }
 
         const timer = window.setTimeout(() => {
             navigate(target, { replace: true });

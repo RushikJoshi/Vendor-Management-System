@@ -1504,3 +1504,1262 @@
 2026-05-07 22:07:25:725 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
 2026-05-07 22:07:25:725 [warn] Background Job system (Email) is offline (No local Redis detected).
 2026-05-07 22:07:25:725 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-07 22:29:38:2938 [info] Server running in development mode on port 5000
+2026-05-07 22:29:38:2938 [info] 🎯 Job Processor Initialized
+2026-05-07 22:29:38:2938 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-07 22:29:39:2939 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-07 22:29:39:2939 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-09 11:27:54:2754 [info] Server running in development mode on port 5000
+2026-05-09 11:27:54:2754 [info] 🎯 Job Processor Initialized
+2026-05-09 11:27:54:2754 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-09 11:27:54:2754 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-09 11:27:54:2754 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-09 12:00:53:053 [info] Server running in development mode on port 5000
+2026-05-09 12:00:53:053 [info] 🎯 Job Processor Initialized
+2026-05-09 12:00:53:053 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-09 12:00:53:053 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-09 12:00:53:053 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-09 12:19:41:1941 [warn] GST lookup provider failed for 08AAXFT5043K1ZG: Credit Not Available.
+2026-05-09 12:45:25:4525 [info] Server running in development mode on port 5000
+2026-05-09 12:45:25:4525 [info] 🎯 Job Processor Initialized
+2026-05-09 12:45:26:4526 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-09 12:45:26:4526 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-09 12:45:26:4526 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-09 12:55:31:5531 [info] Server running in development mode on port 5000
+2026-05-09 12:55:31:5531 [info] 🎯 Job Processor Initialized
+2026-05-09 12:55:31:5531 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-09 12:55:31:5531 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-09 12:55:31:5531 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-09 13:04:57:457 [info] Server running in development mode on port 5000
+2026-05-09 13:04:57:457 [info] 🎯 Job Processor Initialized
+2026-05-09 13:04:57:457 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-09 13:04:57:457 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-09 13:04:57:457 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-09 13:05:17:517 [info] Server running in development mode on port 5000
+2026-05-09 13:05:17:517 [info] 🎯 Job Processor Initialized
+2026-05-09 13:05:17:517 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-09 13:05:17:517 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-09 13:05:18:518 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-09 13:05:24:524 [info] Server running in development mode on port 5000
+2026-05-09 13:05:24:524 [info] 🎯 Job Processor Initialized
+2026-05-09 13:05:24:524 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-09 13:05:24:524 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-09 13:05:24:524 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-09 14:03:54:354 [info] Server running in development mode on port 5000
+2026-05-09 14:03:54:354 [info] 🎯 Job Processor Initialized
+2026-05-09 14:03:54:354 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-09 14:03:54:354 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-09 14:03:54:354 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-09 15:15:19:1519 [info] Server running in development mode on port 5000
+2026-05-09 15:15:19:1519 [info] 🎯 Job Processor Initialized
+2026-05-09 15:15:19:1519 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-09 15:15:19:1519 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-09 15:15:19:1519 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-09 15:16:33:1633 [info] Server running in development mode on port 5000
+2026-05-09 15:16:33:1633 [info] 🎯 Job Processor Initialized
+2026-05-09 15:16:33:1633 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-09 15:16:33:1633 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-09 15:16:33:1633 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-09 15:20:59:2059 [info] Server running in development mode on port 5000
+2026-05-09 15:20:59:2059 [info] 🎯 Job Processor Initialized
+2026-05-09 15:20:59:2059 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-09 15:20:59:2059 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-09 15:20:59:2059 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-09 15:23:49:2349 [warn] GST lookup provider failed for 24ADYPS9013J1ZV: getaddrinfo ENOTFOUND sheet.gstincheck.co.in
+2026-05-09 15:23:49:2349 [warn] GST lookup provider failed for 24ADYPS9013J1ZV: getaddrinfo ENOTFOUND sheet.gstincheck.co.in
+2026-05-09 16:20:42:2042 [info] Server running in development mode on port 5000
+2026-05-09 16:20:42:2042 [info] 🎯 Job Processor Initialized
+2026-05-09 16:20:42:2042 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-09 16:20:42:2042 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-09 16:20:42:2042 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-09 16:20:50:2050 [info] Server running in development mode on port 5000
+2026-05-09 16:20:50:2050 [info] 🎯 Job Processor Initialized
+2026-05-09 16:20:50:2050 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-09 16:20:50:2050 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-09 16:20:50:2050 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-09 16:40:40:4040 [info] Server running in development mode on port 5000
+2026-05-09 16:40:40:4040 [info] 🎯 Job Processor Initialized
+2026-05-09 16:40:40:4040 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-09 16:40:40:4040 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-09 16:40:40:4040 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-11 18:23:38:2338 [info] Server running in development mode on port 5000
+2026-05-11 18:23:38:2338 [info] 🎯 Job Processor Initialized
+2026-05-11 18:23:39:2339 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-11 18:23:39:2339 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-11 18:23:39:2339 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-11 18:32:51:3251 [info] Server running in development mode on port 5000
+2026-05-11 18:32:51:3251 [info] 🎯 Job Processor Initialized
+2026-05-11 18:32:51:3251 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-11 18:32:51:3251 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-11 18:32:51:3251 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-11 18:40:10:4010 [info] Server running in development mode on port 5000
+2026-05-11 18:40:10:4010 [info] 🎯 Job Processor Initialized
+2026-05-11 18:40:10:4010 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-11 18:40:10:4010 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-11 18:40:10:4010 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-12 12:19:49:1949 [info] Server running in development mode on port 5000
+2026-05-12 12:19:49:1949 [info] 🎯 Job Processor Initialized
+2026-05-12 12:19:49:1949 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-12 12:19:49:1949 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-12 12:19:49:1949 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-12 15:35:21:3521 [info] Server running in development mode on port 5000
+2026-05-12 15:35:21:3521 [info] 🎯 Job Processor Initialized
+2026-05-12 15:35:22:3522 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-12 15:35:22:3522 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-12 15:35:22:3522 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-12 16:45:30:4530 [error] [ProcurementCron] SLA escalation failed: getaddrinfo ENOTFOUND ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net
+2026-05-13 12:28:25:2825 [info] Server running in development mode on port 5000
+2026-05-13 12:28:25:2825 [info] 🎯 Job Processor Initialized
+2026-05-13 12:28:26:2826 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-13 12:28:26:2826 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-13 12:28:26:2826 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-14 10:04:37:437 [info] Server running in development mode on port 5000
+2026-05-14 10:04:37:437 [info] 🎯 Job Processor Initialized
+2026-05-14 10:04:37:437 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-14 10:04:37:437 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-14 10:04:37:437 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-14 10:26:06:266 [info] Server running in development mode on port 5000
+2026-05-14 10:26:06:266 [info] 🎯 Job Processor Initialized
+2026-05-14 10:26:06:266 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-14 10:26:06:266 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-14 10:26:06:266 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-14 10:27:00:270 [info] Server running in development mode on port 5000
+2026-05-14 10:27:00:270 [info] 🎯 Job Processor Initialized
+2026-05-14 10:27:00:270 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-14 10:27:00:270 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-14 10:27:00:270 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-14 10:27:07:277 [info] Server running in development mode on port 5000
+2026-05-14 10:27:07:277 [info] 🎯 Job Processor Initialized
+2026-05-14 10:27:08:278 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-14 10:27:08:278 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-14 10:27:08:278 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-14 10:27:21:2721 [info] Server running in development mode on port 5000
+2026-05-14 10:27:21:2721 [info] 🎯 Job Processor Initialized
+2026-05-14 10:27:21:2721 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-14 10:27:21:2721 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-14 10:27:21:2721 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-14 10:29:52:2952 [info] Server running in development mode on port 5000
+2026-05-14 10:29:52:2952 [info] 🎯 Job Processor Initialized
+2026-05-14 10:29:52:2952 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-14 10:29:52:2952 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-14 10:29:52:2952 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-14 11:32:48:3248 [info] Server running in development mode on port 5000
+2026-05-14 11:32:48:3248 [info] 🎯 Job Processor Initialized
+2026-05-14 11:32:48:3248 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-14 11:32:48:3248 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-14 11:32:48:3248 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-14 11:33:02:332 [info] Server running in development mode on port 5000
+2026-05-14 11:33:02:332 [info] 🎯 Job Processor Initialized
+2026-05-14 11:33:02:332 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-14 11:33:02:332 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-14 11:33:02:332 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-14 11:34:04:344 [info] Server running in development mode on port 5000
+2026-05-14 11:34:04:344 [info] 🎯 Job Processor Initialized
+2026-05-14 11:34:04:344 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-14 11:34:04:344 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-14 11:34:04:344 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-14 11:34:11:3411 [info] Server running in development mode on port 5000
+2026-05-14 11:34:11:3411 [info] 🎯 Job Processor Initialized
+2026-05-14 11:34:11:3411 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-14 11:34:11:3411 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-14 11:34:11:3411 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-14 11:34:25:3425 [info] Server running in development mode on port 5000
+2026-05-14 11:34:25:3425 [info] 🎯 Job Processor Initialized
+2026-05-14 11:34:26:3426 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-14 11:34:26:3426 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-14 11:34:26:3426 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-14 11:34:37:3437 [info] Server running in development mode on port 5000
+2026-05-14 11:34:37:3437 [info] 🎯 Job Processor Initialized
+2026-05-14 11:34:37:3437 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-14 11:34:37:3437 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-14 11:34:37:3437 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-14 11:34:48:3448 [info] Server running in development mode on port 5000
+2026-05-14 11:34:48:3448 [info] 🎯 Job Processor Initialized
+2026-05-14 11:34:48:3448 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-14 11:34:48:3448 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-14 11:34:48:3448 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-14 11:38:56:3856 [info] Server running in development mode on port 5000
+2026-05-14 11:38:56:3856 [info] 🎯 Job Processor Initialized
+2026-05-14 11:38:57:3857 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-14 11:38:57:3857 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-14 11:38:57:3857 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-14 11:39:09:399 [info] Server running in development mode on port 5000
+2026-05-14 11:39:09:399 [info] 🎯 Job Processor Initialized
+2026-05-14 11:39:09:399 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-14 11:39:09:399 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-14 11:39:09:399 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-14 12:10:10:1010 [info] Server running in development mode on port 5000
+2026-05-14 12:10:10:1010 [info] 🎯 Job Processor Initialized
+2026-05-14 12:10:10:1010 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-14 12:10:10:1010 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-14 12:10:10:1010 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-14 12:11:43:1143 [info] Server running in development mode on port 5000
+2026-05-14 12:11:43:1143 [info] 🎯 Job Processor Initialized
+2026-05-14 12:11:43:1143 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-14 12:11:43:1143 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-14 12:11:43:1143 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-14 12:11:52:1152 [info] Server running in development mode on port 5000
+2026-05-14 12:11:52:1152 [info] 🎯 Job Processor Initialized
+2026-05-14 12:11:52:1152 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-14 12:11:52:1152 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-14 12:11:53:1153 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-14 12:15:37:1537 [info] Server running in development mode on port 5000
+2026-05-14 12:15:37:1537 [info] 🎯 Job Processor Initialized
+2026-05-14 12:15:38:1538 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-14 12:15:38:1538 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-14 12:15:38:1538 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-14 12:21:20:2120 [info] Server running in development mode on port 5000
+2026-05-14 12:21:20:2120 [info] 🎯 Job Processor Initialized
+2026-05-14 12:21:20:2120 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-14 12:21:20:2120 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-14 12:21:20:2120 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-14 12:30:06:306 [info] Server running in development mode on port 5000
+2026-05-14 12:30:07:307 [info] 🎯 Job Processor Initialized
+2026-05-14 12:30:07:307 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-14 12:30:07:307 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-14 12:30:07:307 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-14 16:55:38:5538 [info] Server running in development mode on port 5000
+2026-05-14 16:55:38:5538 [info] 🎯 Job Processor Initialized
+2026-05-14 16:55:38:5538 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-14 16:55:38:5538 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-14 16:55:38:5538 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-14 17:15:43:1543 [info] Server running in development mode on port 5000
+2026-05-14 17:15:43:1543 [info] 🎯 Job Processor Initialized
+2026-05-14 17:15:44:1544 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-14 17:15:44:1544 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-14 17:15:44:1544 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-14 17:16:09:169 [info] Server running in development mode on port 5000
+2026-05-14 17:16:09:169 [info] 🎯 Job Processor Initialized
+2026-05-14 17:16:10:1610 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-14 17:16:10:1610 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-14 17:16:10:1610 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-14 17:16:21:1621 [info] Server running in development mode on port 5000
+2026-05-14 17:16:21:1621 [info] 🎯 Job Processor Initialized
+2026-05-14 17:16:21:1621 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-14 17:16:21:1621 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-14 17:16:21:1621 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-14 17:17:21:1721 [info] Server running in development mode on port 5000
+2026-05-14 17:17:21:1721 [info] 🎯 Job Processor Initialized
+2026-05-14 17:17:22:1722 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-14 17:17:22:1722 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-14 17:17:22:1722 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-14 17:41:29:4129 [info] Server running in development mode on port 5000
+2026-05-14 17:41:29:4129 [info] 🎯 Job Processor Initialized
+2026-05-14 17:41:29:4129 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-14 17:41:29:4129 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-14 17:41:29:4129 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-14 17:42:17:4217 [info] Server running in development mode on port 5000
+2026-05-14 17:42:17:4217 [info] 🎯 Job Processor Initialized
+2026-05-14 17:42:18:4218 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-14 17:42:18:4218 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-14 17:42:18:4218 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-15 14:52:20:5220 [info] Server running in development mode on port 5000
+2026-05-15 14:52:20:5220 [info] 🎯 Job Processor Initialized
+2026-05-15 14:52:20:5220 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-15 14:52:20:5220 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-15 14:52:20:5220 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-15 17:52:01:521 [info] Server running in development mode on port 5000
+2026-05-15 17:52:01:521 [info] 🎯 Job Processor Initialized
+2026-05-15 17:52:01:521 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-15 17:52:01:521 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-15 17:52:01:521 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-16 10:28:39:2839 [warn] GST lookup provider failed for 24CLSPS0337M1ZJ: Credit Not Available.
+2026-05-16 10:57:13:5713 [info] Server running in development mode on port 5000
+2026-05-16 10:57:13:5713 [info] 🎯 Job Processor Initialized
+2026-05-16 10:57:13:5713 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-16 10:57:13:5713 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-16 10:57:13:5713 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-16 11:00:11:011 [info] Server running in development mode on port 5000
+2026-05-16 11:00:11:011 [info] 🎯 Job Processor Initialized
+2026-05-16 11:00:11:011 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-16 11:00:11:011 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-16 11:00:11:011 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-16 11:00:51:051 [info] Server running in development mode on port 5000
+2026-05-16 11:00:51:051 [info] 🎯 Job Processor Initialized
+2026-05-16 11:00:51:051 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-16 11:00:51:051 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-16 11:00:51:051 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-16 11:02:34:234 [info] Server running in development mode on port 5000
+2026-05-16 11:02:34:234 [info] 🎯 Job Processor Initialized
+2026-05-16 11:02:34:234 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-16 11:02:34:234 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-16 11:02:34:234 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-16 11:02:46:246 [info] Server running in development mode on port 5000
+2026-05-16 11:02:46:246 [info] 🎯 Job Processor Initialized
+2026-05-16 11:02:46:246 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-16 11:02:46:246 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-16 11:02:46:246 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-16 11:02:56:256 [info] Server running in development mode on port 5000
+2026-05-16 11:02:56:256 [info] 🎯 Job Processor Initialized
+2026-05-16 11:02:56:256 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-16 11:02:56:256 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-16 11:02:56:256 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-16 11:09:33:933 [info] Server running in development mode on port 5000
+2026-05-16 11:09:33:933 [info] 🎯 Job Processor Initialized
+2026-05-16 11:09:33:933 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-16 11:09:33:933 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-16 11:09:33:933 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-16 11:09:45:945 [info] Server running in development mode on port 5000
+2026-05-16 11:09:45:945 [info] 🎯 Job Processor Initialized
+2026-05-16 11:09:45:945 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-16 11:09:45:945 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-16 11:09:45:945 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-16 11:09:57:957 [info] Server running in development mode on port 5000
+2026-05-16 11:09:57:957 [info] 🎯 Job Processor Initialized
+2026-05-16 11:09:57:957 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-16 11:09:57:957 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-16 11:09:57:957 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-16 11:10:15:1015 [info] Server running in development mode on port 5000
+2026-05-16 11:10:15:1015 [info] 🎯 Job Processor Initialized
+2026-05-16 11:10:16:1016 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-16 11:10:16:1016 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-16 11:10:16:1016 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-16 11:10:23:1023 [info] Server running in development mode on port 5000
+2026-05-16 11:10:23:1023 [info] 🎯 Job Processor Initialized
+2026-05-16 11:10:23:1023 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-16 11:10:23:1023 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-16 11:10:23:1023 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-16 11:10:29:1029 [info] Server running in development mode on port 5000
+2026-05-16 11:10:29:1029 [info] 🎯 Job Processor Initialized
+2026-05-16 11:10:29:1029 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-16 11:10:29:1029 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-16 11:10:29:1029 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-16 11:40:16:4016 [info] Server running in development mode on port 5000
+2026-05-16 11:40:16:4016 [info] 🎯 Job Processor Initialized
+2026-05-16 11:40:16:4016 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-16 11:40:16:4016 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-16 11:40:16:4016 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-16 11:42:50:4250 [info] Server running in development mode on port 5000
+2026-05-16 11:42:50:4250 [info] 🎯 Job Processor Initialized
+2026-05-16 11:42:51:4251 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-16 11:42:51:4251 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-16 11:42:51:4251 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-16 11:43:07:437 [info] Server running in development mode on port 5000
+2026-05-16 11:43:07:437 [info] 🎯 Job Processor Initialized
+2026-05-16 11:43:07:437 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-16 11:43:07:437 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-16 11:43:07:437 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-16 11:52:08:528 [info] Server running in development mode on port 5000
+2026-05-16 11:52:08:528 [info] 🎯 Job Processor Initialized
+2026-05-16 11:52:08:528 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-16 11:52:08:528 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-16 11:52:08:528 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-16 11:56:04:564 [info] Server running in development mode on port 5000
+2026-05-16 11:56:04:564 [info] 🎯 Job Processor Initialized
+2026-05-16 11:56:04:564 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-16 11:56:04:564 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-16 11:56:04:564 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-16 11:58:28:5828 [info] Server running in development mode on port 5000
+2026-05-16 11:58:28:5828 [info] 🎯 Job Processor Initialized
+2026-05-16 11:58:28:5828 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-16 11:58:28:5828 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-16 11:58:28:5828 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-16 11:59:43:5943 [info] Server running in development mode on port 5000
+2026-05-16 11:59:43:5943 [info] 🎯 Job Processor Initialized
+2026-05-16 11:59:44:5944 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-16 11:59:44:5944 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-16 11:59:44:5944 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-16 12:00:15:015 [info] Server running in development mode on port 5000
+2026-05-16 12:00:15:015 [info] 🎯 Job Processor Initialized
+2026-05-16 12:00:15:015 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-16 12:00:15:015 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-16 12:00:15:015 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-16 12:09:57:957 [info] Server running in development mode on port 5000
+2026-05-16 12:09:57:957 [info] 🎯 Job Processor Initialized
+2026-05-16 12:09:57:957 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-16 12:09:57:957 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-16 12:09:57:957 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-16 14:24:25:2425 [info] Server running in development mode on port 5000
+2026-05-16 14:24:25:2425 [info] 🎯 Job Processor Initialized
+2026-05-16 14:24:25:2425 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-16 14:24:25:2425 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-16 14:24:25:2425 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-16 16:40:32:4032 [info] Server running in development mode on port 5000
+2026-05-16 16:40:32:4032 [info] 🎯 Job Processor Initialized
+2026-05-16 16:40:32:4032 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-16 16:40:32:4032 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-16 16:40:32:4032 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-16 16:41:59:4159 [info] Server running in development mode on port 5000
+2026-05-16 16:41:59:4159 [info] 🎯 Job Processor Initialized
+2026-05-16 16:41:59:4159 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-16 16:41:59:4159 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-16 16:41:59:4159 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-16 16:45:50:4550 [info] Server running in development mode on port 5000
+2026-05-16 16:45:50:4550 [info] 🎯 Job Processor Initialized
+2026-05-16 16:45:50:4550 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-16 16:45:50:4550 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-16 16:45:50:4550 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-16 16:46:18:4618 [info] Server running in development mode on port 5000
+2026-05-16 16:46:18:4618 [info] 🎯 Job Processor Initialized
+2026-05-16 16:46:18:4618 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-16 16:46:18:4618 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-16 16:46:18:4618 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-16 16:47:27:4727 [info] Server running in development mode on port 5000
+2026-05-16 16:47:27:4727 [info] 🎯 Job Processor Initialized
+2026-05-16 16:47:27:4727 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-16 16:47:27:4727 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-16 16:47:27:4727 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-16 16:48:13:4813 [info] Attempting to connect to MongoDB: vendor.7hkgxdu.mongodb.net/vendorDB?retryWrites=true&w=majority
+2026-05-16 16:48:14:4814 [info] Server running in development mode on port 5000
+2026-05-16 16:48:14:4814 [info] 🎯 Job Processor Initialized
+2026-05-16 16:48:14:4814 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-16 16:48:14:4814 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-16 16:48:14:4814 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-16 16:48:22:4822 [info] MongoDB connected successfully
+2026-05-16 16:48:25:4825 [info] Attempting to connect to MongoDB: vendor.7hkgxdu.mongodb.net/vendorDB?retryWrites=true&w=majority
+2026-05-16 16:48:26:4826 [info] Server running in development mode on port 5000
+2026-05-16 16:48:26:4826 [info] 🎯 Job Processor Initialized
+2026-05-16 16:48:26:4826 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-16 16:48:26:4826 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-16 16:48:26:4826 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-16 16:48:34:4834 [info] MongoDB connected successfully
+2026-05-16 16:48:38:4838 [info] Attempting to connect to MongoDB: vendor.7hkgxdu.mongodb.net/vendorDB?retryWrites=true&w=majority
+2026-05-16 16:48:40:4840 [info] Server running in development mode on port 5000
+2026-05-16 16:48:40:4840 [info] 🎯 Job Processor Initialized
+2026-05-16 16:48:40:4840 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-16 16:48:40:4840 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-16 16:48:40:4840 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-16 16:48:40:4840 [info] MongoDB connected successfully
+2026-05-16 16:50:55:5055 [info] Attempting to connect to MongoDB: vendor.7hkgxdu.mongodb.net/vendorDB?retryWrites=true&w=majority
+2026-05-16 16:50:56:5056 [info] Server running in development mode on port 5000
+2026-05-16 16:50:56:5056 [info] 🎯 Job Processor Initialized
+2026-05-16 16:50:57:5057 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-16 16:50:57:5057 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-16 16:50:57:5057 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-16 16:50:58:5058 [info] MongoDB connected successfully
+2026-05-16 16:51:20:5120 [info] Attempting to connect to MongoDB: vendor.7hkgxdu.mongodb.net/vendorDB?retryWrites=true&w=majority
+2026-05-16 16:51:21:5121 [info] Server running in development mode on port 5000
+2026-05-16 16:51:21:5121 [info] 🎯 Job Processor Initialized
+2026-05-16 16:51:21:5121 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-16 16:51:21:5121 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-16 16:51:21:5121 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-16 16:51:21:5121 [info] MongoDB connected successfully
+2026-05-16 16:51:22:5122 [info] Login attempt for email: admin@gmail.com
+2026-05-16 16:52:35:5235 [info] Login attempt for email: birenjalal2@gmail.com
+2026-05-16 16:52:35:5235 [warn] Login failed: Incorrect password for email: birenjalal2@gmail.com
+2026-05-16 16:53:10:5310 [info] Login attempt for email: manassuthar6@gmail.com
+2026-05-16 16:53:10:5310 [warn] Login failed: Incorrect password for email: manassuthar6@gmail.com
+2026-05-16 16:56:54:5654 [info] Login attempt for email: manassuthar6@gmail.com
+2026-05-16 16:56:54:5654 [warn] Login failed: Incorrect password for email: manassuthar6@gmail.com
+2026-05-16 16:57:13:5713 [info] Login attempt for email: manassuthar6@gmail.com
+2026-05-16 16:57:14:5714 [warn] Login failed: Incorrect password for email: manassuthar6@gmail.com
+2026-05-16 16:57:51:5751 [info] Login attempt for email: manassuthar6@gmail.com
+2026-05-16 16:57:51:5751 [warn] Login failed: Incorrect password for email: manassuthar6@gmail.com
+2026-05-16 16:59:39:5939 [info] Login attempt for email: admin@gmail.com
+2026-05-16 17:13:38:1338 [info] Login attempt for email: admin@gmail.com
+2026-05-16 17:13:54:1354 [info] Login attempt for email: admin@gmail.com
+2026-05-16 17:15:08:158 [info] Login attempt for email: mn.patel5291@gmail.com
+2026-05-16 17:15:08:158 [warn] Login failed: Incorrect password for email: mn.patel5291@gmail.com
+2026-05-16 17:15:47:1547 [info] Attempting to connect to MongoDB: vendor.7hkgxdu.mongodb.net/vendorDB?retryWrites=true&w=majority
+2026-05-16 17:15:48:1548 [info] Server running in development mode on port 5000
+2026-05-16 17:15:48:1548 [info] 🎯 Job Processor Initialized
+2026-05-16 17:15:48:1548 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-16 17:15:48:1548 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-16 17:15:48:1548 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-16 17:15:48:1548 [info] MongoDB connected successfully
+2026-05-16 17:15:58:1558 [info] Attempting to connect to MongoDB: vendor.7hkgxdu.mongodb.net/vendorDB?retryWrites=true&w=majority
+2026-05-16 17:15:59:1559 [info] Server running in development mode on port 5000
+2026-05-16 17:15:59:1559 [info] 🎯 Job Processor Initialized
+2026-05-16 17:16:00:160 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-16 17:16:00:160 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-16 17:16:00:160 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-16 17:16:00:160 [info] MongoDB connected successfully
+2026-05-16 17:16:04:164 [info] Attempting to connect to MongoDB: vendor.7hkgxdu.mongodb.net/vendorDB?retryWrites=true&w=majority
+2026-05-16 17:16:05:165 [info] Server running in development mode on port 5000
+2026-05-16 17:16:05:165 [info] 🎯 Job Processor Initialized
+2026-05-16 17:16:05:165 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-16 17:16:05:165 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-16 17:16:05:165 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-16 17:16:05:165 [info] MongoDB connected successfully
+2026-05-16 17:16:10:1610 [info] Attempting to connect to MongoDB: vendor.7hkgxdu.mongodb.net/vendorDB?retryWrites=true&w=majority
+2026-05-16 17:16:12:1612 [info] Server running in development mode on port 5000
+2026-05-16 17:16:12:1612 [info] 🎯 Job Processor Initialized
+2026-05-16 17:16:12:1612 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-16 17:16:12:1612 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-16 17:16:12:1612 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-16 17:16:12:1612 [info] MongoDB connected successfully
+2026-05-16 17:16:15:1615 [info] Login attempt for email: admin@gmail.com
+2026-05-16 17:16:28:1628 [info] Login attempt for email: mn.patel5291@gmail.com
+2026-05-16 17:16:28:1628 [warn] Login failed: Incorrect password for email: mn.patel5291@gmail.com
+2026-05-16 17:16:50:1650 [info] Login attempt for email: mn.patel5291@gmail.com
+2026-05-16 17:16:50:1650 [warn] Login failed: Incorrect password for email: mn.patel5291@gmail.com
+2026-05-16 17:17:11:1711 [info] Login attempt for email: manassuthar6@gmail.com
+2026-05-16 17:23:23:2323 [info] Login attempt for email: admin@gmail.com
+2026-05-16 17:23:23:2323 [warn] Login failed: Incorrect password for email: admin@gmail.com
+2026-05-16 17:23:30:2330 [info] Login attempt for email: admin@gmail.com
+2026-05-16 17:28:15:2815 [info] Attempting to connect to MongoDB: vendor.7hkgxdu.mongodb.net/vendorDB?retryWrites=true&w=majority
+2026-05-16 17:28:17:2817 [info] Server running in development mode on port 5000
+2026-05-16 17:28:17:2817 [info] 🎯 Job Processor Initialized
+2026-05-16 17:28:17:2817 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-16 17:28:17:2817 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-16 17:28:17:2817 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-16 17:28:17:2817 [info] MongoDB connected successfully
+2026-05-16 17:32:13:3213 [info] Attempting to connect to MongoDB: vendor.7hkgxdu.mongodb.net/vendorDB?retryWrites=true&w=majority
+2026-05-16 17:32:14:3214 [info] Server running in development mode on port 5000
+2026-05-16 17:32:14:3214 [info] 🎯 Job Processor Initialized
+2026-05-16 17:32:14:3214 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-16 17:32:14:3214 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-16 17:32:14:3214 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-16 17:32:14:3214 [info] MongoDB connected successfully
+2026-05-16 17:32:34:3234 [info] Attempting to connect to MongoDB: vendor.7hkgxdu.mongodb.net/vendorDB?retryWrites=true&w=majority
+2026-05-16 17:32:36:3236 [info] Server running in development mode on port 5000
+2026-05-16 17:32:36:3236 [info] 🎯 Job Processor Initialized
+2026-05-16 17:32:36:3236 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-16 17:32:36:3236 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-16 17:32:36:3236 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-16 17:32:36:3236 [info] MongoDB connected successfully
+2026-05-16 17:32:41:3241 [info] Attempting to connect to MongoDB: vendor.7hkgxdu.mongodb.net/vendorDB?retryWrites=true&w=majority
+2026-05-16 17:32:43:3243 [info] Server running in development mode on port 5000
+2026-05-16 17:32:43:3243 [info] 🎯 Job Processor Initialized
+2026-05-16 17:32:43:3243 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-16 17:32:43:3243 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-16 17:32:43:3243 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-16 17:32:43:3243 [info] MongoDB connected successfully
+2026-05-16 17:39:27:3927 [info] Login attempt for email: admin@gmail.com
+2026-05-16 17:39:27:3927 [warn] Login failed: Incorrect password for email: admin@gmail.com
+2026-05-16 17:39:30:3930 [info] Login attempt for email: admin@gmail.com
+2026-05-16 17:57:16:5716 [info] Login attempt for email: admin@gmail.com
+2026-05-16 18:17:53:1753 [info] Login attempt for email: admin@gmail.com
+2026-05-16 18:34:14:3414 [info] Login attempt for email: admin@gmail.com
+2026-05-16 18:49:28:4928 [info] Login attempt for email: admin@gmail.com
+2026-05-16 19:03:14:314 [info] Attempting to connect to MongoDB: vendor.7hkgxdu.mongodb.net/vendorDB?retryWrites=true&w=majority
+2026-05-16 19:03:16:316 [info] Server running in development mode on port 5000
+2026-05-16 19:03:16:316 [info] 🎯 Job Processor Initialized
+2026-05-16 19:03:16:316 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-16 19:03:16:316 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-16 19:03:16:316 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-16 19:03:18:318 [info] Attempting to connect to MongoDB: vendor.7hkgxdu.mongodb.net/vendorDB?retryWrites=true&w=majority
+2026-05-16 19:03:20:320 [info] Server running in development mode on port 5000
+2026-05-16 19:03:20:320 [info] 🎯 Job Processor Initialized
+2026-05-16 19:03:20:320 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-16 19:03:20:320 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-16 19:03:20:320 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-16 19:03:22:322 [info] MongoDB connected successfully
+2026-05-16 19:04:43:443 [info] Login attempt for email: admin@gmail.com
+2026-05-16 19:17:11:1711 [info] Login attempt for email: manassuthar6@gmail.com
+2026-05-16 19:18:08:188 [info] Login attempt for email: admin@gmail.com
+2026-05-16 19:25:44:2544 [info] Login attempt for email: manassuthar6@gmail.com
+2026-05-16 19:27:13:2713 [info] Login attempt for email: admin@gmail.com
+2026-05-16 19:29:58:2958 [info] Attempting to connect to MongoDB: vendor.7hkgxdu.mongodb.net/vendorDB?retryWrites=true&w=majority
+2026-05-16 19:29:59:2959 [info] Server running in development mode on port 5000
+2026-05-16 19:29:59:2959 [info] 🎯 Job Processor Initialized
+2026-05-16 19:29:59:2959 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-16 19:29:59:2959 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-16 19:29:59:2959 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-16 19:30:01:301 [info] MongoDB connected successfully
+2026-05-16 19:30:13:3013 [info] Attempting to connect to MongoDB: vendor.7hkgxdu.mongodb.net/vendorDB?retryWrites=true&w=majority
+2026-05-16 19:30:14:3014 [info] Server running in development mode on port 5000
+2026-05-16 19:30:14:3014 [info] 🎯 Job Processor Initialized
+2026-05-16 19:30:15:3015 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-16 19:30:15:3015 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-16 19:30:15:3015 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-16 19:30:16:3016 [info] MongoDB connected successfully
+2026-05-16 19:35:43:3543 [info] Attempting to connect to MongoDB: vendor.7hkgxdu.mongodb.net/vendorDB?retryWrites=true&w=majority
+2026-05-16 19:35:45:3545 [info] Server running in development mode on port 5000
+2026-05-16 19:35:45:3545 [info] 🎯 Job Processor Initialized
+2026-05-16 19:35:45:3545 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-16 19:35:45:3545 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-16 19:35:45:3545 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-16 19:35:46:3546 [info] MongoDB connected successfully
+2026-05-16 19:35:51:3551 [info] Attempting to connect to MongoDB: vendor.7hkgxdu.mongodb.net/vendorDB?retryWrites=true&w=majority
+2026-05-16 19:35:52:3552 [info] Server running in development mode on port 5000
+2026-05-16 19:35:52:3552 [info] 🎯 Job Processor Initialized
+2026-05-16 19:35:52:3552 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-16 19:35:52:3552 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-16 19:35:52:3552 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-16 19:35:54:3554 [info] MongoDB connected successfully
+2026-05-16 19:43:03:433 [info] Login attempt for email: admin@gmail.com
+2026-05-16 19:46:06:466 [info] Attempting to connect to MongoDB: vendor.7hkgxdu.mongodb.net/vendorDB?retryWrites=true&w=majority
+2026-05-16 19:46:08:468 [info] Server running in development mode on port 5000
+2026-05-16 19:46:08:468 [info] 🎯 Job Processor Initialized
+2026-05-16 19:46:08:468 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-16 19:46:08:468 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-16 19:46:08:468 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-16 19:46:09:469 [info] MongoDB connected successfully
+2026-05-16 19:47:06:476 [info] Attempting to connect to MongoDB: vendor.7hkgxdu.mongodb.net/vendorDB?retryWrites=true&w=majority
+2026-05-16 19:47:08:478 [info] Server running in development mode on port 5000
+2026-05-16 19:47:08:478 [info] 🎯 Job Processor Initialized
+2026-05-16 19:47:08:478 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-16 19:47:08:478 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-16 19:47:08:478 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-16 19:47:14:4714 [info] MongoDB connected successfully
+2026-05-16 19:53:19:5319 [info] Attempting to connect to MongoDB: vendor.7hkgxdu.mongodb.net/vendorDB?retryWrites=true&w=majority
+2026-05-16 19:53:20:5320 [info] Server running in development mode on port 5000
+2026-05-16 19:53:20:5320 [info] 🎯 Job Processor Initialized
+2026-05-16 19:53:20:5320 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-16 19:53:20:5320 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-16 19:53:20:5320 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-16 19:53:22:5322 [info] MongoDB connected successfully
+2026-05-16 19:53:30:5330 [info] Attempting to connect to MongoDB: vendor.7hkgxdu.mongodb.net/vendorDB?retryWrites=true&w=majority
+2026-05-16 19:53:32:5332 [info] Server running in development mode on port 5000
+2026-05-16 19:53:32:5332 [info] 🎯 Job Processor Initialized
+2026-05-16 19:53:32:5332 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-16 19:53:32:5332 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-16 19:53:32:5332 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-16 19:53:33:5333 [info] MongoDB connected successfully
+2026-05-16 19:54:47:5447 [info] Login attempt for email: admin@gmail.com
+2026-05-18 10:14:44:1444 [info] Attempting to connect to MongoDB: vendor.7hkgxdu.mongodb.net/vendorDB?retryWrites=true&w=majority
+2026-05-18 10:14:47:1447 [info] Server running in development mode on port 5000
+2026-05-18 10:14:47:1447 [info] 🎯 Job Processor Initialized
+2026-05-18 10:14:47:1447 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-18 10:14:47:1447 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-18 10:14:47:1447 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-18 10:15:10:1510 [error] [ProcurementCron] SLA escalation failed: Operation `procurementslas.find()` buffering timed out after 10000ms
+2026-05-18 10:15:17:1517 [error] MongoDB connection error: Could not connect to any servers in your MongoDB Atlas cluster. One common reason is that you're trying to access the database from an IP that isn't whitelisted. Make sure your current IP address is on your Atlas cluster's IP whitelist: https://www.mongodb.com/docs/atlas/security-whitelist/
+2026-05-18 10:15:27:1527 [info] Attempting to connect to MongoDB: vendor.7hkgxdu.mongodb.net/vendorDB?retryWrites=true&w=majority
+2026-05-18 10:15:28:1528 [info] Server running in development mode on port 5000
+2026-05-18 10:15:28:1528 [info] 🎯 Job Processor Initialized
+2026-05-18 10:15:28:1528 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-18 10:15:28:1528 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-18 10:15:28:1528 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-18 10:15:58:1558 [error] MongoDB connection error: Could not connect to any servers in your MongoDB Atlas cluster. One common reason is that you're trying to access the database from an IP that isn't whitelisted. Make sure your current IP address is on your Atlas cluster's IP whitelist: https://www.mongodb.com/docs/atlas/security-whitelist/
+2026-05-18 10:16:03:163 [info] Login attempt for email: admin@gmail.com
+2026-05-18 10:16:18:1618 [info] Login attempt for email: admin@gmail.com
+2026-05-18 10:16:59:1659 [info] Attempting to connect to MongoDB: vendor.7hkgxdu.mongodb.net/vendorDB?retryWrites=true&w=majority
+2026-05-18 10:17:00:170 [info] Server running in development mode on port 5000
+2026-05-18 10:17:00:170 [info] 🎯 Job Processor Initialized
+2026-05-18 10:17:01:171 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-18 10:17:01:171 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-18 10:17:01:171 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-18 10:17:43:1743 [info] Attempting to connect to MongoDB: vendor.7hkgxdu.mongodb.net/vendorDB?retryWrites=true&w=majority
+2026-05-18 10:17:45:1745 [info] Server running in development mode on port 5000
+2026-05-18 10:17:45:1745 [info] 🎯 Job Processor Initialized
+2026-05-18 10:17:45:1745 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-18 10:17:45:1745 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-18 10:17:45:1745 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-18 10:17:47:1747 [info] MongoDB connected successfully
+2026-05-18 10:37:11:3711 [info] Attempting to connect to MongoDB: vendor.7hkgxdu.mongodb.net/vendorDB?retryWrites=true&w=majority
+2026-05-18 10:37:13:3713 [info] Server running in development mode on port 5000
+2026-05-18 10:37:13:3713 [info] 🎯 Job Processor Initialized
+2026-05-18 10:37:13:3713 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-18 10:37:13:3713 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-18 10:37:13:3713 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-18 10:37:16:3716 [info] MongoDB connected successfully
+2026-05-18 10:37:49:3749 [info] Login attempt for email: admin@gmail.com
+2026-05-18 11:11:49:1149 [info] Login attempt for email: admin@gmail.com
+2026-05-18 11:11:49:1149 [warn] Login failed: Incorrect password for email: admin@gmail.com
+2026-05-18 11:11:54:1154 [info] Login attempt for email: admin@gmail.com
+2026-05-18 11:30:27:3027 [info] Login attempt for email: admin@gmail.com
+2026-05-18 12:00:00:00 [info] [ProcurementCron] Processed 2 overdue SLA records.
+2026-05-18 12:15:00:150 [info] [ProcurementCron] Processed 2 overdue SLA records.
+2026-05-18 12:21:00:210 [info] Login attempt for email: admin@gmail.com
+2026-05-18 12:29:25:2925 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-18 12:29:28:2928 [info] Server running in development mode on port 5000
+2026-05-18 12:29:28:2928 [info] 🎯 Job Processor Initialized
+2026-05-18 12:29:28:2928 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-18 12:29:28:2928 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-18 12:29:28:2928 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-18 12:29:28:2928 [info] MongoDB connected successfully
+2026-05-18 12:31:47:3147 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-18 12:31:50:3150 [info] Server running in development mode on port 5000
+2026-05-18 12:31:50:3150 [info] 🎯 Job Processor Initialized
+2026-05-18 12:31:51:3151 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-18 12:31:51:3151 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-18 12:31:51:3151 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-18 12:31:51:3151 [info] MongoDB connected successfully
+2026-05-18 12:31:59:3159 [info] Login attempt for email: admin@gmail.com
+2026-05-18 12:32:09:329 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-18 12:32:14:3214 [info] Server running in development mode on port 5000
+2026-05-18 12:32:14:3214 [info] 🎯 Job Processor Initialized
+2026-05-18 12:32:14:3214 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-18 12:32:14:3214 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-18 12:32:14:3214 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-18 12:32:15:3215 [info] MongoDB connected successfully
+2026-05-18 12:36:00:360 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-18 12:36:03:363 [info] Server running in development mode on port 5000
+2026-05-18 12:36:03:363 [info] 🎯 Job Processor Initialized
+2026-05-18 12:36:04:364 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-18 12:36:04:364 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-18 12:36:04:364 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-18 12:36:04:364 [info] MongoDB connected successfully
+2026-05-18 12:48:07:487 [info] Login attempt for email: admin@gmail.com
+2026-05-18 12:48:07:487 [warn] Login failed: Incorrect password for email: admin@gmail.com
+2026-05-18 13:40:36:4036 [info] Login attempt for email: admin@gmail.com
+2026-05-18 13:40:36:4036 [warn] Login failed: Incorrect password for email: admin@gmail.com
+2026-05-18 13:40:42:4042 [info] Login attempt for email: admin@gmail.com
+2026-05-18 14:10:30:1030 [info] Login attempt for email: admin@gmail.com
+2026-05-18 14:28:32:2832 [info] Login attempt for email: admin@gmail.com
+2026-05-18 14:35:42:3542 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-18 14:35:45:3545 [info] Server running in development mode on port 5000
+2026-05-18 14:35:45:3545 [info] 🎯 Job Processor Initialized
+2026-05-18 14:35:45:3545 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-18 14:35:45:3545 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-18 14:35:45:3545 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-18 14:35:45:3545 [info] MongoDB connected successfully
+2026-05-18 14:38:35:3835 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-18 14:38:41:3841 [info] Server running in development mode on port 5000
+2026-05-18 14:38:41:3841 [info] 🎯 Job Processor Initialized
+2026-05-18 14:38:41:3841 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-18 14:38:41:3841 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-18 14:38:41:3841 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-18 14:38:42:3842 [info] MongoDB connected successfully
+2026-05-18 14:40:17:4017 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-18 14:40:23:4023 [info] Server running in development mode on port 5000
+2026-05-18 14:40:23:4023 [info] 🎯 Job Processor Initialized
+2026-05-18 14:40:23:4023 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-18 14:40:23:4023 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-18 14:40:23:4023 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-18 14:40:24:4024 [info] MongoDB connected successfully
+2026-05-18 14:41:06:416 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-18 14:41:08:418 [info] Server running in development mode on port 5000
+2026-05-18 14:41:08:418 [info] 🎯 Job Processor Initialized
+2026-05-18 14:41:08:418 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-18 14:41:08:418 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-18 14:41:08:418 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-18 14:41:09:419 [info] MongoDB connected successfully
+2026-05-18 14:46:15:4615 [info] Login attempt for email: admin@gmail.com
+2026-05-18 15:09:08:98 [info] Login attempt for email: admin@gmail.com
+2026-05-18 15:29:39:2939 [info] Login attempt for email: admin@gmail.com
+2026-05-18 16:07:50:750 [info] Login attempt for email: admin@gmail.com
+2026-05-18 16:22:58:2258 [info] Login attempt for email: admin@gmail.com
+2026-05-18 16:43:30:4330 [info] Login attempt for email: admin@gmail.com
+2026-05-18 16:43:30:4330 [warn] Login failed: Incorrect password for email: admin@gmail.com
+2026-05-18 16:43:36:4336 [info] Login attempt for email: admin@gmail.com
+2026-05-18 17:12:51:1251 [info] Login attempt for email: admin@gmail.com
+2026-05-18 17:30:00:300 [info] [ProcurementCron] Processed 1 overdue SLA records.
+2026-05-18 17:45:00:450 [info] [ProcurementCron] Processed 1 overdue SLA records.
+2026-05-18 18:46:19:4619 [info] Login attempt for email: admin@gitakshmi.com
+2026-05-18 18:46:19:4619 [warn] Login failed: User not found for email: admin@gitakshmi.com
+2026-05-19 10:10:34:1034 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-19 10:10:36:1036 [info] Server running in development mode on port 5000
+2026-05-19 10:10:36:1036 [info] 🎯 Job Processor Initialized
+2026-05-19 10:10:37:1037 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-19 10:10:40:1040 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-19 10:10:40:1040 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-19 10:10:41:1041 [info] MongoDB connected successfully
+2026-05-19 10:11:07:117 [info] Login attempt for email: admin@gmail.com
+2026-05-19 10:20:16:2016 [info] Login attempt for email: admin@gmail.com
+2026-05-19 10:21:18:2118 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-19 10:21:20:2120 [info] Server running in development mode on port 5000
+2026-05-19 10:21:20:2120 [info] 🎯 Job Processor Initialized
+2026-05-19 10:21:20:2120 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-19 10:21:20:2120 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-19 10:21:20:2120 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-19 10:21:21:2121 [info] MongoDB connected successfully
+2026-05-19 10:25:07:257 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-19 10:25:09:259 [info] Server running in development mode on port 5000
+2026-05-19 10:25:09:259 [info] 🎯 Job Processor Initialized
+2026-05-19 10:25:09:259 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-19 10:25:09:259 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-19 10:25:09:259 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-19 10:25:10:2510 [info] MongoDB connected successfully
+2026-05-19 10:31:24:3124 [info] Login attempt for email: admin@gmail.com
+2026-05-19 10:36:48:3648 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-19 10:36:50:3650 [info] Server running in development mode on port 5000
+2026-05-19 10:36:50:3650 [info] 🎯 Job Processor Initialized
+2026-05-19 10:36:50:3650 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-19 10:36:50:3650 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-19 10:36:50:3650 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-19 10:36:51:3651 [info] MongoDB connected successfully
+2026-05-19 10:44:51:4451 [info] Login attempt for email: admin@gmail.com
+2026-05-19 10:44:52:4452 [warn] Login failed: Incorrect password for email: admin@gmail.com
+2026-05-19 10:45:01:451 [info] Login attempt for email: admin@gmail.com
+2026-05-19 10:45:02:452 [warn] Login failed: Incorrect password for email: admin@gmail.com
+2026-05-19 10:45:18:4518 [info] Login attempt for email: admin@gmail.com
+2026-05-19 10:45:18:4518 [warn] Login failed: Incorrect password for email: admin@gmail.com
+2026-05-19 10:45:42:4542 [info] Login attempt for email: admin@gmail.com
+2026-05-19 10:45:43:4543 [warn] Login failed: Incorrect password for email: admin@gmail.com
+2026-05-19 10:46:14:4614 [info] Login attempt for email: admin@gmail.com
+2026-05-19 10:46:14:4614 [warn] Login failed: Incorrect password for email: admin@gmail.com
+2026-05-19 10:46:14:4614 [info] Login attempt for email: admin@gmail.com
+2026-05-19 10:46:27:4627 [info] Login attempt for email: admin@gmail.com
+2026-05-19 10:46:27:4627 [warn] Login failed: Incorrect password for email: admin@gmail.com
+2026-05-19 10:47:02:472 [info] Login attempt for email: admin@gmail.com
+2026-05-19 11:44:38:4438 [info] Login attempt for email: admin@gmail.com
+2026-05-19 12:00:57:057 [info] Login attempt for email: ADMIN@GMAIL.COM
+2026-05-19 12:00:57:057 [warn] Login failed: Incorrect password for email: ADMIN@GMAIL.COM
+2026-05-19 12:01:06:16 [info] Login attempt for email: ADMIN@GMAIL.COM
+2026-05-19 12:32:12:3212 [info] Login attempt for email: admin@gmail.com
+2026-05-19 14:40:17:4017 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-19 14:40:18:4018 [info] Server running in development mode on port 5000
+2026-05-19 14:40:18:4018 [info] 🎯 Job Processor Initialized
+2026-05-19 14:40:19:4019 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-19 14:40:19:4019 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-19 14:40:19:4019 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-19 14:40:19:4019 [info] MongoDB connected successfully
+2026-05-19 14:50:59:5059 [info] Login attempt for email: admin@gmail.com
+2026-05-19 14:51:00:510 [warn] Login failed: Incorrect password for email: admin@gmail.com
+2026-05-19 14:52:16:5216 [info] Login attempt for email: admin@gmail.com
+2026-05-19 15:00:49:049 [error] [ProcurementCron] SLA escalation failed: getaddrinfo ENOTFOUND ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net
+2026-05-19 15:01:02:12 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-19 15:01:03:13 [info] Server running in development mode on port 5000
+2026-05-19 15:01:03:13 [info] 🎯 Job Processor Initialized
+2026-05-19 15:01:04:14 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-19 15:01:04:14 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-19 15:01:04:14 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-19 15:01:16:116 [info] MongoDB connected successfully
+2026-05-19 15:06:35:635 [info] Login attempt for email: admin@gmail.com
+2026-05-19 15:06:35:635 [warn] Login failed: Incorrect password for email: admin@gmail.com
+2026-05-19 15:06:44:644 [info] Login attempt for email: admin@gmail.com
+2026-05-19 15:11:08:118 [info] Login attempt for email: admin@gmail.com
+2026-05-19 15:11:08:118 [warn] Login failed: Incorrect password for email: admin@gmail.com
+2026-05-19 15:11:18:1118 [info] Login attempt for email: admin@gmail.com
+2026-05-19 15:11:59:1159 [info] Login attempt for email: admin@gmail.com
+2026-05-19 15:12:56:1256 [info] Login attempt for email: admin@gmail.com
+2026-05-19 15:42:15:4215 [info] Login attempt for email: admin@gmail.com
+2026-05-19 15:43:04:434 [info] Login attempt for email: admin@gmail.com
+2026-05-19 15:43:04:434 [warn] Login failed: Incorrect password for email: admin@gmail.com
+2026-05-19 15:43:12:4312 [info] Login attempt for email: admin@gmail.com
+2026-05-19 16:19:37:1937 [info] Login attempt for email: admin@gmail.com
+2026-05-19 16:38:02:382 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-19 16:38:07:387 [info] Server running in development mode on port 5000
+2026-05-19 16:38:07:387 [info] 🎯 Job Processor Initialized
+2026-05-19 16:38:08:388 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-19 16:38:08:388 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-19 16:38:09:389 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-19 16:38:18:3818 [info] MongoDB connected successfully
+2026-05-19 16:59:32:5932 [info] Login attempt for email: admin@gmail.com
+2026-05-19 17:01:55:155 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-19 17:01:57:157 [info] Server running in development mode on port 5000
+2026-05-19 17:01:57:157 [info] 🎯 Job Processor Initialized
+2026-05-19 17:01:58:158 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-19 17:01:58:158 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-19 17:01:58:158 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-19 17:01:59:159 [info] MongoDB connected successfully
+2026-05-19 17:02:16:216 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-19 17:02:22:222 [info] Server running in development mode on port 5000
+2026-05-19 17:02:22:222 [info] 🎯 Job Processor Initialized
+2026-05-19 17:02:22:222 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-19 17:02:22:222 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-19 17:02:22:222 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-19 17:02:23:223 [info] MongoDB connected successfully
+2026-05-19 17:14:47:1447 [info] Login attempt for email: admin@gmail.com
+2026-05-19 17:20:35:2035 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-19 17:20:39:2039 [info] Server running in development mode on port 5000
+2026-05-19 17:20:39:2039 [info] 🎯 Job Processor Initialized
+2026-05-19 17:20:39:2039 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-19 17:20:39:2039 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-19 17:20:40:2040 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-19 17:20:41:2041 [info] MongoDB connected successfully
+2026-05-19 17:22:56:2256 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-19 17:22:57:2257 [info] Server running in development mode on port 5000
+2026-05-19 17:22:57:2257 [info] 🎯 Job Processor Initialized
+2026-05-19 17:22:57:2257 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-19 17:22:57:2257 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-19 17:22:57:2257 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-19 17:22:58:2258 [info] MongoDB connected successfully
+2026-05-19 17:24:50:2450 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-19 17:24:52:2452 [info] Server running in development mode on port 5000
+2026-05-19 17:24:52:2452 [info] 🎯 Job Processor Initialized
+2026-05-19 17:24:53:2453 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-19 17:24:53:2453 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-19 17:24:53:2453 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-19 17:24:53:2453 [info] MongoDB connected successfully
+2026-05-19 17:31:37:3137 [info] Login attempt for email: admin@gmail.com
+2026-05-19 17:34:41:3441 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-19 17:34:44:3444 [info] Server running in development mode on port 5000
+2026-05-19 17:34:44:3444 [info] 🎯 Job Processor Initialized
+2026-05-19 17:34:45:3445 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-19 17:34:45:3445 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-19 17:34:45:3445 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-19 17:34:46:3446 [info] MongoDB connected successfully
+2026-05-19 17:35:14:3514 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-19 17:35:30:3530 [info] Server running in development mode on port 5000
+2026-05-19 17:35:30:3530 [info] 🎯 Job Processor Initialized
+2026-05-19 17:35:31:3531 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-19 17:35:31:3531 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-19 17:35:31:3531 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-19 17:35:31:3531 [info] MongoDB connected successfully
+2026-05-19 17:38:13:3813 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-19 17:38:20:3820 [info] Server running in development mode on port 5000
+2026-05-19 17:38:20:3820 [info] 🎯 Job Processor Initialized
+2026-05-19 17:38:20:3820 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-19 17:38:20:3820 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-19 17:38:20:3820 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-19 17:38:21:3821 [info] MongoDB connected successfully
+2026-05-19 17:42:32:4232 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-19 17:42:34:4234 [info] Server running in development mode on port 5000
+2026-05-19 17:42:34:4234 [info] 🎯 Job Processor Initialized
+2026-05-19 17:42:34:4234 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-19 17:42:34:4234 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-19 17:42:34:4234 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-19 17:42:50:4250 [info] MongoDB connected successfully
+2026-05-19 17:45:48:4548 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-19 17:45:50:4550 [info] Server running in development mode on port 5000
+2026-05-19 17:45:50:4550 [info] 🎯 Job Processor Initialized
+2026-05-19 17:45:51:4551 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-19 17:45:51:4551 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-19 17:45:51:4551 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-19 17:45:51:4551 [info] MongoDB connected successfully
+2026-05-19 17:48:28:4828 [info] Login attempt for email: admin@gmail.com
+2026-05-19 17:48:28:4828 [info] Login attempt for email: admin@gmail.com
+2026-05-19 17:53:38:5338 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-19 17:53:41:5341 [info] Server running in development mode on port 5000
+2026-05-19 17:53:41:5341 [info] 🎯 Job Processor Initialized
+2026-05-19 17:53:41:5341 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-19 17:53:41:5341 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-19 17:53:41:5341 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-19 17:53:42:5342 [info] MongoDB connected successfully
+2026-05-19 17:54:48:5448 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-19 17:54:50:5450 [info] Server running in development mode on port 5000
+2026-05-19 17:54:50:5450 [info] 🎯 Job Processor Initialized
+2026-05-19 17:54:50:5450 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-19 17:54:50:5450 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-19 17:54:51:5451 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-19 17:54:51:5451 [info] MongoDB connected successfully
+2026-05-19 17:59:57:5957 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-19 17:59:59:5959 [info] Server running in development mode on port 5000
+2026-05-19 17:59:59:5959 [info] 🎯 Job Processor Initialized
+2026-05-19 18:00:00:00 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-19 18:00:00:00 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-19 18:00:00:00 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-19 18:00:00:00 [info] MongoDB connected successfully
+2026-05-19 18:01:17:117 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-19 18:01:18:118 [info] Server running in development mode on port 5000
+2026-05-19 18:01:18:118 [info] 🎯 Job Processor Initialized
+2026-05-19 18:01:19:119 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-19 18:01:19:119 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-19 18:01:19:119 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-19 18:01:19:119 [info] MongoDB connected successfully
+2026-05-19 18:02:57:257 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-19 18:03:00:30 [info] Server running in development mode on port 5000
+2026-05-19 18:03:00:30 [info] 🎯 Job Processor Initialized
+2026-05-19 18:03:00:30 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-19 18:03:00:30 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-19 18:03:00:30 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-19 18:03:00:30 [info] MongoDB connected successfully
+2026-05-19 18:04:42:442 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-19 18:04:46:446 [info] Server running in development mode on port 5000
+2026-05-19 18:04:46:446 [info] 🎯 Job Processor Initialized
+2026-05-19 18:04:47:447 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-19 18:04:47:447 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-19 18:04:47:447 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-19 18:04:47:447 [info] MongoDB connected successfully
+2026-05-19 18:06:04:64 [info] Login attempt for email: admin@gmail.com
+2026-05-19 18:07:10:710 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-19 18:07:18:718 [info] Server running in development mode on port 5000
+2026-05-19 18:07:18:718 [info] 🎯 Job Processor Initialized
+2026-05-19 18:07:20:720 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-19 18:07:20:720 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-19 18:07:20:720 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-19 18:07:20:720 [info] MongoDB connected successfully
+2026-05-19 18:19:18:1918 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-19 18:19:21:1921 [info] Server running in development mode on port 5000
+2026-05-19 18:19:21:1921 [info] 🎯 Job Processor Initialized
+2026-05-19 18:19:22:1922 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-19 18:19:22:1922 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-19 18:19:22:1922 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-19 18:19:22:1922 [info] MongoDB connected successfully
+2026-05-19 18:24:01:241 [info] Login attempt for email: admin@gmail.com
+2026-05-19 18:25:57:2557 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-19 18:26:01:261 [info] Server running in development mode on port 5000
+2026-05-19 18:26:01:261 [info] 🎯 Job Processor Initialized
+2026-05-19 18:26:03:263 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-19 18:26:03:263 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-19 18:26:03:263 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-19 18:26:03:263 [info] MongoDB connected successfully
+2026-05-19 18:27:57:2757 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-19 18:27:59:2759 [info] Server running in development mode on port 5000
+2026-05-19 18:27:59:2759 [info] 🎯 Job Processor Initialized
+2026-05-19 18:28:00:280 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-19 18:28:00:280 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-19 18:28:00:280 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-19 18:28:00:280 [info] MongoDB connected successfully
+2026-05-19 18:28:15:2815 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-19 18:28:18:2818 [info] Server running in development mode on port 5000
+2026-05-19 18:28:18:2818 [info] 🎯 Job Processor Initialized
+2026-05-19 18:28:18:2818 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-19 18:28:18:2818 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-19 18:28:18:2818 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-19 18:28:20:2820 [info] MongoDB connected successfully
+2026-05-19 18:40:18:4018 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-19 18:40:23:4023 [info] Server running in development mode on port 5000
+2026-05-19 18:40:23:4023 [info] 🎯 Job Processor Initialized
+2026-05-19 18:40:23:4023 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-19 18:40:23:4023 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-19 18:40:23:4023 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-19 18:40:23:4023 [info] MongoDB connected successfully
+2026-05-19 18:41:13:4113 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-19 18:41:15:4115 [info] Server running in development mode on port 5000
+2026-05-19 18:41:15:4115 [info] 🎯 Job Processor Initialized
+2026-05-19 18:41:15:4115 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-19 18:41:15:4115 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-19 18:41:15:4115 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-19 18:41:16:4116 [info] MongoDB connected successfully
+2026-05-19 18:46:19:4619 [info] Login attempt for email: admin@gmail.com
+2026-05-20 09:40:32:4032 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-20 09:40:34:4034 [info] Server running in development mode on port 5000
+2026-05-20 09:40:34:4034 [info] 🎯 Job Processor Initialized
+2026-05-20 09:40:35:4035 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-20 09:40:43:4043 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-20 09:40:43:4043 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-20 09:41:02:412 [error] MongoDB connection error: Could not connect to any servers in your MongoDB Atlas cluster. One common reason is that you're trying to access the database from an IP that isn't whitelisted. Make sure your current IP address is on your Atlas cluster's IP whitelist: https://www.mongodb.com/docs/atlas/security-whitelist/
+2026-05-20 09:41:56:4156 [info] Login attempt for email: admin@gmail.com
+2026-05-20 09:42:55:4255 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-20 09:42:58:4258 [info] Server running in development mode on port 5000
+2026-05-20 09:42:58:4258 [info] 🎯 Job Processor Initialized
+2026-05-20 09:42:59:4259 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-20 09:43:06:436 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-20 09:43:06:436 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-20 09:43:25:4325 [error] MongoDB connection error: Could not connect to any servers in your MongoDB Atlas cluster. One common reason is that you're trying to access the database from an IP that isn't whitelisted. Make sure your current IP address is on your Atlas cluster's IP whitelist: https://www.mongodb.com/docs/atlas/security-whitelist/
+2026-05-20 10:18:20:1820 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-20 10:18:22:1822 [info] Server running in development mode on port 5000
+2026-05-20 10:18:22:1822 [info] 🎯 Job Processor Initialized
+2026-05-20 10:18:23:1823 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-20 10:18:23:1823 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-20 10:18:23:1823 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-20 10:18:23:1823 [info] MongoDB connected successfully
+2026-05-20 10:18:48:1848 [info] Login attempt for email: admin@gmail.com
+2026-05-20 10:26:37:2637 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-20 10:26:39:2639 [info] Server running in development mode on port 5000
+2026-05-20 10:26:39:2639 [info] 🎯 Job Processor Initialized
+2026-05-20 10:26:40:2640 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-20 10:26:40:2640 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-20 10:26:40:2640 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-20 10:26:40:2640 [info] MongoDB connected successfully
+2026-05-20 10:29:56:2956 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-20 10:29:57:2957 [info] Server running in development mode on port 5000
+2026-05-20 10:29:57:2957 [info] 🎯 Job Processor Initialized
+2026-05-20 10:29:58:2958 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-20 10:29:58:2958 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-20 10:29:58:2958 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-20 10:29:58:2958 [info] MongoDB connected successfully
+2026-05-20 10:30:39:3039 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-20 10:30:40:3040 [info] Server running in development mode on port 5000
+2026-05-20 10:30:40:3040 [info] 🎯 Job Processor Initialized
+2026-05-20 10:30:41:3041 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-20 10:30:41:3041 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-20 10:30:41:3041 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-20 10:30:41:3041 [info] MongoDB connected successfully
+2026-05-20 10:30:50:3050 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-20 10:30:52:3052 [info] Server running in development mode on port 5000
+2026-05-20 10:30:52:3052 [info] 🎯 Job Processor Initialized
+2026-05-20 10:30:52:3052 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-20 10:30:52:3052 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-20 10:30:52:3052 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-20 10:30:52:3052 [info] MongoDB connected successfully
+2026-05-20 10:30:59:3059 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-20 10:31:00:310 [info] Server running in development mode on port 5000
+2026-05-20 10:31:00:310 [info] 🎯 Job Processor Initialized
+2026-05-20 10:31:00:310 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-20 10:31:00:310 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-20 10:31:00:310 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-20 10:31:00:310 [info] MongoDB connected successfully
+2026-05-20 10:31:04:314 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-20 10:31:05:315 [info] Server running in development mode on port 5000
+2026-05-20 10:31:05:315 [info] 🎯 Job Processor Initialized
+2026-05-20 10:31:05:315 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-20 10:31:05:315 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-20 10:31:05:315 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-20 10:31:05:315 [info] MongoDB connected successfully
+2026-05-20 10:33:24:3324 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-20 10:33:25:3325 [info] Server running in development mode on port 5000
+2026-05-20 10:33:25:3325 [info] 🎯 Job Processor Initialized
+2026-05-20 10:33:26:3326 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-20 10:33:26:3326 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-20 10:33:26:3326 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-20 10:33:26:3326 [info] MongoDB connected successfully
+2026-05-20 10:35:29:3529 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-20 10:35:30:3530 [info] Server running in development mode on port 5000
+2026-05-20 10:35:30:3530 [info] 🎯 Job Processor Initialized
+2026-05-20 10:35:30:3530 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-20 10:35:30:3530 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-20 10:35:30:3530 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-20 10:35:59:3559 [error] MongoDB connection error: Could not connect to any servers in your MongoDB Atlas cluster. One common reason is that you're trying to access the database from an IP that isn't whitelisted. Make sure your current IP address is on your Atlas cluster's IP whitelist: https://www.mongodb.com/docs/atlas/security-whitelist/
+2026-05-20 10:36:46:3646 [info] Login attempt for email: admin@gmail.com
+2026-05-20 10:45:10:4510 [error] [ProcurementCron] SLA escalation failed: Operation `procurementslas.find()` buffering timed out after 10000ms
+2026-05-20 10:51:15:5115 [info] Login attempt for email: admin@gmail.com
+2026-05-20 10:51:47:5147 [info] Login attempt for email: admin@gmail.com
+2026-05-20 10:52:04:524 [info] Login attempt for email: admin@gmail.com
+2026-05-20 10:52:23:5223 [info] Login attempt for email: admin@gmail.com
+2026-05-20 10:53:08:538 [info] Login attempt for email: admin@gmail.com
+2026-05-20 10:53:50:5350 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-20 10:53:53:5353 [info] Server running in development mode on port 5000
+2026-05-20 10:53:53:5353 [info] 🎯 Job Processor Initialized
+2026-05-20 10:53:53:5353 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-20 10:53:53:5353 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-20 10:53:53:5353 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-20 10:53:54:5354 [info] MongoDB connected successfully
+2026-05-20 10:54:05:545 [info] Login attempt for email: admin@gmail.com
+2026-05-20 11:23:29:2329 [info] Login attempt for email: admin@gmail.com
+2026-05-20 11:42:30:4230 [info] Login attempt for email: admin@gmail.com
+2026-05-21 11:10:32:1032 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-21 11:10:35:1035 [info] Server running in development mode on port 5000
+2026-05-21 11:10:35:1035 [info] 🎯 Job Processor Initialized
+2026-05-21 11:10:35:1035 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-21 11:10:35:1035 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-21 11:10:35:1035 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-21 11:10:36:1036 [info] MongoDB connected successfully
+2026-05-21 11:19:12:1912 [info] Login attempt for email: admin@gmail.com
+2026-05-21 11:21:22:2122 [info] Login attempt for email: admin@gmail.com
+2026-05-21 11:41:57:4157 [info] Login attempt for email: admin@gmail.com
+2026-05-21 11:58:03:583 [info] Login attempt for email: admin@gmail.com
+2026-05-21 12:14:24:1424 [info] Login attempt for email: admin@gmail.com
+2026-05-21 12:29:54:2954 [info] Login attempt for email: admin@gmail.com
+2026-05-21 13:57:20:5720 [info] Login attempt for email: admin@gmail.com
+2026-05-21 15:21:31:2131 [info] Login attempt for email: admin@gmail.com
+2026-05-21 15:32:53:3253 [info] Login attempt for email: admin@gmail.com
+2026-05-21 15:35:29:3529 [info] Login attempt for email: admin@gmail.com
+2026-05-21 15:57:01:571 [info] Login attempt for email: admin@gmail.com
+2026-05-21 16:16:32:1632 [info] Login attempt for email: admin@gmail.co
+2026-05-21 16:16:32:1632 [warn] Login failed: User not found for email: admin@gmail.co
+2026-05-21 16:16:35:1635 [info] Login attempt for email: admin@gmail.com
+2026-05-21 16:17:36:1736 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-21 16:17:38:1738 [info] Server running in development mode on port 5000
+2026-05-21 16:17:38:1738 [info] 🎯 Job Processor Initialized
+2026-05-21 16:17:38:1738 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-21 16:17:38:1738 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-21 16:17:38:1738 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-21 16:17:38:1738 [info] MongoDB connected successfully
+2026-05-21 16:43:25:4325 [info] Login attempt for email: admin@gmail.com
+2026-05-21 16:49:32:4932 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-21 16:49:34:4934 [info] Server running in development mode on port 5000
+2026-05-21 16:49:34:4934 [info] 🎯 Job Processor Initialized
+2026-05-21 16:49:34:4934 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-21 16:49:34:4934 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-21 16:49:34:4934 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-21 16:49:34:4934 [info] MongoDB connected successfully
+2026-05-22 11:05:05:55 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-22 11:05:08:58 [info] Server running in development mode on port 5000
+2026-05-22 11:05:08:58 [info] 🎯 Job Processor Initialized
+2026-05-22 11:05:09:59 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-22 11:05:09:59 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-22 11:05:09:59 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-22 11:05:09:59 [info] MongoDB connected successfully
+2026-05-22 11:05:42:542 [info] Login attempt for email: admin@gmail.com
+2026-05-22 11:31:47:3147 [info] Login attempt for email: admin@gmail.com
+2026-05-22 11:59:58:5958 [info] Login attempt for email: admin@gmail.com
+2026-05-22 14:28:40:2840 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-22 14:28:42:2842 [info] Server running in development mode on port 5000
+2026-05-22 14:28:42:2842 [info] 🎯 Job Processor Initialized
+2026-05-22 14:28:42:2842 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-22 14:28:42:2842 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-22 14:28:42:2842 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-22 14:28:43:2843 [info] MongoDB connected successfully
+2026-05-22 14:29:03:293 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-22 14:29:04:294 [info] Server running in development mode on port 5000
+2026-05-22 14:29:04:294 [info] 🎯 Job Processor Initialized
+2026-05-22 14:29:04:294 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-22 14:29:04:294 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-22 14:29:04:294 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-22 14:29:05:295 [info] MongoDB connected successfully
+2026-05-22 14:29:12:2912 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-22 14:29:13:2913 [info] Server running in development mode on port 5000
+2026-05-22 14:29:13:2913 [info] 🎯 Job Processor Initialized
+2026-05-22 14:29:13:2913 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-22 14:29:13:2913 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-22 14:29:13:2913 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-22 14:29:14:2914 [info] MongoDB connected successfully
+2026-05-22 14:33:57:3357 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-22 14:33:58:3358 [info] Server running in development mode on port 5000
+2026-05-22 14:33:58:3358 [info] 🎯 Job Processor Initialized
+2026-05-22 14:33:58:3358 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-22 14:33:58:3358 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-22 14:33:58:3358 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-22 14:33:59:3359 [info] MongoDB connected successfully
+2026-05-22 14:34:00:340 [info] Login attempt for email: admin@gmail.com
+2026-05-22 14:55:22:5522 [info] Login attempt for email: admin@gmail.com
+2026-05-22 15:03:09:39 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-22 15:03:10:310 [info] Server running in development mode on port 5000
+2026-05-22 15:03:10:310 [info] 🎯 Job Processor Initialized
+2026-05-22 15:03:10:310 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-22 15:03:10:310 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-22 15:03:10:310 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-22 15:03:11:311 [info] MongoDB connected successfully
+2026-05-22 15:03:24:324 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-22 15:03:26:326 [info] Server running in development mode on port 5000
+2026-05-22 15:03:26:326 [info] 🎯 Job Processor Initialized
+2026-05-22 15:03:26:326 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-22 15:03:26:326 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-22 15:03:26:326 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-22 15:03:27:327 [info] MongoDB connected successfully
+2026-05-22 15:03:33:333 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-22 15:03:35:335 [info] Server running in development mode on port 5000
+2026-05-22 15:03:35:335 [info] 🎯 Job Processor Initialized
+2026-05-22 15:03:35:335 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-22 15:03:35:335 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-22 15:03:35:335 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-22 15:03:36:336 [info] MongoDB connected successfully
+2026-05-22 15:03:48:348 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-22 15:03:49:349 [info] Server running in development mode on port 5000
+2026-05-22 15:03:49:349 [info] 🎯 Job Processor Initialized
+2026-05-22 15:03:49:349 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-22 15:03:49:349 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-22 15:03:49:349 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-22 15:03:50:350 [info] MongoDB connected successfully
+2026-05-22 15:06:17:617 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-22 15:06:18:618 [info] Server running in development mode on port 5000
+2026-05-22 15:06:18:618 [info] 🎯 Job Processor Initialized
+2026-05-22 15:06:19:619 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-22 15:06:19:619 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-22 15:06:19:619 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-22 15:06:20:620 [info] MongoDB connected successfully
+2026-05-22 15:09:05:95 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-22 15:09:06:96 [info] Server running in development mode on port 5000
+2026-05-22 15:09:06:96 [info] 🎯 Job Processor Initialized
+2026-05-22 15:09:06:96 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-22 15:09:06:96 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-22 15:09:06:96 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-22 15:09:07:97 [info] MongoDB connected successfully
+2026-05-22 15:21:00:210 [info] Login attempt for email: admin@gmail.com
+2026-05-22 15:21:00:210 [warn] Login failed: Incorrect password for email: admin@gmail.com
+2026-05-22 15:21:13:2113 [info] Login attempt for email: admin@gmail.com
+2026-05-22 15:21:13:2113 [warn] Login failed: Incorrect password for email: admin@gmail.com
+2026-05-22 15:21:17:2117 [info] Login attempt for email: admin@gmail.com
+2026-05-22 15:56:20:5620 [info] Login attempt for email: admin@gmail.com
+2026-05-22 16:06:00:60 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-22 16:06:02:62 [info] Server running in development mode on port 5000
+2026-05-22 16:06:02:62 [info] 🎯 Job Processor Initialized
+2026-05-22 16:06:02:62 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-22 16:06:02:62 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-22 16:06:02:62 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-22 16:06:03:63 [info] MongoDB connected successfully
+2026-05-22 16:39:50:3950 [info] Login attempt for email: admin@gmail.com
+2026-05-22 16:43:43:4343 [info] Login attempt for email: n84258106@gmail.com
+2026-05-22 16:44:18:4418 [info] Login attempt for email: admin@gmail.com
+2026-05-22 16:45:39:4539 [info] Login attempt for email: n84258106@gmail.com
+2026-05-22 17:40:01:401 [info] Login attempt for email: admin@gmail.com
+2026-05-25 09:52:39:5239 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-25 09:52:41:5241 [info] Server running in development mode on port 5000
+2026-05-25 09:52:41:5241 [info] 🎯 Job Processor Initialized
+2026-05-25 09:52:42:5242 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-25 09:52:50:5250 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-25 09:52:50:5250 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-25 09:53:09:539 [error] MongoDB connection error: Could not connect to any servers in your MongoDB Atlas cluster. One common reason is that you're trying to access the database from an IP that isn't whitelisted. Make sure your current IP address is on your Atlas cluster's IP whitelist: https://www.mongodb.com/docs/atlas/security-whitelist/
+2026-05-25 09:54:28:5428 [info] Login attempt for email: admin@gmail.com
+2026-05-25 09:54:46:5446 [info] Login attempt for email: admin@gmail.com
+2026-05-25 09:55:22:5522 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-25 09:55:23:5523 [info] Server running in development mode on port 5000
+2026-05-25 09:55:23:5523 [info] 🎯 Job Processor Initialized
+2026-05-25 09:55:23:5523 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-25 09:55:23:5523 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-25 09:55:23:5523 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-25 09:55:23:5523 [info] MongoDB connected successfully
+2026-05-25 09:55:45:5545 [info] Login attempt for email: admin@gmail.com
+2026-05-25 10:11:35:1135 [info] Login attempt for email: admin@gmail.com
+2026-05-25 10:26:26:2626 [info] Login attempt for email: teenaninama22@gmail.com
+2026-05-25 10:26:26:2626 [warn] Login failed: Incorrect password for email: teenaninama22@gmail.com
+2026-05-25 10:26:39:2639 [info] Login attempt for email: admin@gmail.com
+2026-05-25 10:27:49:2749 [info] Login attempt for email: n84258106@gmail.com
+2026-05-25 10:27:49:2749 [warn] Login failed: Incorrect password for email: n84258106@gmail.com
+2026-05-25 10:27:58:2758 [info] Login attempt for email: n84258106@gmail.com
+2026-05-25 10:30:04:304 [info] Login attempt for email: admin@gmail.com
+2026-05-25 10:32:59:3259 [info] Login attempt for email: admin@gmail.com
+2026-05-25 10:34:13:3413 [info] Login attempt for email: n84258106@gmail.com
+2026-05-25 10:37:59:3759 [info] Login attempt for email: admin@gmail.com
+2026-05-25 10:48:42:4842 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-25 10:48:43:4843 [info] Server running in development mode on port 5000
+2026-05-25 10:48:43:4843 [info] 🎯 Job Processor Initialized
+2026-05-25 10:48:43:4843 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-25 10:48:43:4843 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-25 10:48:43:4843 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-25 10:48:44:4844 [info] MongoDB connected successfully
+2026-05-25 10:48:51:4851 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-25 10:48:53:4853 [info] Server running in development mode on port 5000
+2026-05-25 10:48:53:4853 [info] 🎯 Job Processor Initialized
+2026-05-25 10:48:53:4853 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-25 10:48:53:4853 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-25 10:48:53:4853 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-25 10:48:54:4854 [info] MongoDB connected successfully
+2026-05-25 10:52:30:5230 [info] Login attempt for email: n84258106@gmail.com
+2026-05-25 10:54:55:5455 [info] Login attempt for email: admin@gmail.com
+2026-05-25 11:02:49:249 [info] Login attempt for email: n84258106@gmail.com
+2026-05-25 11:11:40:1140 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-25 11:11:41:1141 [info] Server running in development mode on port 5000
+2026-05-25 11:11:41:1141 [info] 🎯 Job Processor Initialized
+2026-05-25 11:11:41:1141 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-25 11:11:41:1141 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-25 11:11:41:1141 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-25 11:11:42:1142 [info] MongoDB connected successfully
+2026-05-25 11:17:28:1728 [info] Login attempt for email: admin@gmail.com
+2026-05-25 11:18:00:180 [info] Login attempt for email: admin@gmail.com

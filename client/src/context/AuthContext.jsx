@@ -1,4 +1,4 @@
-import { createContext, useState, useEffect } from "react";
+import { createContext, useState, useEffect, useContext } from "react";
 import api from "../services/api";
 import { useNavigate } from "react-router-dom";
 import { normalizeRole, getAllowedModules } from "../config/roles";
@@ -86,7 +86,13 @@ export function AuthProvider({ children }) {
     setUser(mergedUser);
     setAllowedModules(computedModules);
 
-    if (normalizedRole !== "vendor") {
+    if (normalizedRole === "client") {
+      if (mergedUser.mustChangePassword) {
+        navigate("/client/dashboard"); // For now, no change-password page for clients
+      } else {
+        navigate("/client/dashboard");
+      }
+    } else if (normalizedRole !== "vendor") {
       const adminLinks = getAdminLinksForUser(mergedUser, computedModules);
       navigate(adminLinks[0]?.to || "/admin/dashboard");
     } else {
@@ -126,3 +132,5 @@ export function AuthProvider({ children }) {
     </AuthContext.Provider>
   );
 }
+
+export const useAuth = () => useContext(AuthContext);

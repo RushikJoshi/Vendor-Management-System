@@ -1,5 +1,5 @@
 import React, { useState, useContext, useRef, useEffect } from 'react';
-import { Bell, Check, Trash, Info, CheckCircle, AlertTriangle, FileText, ChevronRight, ReceiptIndianRupee } from 'lucide-react';
+import { Bell, Check, Trash, Info, CheckCircle, AlertTriangle, FileText, ChevronRight, ReceiptIndianRupee, MessageSquare, CreditCard } from 'lucide-react';
 import { NotificationContext } from '../context/NotificationContext';
 import { formatDistanceToNow } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
@@ -24,6 +24,12 @@ export default function NotificationBell() {
         if (notification.type === 'quotation') navigate(notification.relatedEntityId ? `/admin/rfqs/${notification.relatedEntityId}/compare` : '/admin/rfqs');
         if (notification.type === 'application') navigate('/admin/applications');
         if (notification.type === 'contract') navigate('/admin/contracts');
+        if (notification.type === 'comment' || notification.type === 'procurement') {
+            navigate(notification.relatedEntityId ? `/admin/procurement/po/${notification.relatedEntityId}` : '/admin/procurement');
+        }
+        if (notification.type === 'payment') {
+            navigate(notification.relatedEntityId ? `/admin/procurement/payment/${notification.relatedEntityId}` : '/admin/procurement');
+        }
         
         setIsOpen(false);
     };
@@ -47,6 +53,9 @@ export default function NotificationBell() {
             case 'quotation': return <ReceiptIndianRupee className="text-violet-500" size={16} />;
             case 'application': return <CheckCircle className="text-green-500" size={16} />;
             case 'contract': return <AlertTriangle className="text-amber-500" size={16} />;
+            case 'comment': return <MessageSquare className="text-sky-500" size={16} />;
+            case 'payment': return <CreditCard className="text-emerald-500" size={16} />;
+            case 'procurement': return <FileText className="text-indigo-600" size={16} />;
             default: return <Bell size={16} />;
         }
     };

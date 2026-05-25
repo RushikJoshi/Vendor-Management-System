@@ -1,11 +1,11 @@
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Truck, Package, Clock, MapPin, Search, Filter } from "lucide-react";
 import { ProcurementContext } from "../../context/ProcurementContext";
 import { toast } from "react-hot-toast";
 
 export default function AdminDeliveries() {
-  const { deliveries, loading, refreshAll } = useContext(ProcurementContext);
+  const { deliveries, purchaseOrders, loading, refreshAll } = useContext(ProcurementContext);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -20,6 +20,14 @@ export default function AdminDeliveries() {
       default: return 'bg-amber-100 text-amber-700 border-amber-200';
     }
   };
+
+  const pendingShipments = useMemo(() => {
+    if (!purchaseOrders) return [];
+    // POs that are paid but don't have a delivery record yet
+    const deliveredPoIds = new Set(deliveries.map(d => String(d.poId?._id || d.poId)));
+    return purchaseOrders.filter(po => po.status === 'paid' && !deliveredPoIds.has(String(po._id)));
+  }, [purchaseOrders, deliveries]);
+
 
   return (
     <div className="space-y-6 pb-20 animate-in fade-in duration-500 p-3 md:p-5">
@@ -51,6 +59,38 @@ export default function AdminDeliveries() {
               <Filter size={18} className="text-slate-600" />
            </button>
         </div>
+      </div>
+
+      {/* Pending Dispatch Section */}
+      {pendingShipments.length > 0 && (
+        <section className="space-y-4">
+           <div className="flex items-center gap-3 px-2">
+              <div className="h-2 w-2 bg-amber-500 rounded-full animate-ping"></div>
+              <h2 className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">Awaiting Dispatch (Paid Orders)</h2>
+           </div>
+           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {pendingShipments.map(po => (
+                <div key={po._id} className="bg-white p-5 rounded-2xl border-2 border-dashed border-slate-200 hover:border-indigo-400 transition-all group">
+                   <div className="flex justify-between items-start mb-4">
+                      <span className="text-[10px] font-black text-indigo-600 uppercase">{po.poNumber}</span>
+                      <span className="px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest bg-emerald-50 text-emerald-600 border border-emerald-100">Paid</span>
+                   </div>
+                   <h3 className="text-sm font-bold text-slate-900 truncate mb-4">{po.vendorId?.companyName || "Vendor Operation"}</h3>
+                   <button 
+                      onClick={() => navigate(`/admin/procurement/po/${po._id}`)}
+                      className="w-full py-2.5 bg-slate-50 group-hover:bg-slate-900 group-hover:text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
+                   >
+                      Track Order Status
+                   </button>
+                </div>
+              ))}
+           </div>
+        </section>
+      )}
+
+      <div className="flex items-center gap-3 px-2 pt-4">
+          <Truck size={16} className="text-slate-400" />
+          <h2 className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">Active Shipments & In-Transit</h2>
       </div>
 
       {/* Grid of Delivery Cards */}

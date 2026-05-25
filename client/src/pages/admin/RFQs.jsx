@@ -292,6 +292,17 @@ const RFQList = () => {
                       <td className="whitespace-nowrap px-4 py-4 text-sm text-slate-600">{formatDate(rfq.quoteDeadline)}</td>
                       <td className="whitespace-nowrap px-4 py-4 text-right">
                         <div className="flex items-center justify-end gap-2">
+                          {(normalizedStatus === "draft" || normalizedStatus === "published") && (
+                            <button
+                              type="button"
+                              onClick={() => navigate(`/admin/rfqs/${rfq._id}/edit`)}
+                              className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                              title="Edit Protocol"
+                            >
+                              <Edit3 size={14} />
+                            </button>
+                          )}
+
                           {normalizedStatus === "draft" && (
                             <>
                               <button

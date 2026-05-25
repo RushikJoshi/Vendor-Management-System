@@ -115,7 +115,10 @@ exports.checkActionAccess = (...actionKeys) => {
         const hasAccess = normalizedRequired.every(
             (key) => hasPermission(userActions, key) || hasLegacyRoleAccess(req.userRole, key)
         );
+
         if (!hasAccess) {
+            console.error(`[RBAC] Access Denied for User [${req.user?._id}] with role [${req.user?.role}]. Missing one of:`, normalizedRequired);
+            console.error(`[RBAC] User Effective Permissions:`, userActions);
             return next(new AppError("You do not have required action permissions for this endpoint", 403));
         }
 
@@ -124,8 +127,10 @@ exports.checkActionAccess = (...actionKeys) => {
 };
 
 /**
- * OR variant for endpoints shared by multiple personas.
- * Access granted if the user has at least one provided permission key.
+ * checkAnyActionAccess(actionKeys)
+ * 
+ * Grants access if the user has ANY of the specified action permissions.
+ * Bypasses for 'admin' role.
  */
 exports.checkAnyActionAccess = (...actionKeys) => {
     return (req, res, next) => {
@@ -136,7 +141,10 @@ exports.checkAnyActionAccess = (...actionKeys) => {
         const hasAnyAccess = normalizedRequired.some(
             (key) => hasPermission(userActions, key) || hasLegacyRoleAccess(req.userRole, key)
         );
+
         if (!hasAnyAccess) {
+            console.error(`[RBAC] Access Denied (Any) for User [${req.user?._id}] with role [${req.user?.role}]. Missing ALL of:`, normalizedRequired);
+            console.error(`[RBAC] User Effective Permissions:`, userActions);
             return next(new AppError("You do not have required action permissions for this endpoint", 403));
         }
 

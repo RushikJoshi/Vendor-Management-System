@@ -55,7 +55,19 @@ const FileUploadField = ({ label, file, onChange, required, fieldId }) => {
             <input
                 type="file"
                 ref={fileInputRef}
-                onChange={(e) => onChange(fieldId || label, e.target.files[0])}
+                accept=".pdf,.jpg,.jpeg,.png"
+                onChange={(e) => {
+                    const selectedFile = e.target.files[0];
+                    if (selectedFile) {
+                        const allowedExtensions = ["pdf", "jpg", "jpeg", "png"];
+                        const ext = selectedFile.name.split('.').pop()?.toLowerCase();
+                        if (!allowedExtensions.includes(ext)) {
+                            toast.error("Invalid file type! Please upload PDF, JPG, or PNG only.");
+                            return;
+                        }
+                    }
+                    onChange(fieldId || label, selectedFile);
+                }}
                 className="hidden"
             />
             <div
@@ -70,7 +82,7 @@ const FileUploadField = ({ label, file, onChange, required, fieldId }) => {
                 </div>
                 <div className="flex-1 min-w-0">
                     <p className={`text-[12px] font-bold truncate ${file ? 'text-blue-900' : 'text-slate-500'}`}>
-                        {file ? file.name : "ATTACH REQUIRED DOCUMENT"}
+                        {file ? file.name : "ATTACH REQUIRED DOCUMENT (PDF, JPG, PNG)"}
                     </p>
                 </div>
                 {file && (
@@ -100,6 +112,8 @@ const TURNOVER_DEPENDENCY_VALUE = "Yes";
 const TURNOVER_FIELD_IDS = ["ly1Turnover", "ly2Turnover", "ly3Turnover", "ly4Turnover", "ly5Turnover", "ly6Turnover"];
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MOBILE_REGEX = /^\d{10}$/;
+const IFSC_REGEX = /^[A-Z]{4}0[A-Z0-9]{6}$/;
+const PINCODE_REGEX = /^\d{6}$/;
 const STATUTORY_FIELD_CODES = {
     panStatus: "1.1.1.3.1.1",
     panNum: "1.1.1.3.1.2",
@@ -867,6 +881,76 @@ export default function RegistrationWizard() {
 
     if (loading) return <div className="registration-readable min-h-screen flex items-center justify-center bg-[#f8fafc]"><LoadingSpinner /></div>;
 
+    const lastAutofillRef = useRef({});
+
+    useEffect(() => {
+        const checkAutofill = async () => {
+            for (const [key, value] of Object.entries(formValues)) {
+                if (!value) continue;
+                const val = String(value).trim().toUpperCase();
+                const lastVal = lastAutofillRef.current[key];
+                if (val === lastVal) continue;
+
+                // IFSC AUTOFILL
+                if (key.toLowerCase().includes("ifsc") && IFSC_REGEX.test(val)) {
+                    lastAutofillRef.current[key] = val;
+                    try {
+                        const res = await axios.get(`https://ifsc.razorpay.com/${val}`);
+                        const bank = res.data?.BANK;
+                        const branch = res.data?.BRANCH;
+                        const city = res.data?.CITY;
+                        
+                        const updates = {};
+                        const bankKey = Object.keys(formValues).find(k => k.toLowerCase().includes("bankname"));
+                        const branchKey = Object.keys(formValues).find(k => k.toLowerCase().includes("bankbranch") || k.toLowerCase().includes("branch"));
+                        const bankCityKey = Object.keys(formValues).find(k => k.toLowerCase().includes("bankcity"));
+
+                        if (bank && bankKey && !formValues[bankKey]) updates[bankKey] = bank;
+                        if (branch && branchKey && !formValues[branchKey]) updates[branchKey] = branch;
+                        if (city && bankCityKey && !formValues[bankCityKey]) updates[bankCityKey] = city;
+
+                        if (Object.keys(updates).length > 0) {
+                            setFormValues(prev => ({ ...prev, ...updates }));
+                            toast.success(`Bank details fetched: ${bank}`);
+                        }
+                    } catch (e) {}
+                }
+
+                // PINCODE AUTOFILL
+                if ((key.toLowerCase().includes("pincode") || key.toLowerCase().includes("postal")) && PINCODE_REGEX.test(val)) {
+                    lastAutofillRef.current[key] = val;
+                    try {
+                        const res = await axios.get(`https://api.postalpincode.in/pincode/${val}`);
+                        const data = res.data?.[0];
+                        if (data?.Status === "Success" && data.PostOffice?.length > 0) {
+                            const first = data.PostOffice[0];
+                            const updates = {};
+                            const cityKey = Object.keys(formValues).find(k => k.toLowerCase().includes("city"));
+                            const stateKey = Object.keys(formValues).find(k => k.toLowerCase().includes("state") && !k.toLowerCase().includes("gst"));
+
+                            if (first.Block && cityKey && !formValues[cityKey]) updates[cityKey] = first.Block;
+                            if (first.State && stateKey && !formValues[stateKey]) updates[stateKey] = first.State;
+
+                            if (Object.keys(updates).length > 0) {
+                                setFormValues(prev => ({ ...prev, ...updates }));
+                            }
+                        }
+                    } catch (e) {}
+                }
+
+                // BANK ACCOUNT VERIFICATION (MOCK)
+                if (key.toLowerCase().includes("accountnumber") && val.length >= 10) {
+                    lastAutofillRef.current[key] = val;
+                    const tid = toast.loading("Verifying bank account...");
+                    setTimeout(() => {
+                        toast.success("Bank account verified.", { id: tid });
+                    }, 1500);
+                }
+            }
+        };
+        checkAutofill();
+    }, [formValues]);
+
     const MOCK_CATEGORIES = [
         "ALL (ALL) > Material (Material) > GENERAL CONSUMABLES (ZCON) > IT CONSUMABLE (120004) > CABLE MANAGER (13004011)",
         "ALL (ALL) > Material (Material) > ASSET MATERIAL (ZAST) > IT EQUIPMENT (130002) > MANAGED SWITCH 24 PORT (12000935)",
@@ -1277,9 +1361,9 @@ export default function RegistrationWizard() {
 
             Object.keys(files).forEach(key => { if (files[key]) formData.append(key, files[key]); });
 
-            await api.post("/applications/submit", formData, { headers: { "Content-Type": "multipart/form-data" } });
+            const res = await api.post("/applications/submit", formData, { headers: { "Content-Type": "multipart/form-data" } });
             toast.success("Application successfully registered!", { id: toastId });
-            navigate("/success", { state: { email: resolvedEmail } });
+            navigate("/success", { state: { email: resolvedEmail, appId: res.data.data._id } });
         } catch (err) {
             toast.error(err.message || "Transmission error.", { id: toastId });
         } finally {

@@ -8,7 +8,7 @@ import procurementApi from "../../services/procurementApi";
 export default function PaymentCheckout() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { invoices, refreshAll } = useContext(ProcurementContext);
+  const { invoices, refreshAll, loading } = useContext(ProcurementContext);
   
   const [invoice, setInvoice] = useState(null);
   const [working, setWorking] = useState(false);
@@ -18,12 +18,20 @@ export default function PaymentCheckout() {
     paymentDate: new Date().toISOString().split('T')[0]
   });
 
+  // Load invoices on mount if not already loaded
+  useEffect(() => {
+    if (!loading && (!invoices || invoices.length === 0)) {
+      refreshAll();
+    }
+  }, []);
+
+  // Match by invoice _id OR by poId (both are valid entry points)
   useEffect(() => {
     if (invoices && invoices.length > 0) {
-      const found = invoices.find(inv => inv._id === id);
-      if (found) {
-        setInvoice(found);
-      }
+      const found = invoices.find(
+        inv => inv._id === id || String(inv.poId?._id || inv.poId) === id
+      );
+      if (found) setInvoice(found);
     }
   }, [invoices, id]);
 
@@ -48,8 +56,9 @@ export default function PaymentCheckout() {
   };
 
   if (!invoice) return (
-    <div className="flex h-[60vh] items-center justify-center">
+    <div className="flex flex-col h-[60vh] items-center justify-center gap-4">
       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+      <p className="text-xs text-slate-400 font-semibold uppercase tracking-widest">Loading invoice details...</p>
     </div>
   );
 

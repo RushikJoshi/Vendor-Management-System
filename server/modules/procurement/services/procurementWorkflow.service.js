@@ -225,9 +225,30 @@ class ProcurementWorkflowService {
         totalPrice: Number(item.totalPrice || item.unitPrice || 0),
       })),
       totalAmount: quotation.totalAmount,
-      status: "sent",
+      status: "draft", // Initially draft, becomes 'sent' or 'paid' after payment
       tenantId: req.tenantId,
       createdBy: req.user._id,
+    });
+
+    // Auto-create a Proforma Invoice for advance payment
+    const invoiceNumber = `INV-ADV-${Date.now().toString().slice(-6)}`;
+    await Invoice.create({
+      invoiceNumber,
+      poId: po._id,
+      vendorId: quotation.vendorId,
+      tenantId: req.tenantId,
+      invoiceDate: new Date(),
+      dueDate: addHours(new Date(), 48),
+      currency: quotation.currency || "INR",
+      baseAmount: quotation.totalAmount,
+      totalAmount: quotation.totalAmount,
+      status: "approved", // Pre-approved for admin payment
+      lines: (quotation.items || []).map(it => ({
+        itemName: it.notes || "Advance Payment",
+        quantity: 1,
+        unitPrice: it.unitPrice || quotation.totalAmount,
+        lineTotal: it.totalPrice || quotation.totalAmount
+      }))
     });
 
     await ProcurementSLAService.markMet({
@@ -335,13 +356,13 @@ class ProcurementWorkflowService {
       vendorId: po.vendorId,
       tenantId: req.tenantId,
       invoiceDate: payload.invoiceDate || new Date(),
-      dueDate: payload.dueDate,
+      dueDate: payload.dueDate || addHours(new Date(), 30 * 24), // default: 30 days from now
       currency: payload.currency || "INR",
       lines,
       baseAmount,
       taxAmount,
       totalAmount,
-      status: "submitted",
+      status: payload.status || "submitted",
       attachments: payload.attachments || [],
       slaDueAt: addHours(new Date(), 48),
     });
@@ -401,7 +422,8 @@ class ProcurementWorkflowService {
     const finalTransactionRef = transactionRef || reference || "";
     const invoice = await Invoice.findOne({ _id: invoiceId, tenantId: req.tenantId });
     if (!invoice) throw new Error("Invoice not found.");
-    if (invoice.status !== "approved") throw new Error("Only approved invoice can be paid.");
+    const canPay = invoice.status === "approved" || (invoice.status === "submitted" && String(invoice.invoiceNumber).startsWith("INV-AUTO-"));
+    if (!canPay) throw new Error("Only approved invoice can be paid.");
 
     const po = await PurchaseOrder.findOne({ _id: invoice.poId, tenantId: req.tenantId });
     if (!po) throw new Error("Purchase order not found for invoice.");

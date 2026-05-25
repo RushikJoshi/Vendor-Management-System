@@ -58,6 +58,12 @@ export default function ProcurementSettings() {
         poPrefix: "PO",
         poStartNumber: 1,
         poSuffix: "",
+        soPrefix: "SO",
+        soStartNumber: 1,
+        soSuffix: "",
+        soTerms: [
+            { term: 'SERVICE PERIOD', desc: 'AS PER SCOPE' }
+        ],
         layoutPositions: {},
         customElements: [],
         elementStyles: {}
@@ -113,18 +119,21 @@ export default function ProcurementSettings() {
     };
 
     const updateTerm = (index, field, value) => {
-        const newTerms = [...settings.poTerms];
+        const termsKey = activeTemplate === "SO" ? "soTerms" : "poTerms";
+        const newTerms = [...settings[termsKey]];
         newTerms[index][field] = value;
-        setSettings({ ...settings, poTerms: newTerms });
+        setSettings({ ...settings, [termsKey]: newTerms });
     };
 
     const addTerm = () => {
-        setSettings({ ...settings, poTerms: [...settings.poTerms, { term: '', desc: '' }] });
+        const termsKey = activeTemplate === "SO" ? "soTerms" : "poTerms";
+        setSettings({ ...settings, [termsKey]: [...(settings[termsKey] || []), { term: '', desc: '' }] });
     };
 
     const removeTerm = (index) => {
-        const newTerms = settings.poTerms.filter((_, i) => i !== index);
-        setSettings({ ...settings, poTerms: newTerms });
+        const termsKey = activeTemplate === "SO" ? "soTerms" : "poTerms";
+        const newTerms = (settings[termsKey] || []).filter((_, i) => i !== index);
+        setSettings({ ...settings, [termsKey]: newTerms });
     };
 
     const updateGeneralTerm = (index, value) => {
@@ -149,6 +158,21 @@ export default function ProcurementSettings() {
                                 Designer
                             </h1>
                         </div>
+                    </div>
+
+                    <div className="hidden md:flex bg-slate-100 p-1 rounded-lg border border-slate-200 absolute left-1/2 -translate-x-1/2">
+                        <button 
+                            onClick={() => setActiveTemplate("PO")}
+                            className={`px-4 py-1.5 rounded-md text-[10px] font-black uppercase transition-all ${activeTemplate === "PO" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-500 hover:text-slate-700"}`}
+                        >
+                            Purchase Order (PO)
+                        </button>
+                        <button 
+                            onClick={() => setActiveTemplate("SO")}
+                            className={`px-4 py-1.5 rounded-md text-[10px] font-black uppercase transition-all ${activeTemplate === "SO" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-500 hover:text-slate-700"}`}
+                        >
+                            Service Order (SO)
+                        </button>
                     </div>
 
                     <div className="flex items-center gap-2 flex-shrink-0 ml-auto">
@@ -408,22 +432,22 @@ export default function ProcurementSettings() {
                                     <div className="flex items-center gap-4">
                                         <div className="p-3 bg-indigo-600 rounded-2xl text-white"><Hash size={18} /></div>
                                         <div>
-                                            <h4 className="text-[11px] font-black uppercase text-slate-900">PO Number Format</h4>
-                                            <p className="text-[9px] font-bold text-slate-400 uppercase">Current: {settings.poPrefix}{settings.poStartNumber}{settings.poSuffix}</p>
+                                            <h4 className="text-[11px] font-black uppercase text-slate-900">{activeTemplate === "SO" ? "SO Number Format" : "PO Number Format"}</h4>
+                                            <p className="text-[9px] font-bold text-slate-400 uppercase">Current: {activeTemplate === "SO" ? settings.soPrefix : settings.poPrefix}{activeTemplate === "SO" ? settings.soStartNumber : settings.poStartNumber}{activeTemplate === "SO" ? settings.soSuffix : settings.poSuffix}</p>
                                         </div>
                                     </div>
                                     <div className="grid grid-cols-3 gap-3">
                                         <div className="space-y-1">
                                             <label className="text-[9px] font-bold text-slate-400 uppercase">Prefix</label>
-                                            <input value={settings.poPrefix} onChange={e => setSettings({...settings, poPrefix: e.target.value})} className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-[10px] font-black uppercase outline-none focus:ring-2 focus:ring-indigo-100" />
+                                            <input value={activeTemplate === "SO" ? settings.soPrefix : settings.poPrefix} onChange={e => activeTemplate === "SO" ? setSettings({...settings, soPrefix: e.target.value}) : setSettings({...settings, poPrefix: e.target.value})} className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-[10px] font-black uppercase outline-none focus:ring-2 focus:ring-indigo-100" />
                                         </div>
                                         <div className="space-y-1">
                                             <label className="text-[9px] font-bold text-slate-400 uppercase">Start From</label>
-                                            <input type="number" value={settings.poStartNumber} onChange={e => setSettings({...settings, poStartNumber: parseInt(e.target.value)})} className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-[10px] font-black outline-none focus:ring-2 focus:ring-indigo-100" />
+                                            <input type="number" value={activeTemplate === "SO" ? settings.soStartNumber : settings.poStartNumber} onChange={e => activeTemplate === "SO" ? setSettings({...settings, soStartNumber: parseInt(e.target.value)}) : setSettings({...settings, poStartNumber: parseInt(e.target.value)})} className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-[10px] font-black outline-none focus:ring-2 focus:ring-indigo-100" />
                                         </div>
                                         <div className="space-y-1">
                                             <label className="text-[9px] font-bold text-slate-400 uppercase">Suffix</label>
-                                            <input value={settings.poSuffix} onChange={e => setSettings({...settings, poSuffix: e.target.value})} className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-[10px] font-black uppercase outline-none focus:ring-2 focus:ring-indigo-100" />
+                                            <input value={activeTemplate === "SO" ? settings.soSuffix : settings.poSuffix} onChange={e => activeTemplate === "SO" ? setSettings({...settings, soSuffix: e.target.value}) : setSettings({...settings, poSuffix: e.target.value})} className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-[10px] font-black uppercase outline-none focus:ring-2 focus:ring-indigo-100" />
                                         </div>
                                     </div>
                                 </div>
@@ -442,7 +466,7 @@ export default function ProcurementSettings() {
                                         </button>
                                     </div>
                                     <div className="space-y-5">
-                                        {settings.poTerms.map((term, idx) => (
+                                        {(activeTemplate === "SO" ? (settings.soTerms || []) : (settings.poTerms || [])).map((term, idx) => (
                                             <div key={idx} className="p-6 bg-slate-50/50 border border-slate-200 rounded-[28px] space-y-4 relative group hover:bg-white hover:shadow-xl hover:border-indigo-100 transition-all">
                                                 <button onClick={() => removeTerm(idx)} className="absolute top-5 right-5 text-slate-300 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition-all p-2 bg-white rounded-full shadow-sm">
                                                     <X size={16} />
@@ -480,8 +504,9 @@ export default function ProcurementSettings() {
                 </aside>
 
                 {/* CENTRAL PREVIEW CANVAS */}
-                <main className="flex-1 overflow-auto bg-slate-100/30 p-12 flex flex-col items-center no-scrollbar">
-                     <div className="bg-white shadow-[0_40px_100px_rgba(0,0,0,0.08)] border border-slate-200 w-[210mm] min-h-[297mm] h-fit origin-top transition-all duration-500 rounded-sm relative overflow-hidden" style={{ transform: `scale(${canvasScale})`, fontFamily: settings.fontFamily }}>
+                  <main className="flex-1 overflow-auto bg-slate-100/30 p-12 flex flex-col items-center no-scrollbar">
+                       <div className="origin-top transition-all duration-500 flex flex-col gap-8 pb-32" style={{ transform: `scale(${canvasScale})`, fontFamily: settings.fontFamily }}>
+                           <div className="bg-white shadow-[0_40px_100px_rgba(0,0,0,0.08)] border border-slate-200 w-[210mm] min-h-[297mm] h-fit relative overflow-hidden">
                           {/* WATERMARK */}
                           {settings.showWatermark && (
                               <div className="absolute inset-0 pointer-events-none flex items-center justify-center select-none z-0">
@@ -490,25 +515,35 @@ export default function ProcurementSettings() {
                           )}
 
                           <div className="p-10 text-[11px] text-black leading-tight relative z-10">
-                             <div className="border border-black">
-                                 <div className="flex justify-between p-6 border-b border-black" style={{ borderTop: `6px solid ${settings.themeColor}` }}>
+                             <div className="flex flex-col gap-0 border-black">
+                                 {/* HEADER */}
+                                 <div className="flex justify-between items-start border-b border-black pb-2">
                                      <div className="flex-1">
-                                         <h1 className="text-[15px] font-black uppercase mb-1" style={{ color: settings.themeColor }}>{settings.companyName}</h1>
-                                         <p className="max-w-[350px] font-bold opacity-70 leading-tight uppercase text-[10px]">{settings.companyAddress}</p>
-                                         <div className="mt-3 flex flex-wrap gap-4 text-[8px] font-black uppercase opacity-60">
-                                             {settings.gstNumber && <span>GST: {settings.gstNumber}</span>}
-                                             {settings.cinNumber && <span>CIN: {settings.cinNumber}</span>}
+                                         <h1 className="text-xl font-black uppercase mb-1">{settings.companyName || 'GITAKSHMI TECHNOLOGIES PRIVATE LIMITED'}</h1>
+                                         <div className="text-[10px] space-y-0.5 font-normal uppercase text-slate-700">
+                                             {settings.companyAddress ? (
+                                                 settings.companyAddress.split('\n').map((line, index) => (
+                                                     <p key={index}>{line}</p>
+                                                 ))
+                                             ) : (
+                                                 <>
+                                                     <p>OFFICE NO.701, 7TH FLOOR, KAIVANNA COMPLEX,</p>
+                                                     <p>OFF C.G. ROAD, AMBAWADI,</p>
+                                                     <p>AHMEDABAD GJ 380006</p>
+                                                 </>
+                                             )}
+                                             <p className="text-indigo-600 normal-case">www.gitakshmi.com</p>
                                          </div>
                                      </div>
-                                     <div className="text-right shrink-0">
+                                     <div className="text-right flex flex-col items-end">
                                          {settings.logo ? (
-                                             <img src={settings.logo} className="h-16 w-36 object-contain animate-in fade-in duration-500" />
+                                             <img src={settings.logo} alt="Logo" className="h-16 w-auto object-contain" />
                                          ) : (
-                                             <div className="h-16 w-32 bg-slate-50 border border-dashed border-slate-200 rounded-xl flex items-center justify-center font-black text-slate-300 uppercase text-[9px]">ENTITY LOGO</div>
+                                             <img src="/logo.png" alt="Logo" className="h-16" onError={(e) => e.target.style.display='none'} />
                                          )}
                                      </div>
                                  </div>
-                                 <div className="border-b border-black py-1.5 text-center font-black uppercase tracking-[4px] text-[10px]" style={{ backgroundColor: `${settings.themeColor}10`, color: settings.themeColor }}>Purchase Order</div>
+                                 <div className="border-b border-black py-1.5 text-center font-black uppercase tracking-[4px] text-[10px]" style={{ backgroundColor: `${settings.themeColor}10`, color: settings.themeColor }}>{activeTemplate === "SO" ? "Service Work Order" : "Purchase Order"}</div>
                                  <div className="h-24 border-b border-black grid grid-cols-10">
                                      <div className="col-span-6 border-r border-black p-3 flex flex-col justify-between">
                                           <div className="text-[8px] font-black uppercase opacity-40 mb-1">To: (Supplier Details)</div>
@@ -516,84 +551,268 @@ export default function ProcurementSettings() {
                                      </div>
                                      <div className="col-span-4 p-3 flex flex-col gap-2">
                                           <div className="flex justify-between">
-                                               <span className="font-black uppercase text-[8px] opacity-40">PO Number</span>
-                                               <span className="font-black uppercase">{settings.poPrefix}{settings.poStartNumber}{settings.poSuffix}</span>
+                                               <span className="font-black uppercase text-[8px] opacity-40">{activeTemplate === "SO" ? "SO Number" : "PO Number"}</span>
+                                               <span className="font-black uppercase">{activeTemplate === "SO" ? settings.soPrefix : settings.poPrefix}{activeTemplate === "SO" ? settings.soStartNumber : settings.poStartNumber}{activeTemplate === "SO" ? settings.soSuffix : settings.poSuffix}</span>
                                           </div>
                                           <div className="flex justify-between">
-                                               <span className="font-black uppercase text-[8px] opacity-40">PO Date</span>
-                                               <span className="font-black uppercase">27-04-2026</span>
+                                               <span className="font-black uppercase text-[8px] opacity-40">Date</span>
+                                               <span className="font-black uppercase">{new Date().toLocaleDateString()}</span>
                                           </div>
-                                     </div>
-                                 </div>
-                                 <div className="h-[400px] border-b border-black p-10 flex items-center justify-center font-black text-slate-100 uppercase italic text-6xl select-none opacity-20 transform -rotate-12">Items Grid Container</div>
-                                 
-                                 <div className="grid grid-cols-2 border-b border-black min-h-[120px]">
-                                     <div className="border-r border-black p-4 bg-slate-50/10">
-                                          <h4 className="font-black uppercase mb-1.5 text-[9px] tracking-widest" style={{ color: settings.themeColor }}>Bank Details for Payment</h4>
-                                          <div className="space-y-1 text-[9px]">
-                                              <div className="flex justify-between"><span className="opacity-50">A/C NAME:</span> <span className="font-black">{settings.accountName || '---'}</span></div>
-                                              <div className="flex justify-between"><span className="opacity-50">BANK:</span> <span className="font-black">{settings.bankName || '---'}</span></div>
-                                              <div className="flex justify-between"><span className="opacity-50">A/C NO:</span> <span className="font-black">{settings.accountNumber || '---'}</span></div>
-                                              <div className="flex justify-between"><span className="opacity-50">IFSC:</span> <span className="font-black">{settings.ifscCode || '---'}</span></div>
-                                          </div>
-                                     </div>
-                                     <div className="p-4">
-                                          <h4 className="font-black uppercase mb-1.5 text-[9px] tracking-widest text-rose-600">Remarks / Notes</h4>
-                                          <p className="font-bold opacity-70 uppercase leading-tight text-[10px]">{settings.remarks}</p>
                                      </div>
                                  </div>
 
-                                 <div className="grid grid-cols-2 border-b border-black min-h-[100px]">
-                                     <div className="border-r border-black p-4"><h4 className="font-black uppercase mb-1.5 text-[9px] tracking-widest" style={{ color: settings.themeColor }}>Billing Address</h4><p className="font-bold opacity-70 uppercase leading-tight text-[10px]">{settings.billingAddress}</p></div>
-                                     <div className="p-4"><h4 className="font-black uppercase mb-1.5 text-[9px] tracking-widest" style={{ color: settings.themeColor }}>Delivery Address</h4><p className="font-bold opacity-70 uppercase leading-tight text-[10px]">{settings.deliveryAddress}</p></div>
+                                 {/* INFO GRID */}
+                                 <div className="flex border-x border-b border-black">
+                                     <div className="flex-1 border-r border-black p-2 min-h-[120px]">
+                                         <div className="grid grid-cols-6 gap-y-1 text-[10px]">
+                                             <span className="col-span-1 font-bold uppercase">Supplier</span><span className="col-span-5 font-bold text-indigo-900">: [SUPPLIER NAME PLACEHOLDER]</span>
+                                             <span className="col-span-1 font-bold uppercase">Address</span><span className="col-span-5 uppercase">: [ADDRESS PLACEHOLDER]</span>
+                                             <span className="col-span-1 font-bold uppercase">City</span><span className="col-span-2 uppercase">: [CITY PLACEHOLDER]</span>
+                                             <span className="col-span-1 font-bold uppercase">PAN</span><span className="col-span-2 uppercase">: [PAN PLACEHOLDER]</span>
+                                             <span className="col-span-1 font-bold uppercase">Contact</span><span className="col-span-2 uppercase">: [CONTACT PLACEHOLDER]</span>
+                                             <span className="col-span-1 font-bold uppercase">Contact No</span><span className="col-span-2">: [PHONE PLACEHOLDER]</span>
+                                             <span className="col-span-1 font-bold uppercase">State</span><span className="col-span-2 uppercase">: [STATE PLACEHOLDER]</span>
+                                             <span className="col-span-1 font-bold uppercase">GST</span><span className="col-span-2 uppercase">: [GST PLACEHOLDER]</span>
+                                             <span className="col-span-1 font-bold uppercase">Pincode</span><span className="col-span-2 uppercase">: [PINCODE PLACEHOLDER]</span>
+                                             <span className="col-span-1 font-bold uppercase">MSME Status</span><span className="col-span-2 uppercase">: [MSME PLACEHOLDER]</span>
+                                             <span className="col-span-1 font-bold uppercase">Email</span><span className="col-span-5 uppercase break-all">: [EMAIL PLACEHOLDER]</span>
+                                         </div>
+                                     </div>
+                                     <div className="w-[25%] shrink-0 p-2 text-[10px]">
+                                         <div className="grid grid-cols-5 gap-y-1">
+                                             <span className="col-span-2 font-bold uppercase whitespace-nowrap">Order No</span><span className="col-span-3 font-bold">: {activeTemplate === "SO" ? (settings.soPrefix || "SO") : (settings.poPrefix || "PO")}-1234</span>
+                                             <span className="col-span-2 font-bold uppercase whitespace-nowrap">Order Date</span><span className="col-span-3">: [DATE]</span>
+                                             <span className="col-span-2 font-bold uppercase whitespace-nowrap">Quote No</span><span className="col-span-3 uppercase">: By Mail</span>
+                                             <span className="col-span-2 font-bold uppercase whitespace-nowrap">Quote Date</span><span className="col-span-3">: [DATE]</span>
+                                             <span className="col-span-2 font-bold uppercase whitespace-nowrap">Vendor Code</span><span className="col-span-3 uppercase">: [CODE]</span>
+                                             <span className="col-span-2 font-bold uppercase whitespace-nowrap">Project Ref</span><span className="col-span-3">: -</span>
+                                         </div>
+                                     </div>
                                  </div>
-                                 
-                                 <div className="overflow-hidden">
-                                     <table className="w-full border-collapse">
+
+                                 {/* ITEMS GRID */}
+                                 <div className="border-x border-b border-black flex flex-col">
+                                     <table className="w-full text-[9px] uppercase table-fixed border-collapse">
                                          <thead>
-                                             <tr className="bg-slate-50 border-b border-black text-[10px] font-black uppercase" style={{ backgroundColor: `${settings.themeColor}05` }}>
-                                                 <th className="border-r border-black p-2 w-12 text-center">Sr</th>
-                                                 <th className="border-r border-black p-2 w-44 text-left">Term / Condition</th>
-                                                 <th className="p-2 text-left">Description / Value</th>
+                                             <tr className="font-bold text-[10px] uppercase border-b border-black">
+                                                 <th className="border-r border-black p-1.5 w-[6%] text-center align-middle">Sl No</th>
+                                                 <th className="border-r border-black p-1.5 px-2 text-left align-middle">Description</th>
+                                                 <th className="border-r border-black p-1.5 text-center w-[12%] align-middle">HSN / SAC</th>
+                                                 <th className="border-r border-black p-1.5 text-center w-[10%] align-middle">UOM</th>
+                                                 <th className="border-r border-black p-1.5 text-center w-[12%] align-middle">QTY</th>
+                                                 <th className="border-r border-black p-1.5 text-right w-[12%] px-2 align-middle">Unit Price</th>
+                                                 <th className="p-1.5 text-right w-[13%] px-2 align-middle">Amount</th>
                                              </tr>
                                          </thead>
                                          <tbody>
-                                             {settings.poTerms.map((t, i) => (
-                                                 <tr key={i} className="border-b border-black last:border-b-0">
-                                                     <td className="border-r border-black p-2 text-center font-black">{i + 1}</td>
-                                                     <td className="border-r border-black p-2 uppercase font-black">{t.term || '---'}</td>
-                                                     <td className="p-2 font-bold uppercase">: {t.desc || '---'}</td>
+                                             <tr className="min-h-[150px] text-[10px] border-b border-black">
+                                                 <td className="border-r border-black p-2 text-center align-top font-bold">1</td>
+                                                 <td className="border-r border-black p-2 align-top px-2">
+                                                     <div className="flex flex-col gap-[1px]">
+                                                         <div className="font-bold text-[11px] text-slate-900 leading-tight">[ITEM NAME PLACEHOLDER 1]</div>
+                                                         <div className="text-[8.5px] text-slate-500 font-medium leading-tight">[ITEM SPECIFICATIONS AND DETAILS PLACEHOLDER]</div>
+                                                     </div>
+                                                 </td>
+                                                 <td className="border-r border-black p-2 text-center align-top">[HSN]</td>
+                                                 <td className="border-r border-black p-2 text-center align-top">[UOM]</td>
+                                                 <td className="border-r border-black p-2 text-center align-top">[QTY]</td>
+                                                 <td className="border-r border-black p-2 text-right px-2 align-top">[UNIT PRICE]</td>
+                                                 <td className="p-2 text-right px-2 align-top">[TOTAL AMOUNT]</td>
+                                             </tr>
+                                             <tr className="min-h-[150px] text-[10px]">
+                                                 <td className="border-r border-black p-2 text-center align-top font-bold">2</td>
+                                                 <td className="border-r border-black p-2 align-top px-2">
+                                                     <div className="flex flex-col gap-[1px]">
+                                                         <div className="font-bold text-[11px] text-slate-900 leading-tight">[ITEM NAME PLACEHOLDER 2]</div>
+                                                         <div className="text-[8.5px] text-slate-500 font-medium leading-tight">[ITEM SPECIFICATIONS AND DETAILS PLACEHOLDER]</div>
+                                                     </div>
+                                                 </td>
+                                                 <td className="border-r border-black p-2 text-center align-top">[HSN]</td>
+                                                 <td className="border-r border-black p-2 text-center align-top">[UOM]</td>
+                                                 <td className="border-r border-black p-2 text-center align-top">[QTY]</td>
+                                                 <td className="border-r border-black p-2 text-right px-2 align-top">[UNIT PRICE]</td>
+                                                 <td className="p-2 text-right px-2 align-top">[TOTAL AMOUNT]</td>
+                                             </tr>
+                                             {activeTemplate === "SO" && (
+                                                 <>
+                                                     <tr className="text-[10px]">
+                                                         <td className="border-r border-black p-1 text-center font-bold"></td>
+                                                         <td className="border-r border-black p-2 font-bold text-slate-800">Note: All Responsibilities as Sow to Deliverable</td>
+                                                         <td className="border-r border-black p-1 text-center"></td>
+                                                         <td className="border-r border-black p-1 text-center"></td>
+                                                         <td className="border-r border-black p-1 text-center"></td>
+                                                         <td className="border-r border-black p-1 text-right px-2"></td>
+                                                         <td className="p-1 text-right px-2"></td>
+                                                     </tr>
+                                                     <tr className="h-[30px]">
+                                                         <td className="border-r border-black p-1"></td>
+                                                         <td className="border-r border-black p-1"></td>
+                                                         <td className="border-r border-black p-1"></td>
+                                                         <td className="border-r border-black p-1"></td>
+                                                         <td className="border-r border-black p-1"></td>
+                                                         <td className="border-r border-black p-1"></td>
+                                                         <td className="p-1"></td>
+                                                     </tr>
+                                                 </>
+                                             )}
+                                         </tbody>
+                                     </table>
+                                     <div className="w-full">
+                                         <div className="grid grid-cols-2 text-[10px] border-t border-black">
+                                             <div className="border-r border-black p-2 leading-relaxed">
+                                                 <div className="flex gap-4"><span className="font-bold uppercase w-24">CIN</span><span>: {settings.cinNumber || '---'}</span></div>
+                                                 <div className="flex gap-4"><span className="font-bold uppercase w-24">GST NO</span><span>: {settings.gstNumber || '---'}</span></div>
+                                                 <div className="flex gap-4"><span className="font-bold uppercase w-24">JURISDICTION</span><span>: {settings.jurisdiction || '---'}</span></div>
+                                             </div>
+                                             <div className="p-2 flex flex-col justify-end">
+                                                 <div className="flex justify-between font-bold"><span className="uppercase">Basic Price :</span><span>[SUBTOTAL]</span></div>
+                                                 <div className="flex justify-between font-bold"><span className="uppercase">Add: Input CGST 9% :</span><span>[CGST AMOUNT]</span></div>
+                                                 <div className="flex justify-between font-bold"><span className="uppercase">Add: Input SGST 9% :</span><span>[SGST AMOUNT]</span></div>
+                                                 <div className="flex justify-between font-black mt-1"><span className="uppercase">Grand Total :</span><span>[GRAND TOTAL]</span></div>
+                                             </div>
+                                         </div>
+                                         <div className="p-2 border-t border-black text-[10px]">
+                                             <span className="font-bold uppercase">In words: </span>
+                                             <span>**** INR [AMOUNT IN WORDS PLACEHOLDER] ONLY</span>
+                                         </div>
+                                     </div>
+                                 </div>
+
+                                 <div className="grid grid-cols-2 border-x border-b border-black text-[10px]">
+                                     <div className="border-r border-black p-2"><div className="font-bold uppercase mb-1">Billing Address</div><div className="uppercase leading-tight text-slate-700 whitespace-pre-wrap">{settings.billingAddress}</div></div>
+                                     <div className="p-2"><div className="font-bold uppercase mb-1">Delivery Address</div><div className="uppercase leading-tight text-slate-700 whitespace-pre-wrap">{settings.deliveryAddress}</div></div>
+                                 </div>
+
+                                 <div className="border-x border-b border-black text-[10px]">
+                                     <div className="p-2 font-bold border-b border-black uppercase">Indent No: -</div>
+                                     <div className="flex border-b border-black bg-slate-200">
+                                         <div className="w-[37.5%] shrink-0 border-r border-black p-1.5 font-bold text-[9px] uppercase">Payment Term</div>
+                                         <div className="w-[37.5%] shrink-0 border-r border-black p-1.5 font-bold text-[9px] uppercase">Credit</div>
+                                         <div className="w-[25%] shrink-0 p-1.5 font-bold text-[9px] uppercase">Delivery Details</div>
+                                     </div>
+                                     <div className="flex">
+                                         <div className="w-[37.5%] shrink-0 border-r border-black p-1.5 text-[10px] uppercase">AFTER DELIVERY</div>
+                                         <div className="w-[37.5%] shrink-0 border-r border-black p-1.5 text-[10px] uppercase">WITHIN 30 DAYS</div>
+                                         <div className="w-[25%] shrink-0 p-1.5 text-[10px] uppercase">IMMEDIATE</div>
+                                     </div>
+                                 </div>
+                                 
+                                 <div className="border-x border-b border-black overflow-hidden text-[11px]">
+                                     <table className="w-full text-left border-collapse table-fixed">
+                                         <thead>
+                                             <tr className="font-bold text-[10px] uppercase border-b border-black bg-slate-200">
+                                                 <th className="border-r border-black p-1.5 text-center whitespace-nowrap text-[11px]" style={{ width: '6%' }}>Sr No</th>
+                                                 <th className="border-r border-black p-1.5 px-2 text-[11px]" style={{ width: '31.5%' }}>Term</th>
+                                                 <th className="p-1.5 px-2 text-[11px]" style={{ width: '62.5%' }}>Description</th>
+                                             </tr>
+                                         </thead>
+                                         <tbody className="uppercase">
+                                             {(activeTemplate === "SO" ? (settings.soTerms || []) : (settings.poTerms || [])).filter(t => !(activeTemplate === "SO" && t.term === "TRANSPORTATION")).map((t, i) => (
+                                                 <tr key={i}>
+                                                     <td className="py-0.5 text-center font-bold align-top text-[12px]">{i + 1}</td>
+                                                     <td className="py-0.5 px-2 font-normal align-top text-[12px]">{t.term || '---'}</td>
+                                                     <td className="py-0.5 px-2 align-top text-[12px] whitespace-pre-wrap">: {t.desc || '---'}</td>
                                                  </tr>
                                              ))}
                                          </tbody>
                                      </table>
                                  </div>
 
-                                 {/* STAMP & SIGNATURE PREVIEW */}
-                                 <div className="p-6 flex items-center justify-between border-t border-black bg-slate-50/20 h-40">
-                                      <div className="relative h-24 w-24 border-2 border-indigo-600 rounded-full flex items-center justify-center opacity-40 border-dotted">
-                                         <div className="h-20 w-20 border border-indigo-600 rounded-full flex flex-col items-center justify-center text-[6px] text-indigo-900 font-black uppercase text-center p-1 leading-none">
-                                             <p className="mb-0.5 tracking-tighter">{settings.stampTopText}</p>
-                                             <div className="h-5 w-5 border border-indigo-600 rounded-full flex items-center justify-center text-[5px] my-0.5 font-black">BOX</div>
-                                             <p className="mt-0.5">{settings.stampBottomText}</p>
-                                         </div>
-                                      </div>
+                                 <div className="border-x border-b border-black p-2 text-[11px]">
+                                     <div className="font-bold uppercase mb-1">Remarks:</div>
+                                     <div className="italic leading-tight whitespace-pre-wrap">{settings.remarks}</div>
+                                 </div>
 
-                                      <div className="text-right flex flex-col items-end justify-end h-full">
-                                           <div className="mb-8 font-black uppercase text-[8px] opacity-30">Authorized Signatory</div>
-                                           <div className="border-b border-black w-40 mb-2"></div>
-                                           <div className="font-black uppercase text-[10px]">{settings.authorizedSignatory?.name}</div>
-                                           <div className="font-bold uppercase text-[8px] opacity-60">{settings.authorizedSignatory?.designation}</div>
+                                 {/* STAMP & SIGNATURE PREVIEW */}
+                                 <div className="border-x border-b border-black p-2 min-h-[140px] flex flex-col justify-end text-[10px]">
+                                      <div className="text-right flex flex-col items-end">
+                                           <div className="mb-10 font-bold uppercase">For, {settings.companyName || 'GITAKSHMI TECHNOLOGIES PRIVATE LIMITED'}</div>
+                                           <div className="font-bold uppercase text-[11px]">Authorized Signatory</div>
                                       </div>
                                  </div>
                              </div>
-                             <div className="mt-8 flex items-center justify-between text-[9px] font-black text-slate-400 uppercase tracking-widest px-2">
-                                 <span>Official Document Management System</span>
-                                 <span>Page 1 of 2</span>
-                             </div>
-                          </div>
-                     </div>
-                </main>
+                               <div className="mt-8 flex items-center justify-between text-[9px] font-black text-slate-400 uppercase tracking-widest px-2 absolute bottom-[10px] left-0 right-0">
+                                   <span className="pl-10">Official Document Management System</span>
+                                   <span className="pr-10">Page 1 of 2</span>
+                               </div>
+                            </div>
+                       </div>
+                       
+                       {/* PAGE 2 */}
+                       <div className="bg-white shadow-[0_40px_100px_rgba(0,0,0,0.08)] border border-slate-200 w-[210mm] min-h-[297mm] h-fit relative overflow-hidden">
+                            <div className="p-10 text-[11px] text-black leading-tight relative z-10 min-h-[1050px]">
+                                <div className="flex justify-between items-start border-b border-black pb-2 mb-4">
+                                    <div className="font-black uppercase text-[11px]">{settings.companyName || 'GITAKSHMI TECHNOLOGIES PRIVATE LIMITED'}</div>
+                                    <div className="text-[10px] font-black uppercase">{activeTemplate === "SO" ? "SO number/date" : "PO number/date"} &nbsp;&nbsp;&nbsp;&nbsp; {activeTemplate === "SO" ? (settings.soPrefix || "SO") : (settings.poPrefix || "PO")}-1234 / {new Date().toLocaleDateString('en-GB').replace(/\//g, '.')}</div>
+                                </div>
+                                <div className="mb-4">
+                                    <h2 className="font-black uppercase text-[11px] underline mb-4">Special Terms & Conditions</h2>
+                                    <div className="flex flex-col gap-2 text-[9.9px] font-bold">
+                                        <div className="flex items-center">
+                                            <div className="w-[140px] shrink-0 font-bold uppercase tracking-tighter">VENDOR BANK DETAILS</div>
+                                            <div className="flex gap-6 text-blue-900 items-center">
+                                                <div className="flex gap-1 font-bold"><span>: BANK NAME :</span> <span className="underline font-bold">IDFC FIRST Bank</span></div>
+                                                <div className="flex gap-1 font-bold"><span>A/C NO :</span> <span className="underline font-bold">10160248172</span></div>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-start">
+                                            <div className="w-[140px] shrink-0 font-bold uppercase tracking-tighter">SPECIAL INSTRUCTIONS</div>
+                                            <div className="flex-1 flex text-justify font-normal text-slate-800 leading-tight">
+                                                <span className="font-bold text-[9.9px] mr-1 shrink-0">:</span>
+                                                <div className="flex-1 text-justify whitespace-pre-wrap">{settings.specialInstructions}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                {activeTemplate !== "SO" && (
+                                    <div className="space-y-2">
+                                        <h2 className="font-black uppercase text-[11px] underline">GENERAL TERMS & CONDITIONS</h2>
+                                        <p className="text-[9.9px] leading-tight uppercase font-bold">Following are the General Terms & Conditions applicable to this PO. In case of contradictions, Terms & Conditions mentioned in the main body of the PO shall take precedence over Terms & Conditions mentioned here.</p>
+                                        <div className="space-y-1 text-[9px] leading-tight text-slate-800 font-medium">
+                                           {settings.generalTerms?.map((term, idx) => {
+                                              const splitIdx = term.indexOf(':');
+                                              const hasColon = splitIdx !== -1;
+                                              return (
+                                                 <div key={idx} className="flex gap-2 text-justify">
+                                                    {hasColon ? (
+                                                      <>
+                                                        <span className="font-bold shrink-0">{term.substring(0, splitIdx + 1)}</span>
+                                                        <span>{term.substring(splitIdx + 1).trim()}</span>
+                                                      </>
+                                                    ) : (
+                                                      <span>{term}</span>
+                                                    )}
+                                                 </div>
+                                              );
+                                           })}
+                                        </div>
+                                    </div>
+                                )}
+                                
+                                {/* Dual Signature Block on Page 2 */}
+                                <div className="flex flex-col justify-end p-2 min-h-[110px] mt-8">
+                                    <div className="flex justify-between w-full mb-1">
+                                        <p className="font-bold text-[10px] uppercase">for, HOTLINESYSTEM</p>
+                                    </div>
+                                    <div className="relative h-20 w-full flex justify-between items-end">
+                                        <div className="relative h-20 flex items-center justify-start">
+                                            <div className="h-16 flex items-end">
+                                                <div className="w-40 border-b border-dashed border-slate-300 pb-1 text-[8px] text-slate-400 font-bold uppercase tracking-wider">
+                                                    Sign & Stamp
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="mt-8 flex items-center justify-between text-[9px] font-black text-slate-400 uppercase tracking-widest px-2 absolute bottom-[10px] left-0 right-0">
+                                   <span className="pl-10">Official Document Management System</span>
+                                   <span className="pr-10">Page 2 of 2</span>
+                                </div>
+                            </div>
+                       </div>
+                   </div>
+               </main>
              </div>
 
              <style>{`

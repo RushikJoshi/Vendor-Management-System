@@ -19,7 +19,7 @@ export default function UpdateShipment() {
     items: [],
   });
 
-  const myPos = purchaseOrders || [];
+  const myPos = (purchaseOrders || []).filter(po => po.status === 'paid');
 
   const submitDelivery = async () => {
     if (!deliveryForm.poId) {
@@ -78,6 +78,18 @@ export default function UpdateShipment() {
                <h2 className="text-lg font-bold text-slate-900">Dispatch & Tracking Update</h2>
                <p className="text-sm text-slate-500">Provide tracing information and timeline updates for specific purchase order consignments.</p>
            </div>
+
+           {/* Policy Alert */}
+           <div className="mx-8 mt-6 p-4 bg-indigo-50 border border-indigo-100 rounded-2xl flex items-start gap-4">
+               <div className="h-10 w-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shrink-0 shadow-lg shadow-indigo-100">
+                  <PackageCheck size={20} />
+               </div>
+               <div>
+                  <h4 className="text-[11px] font-black text-indigo-900 uppercase tracking-widest mb-1">Fulfillment Policy: Payment Required</h4>
+                  <p className="text-xs font-medium text-indigo-700 leading-relaxed">As per procurement protocol, shipments can only be initiated for orders that have achieved <span className="font-black">PAID</span> status. If your order is missing, please ensure the invoice has been settled.</p>
+               </div>
+           </div>
+
            
            <div className="p-8 space-y-8">
               {/* Order Selection */}

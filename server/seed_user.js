@@ -25,7 +25,7 @@ const seedUser = async () => {
 
         if (existingUser) {
             console.log("User already exists. Updating password and tenantId...");
-            existingUser.password = "admin123";
+            existingUser.password = "admin";
             existingUser.role = "admin";
             existingUser.tenantId = company._id;
             await existingUser.save();
@@ -34,7 +34,7 @@ const seedUser = async () => {
             await User.create({
                 name: "System Admin",
                 email: "admin@gmail.com",
-                password: "admin123",
+                password: "admin",
                 role: "admin",
                 tenantId: company._id,
             });

@@ -5,6 +5,7 @@ const asyncHandler = require("../utils/asyncHandler");
 const AppError = require("../utils/AppError");
 const { normalizeRole } = require("../config/roles");
 const NotificationService = require("../services/NotificationService");
+const Invoice = require("../modules/procurement/models/Invoice");
 
 const resolveVendorProfile = async (user) => {
     if (!user) return null;
@@ -253,6 +254,30 @@ exports.acceptQuotation = asyncHandler(async (req, res, next) => {
         pdfUrl: pdfUrl,
         tenantId: req.user.tenantId,
         createdBy: req.user._id
+    });
+
+    // 5. Automatically Provision an Invoice (Proforma) for immediate payment visibility
+    const baseAmount = quotation.totalAmount;
+    const taxAmount = baseAmount * 0.18; // Standard GST fallback
+    const totalWithTax = baseAmount + taxAmount;
+
+    await Invoice.create({
+        invoiceNumber: `INV-AUTO-${Date.now().toString().slice(-6)}`,
+        poId: order._id,
+        vendorId: quotation.vendorId,
+        tenantId: req.user.tenantId,
+        invoiceDate: new Date(),
+        dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days default
+        lines: poItems.map(it => ({
+            itemName: it.name,
+            quantity: it.quantity,
+            unitPrice: it.unitPrice,
+            lineTotal: it.totalPrice
+        })),
+        baseAmount: baseAmount,
+        taxAmount: taxAmount,
+        totalAmount: totalWithTax,
+        status: 'approved' // Set to approved so it appears in "Pending Payments" immediately
     });
 
     res.status(200).json({

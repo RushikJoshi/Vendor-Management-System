@@ -9,6 +9,7 @@ export default function CreateInvoice() {
   const navigate = useNavigate();
   const { purchaseOrders, refreshAll } = useContext(ProcurementContext);
   const [working, setWorking] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
 
   const [invoiceForm, setInvoiceForm] = useState({
     poId: "",
@@ -26,10 +27,19 @@ export default function CreateInvoice() {
     }
     setWorking(true);
     try {
-      await procurementApi.createInvoice({
-        ...invoiceForm,
-        invoiceDate: new Date().toISOString(),
-      });
+      const formData = new FormData();
+      formData.append("poId", invoiceForm.poId);
+      formData.append("invoiceNumber", invoiceForm.invoiceNumber);
+      formData.append("dueDate", invoiceForm.dueDate);
+      formData.append("taxAmount", invoiceForm.taxAmount);
+      formData.append("invoiceDate", new Date().toISOString());
+      formData.append("lines", JSON.stringify(invoiceForm.lines));
+      
+      if (selectedFile) {
+        formData.append("invoice_file", selectedFile);
+      }
+
+      await procurementApi.createInvoice(formData);
       toast.success("Invoice successfully submitted");
       await refreshAll();
       navigate("/vendor/procurement");
@@ -114,7 +124,7 @@ export default function CreateInvoice() {
                     </div>
                  </div>
 
-                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
                     <div>
                         <label className="text-xs font-bold text-slate-700 block mb-2">Tax Component (%)</label>
                         <div className="relative">
@@ -128,6 +138,19 @@ export default function CreateInvoice() {
                             <div className="absolute right-4 top-3.5 text-slate-400 font-bold">%</div>
                         </div>
                         <p className="mt-1 text-[10px] text-slate-400">Total payable tax percentage to be applied</p>
+                    </div>
+
+                    <div>
+                        <label className="text-xs font-bold text-slate-700 block mb-2">Invoice Attachment (PDF/Image)</label>
+                        <div className="relative">
+                            <input
+                              type="file"
+                              accept=".pdf,.jpg,.jpeg,.png"
+                              onChange={(e) => setSelectedFile(e.target.files[0])}
+                              className="w-full rounded-xl border border-slate-200 p-2.5 text-sm outline-none focus:border-indigo-500 transition-all focus:ring-4 focus:ring-indigo-50 file:mr-4 file:py-1 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+                            />
+                        </div>
+                        <p className="mt-1 text-[10px] text-slate-400">Upload a digital copy of your physical invoice</p>
                     </div>
                  </div>
               </div>

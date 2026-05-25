@@ -47,6 +47,11 @@ const userSchema = new mongoose.Schema(
             ref: "Company",
             required: false // Relaxed for now to avoid validation errors when no company is established
         },
+        clientId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Client",
+            required: false
+        },
 
 
         refreshToken: {

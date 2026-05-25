@@ -852,6 +852,13 @@ exports.approveSubmission = async (req, res) => {
             state: getVal("state") || "N/A",
             pincode: getVal("pincode") || "000000",
           },
+          bankAccount: {
+            accountHolderName: getVal("bk_beneficiary") || getVal("beneficiaryName") || getVal("accountHolderName") || "N/A",
+            accountNumber: getVal("bk_accNo") || getVal("accountNumber") || "N/A",
+            bankName: getVal("bk_bankName") || getVal("bankName") || "N/A",
+            ifscCode: getVal("bk_ifsc") || getVal("ifscCode") || "N/A",
+            branchName: getVal("bk_branch") || getVal("bankBranch") || getVal("branchName") || "N/A",
+          },
           tenantId: req.user.tenantId,
           createdBy: req.user?._id,
         });
@@ -999,6 +1006,13 @@ exports.approveSubmission = async (req, res) => {
           city: getVal("city") || "N/A",
           state: getVal("state") || "N/A",
           pincode: getVal("pincode") || "000000",
+        },
+        bankAccount: {
+          accountHolderName: getVal("accountHolderName") || getVal("beneficiary") || "N/A",
+          accountNumber: getVal("accountNumber") || "N/A",
+          bankName: getVal("bankName") || "N/A",
+          ifscCode: getVal("ifscCode") || "N/A",
+          branchName: getVal("bankBranch") || getVal("branchName") || "N/A",
         },
         tenantId: req.user.tenantId,
         createdBy: req.user?._id,

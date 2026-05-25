@@ -29,7 +29,7 @@ exports.generatePO = async (poData, settings = {}) => {
         doc.font('Helvetica-Bold').fontSize(14).fillColor('#000');
         doc.text(settings.companyName || 'GITAKSHMI TECHNOLOGIES PRIVATE LIMITED', MARGIN, MARGIN);
         doc.font('Helvetica').fontSize(9);
-        doc.text(settings.companyAddress || 'OFFICE NO.701, 7TH FLOOR,\nKAIVANNA COMPLEX, OFF C.G. ROAD,\nAMBAWADI, AHMEDABAD GJ 380006', MARGIN, MARGIN + 18);
+        doc.text(settings.companyAddress || 'OFFICE NO.701, 7TH FLOOR, KAIVANNA COMPLEX,\nOFF C.G. ROAD, AMBAWADI,\nAHMEDABAD GJ 380006', MARGIN, MARGIN + 18);
         doc.text(settings.companyWebsite || 'www.gitakshmi.com', MARGIN, MARGIN + 55);
 
         // Logo (Top Right)
@@ -41,84 +41,97 @@ exports.generatePO = async (poData, settings = {}) => {
         let currentY = MARGIN + 80;
 
         // TITLE
-        doc.rect(MARGIN, currentY, CONTENT_WIDTH, 15).fill('#fff').stroke();
+        const docTitle = poData.orderType === 'SO' ? 'SERVICE ORDER' : 'PURCHASE ORDER';
+        doc.rect(MARGIN, currentY, CONTENT_WIDTH, 15).fill('#f8fafc').stroke();
         doc.font('Helvetica-Bold').fontSize(10).fillColor('#000');
-        doc.text('PURCHASE ORDER', MARGIN, currentY + 3, { align: 'center', width: CONTENT_WIDTH });
+        doc.text(docTitle, MARGIN, currentY + 3, { align: 'center', width: CONTENT_WIDTH });
+        doc.font('Helvetica-Bold').fontSize(8).fillColor('#1e293b');
+        doc.text('ORIGINAL', PAGE_WIDTH - MARGIN - 60, currentY + 4, { align: 'right', width: 50 });
+        doc.fillColor('#000');
         currentY += 15;
 
         // INFO GRID
         const gridTop = currentY;
         const col1 = MARGIN;
         const col2 = MARGIN + 250;
-        const col3 = MARGIN + 350;
-        const rowH = 14;
+        const col3 = MARGIN + 335;
+        const rowH = 16; // Increased row height for better clarity
 
         doc.fontSize(8).font('Helvetica');
         
         // Row 1: Supplier / PAN / Order No
-        doc.font('Helvetica-Bold').text('Supplier', col1 + 2, currentY + 3);
-        doc.font('Helvetica').text(`: ${poData.vendorName || 'N/A'}`, col1 + 60, currentY + 3);
-        doc.font('Helvetica-Bold').text('Order No', col3 + 2, currentY + 3);
-        doc.font('Helvetica').text(`: ${poData.poNumber}`, col3 + 70, currentY + 3);
+        const orderNoLabel = poData.orderType === 'SO' ? 'Service Order No' : 'Order No';
+        doc.font('Helvetica-Bold').text('Supplier', col1 + 2, currentY + 4);
+        doc.font('Helvetica').text(`: ${poData.vendorName || 'N/A'}`, col1 + 60, currentY + 4);
+        doc.font('Helvetica-Bold').text(orderNoLabel, col3 + 2, currentY + 4);
+        doc.font('Helvetica').text(`: ${poData.poNumber}`, col3 + 80, currentY + 4);
         currentY += rowH;
         line(currentY);
 
         // Row 2: Address / Order Date
-        doc.font('Helvetica-Bold').text('Address', col1 + 2, currentY + 3);
-        doc.font('Helvetica').text(`: ${poData.vendorAddress || 'N/A'}`, col1 + 60, currentY + 3, { width: 180 });
-        doc.font('Helvetica-Bold').text('Order Date', col3 + 2, currentY + 3);
-        doc.font('Helvetica').text(`: ${new Date().toLocaleDateString('en-GB')}`, col3 + 70, currentY + 3);
+        doc.font('Helvetica-Bold').text('Address', col1 + 2, currentY + 4);
+        doc.font('Helvetica').text(`: ${poData.vendorAddress || 'N/A'}`, col1 + 60, currentY + 4, { width: 280 });
+        doc.font('Helvetica-Bold').text('Order Date', col3 + 2, currentY + 4);
+        doc.font('Helvetica').text(`: ${new Date().toLocaleDateString('en-GB')}`, col3 + 80, currentY + 4);
         currentY += rowH * 2;
         line(currentY);
 
         // Row 3: City / PAN / Quote No
-        doc.font('Helvetica-Bold').text('City', col1 + 2, currentY + 3);
-        doc.font('Helvetica').text(`: ${poData.vendorCity || 'N/A'}`, col1 + 60, currentY + 3);
-        doc.font('Helvetica-Bold').text('PAN', col2 + 2, currentY + 3);
-        doc.font('Helvetica').text(`: ${poData.vendorPAN || 'N/A'}`, col2 + 60, currentY + 3);
-        doc.font('Helvetica-Bold').text('Quote No', col3 + 2, currentY + 3);
-        doc.font('Helvetica').text(`: ${poData.quoteNo || 'By Mail'}`, col3 + 70, currentY + 3);
+        doc.font('Helvetica-Bold').text('City', col1 + 2, currentY + 4);
+        doc.font('Helvetica').text(`: ${poData.vendorCity || 'N/A'}`, col1 + 60, currentY + 4);
+        doc.font('Helvetica-Bold').text('PAN', col2 + 2, currentY + 4);
+        doc.font('Helvetica').text(`: ${poData.vendorPAN || 'N/A'}`, col2 + 60, currentY + 4);
+        doc.font('Helvetica-Bold').text('Quote No', col3 + 2, currentY + 4);
+        doc.font('Helvetica').text(`: ${poData.quoteNo || 'By Mail'}`, col3 + 80, currentY + 4);
         currentY += rowH;
         line(currentY);
 
         // Row 4: Contact / Contact No / Quote Date
-        doc.font('Helvetica-Bold').text('Contact', col1 + 2, currentY + 3);
-        doc.font('Helvetica').text(`: ${poData.vendorContactPerson || 'N/A'}`, col1 + 60, currentY + 3);
-        doc.font('Helvetica-Bold').text('Contact No', col2 + 2, currentY + 3);
-        doc.font('Helvetica').text(`: ${poData.vendorPhone || 'N/A'}`, col2 + 60, currentY + 3);
-        doc.font('Helvetica-Bold').text('Quote Date', col3 + 2, currentY + 3);
-        doc.font('Helvetica').text(`: ${poData.quoteDate || 'N/A'}`, col3 + 70, currentY + 3);
+        doc.font('Helvetica-Bold').text('Contact', col1 + 2, currentY + 4);
+        doc.font('Helvetica').text(`: ${poData.vendorContactPerson || 'N/A'}`, col1 + 60, currentY + 4);
+        doc.font('Helvetica-Bold').text('Contact No', col2 + 2, currentY + 4);
+        doc.font('Helvetica').text(`: ${poData.vendorPhone || 'N/A'}`, col2 + 60, currentY + 4);
+        doc.font('Helvetica-Bold').text('Quote Date', col3 + 2, currentY + 4);
+        doc.font('Helvetica').text(`: ${poData.quoteDate || 'N/A'}`, col3 + 80, currentY + 4);
         currentY += rowH;
         line(currentY);
 
         // Row 5: State / GST / Vendor Code
-        doc.font('Helvetica-Bold').text('State Name', col1 + 2, currentY + 3);
-        doc.font('Helvetica').text(`: ${poData.vendorState || 'N/A'}`, col1 + 60, currentY + 3);
-        doc.font('Helvetica-Bold').text('GST', col2 + 2, currentY + 3);
-        doc.font('Helvetica').text(`: ${poData.vendorGST || 'N/A'}`, col2 + 60, currentY + 3);
-        doc.font('Helvetica-Bold').text('Vendor Code', col3 + 2, currentY + 3);
-        doc.font('Helvetica').text(`: ${poData.vendorCode || 'N/A'}`, col3 + 70, currentY + 3);
+        doc.font('Helvetica-Bold').text('State Name', col1 + 2, currentY + 4);
+        doc.font('Helvetica').text(`: ${poData.vendorState || 'N/A'}`, col1 + 60, currentY + 4);
+        doc.font('Helvetica-Bold').text('GST', col2 + 2, currentY + 4);
+        doc.font('Helvetica').text(`: ${poData.vendorGST || 'N/A'}`, col2 + 60, currentY + 4);
+        doc.font('Helvetica-Bold').text('Vendor Code', col3 + 2, currentY + 4);
+        doc.font('Helvetica').text(`: ${poData.vendorCode || 'N/A'}`, col3 + 80, currentY + 4);
         currentY += rowH;
         line(currentY);
 
-        // Row 6: Email / Contact
-        doc.font('Helvetica-Bold').text('Email', col1 + 2, currentY + 3);
-        doc.font('Helvetica').text(`: ${poData.vendorEmail || 'N/A'}`, col1 + 60, currentY + 3);
-        doc.font('Helvetica-Bold').text('Contact', col3 + 2, currentY + 3);
-        doc.font('Helvetica').text(`: -`, col3 + 70, currentY + 3);
+        // Row 6: Pincode / MSME Status / Contact
+        doc.font('Helvetica-Bold').text('Pincode', col1 + 2, currentY + 4);
+        doc.font('Helvetica').text(`: ${poData.vendorPincode || 'N/A'}`, col1 + 60, currentY + 4);
+        doc.font('Helvetica-Bold').text('MSME Status', col2 + 2, currentY + 4);
+        doc.font('Helvetica').text(`: ${poData.vendorMSME || 'N/A'}`, col2 + 60, currentY + 4);
+        doc.font('Helvetica-Bold').text('Contact', col3 + 2, currentY + 4);
+        doc.font('Helvetica').text(`: -`, col3 + 80, currentY + 4);
         currentY += rowH;
         line(currentY);
+
+        // Row 7: Email
+        doc.font('Helvetica-Bold').text('Email', col1 + 2, currentY + 4);
+        doc.font('Helvetica').text(`: ${poData.vendorEmail || 'N/A'}`, col1 + 60, currentY + 4, { width: 280 });
+        currentY += rowH;
+        doc.moveTo(MARGIN, currentY).lineTo(col3, currentY).stroke();
 
         // Vertical lines for the grid
         vLine(MARGIN, gridTop, currentY);
-        vLine(col2, gridTop + rowH * 3, currentY);
+        vLine(col2, gridTop + rowH * 3, currentY - rowH);
         vLine(col3, gridTop, currentY);
-        vLine(PAGE_WIDTH - MARGIN, gridTop, currentY);
+        vLine(PAGE_WIDTH - MARGIN, gridTop, currentY - rowH);
 
         // --- ITEMS TABLE ---
         currentY += 5;
         const tblTop = currentY;
-        const tblCols = [40, 240, 60, 40, 30, 60, 45]; // SlNo, Desc, HSN, UOM, QTY, Price, Amount
+        const tblCols = [30, 175, 60, 40, 30, 110, 110]; // SlNo, Desc, HSN, UOM, QTY, Price, Amount
         let x = MARGIN;
         const headers = ['Sl No', 'Description', 'HSN / SAC', 'UOM', 'QTY', 'Unit Price', 'Amount'];
         
@@ -138,7 +151,13 @@ exports.generatePO = async (poData, settings = {}) => {
             
             doc.text(idx + 1, x, currentY + 5, { width: tblCols[0], align: 'center' });
             x += tblCols[0];
+            doc.font('Helvetica-Bold').fontSize(8.5);
             doc.text(item.name || 'N/A', x + 5, currentY + 5, { width: tblCols[1] - 10 });
+            if (item.specifications) {
+                doc.font('Helvetica').fontSize(6.5).fillColor('#64748b');
+                doc.text(item.specifications, x + 5, currentY + 16, { width: tblCols[1] - 10 });
+                doc.fillColor('#000000'); // reset
+            }
             x += tblCols[1];
             doc.text(item.hsn || '847130', x, currentY + 5, { width: tblCols[2], align: 'center' });
             x += tblCols[2];
@@ -200,16 +219,16 @@ exports.generatePO = async (poData, settings = {}) => {
         currentY += 15;
         line(currentY);
 
-        // --- BILLING / DELIVERY ---
+        const addressCol = MARGIN + 347;
         doc.font('Helvetica-Bold').text('Billing Address', MARGIN + 2, currentY + 3);
-        doc.text('Delivery Address', MARGIN + 260, currentY + 3);
+        doc.text('Delivery Address', addressCol + 2, currentY + 3);
         currentY += 12;
         line(currentY);
         
         doc.font('Helvetica').fontSize(7);
-        doc.text(settings.billingAddress || 'CORP. OFFICE\nOFFICE NO.701, 7TH FLOOR,\nKAIVANNA COMPLEX, OFF C.G. ROAD\nAMBAWADI, AHMEDABAD GJ 380006', MARGIN + 2, currentY + 5, { width: 240 });
-        doc.text(settings.deliveryAddress || 'CORP. OFFICE\nOFFICE NO.701, 7TH FLOOR,\nKAIVANNA COMPLEX, OFF C.G. ROAD\nAMBAWADI, AHMEDABAD GJ 380006', MARGIN + 260, currentY + 5, { width: 240 });
-        currentY += 45;
+        doc.text(settings.billingAddress || 'OFFICE NO.701, 7TH FLOOR, KAIVANNA COMPLEX,\nOFF C.G. ROAD, AMBAWADI,\nAHMEDABAD GJ 380006', MARGIN + 2, currentY + 5, { width: addressCol - MARGIN - 4 });
+        doc.text(settings.deliveryAddress || 'OFFICE NO.701, 7TH FLOOR, KAIVANNA COMPLEX,\nOFF C.G. ROAD, AMBAWADI,\nAHMEDABAD GJ 380006', addressCol + 2, currentY + 5, { width: PAGE_WIDTH - MARGIN - addressCol - 4 });
+        currentY += 32;
         line(currentY);
 
         // Indent No
@@ -218,28 +237,28 @@ exports.generatePO = async (poData, settings = {}) => {
         line(currentY);
 
         // Payment / Credit / Delivery
-        doc.text('Payment Term', MARGIN + 2, currentY + 3, { width: 150 });
-        doc.text('Credit', MARGIN + 160, currentY + 3, { width: 150 });
-        doc.text('Delivery Details', MARGIN + 350, currentY + 3, { width: 150 });
+        doc.text('Payment Term', MARGIN + 2, currentY + 3, { width: 160 });
+        doc.text('Credit', MARGIN + 172, currentY + 3, { width: 160 });
+        doc.text('Delivery Details', col3 + 2, currentY + 3, { width: 200 });
         currentY += 12;
         line(currentY);
-        doc.font('Helvetica').text('AFTER DELIVERY', MARGIN + 2, currentY + 3);
-        doc.text('WITHIN 30 DAYS', MARGIN + 160, currentY + 3);
-        doc.text('IMMEDIATE', MARGIN + 350, currentY + 3);
+        doc.font('Helvetica').text('AFTER DELIVERY', MARGIN + 2, currentY + 3, { width: 160 });
+        doc.text('WITHIN 30 DAYS', MARGIN + 172, currentY + 3, { width: 160 });
+        doc.text('IMMEDIATE', col3 + 2, currentY + 3, { width: 200 });
         currentY += 12;
         line(currentY);
 
         // Vertical lines for the bottom grid
         vLine(MARGIN, sumLeft + 36, currentY);
-        vLine(MARGIN + 250, currentY - 69, currentY);
-        vLine(MARGIN + 155, currentY - 24, currentY);
-        vLine(MARGIN + 345, currentY - 24, currentY);
+        vLine(addressCol, currentY - 69, currentY);
+        vLine(MARGIN + 167, currentY - 24, currentY);
+        vLine(col3, currentY - 24, currentY);
         vLine(PAGE_WIDTH - MARGIN, sumLeft + 36, currentY);
 
         // Terms Table Header
         doc.font('Helvetica-Bold').text('Sr. No', MARGIN + 2, currentY + 3);
         doc.text('Term', MARGIN + 30, currentY + 3);
-        doc.text('Description', MARGIN + 160, currentY + 3);
+        doc.text('Description', col2 + 4, currentY + 3);
         currentY += 12;
         line(currentY);
 
@@ -253,7 +272,7 @@ exports.generatePO = async (poData, settings = {}) => {
         terms.forEach((t, i) => {
             doc.font('Helvetica').text(i + 1, MARGIN + 2, currentY + 3);
             doc.text(t.term, MARGIN + 30, currentY + 3);
-            doc.text(`: ${t.desc}`, MARGIN + 160, currentY + 3);
+            doc.text(`: ${t.desc}`, col2 + 4, currentY + 3);
             currentY += 12;
             line(currentY);
         });
@@ -261,7 +280,7 @@ exports.generatePO = async (poData, settings = {}) => {
         // Vertical lines for terms
         vLine(MARGIN, currentY - (12 * 5), currentY);
         vLine(MARGIN + 25, currentY - (12 * 5), currentY);
-        vLine(MARGIN + 155, currentY - (12 * 5), currentY);
+        vLine(col2, currentY - (12 * 5), currentY);
         vLine(PAGE_WIDTH - MARGIN, currentY - (12 * 5), currentY);
 
         // Remarks
@@ -274,10 +293,17 @@ exports.generatePO = async (poData, settings = {}) => {
 
         // Footer
         currentY += 20;
-        doc.font('Helvetica-Bold').text(`for, ${settings.companyName || 'GITAKSHMI TECHNOLOGIES PVT. LTD.'}`, PAGE_WIDTH - MARGIN - 200, currentY, { align: 'right', width: 200 });
+        doc.font('Helvetica-Bold').fontSize(8);
+        doc.text(`for, ${poData.vendorId?.companyName || poData.vendorId?.name || 'HOTLINESYSTEM'}`, MARGIN, currentY, { align: 'left', width: 250 });
+        doc.text(`for, ${settings.companyName || 'GITAKSHMI TECHNOLOGIES PVT. LTD.'}`, PAGE_WIDTH - MARGIN - 200, currentY, { align: 'right', width: 200 });
         
-        // Authorized Signatory
+        // Digital signature/accepted text is printed below inside Signatures Row
+
+
+        // Signatures Row
         currentY += 60;
+        const acceptedText = `Accepted By${poData.status !== 'pending' && poData.status !== 'rejected' && poData.acceptedBy ? ': ' + poData.acceptedBy : ''}`;
+        doc.text(acceptedText, MARGIN, currentY, { align: 'left', width: 250 });
         doc.text('Authorized signatory', PAGE_WIDTH - MARGIN - 200, currentY, { align: 'right', width: 200 });
 
         doc.fontSize(8).text('Page 1 of 2', 0, PAGE_HEIGHT - 30, { align: 'center', width: PAGE_WIDTH });
@@ -285,7 +311,7 @@ exports.generatePO = async (poData, settings = {}) => {
         // --- SECOND PAGE (Terms & Conditions) ---
         doc.addPage();
         doc.fontSize(10).font('Helvetica-Bold').text(settings.companyName || 'Gitakshmi Technologies Private Limited', MARGIN, MARGIN);
-        doc.text(`PO number/date           ${poData.poNumber} / ${new Date().toLocaleDateString('en-GB')}`, MARGIN + 300, MARGIN);
+        doc.text(`${poData.orderType === 'SO' ? 'SO' : 'PO'} number/date           ${poData.poNumber} / ${new Date().toLocaleDateString('en-GB')}`, MARGIN + 300, MARGIN);
         line(MARGIN + 15);
 
         currentY = MARGIN + 30;
@@ -300,7 +326,20 @@ exports.generatePO = async (poData, settings = {}) => {
         currentY += 80;
         doc.font('Helvetica-Bold').text('GENERAL TERMS & CONDITIONS', MARGIN, currentY);
         currentY += 15;
-        doc.font('Helvetica').fontSize(8).text(`Following are the General Terms & Conditions applicable to this PO...`, MARGIN, currentY, { width: CONTENT_WIDTH });
+        doc.font('Helvetica').fontSize(8).text(`Following are the General Terms & Conditions applicable to this ${poData.orderType === 'SO' ? 'SO' : 'PO'}. In case of contradictions, Terms & Conditions mentioned in the main body of the ${poData.orderType === 'SO' ? 'SO' : 'PO'} shall take precedence over Terms & Conditions mentioned here.`, MARGIN, currentY, { width: CONTENT_WIDTH });
+
+        // Add dynamic Accepted By signature to Page 2
+        currentY = PAGE_HEIGHT - 130;
+        doc.font('Helvetica-Bold').fontSize(8);
+        doc.text(`for, ${poData.vendorId?.companyName || poData.vendorId?.name || 'HOTLINESYSTEM'}`, MARGIN, currentY, { align: 'left', width: 250 });
+        
+        // Digital signature/accepted text is printed below inside Signatures Bottom Row
+
+
+        // Signatures Bottom Row
+        currentY += 60;
+        const acceptedText3 = `Accepted By${poData.status !== 'pending' && poData.status !== 'rejected' && poData.acceptedBy ? ': ' + poData.acceptedBy : ''}`;
+        doc.text(acceptedText3, MARGIN, currentY, { align: 'left', width: 250 });
 
         doc.fontSize(8).text('Page 2 of 2', 0, PAGE_HEIGHT - 30, { align: 'center', width: PAGE_WIDTH });
 

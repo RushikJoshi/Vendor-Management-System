@@ -585,14 +585,12 @@ exports.approveApplication = async (req, res) => {
                     msmeNumber: getVal('co_msme', 'msmeNum'),
                     msmeCategory: getVal('co_msmeCat', 'msmeCat')
                 },
-                bankDetails: {
-                    beneficiaryName: getVal('bk_beneficiary', 'beneficiaryName'),
+                bankAccount: {
+                    accountHolderName: getVal('bk_beneficiary', 'beneficiaryName', 'accountHolderName'),
                     bankName: getVal('bk_bankName', 'bankName'),
-                    branchName: getVal('bk_branch', 'bankBranch'),
+                    branchName: getVal('bk_branch', 'bankBranch', 'branchName'),
                     accountNumber: getVal('bk_accNo', 'accountNumber'),
-                    accountType: getVal('bk_accType', 'accountType'),
                     ifscCode: getVal('bk_ifsc', 'ifscCode'),
-                    micrCode: getVal('bk_micr', 'micrCode')
                 },
                 taxDetails: {
                     itrLast3Years: getVal('tx_itr', 'itrStatus'),
@@ -609,7 +607,7 @@ exports.approveApplication = async (req, res) => {
                     public_id: doc.public_id, fieldName: doc.fieldName
                 })),
                 createdFromApplicationId: application._id,
-                averageRating: 0,
+                rating: 0,
                 contractsCount: 0
             });
         }
@@ -799,14 +797,12 @@ async function createVendorFromApplication(application, fallbackTenantId = null)
                 msmeNumber: getVal('co_msme', 'msmeNum'),
                 msmeCategory: getVal('co_msmeCat', 'msmeCat')
             },
-            bankDetails: {
-                beneficiaryName: getVal('bk_beneficiary', 'beneficiaryName'),
+            bankAccount: {
+                accountHolderName: getVal('bk_beneficiary', 'beneficiaryName', 'accountHolderName'),
                 bankName: getVal('bk_bankName', 'bankName'),
-                branchName: getVal('bk_branch', 'bankBranch'),
+                branchName: getVal('bk_branch', 'bankBranch', 'branchName'),
                 accountNumber: getVal('bk_accNo', 'accountNumber'),
-                accountType: getVal('bk_accType', 'accountType'),
                 ifscCode: getVal('bk_ifsc', 'ifscCode'),
-                micrCode: getVal('bk_micr', 'micrCode')
             },
             taxDetails: {
                 itrLast3Years: getVal('tx_itr', 'itrStatus'),
@@ -823,7 +819,7 @@ async function createVendorFromApplication(application, fallbackTenantId = null)
                 public_id: doc.public_id, fieldName: doc.fieldName
             })),
             createdFromApplicationId: application._id,
-            averageRating: 0,
+            rating: 0,
             contractsCount: 0
         });
     }

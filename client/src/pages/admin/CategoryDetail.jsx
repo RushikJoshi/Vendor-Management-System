@@ -171,8 +171,20 @@ export default function CategoryDetail() {
                                             <span className="text-[13px] font-black">{v.rating || '0.0'}</span>
                                         </div>
                                     </td>
-                                    <td className="px-6 py-5 text-right">
-                                        <button className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-4 py-2 text-[11px] font-bold uppercase tracking-wider text-slate-600 shadow-sm hover:bg-slate-50 hover:text-indigo-600 transition-all active:scale-95">
+                                    <td className="px-6 py-5 text-right flex items-center justify-end gap-2">
+                                        <button 
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                navigate(`/admin/vendors/${v._id}/performance`);
+                                            }}
+                                            className="inline-flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-4 py-2 text-[11px] font-bold uppercase tracking-wider text-amber-700 shadow-sm hover:bg-amber-100 transition-all active:scale-95"
+                                        >
+                                            <Star size={12} className="fill-amber-500" /> Rate
+                                        </button>
+                                        <button 
+                                            onClick={() => navigate(`/admin/vendors/${v._id}`)}
+                                            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-4 py-2 text-[11px] font-bold uppercase tracking-wider text-slate-600 shadow-sm hover:bg-slate-50 hover:text-indigo-600 transition-all active:scale-95"
+                                        >
                                             Manage <ChevronRight size={12} />
                                         </button>
                                     </td>

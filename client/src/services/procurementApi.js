@@ -24,6 +24,22 @@ const procurementApi = {
 
   listPayments: () => api.get("/procurement/payments"),
   listSlaBreaches: () => api.get("/procurement/sla-breaches"),
+  getVendorStatementForAdmin: (vendorId) => api.get(`/procurement/vendor-statement/${vendorId}`),
+
+  // Vendor Workflow Actions
+  acceptPO: (id) => api.patch(`/procurement/purchase-orders/${id}/accept`),
+  rejectPO: (id, payload) => api.patch(`/procurement/purchase-orders/${id}/reject`, payload),
+  getVendorPayments: () => api.get("/procurement/vendor-payments"),
+  getVendorStatement: () => api.get("/procurement/vendor-statement"),
+
+  // Generic Comments
+  addComment: (payload) => api.post("/procurement/comments", payload),
+  getComments: (targetModel, targetId) => api.get(`/procurement/comments/${targetModel}/${targetId}`),
+  getAllComments: () => api.get("/procurement/comments/all"),
+
+  // SLM / Performance
+  submitPerformanceReview: (payload) => api.post("/slm/performance/review", payload),
+  getVendorPerformance: (vendorId) => api.get(`/slm/performance/vendor/${vendorId}`),
 };
 
 export default procurementApi;

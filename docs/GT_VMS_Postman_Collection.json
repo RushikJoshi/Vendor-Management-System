@@ -1,0 +1,4671 @@
+{
+  "info": {
+    "name": "GT Vendor Management System (VMS) - All APIs",
+    "description": "Complete Postman collection for GT VMS containing all 170+ endpoints. Use {{base_url}} (default: http://localhost:5000) and {{jwt_token}} variables in your Postman environment.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Auth",
+      "item": [
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Register a new user",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test User\",\n  \"email\": \"user@example.com\",\n  \"password\": \"Password@123\",\n  \"role\": \"employee\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Onboard Company",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/onboard",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "onboard"
+              ]
+            },
+            "description": "Onboard a company",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"companyName\": \"Gitakshmi Tech\",\n  \"email\": \"admin@gitakshmi.com\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "User Login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@gmail.com\",\n  \"password\": \"Admin@123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/refresh",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "refresh"
+              ]
+            },
+            "description": "Refresh session token"
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/logout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "logout"
+              ]
+            },
+            "description": "Logout user"
+          }
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/change-password",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "change-password"
+              ]
+            },
+            "description": "Change user password",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"oldPassword\": \"OldPassword123\",\n  \"newPassword\": \"NewPassword123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Me (Profile)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/me",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "me"
+              ]
+            },
+            "description": "Get current user profile"
+          }
+        },
+        {
+          "name": "Get Permissions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/permissions",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "permissions"
+              ]
+            },
+            "description": "Get current user permissions"
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Vendors",
+      "item": [
+        {
+          "name": "Lookup GST Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/vendors/gst-profile/24AAICG0391B1Z2",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "vendors",
+                "gst-profile",
+                "24AAICG0391B1Z2"
+              ]
+            },
+            "description": "Lookup vendor info by GSTIN"
+          }
+        },
+        {
+          "name": "Get Vendor Profile (Me)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/vendors/me",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "vendors",
+                "me"
+              ]
+            },
+            "description": "Get own vendor profile"
+          }
+        },
+        {
+          "name": "Get Vendor Stats (Me)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/vendors/me/stats",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "vendors",
+                "me",
+                "stats"
+              ]
+            },
+            "description": "Get own vendor statistics"
+          }
+        },
+        {
+          "name": "Update Vendor Profile (Me)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/vendors/me",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "vendors",
+                "me"
+              ]
+            },
+            "description": "Update own profile",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"companyName\": \"Updated Name\",\n  \"phone\": \"9876543210\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get All Vendors",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/vendors",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "vendors"
+              ]
+            },
+            "description": "List all vendors (Admin/HR/Manager)"
+          }
+        },
+        {
+          "name": "Create Vendor",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/vendors",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "vendors"
+              ]
+            },
+            "description": "Create a new vendor profile",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Supplier Inc\",\n  \"email\": \"supplier@example.com\",\n  \"gstNumber\": \"24AAICG0391B1Z2\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Vendor by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/vendors/6a0bf0389f1716d298153126",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "vendors",
+                "6a0bf0389f1716d298153126"
+              ]
+            },
+            "description": "Get specific vendor profile"
+          }
+        },
+        {
+          "name": "Update Vendor by ID",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/vendors/6a0bf0389f1716d298153126",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "vendors",
+                "6a0bf0389f1716d298153126"
+              ]
+            },
+            "description": "Update specific vendor",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Supplier Private Limited\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Vendor by ID",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/vendors/6a0bf0389f1716d298153126",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "vendors",
+                "6a0bf0389f1716d298153126"
+              ]
+            },
+            "description": "Delete/Archive vendor"
+          }
+        },
+        {
+          "name": "Get Vendor Performance",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/vendors/6a0bf0389f1716d298153126/performance",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "vendors",
+                "6a0bf0389f1716d298153126",
+                "performance"
+              ]
+            },
+            "description": "Get vendor performance review metrics"
+          }
+        },
+        {
+          "name": "Send Payment Reminder",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/vendors/6a0bf0389f1716d298153126/remind-payment",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "vendors",
+                "6a0bf0389f1716d298153126",
+                "remind-payment"
+              ]
+            },
+            "description": "Send automated email payment reminder"
+          }
+        },
+        {
+          "name": "Upload GST Certificate",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/vendors/6a0bf0389f1716d298153126/upload-gst",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "vendors",
+                "6a0bf0389f1716d298153126",
+                "upload-gst"
+              ]
+            },
+            "description": "Upload GST certificate file"
+          }
+        },
+        {
+          "name": "Upload Vendor Agreement",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/vendors/6a0bf0389f1716d298153126/upload-agreement",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "vendors",
+                "6a0bf0389f1716d298153126",
+                "upload-agreement"
+              ]
+            },
+            "description": "Upload vendor service agreement"
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Admin Actions",
+      "item": [
+        {
+          "name": "Get Dashboard Overview Stats",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/stats",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "stats"
+              ]
+            },
+            "description": "Get Dashboard Overview Stats"
+          }
+        },
+        {
+          "name": "Get Direct Messages",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/messages",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "messages"
+              ]
+            },
+            "description": "Get Direct Messages"
+          }
+        },
+        {
+          "name": "Get Vendors Admin List",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/vendors",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "vendors"
+              ]
+            },
+            "description": "Get Vendors Admin List"
+          }
+        },
+        {
+          "name": "Export Vendors CSV",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/vendors/export",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "vendors",
+                "export"
+              ]
+            },
+            "description": "Export Vendors CSV"
+          }
+        },
+        {
+          "name": "Import Vendors (Bulk CSV)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/vendors/import",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "vendors",
+                "import"
+              ]
+            },
+            "description": "Import Vendors (Bulk CSV)"
+          }
+        },
+        {
+          "name": "Update Vendor Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/vendors/6a0bf0389f1716d298153126/status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "vendors",
+                "6a0bf0389f1716d298153126",
+                "status"
+              ]
+            },
+            "description": "Update Vendor Status",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"approved\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Blacklist Vendor",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/vendors/6a0bf0389f1716d298153126",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "vendors",
+                "6a0bf0389f1716d298153126"
+              ]
+            },
+            "description": "Blacklist Vendor"
+          }
+        },
+        {
+          "name": "Send Inquiry Mail",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/inquiry",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "inquiry"
+              ]
+            },
+            "description": "Send Inquiry Mail",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"vendorId\": \"6a0bf0389f1716d298153126\",\n  \"subject\": \"KYC Pending\",\n  \"message\": \"Please upload your GST registration.\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Audit Logs",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/audit-logs",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "audit-logs"
+              ]
+            },
+            "description": "Get Audit Logs"
+          }
+        },
+        {
+          "name": "Get System Analytics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/analytics",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "analytics"
+              ]
+            },
+            "description": "Get System Analytics"
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. RFQ Workflow",
+      "item": [
+        {
+          "name": "Get RFQ List",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/rfqs",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "rfqs"
+              ]
+            },
+            "description": "Get RFQ List"
+          }
+        },
+        {
+          "name": "Create RFQ",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/rfqs",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "rfqs"
+              ]
+            },
+            "description": "Create RFQ",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Procurement of Laptops\",\n  \"items\": [\n    {\n      \"name\": \"Dell Latitude 5420\",\n      \"quantity\": 10,\n      \"unit\": \"Nos\"\n    }\n  ],\n  \"quoteDeadline\": \"2026-12-31\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get RFQ Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/rfqs/6a0bf0389f1716d298153126",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "rfqs",
+                "6a0bf0389f1716d298153126"
+              ]
+            },
+            "description": "Get RFQ Details"
+          }
+        },
+        {
+          "name": "Update RFQ",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/rfqs/6a0bf0389f1716d298153126",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "rfqs",
+                "6a0bf0389f1716d298153126"
+              ]
+            },
+            "description": "Update RFQ",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated Procurement Title\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Update RFQ Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/rfqs/6a0bf0389f1716d298153126/status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "rfqs",
+                "6a0bf0389f1716d298153126",
+                "status"
+              ]
+            },
+            "description": "Update RFQ Status",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"published\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Approve/Review RFQ",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/rfqs/6a0bf0389f1716d298153126/review",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "rfqs",
+                "6a0bf0389f1716d298153126",
+                "review"
+              ]
+            },
+            "description": "Approve/Review RFQ",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"approve\": true,\n  \"remarks\": \"Approved for publishing\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Send RFQ to Targeted Vendors",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/rfqs/6a0bf0389f1716d298153126/send",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "rfqs",
+                "6a0bf0389f1716d298153126",
+                "send"
+              ]
+            },
+            "description": "Send RFQ to Targeted Vendors",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"vendors\": [\n    \"6a0bf0389f1716d298153126\"\n  ]\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Quotations",
+      "item": [
+        {
+          "name": "Submit Quotation",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/quotations",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "quotations"
+              ]
+            },
+            "description": "Submit Quotation",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rfqId\": \"6a0bf0389f1716d298153126\",\n  \"items\": [\n    {\n      \"name\": \"Item 1\",\n      \"quantity\": 10,\n      \"unitPrice\": 25000\n    }\n  ],\n  \"totalAmount\": 250000\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Quotations for RFQ",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/quotations/rfq/6a0bf0389f1716d298153126",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "quotations",
+                "rfq",
+                "6a0bf0389f1716d298153126"
+              ]
+            },
+            "description": "Get Quotations for RFQ"
+          }
+        },
+        {
+          "name": "Accept Quotation",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/quotations/6a0bf0389f1716d298153126/accept",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "quotations",
+                "6a0bf0389f1716d298153126",
+                "accept"
+              ]
+            },
+            "description": "Accept Quotation"
+          }
+        },
+        {
+          "name": "Reject Quotation",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/quotations/6a0bf0389f1716d298153126/reject",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "quotations",
+                "6a0bf0389f1716d298153126",
+                "reject"
+              ]
+            },
+            "description": "Reject Quotation"
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Purchase Orders (PO)",
+      "item": [
+        {
+          "name": "List All POs",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/purchase-orders",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "purchase-orders"
+              ]
+            },
+            "description": "List All POs"
+          }
+        },
+        {
+          "name": "Create PO",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/purchase-orders",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "purchase-orders"
+              ]
+            },
+            "description": "Create PO",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"vendorId\": \"6a0bf0389f1716d298153126\",\n  \"items\": [\n    {\n      \"name\": \"Goods\",\n      \"quantity\": 1,\n      \"unitPrice\": 50000\n    }\n  ],\n  \"totalAmount\": 50000\n}"
+            }
+          }
+        },
+        {
+          "name": "Get PO By ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/purchase-orders/6a0bf0389f1716d298153126",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "purchase-orders",
+                "6a0bf0389f1716d298153126"
+              ]
+            },
+            "description": "Get PO By ID"
+          }
+        },
+        {
+          "name": "Regenerate All PO PDFs",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/purchase-orders/regenerate-all",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "purchase-orders",
+                "regenerate-all"
+              ]
+            },
+            "description": "Regenerate All PO PDFs"
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. Service Orders (SO)",
+      "item": [
+        {
+          "name": "List All SOs",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/service-orders",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "service-orders"
+              ]
+            },
+            "description": "List All SOs"
+          }
+        },
+        {
+          "name": "Create SO",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/service-orders",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "service-orders"
+              ]
+            },
+            "description": "Create SO",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"vendorId\": \"6a0bf0389f1716d298153126\",\n  \"items\": [\n    {\n      \"name\": \"Consulting Service\",\n      \"quantity\": 1,\n      \"unitPrice\": 75000\n    }\n  ],\n  \"totalAmount\": 75000\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "8. Procurement Workspace (Advanced)",
+      "item": [
+        {
+          "name": "Get Procurement Overview",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/procurement/overview",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "procurement",
+                "overview"
+              ]
+            },
+            "description": "Get Procurement Overview"
+          }
+        },
+        {
+          "name": "List Purchase Requests (PR)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/procurement/purchase-requests",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "procurement",
+                "purchase-requests"
+              ]
+            },
+            "description": "List Purchase Requests (PR)"
+          }
+        },
+        {
+          "name": "Create Purchase Request",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/procurement/purchase-requests",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "procurement",
+                "purchase-requests"
+              ]
+            },
+            "description": "Create Purchase Request",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Server Hardware PR\",\n  \"items\": [\n    {\n      \"description\": \"RAM 32GB DDR4\",\n      \"quantity\": 4,\n      \"estimatedUnitPrice\": 12000\n    }\n  ],\n  \"submit\": true\n}"
+            }
+          }
+        },
+        {
+          "name": "Approve PR",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/procurement/purchase-requests/6a0bf0389f1716d298153126/approve",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "procurement",
+                "purchase-requests",
+                "6a0bf0389f1716d298153126",
+                "approve"
+              ]
+            },
+            "description": "Approve PR",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"approve\": true,\n  \"remarks\": \"Urgent purchase approved.\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Convert PR to RFQ",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/procurement/purchase-requests/6a0bf0389f1716d298153126/convert-to-rfq",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "procurement",
+                "purchase-requests",
+                "6a0bf0389f1716d298153126",
+                "convert-to-rfq"
+              ]
+            },
+            "description": "Convert PR to RFQ",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"RFQ for Server Hardware\",\n  \"quoteDeadline\": \"2026-10-10\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Quotation Comparison Matrix",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/procurement/rfqs/6a0bf0389f1716d298153126/quotation-comparison",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "procurement",
+                "rfqs",
+                "6a0bf0389f1716d298153126",
+                "quotation-comparison"
+              ]
+            },
+            "description": "Get Quotation Comparison Matrix"
+          }
+        },
+        {
+          "name": "Select Vendor & Auto-create PO",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/procurement/quotations/6a0bf0389f1716d298153126/select",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "procurement",
+                "quotations",
+                "6a0bf0389f1716d298153126",
+                "select"
+              ]
+            },
+            "description": "Select Vendor & Auto-create PO"
+          }
+        },
+        {
+          "name": "Accept PO (Vendor)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/procurement/purchase-orders/6a0bf0389f1716d298153126/accept",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "procurement",
+                "purchase-orders",
+                "6a0bf0389f1716d298153126",
+                "accept"
+              ]
+            },
+            "description": "Accept PO (Vendor)"
+          }
+        },
+        {
+          "name": "Reject PO (Vendor)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/procurement/purchase-orders/6a0bf0389f1716d298153126/reject",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "procurement",
+                "purchase-orders",
+                "6a0bf0389f1716d298153126",
+                "reject"
+              ]
+            },
+            "description": "Reject PO (Vendor)",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"remarks\": \"Insufficient stock\"\n}"
+            }
+          }
+        },
+        {
+          "name": "List Deliveries",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/procurement/deliveries",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "procurement",
+                "deliveries"
+              ]
+            },
+            "description": "List Deliveries"
+          }
+        },
+        {
+          "name": "Upsert Delivery Tracking",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/procurement/deliveries",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "procurement",
+                "deliveries"
+              ]
+            },
+            "description": "Upsert Delivery Tracking",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"poId\": \"6a0bf0389f1716d298153126\",\n  \"status\": \"in_transit\",\n  \"expectedDate\": \"2026-06-01\",\n  \"tracking\": {\n    \"carrier\": \"BlueDart\",\n    \"trackingNumber\": \"BD9876543\"\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "List Invoices",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/procurement/invoices",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "procurement",
+                "invoices"
+              ]
+            },
+            "description": "List Invoices"
+          }
+        },
+        {
+          "name": "Submit Invoice",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/procurement/invoices",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "procurement",
+                "invoices"
+              ]
+            },
+            "description": "Submit Invoice",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"poId\": \"6a0bf0389f1716d298153126\",\n  \"invoiceNumber\": \"INV-2026-001\",\n  \"lines\": [\n    {\n      \"itemName\": \"Delivered RAM modules\",\n      \"quantity\": 4,\n      \"unitPrice\": 12000\n    }\n  ],\n  \"totalAmount\": 48000\n}"
+            }
+          }
+        },
+        {
+          "name": "Review/Approve Invoice",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/procurement/invoices/6a0bf0389f1716d298153126/review",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "procurement",
+                "invoices",
+                "6a0bf0389f1716d298153126",
+                "review"
+              ]
+            },
+            "description": "Review/Approve Invoice",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"approve\": true,\n  \"reason\": \"Verified with delivery notes.\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Process Payment & Settle Invoice",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/procurement/invoices/6a0bf0389f1716d298153126/pay",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "procurement",
+                "invoices",
+                "6a0bf0389f1716d298153126",
+                "pay"
+              ]
+            },
+            "description": "Process Payment & Settle Invoice",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 48000,\n  \"method\": \"bank_transfer\",\n  \"transactionRef\": \"UTR9876543210\"\n}"
+            }
+          }
+        },
+        {
+          "name": "List Payments",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/procurement/payments",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "procurement",
+                "payments"
+              ]
+            },
+            "description": "List Payments"
+          }
+        },
+        {
+          "name": "Get SLA Breaches",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/procurement/sla-breaches",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "procurement",
+                "sla-breaches"
+              ]
+            },
+            "description": "Get SLA Breaches"
+          }
+        },
+        {
+          "name": "Get Vendor Statement (Admin View)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/procurement/vendor-statement/6a0bf0389f1716d298153126",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "procurement",
+                "vendor-statement",
+                "6a0bf0389f1716d298153126"
+              ]
+            },
+            "description": "Get Vendor Statement (Admin View)"
+          }
+        },
+        {
+          "name": "Get Vendor Payments (Vendor View)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/procurement/vendor-payments",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "procurement",
+                "vendor-payments"
+              ]
+            },
+            "description": "Get Vendor Payments (Vendor View)"
+          }
+        },
+        {
+          "name": "Get Vendor Statement (Vendor View)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/procurement/vendor-statement",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "procurement",
+                "vendor-statement"
+              ]
+            },
+            "description": "Get Vendor Statement (Vendor View)"
+          }
+        },
+        {
+          "name": "Add Discussion Comment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/procurement/comments",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "procurement",
+                "comments"
+              ]
+            },
+            "description": "Add Discussion Comment",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"targetModel\": \"PurchaseOrder\",\n  \"targetId\": \"6a0bf0389f1716d298153126\",\n  \"content\": \"Is the shipment on track?\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Comments for Target Entity",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/procurement/comments/PurchaseOrder/6a0bf0389f1716d298153126",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "procurement",
+                "comments",
+                "PurchaseOrder",
+                "6a0bf0389f1716d298153126"
+              ]
+            },
+            "description": "Get Comments for Target Entity"
+          }
+        }
+      ]
+    },
+    {
+      "name": "9. Registration Applications",
+      "item": [
+        {
+          "name": "Submit Public Registration Application",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/applications/submit",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "applications",
+                "submit"
+              ]
+            },
+            "description": "Submit Public Registration Application",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"companyName\": \"Delta Corp\",\n  \"email\": \"delta@example.com\",\n  \"phone\": \"9876543211\",\n  \"categoryId\": \"6a0bf0389f1716d298153126\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Finalize Submission",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/applications/6a0bf0389f1716d298153126/finalize",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "applications",
+                "6a0bf0389f1716d298153126",
+                "finalize"
+              ]
+            },
+            "description": "Finalize Submission"
+          }
+        },
+        {
+          "name": "Get Application State By Email",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/applications/state/delta@example.com",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "applications",
+                "state",
+                "delta@example.com"
+              ]
+            },
+            "description": "Get Application State By Email"
+          }
+        },
+        {
+          "name": "Check Email Availability",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/applications/check-email?email=delta@example.com",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "applications",
+                "check-email?email=delta@example.com"
+              ]
+            },
+            "description": "Check Email Availability"
+          }
+        },
+        {
+          "name": "List Applications",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/applications",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "applications"
+              ]
+            },
+            "description": "List Applications"
+          }
+        },
+        {
+          "name": "Get Application Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/applications/6a0bf0389f1716d298153126",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "applications",
+                "6a0bf0389f1716d298153126"
+              ]
+            },
+            "description": "Get Application Details"
+          }
+        },
+        {
+          "name": "Process Approval Stage",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/applications/6a0bf0389f1716d298153126/approve-stage",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "applications",
+                "6a0bf0389f1716d298153126",
+                "approve-stage"
+              ]
+            },
+            "description": "Process Approval Stage",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"stage\": \"finance\",\n  \"approve\": true,\n  \"remarks\": \"Checked bank proof\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Approve Application Fully",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/applications/6a0bf0389f1716d298153126/approve",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "applications",
+                "6a0bf0389f1716d298153126",
+                "approve"
+              ]
+            },
+            "description": "Approve Application Fully"
+          }
+        },
+        {
+          "name": "Reject Application Fully",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/applications/6a0bf0389f1716d298153126/reject",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "applications",
+                "6a0bf0389f1716d298153126",
+                "reject"
+              ]
+            },
+            "description": "Reject Application Fully",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"GST is blacklisted\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "10. Dynamic Form Templates",
+      "item": [
+        {
+          "name": "Get Public Master Form Structure",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/forms/master/public",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "forms",
+                "master",
+                "public"
+              ]
+            },
+            "description": "Get Public Master Form Structure"
+          }
+        },
+        {
+          "name": "Get Published Forms list",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/forms/published",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "forms",
+                "published"
+              ]
+            },
+            "description": "Get Published Forms list"
+          }
+        },
+        {
+          "name": "Get Public Form By Category",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/forms/public/6a0bf0389f1716d298153126",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "forms",
+                "public",
+                "6a0bf0389f1716d298153126"
+              ]
+            },
+            "description": "Get Public Form By Category"
+          }
+        },
+        {
+          "name": "Get Form Builder Forms",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/forms",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "forms"
+              ]
+            },
+            "description": "Get Form Builder Forms"
+          }
+        },
+        {
+          "name": "Save Form Structure",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/forms",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "forms"
+              ]
+            },
+            "description": "Save Form Structure",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Standard Vendor Form\",\n  \"fields\": [\n    {\n      \"type\": \"text\",\n      \"label\": \"Business Name\"\n    }\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Create Form (VRS Builder)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/forms/builder",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "forms",
+                "builder"
+              ]
+            },
+            "description": "Create Form (VRS Builder)",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Advanced Supplier Form\",\n  \"steps\": []\n}"
+            }
+          }
+        },
+        {
+          "name": "List Builder Forms",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/forms/builder/all",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "forms",
+                "builder",
+                "all"
+              ]
+            },
+            "description": "List Builder Forms"
+          }
+        },
+        {
+          "name": "Get Builder Form by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/forms/builder/6a0bf0389f1716d298153126",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "forms",
+                "builder",
+                "6a0bf0389f1716d298153126"
+              ]
+            },
+            "description": "Get Builder Form by ID"
+          }
+        },
+        {
+          "name": "Update Builder Form",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/forms/builder/6a0bf0389f1716d298153126",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "forms",
+                "builder",
+                "6a0bf0389f1716d298153126"
+              ]
+            },
+            "description": "Update Builder Form",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated Supplier Form\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Publish Builder Form",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/forms/builder/6a0bf0389f1716d298153126/publish",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "forms",
+                "builder",
+                "6a0bf0389f1716d298153126",
+                "publish"
+              ]
+            },
+            "description": "Publish Builder Form"
+          }
+        },
+        {
+          "name": "Unpublish Builder Form",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/forms/builder/6a0bf0389f1716d298153126/unpublish",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "forms",
+                "builder",
+                "6a0bf0389f1716d298153126",
+                "unpublish"
+              ]
+            },
+            "description": "Unpublish Builder Form"
+          }
+        },
+        {
+          "name": "Copy/Clone Builder Form",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/forms/builder/6a0bf0389f1716d298153126/copy",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "forms",
+                "builder",
+                "6a0bf0389f1716d298153126",
+                "copy"
+              ]
+            },
+            "description": "Copy/Clone Builder Form"
+          }
+        },
+        {
+          "name": "Get Form Preview",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/forms/builder/6a0bf0389f1716d298153126/preview",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "forms",
+                "builder",
+                "6a0bf0389f1716d298153126",
+                "preview"
+              ]
+            },
+            "description": "Get Form Preview"
+          }
+        },
+        {
+          "name": "Archive Form Template",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/forms/6a0bf0389f1716d298153126/archive",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "forms",
+                "6a0bf0389f1716d298153126",
+                "archive"
+              ]
+            },
+            "description": "Archive Form Template"
+          }
+        },
+        {
+          "name": "Seed Enterprise Industry Templates",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/forms/seed/enterprise",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "forms",
+                "seed",
+                "enterprise"
+              ]
+            },
+            "description": "Seed Enterprise Industry Templates"
+          }
+        }
+      ]
+    },
+    {
+      "name": "11. Tree Vendor Onboarding (Forms & Autofills)",
+      "item": [
+        {
+          "name": "Create Tree Form Structure",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/form/create",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "form",
+                "create"
+              ]
+            },
+            "description": "Create Tree Form Structure",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Tree Master Onboarding\",\n  \"schema\": {}\n}"
+            }
+          }
+        },
+        {
+          "name": "Create Default Tree Form Structure",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/form/create-default",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "form",
+                "create-default"
+              ]
+            },
+            "description": "Create Default Tree Form Structure"
+          }
+        },
+        {
+          "name": "Update Tree Form",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/form/6a0bf0389f1716d298153126",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "form",
+                "6a0bf0389f1716d298153126"
+              ]
+            },
+            "description": "Update Tree Form",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Modified Tree Form\"\n}"
+            }
+          }
+        },
+        {
+          "name": "List Tree Forms",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/form/all",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "form",
+                "all"
+              ]
+            },
+            "description": "List Tree Forms"
+          }
+        },
+        {
+          "name": "Autofill GST details",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/form/autofill/gst",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "form",
+                "autofill",
+                "gst"
+              ]
+            },
+            "description": "Autofill GST details",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"gstin\": \"24AAICG0391B1Z2\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Autofill Bank IFSC details",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/form/autofill/ifsc",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "form",
+                "autofill",
+                "ifsc"
+              ]
+            },
+            "description": "Autofill Bank IFSC details",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ifsc\": \"IFSC0001234\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Tree Form by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/form/6a0bf0389f1716d298153126",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "form",
+                "6a0bf0389f1716d298153126"
+              ]
+            },
+            "description": "Get Tree Form by ID"
+          }
+        },
+        {
+          "name": "Get Tree Submissions List",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/submission/all",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "submission",
+                "all"
+              ]
+            },
+            "description": "Get Tree Submissions List"
+          }
+        },
+        {
+          "name": "Get Tree Submission Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/submission/6a0bf0389f1716d298153126",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "submission",
+                "6a0bf0389f1716d298153126"
+              ]
+            },
+            "description": "Get Tree Submission Details"
+          }
+        },
+        {
+          "name": "Approve Tree Submission",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/submission/approve",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "submission",
+                "approve"
+              ]
+            },
+            "description": "Approve Tree Submission",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"submissionId\": \"6a0bf0389f1716d298153126\",\n  \"remarks\": \"KYC Verified\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "12. SLM, Contracts & Performance",
+      "item": [
+        {
+          "name": "List Active Contracts",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/contracts",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "contracts"
+              ]
+            },
+            "description": "List Active Contracts"
+          }
+        },
+        {
+          "name": "Create New Contract",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/contracts",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "contracts"
+              ]
+            },
+            "description": "Create New Contract",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Annual SLA Agreement\",\n  \"vendorId\": \"6a0bf0389f1716d298153126\",\n  \"startDate\": \"2026-01-01\",\n  \"endDate\": \"2026-12-31\",\n  \"value\": 1200000\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Contracts stats overview",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/contracts/stats",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "contracts",
+                "stats"
+              ]
+            },
+            "description": "Get Contracts stats overview"
+          }
+        },
+        {
+          "name": "Get Contract details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/contracts/6a0bf0389f1716d298153126",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "contracts",
+                "6a0bf0389f1716d298153126"
+              ]
+            },
+            "description": "Get Contract details"
+          }
+        },
+        {
+          "name": "Update Contract terms",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/contracts/6a0bf0389f1716d298153126",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "contracts",
+                "6a0bf0389f1716d298153126"
+              ]
+            },
+            "description": "Update Contract terms",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"value\": 1500000\n}"
+            }
+          }
+        },
+        {
+          "name": "Terminate Contract Early",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/contracts/6a0bf0389f1716d298153126/terminate",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "contracts",
+                "6a0bf0389f1716d298153126",
+                "terminate"
+              ]
+            },
+            "description": "Terminate Contract Early",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Non-performance\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Contract Record",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/contracts/6a0bf0389f1716d298153126",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "contracts",
+                "6a0bf0389f1716d298153126"
+              ]
+            },
+            "description": "Delete Contract Record"
+          }
+        },
+        {
+          "name": "Submit Performance Review",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/slm/performance/review",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "slm",
+                "performance",
+                "review"
+              ]
+            },
+            "description": "Submit Performance Review",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"vendorId\": \"6a0bf0389f1716d298153126\",\n  \"criteria\": {\n    \"quality\": 5,\n    \"deliverySpeed\": 4,\n    \"communication\": 5\n  },\n  \"remarks\": \"Excellent partner\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Supplier Lifecycle logs",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/slm/vendors/6a0bf0389f1716d298153126/lifecycle",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "slm",
+                "vendors",
+                "6a0bf0389f1716d298153126",
+                "lifecycle"
+              ]
+            },
+            "description": "Get Supplier Lifecycle logs",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"Active\",\n  \"remarks\": \"Onboarded successfully\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "13. User, Role & Department Management",
+      "item": [
+        {
+          "name": "Get All Portal Users",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/users",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users"
+              ]
+            },
+            "description": "Get All Portal Users"
+          }
+        },
+        {
+          "name": "Create Portal User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/users",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users"
+              ]
+            },
+            "description": "Create Portal User",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Finance Manager\",\n  \"email\": \"finance@gitakshmi.com\",\n  \"role\": \"finance\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get User profile details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/users/6a0bf0389f1716d298153126",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "6a0bf0389f1716d298153126"
+              ]
+            },
+            "description": "Get User profile details"
+          }
+        },
+        {
+          "name": "Update User details",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/users/6a0bf0389f1716d298153126",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "6a0bf0389f1716d298153126"
+              ]
+            },
+            "description": "Update User details",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Senior Finance Executive\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete User",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/users/6a0bf0389f1716d298153126",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "6a0bf0389f1716d298153126"
+              ]
+            },
+            "description": "Delete User"
+          }
+        },
+        {
+          "name": "Update User Portal Role",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/users/6a0bf0389f1716d298153126/role",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "6a0bf0389f1716d298153126",
+                "role"
+              ]
+            },
+            "description": "Update User Portal Role",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"admin\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Update User Portal Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/users/6a0bf0389f1716d298153126/status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "6a0bf0389f1716d298153126",
+                "status"
+              ]
+            },
+            "description": "Update User Portal Status",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"inactive\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Custom Roles definitions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/roles",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "roles"
+              ]
+            },
+            "description": "Get Custom Roles definitions"
+          }
+        },
+        {
+          "name": "Create Custom Role",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/roles",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "roles"
+              ]
+            },
+            "description": "Create Custom Role",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Custom Viewer\",\n  \"permissions\": [\n    \"vendors_view\"\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Master Permissions list",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/roles/permissions",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "roles",
+                "permissions"
+              ]
+            },
+            "description": "Get Master Permissions list"
+          }
+        },
+        {
+          "name": "Get All Departments",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/departments",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "departments"
+              ]
+            },
+            "description": "Get All Departments"
+          }
+        },
+        {
+          "name": "Create Department",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/departments",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "departments"
+              ]
+            },
+            "description": "Create Department",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Logistics and Shipping\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "14. System Configuration",
+      "item": [
+        {
+          "name": "Get Procurement Core settings",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/procurement-settings",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "procurement-settings"
+              ]
+            },
+            "description": "Get Procurement Core settings"
+          }
+        },
+        {
+          "name": "Update Procurement Core settings",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/procurement-settings",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "procurement-settings"
+              ]
+            },
+            "description": "Update Procurement Core settings",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"autoApproveLimit\": 50000,\n  \"enforceGST\": true\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Settings audit logs history",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/procurement-settings/history",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "procurement-settings",
+                "history"
+              ]
+            },
+            "description": "Get Settings audit logs history"
+          }
+        },
+        {
+          "name": "Restore Core Settings Version",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/procurement-settings/restore/6a0bf0389f1716d298153126",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "procurement-settings",
+                "restore",
+                "6a0bf0389f1716d298153126"
+              ]
+            },
+            "description": "Restore Core Settings Version"
+          }
+        },
+        {
+          "name": "AI Industry Category Generator",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/category/generate-ai",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "category",
+                "generate-ai"
+              ]
+            },
+            "description": "AI Industry Category Generator",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sector\": \"Information Technology\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get System Notifications",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/notifications",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "notifications"
+              ]
+            },
+            "description": "Get System Notifications"
+          }
+        },
+        {
+          "name": "Get Unread Notifications Count",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/notifications/unread-count",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "notifications",
+                "unread-count"
+              ]
+            },
+            "description": "Get Unread Notifications Count"
+          }
+        },
+        {
+          "name": "Mark Notification as Read",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/notifications/6a0bf0389f1716d298153126/read",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "notifications",
+                "6a0bf0389f1716d298153126",
+                "read"
+              ]
+            },
+            "description": "Mark Notification as Read"
+          }
+        },
+        {
+          "name": "Mark All Notifications as Read",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/notifications/read-all",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "notifications",
+                "read-all"
+              ]
+            },
+            "description": "Mark All Notifications as Read"
+          }
+        },
+        {
+          "name": "Get Activity audit logs",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/activity-logs",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "activity-logs"
+              ]
+            },
+            "description": "Get Activity audit logs"
+          }
+        },
+        {
+          "name": "System Health API",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "X-Tenant-ID",
+                "value": "69c239f01a11a0fe39b9d346"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "health"
+              ]
+            },
+            "description": "System Health API"
+          }
+        }
+      ]
+    }
+  ]
+}

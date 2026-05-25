@@ -10,7 +10,23 @@ const ProcurementWorkflowService = require("../services/procurementWorkflow.serv
 const asyncHandler = require("../../../utils/asyncHandler");
 const AppError = require("../../../utils/AppError");
 
-const tenantFilter = (req, extra = {}) => ({ tenantId: req.tenantId || req.user?.tenantId, ...extra });
+const tenantFilter = (req, extra = {}) => {
+  const role = req.user?.role?.toLowerCase();
+  const bypassRoles = ['admin', 'system_admin', 'procurement', 'finance', 'superadmin'];
+  
+  const filter = { ...extra };
+  const tenantId = req.tenantId || req.user?.tenantId;
+  
+  // If not a bypass role, strictly enforce tenantId
+  if (!bypassRoles.includes(role)) {
+    filter.tenantId = tenantId;
+  } else if (tenantId) {
+    // If it's an admin but they have a specific tenant context, use it
+    filter.tenantId = tenantId;
+  }
+  
+  return filter;
+};
 
 exports.getOverview = asyncHandler(async (req, res) => {
   const filter = tenantFilter(req);
@@ -83,7 +99,16 @@ exports.selectVendor = asyncHandler(async (req, res) => {
 });
 
 exports.listPurchaseOrders = asyncHandler(async (req, res) => {
-  const rows = await PurchaseOrder.find(tenantFilter(req, { orderType: "PO" }))
+  let filter = tenantFilter(req, { orderType: "PO" });
+  
+  if (req.user.role === "vendor") {
+    const Vendor = require("../../../models/vendor.model");
+    const vendor = await Vendor.findOne({ email: req.user.email, tenantId: req.user.tenantId });
+    if (vendor) filter.vendorId = vendor._id;
+    else filter.vendorId = "000000000000000000000000"; // Block if no profile
+  }
+
+  const rows = await PurchaseOrder.find(filter)
     .populate("vendorId", "name companyName email phone address bankAccount")
     .populate("rfqId", "title")
     .sort({ createdAt: -1 });
@@ -91,7 +116,16 @@ exports.listPurchaseOrders = asyncHandler(async (req, res) => {
 });
 
 exports.listServiceOrders = asyncHandler(async (req, res) => {
-  const rows = await PurchaseOrder.find(tenantFilter(req, { orderType: "SO" }))
+  let filter = tenantFilter(req, { orderType: "SO" });
+  
+  if (req.user.role === "vendor") {
+    const Vendor = require("../../../models/vendor.model");
+    const vendor = await Vendor.findOne({ email: req.user.email, tenantId: req.user.tenantId });
+    if (vendor) filter.vendorId = vendor._id;
+    else filter.vendorId = "000000000000000000000000"; // Block if no profile
+  }
+
+  const rows = await PurchaseOrder.find(filter)
     .populate("vendorId", "name companyName email phone address bankAccount")
     .populate("rfqId", "title")
     .sort({ createdAt: -1 });
@@ -99,7 +133,14 @@ exports.listServiceOrders = asyncHandler(async (req, res) => {
 });
 
 exports.upsertDelivery = asyncHandler(async (req, res) => {
-  const result = await ProcurementWorkflowService.upsertDelivery(req, req.body || {});
+  const payload = { ...req.body };
+  if (req.files && req.files.length > 0) {
+    payload.proofDocuments = req.files.map((f) => ({ name: f.originalname, url: f.path }));
+  }
+  if (typeof payload.items === "string") payload.items = JSON.parse(payload.items);
+  if (typeof payload.tracking === "string") payload.tracking = JSON.parse(payload.tracking);
+
+  const result = await ProcurementWorkflowService.upsertDelivery(req, payload);
   res.status(200).json({ success: true, data: result });
 });
 
@@ -112,7 +153,13 @@ exports.listDeliveries = asyncHandler(async (req, res) => {
 });
 
 exports.createInvoice = asyncHandler(async (req, res) => {
-  const invoice = await ProcurementWorkflowService.createInvoice(req, req.body || {});
+  const payload = { ...req.body };
+  if (req.files && req.files.length > 0) {
+    payload.attachments = req.files.map((f) => ({ name: f.originalname, url: f.path }));
+  }
+  if (typeof payload.lines === "string") payload.lines = JSON.parse(payload.lines);
+
+  const invoice = await ProcurementWorkflowService.createInvoice(req, payload);
   res.status(201).json({ success: true, data: invoice });
 });
 
@@ -150,4 +197,31 @@ exports.listSlaBreaches = asyncHandler(async (req, res) => {
     dueAt: 1,
   });
   res.status(200).json({ success: true, data: rows });
+});
+
+exports.getVendorStatementForAdmin = asyncHandler(async (req, res) => {
+  const { vendorId } = req.params;
+  const filter = tenantFilter(req, { vendorId });
+  
+  const [invoices, payments] = await Promise.all([
+      Invoice.find({ ...filter, status: { $ne: "rejected" } }),
+      ProcurementPayment.find({ ...filter, status: "completed" })
+  ]);
+
+  const totalBilled = invoices.reduce((sum, inv) => sum + inv.totalAmount, 0);
+  const totalPaid = payments.reduce((sum, p) => sum + p.amount, 0);
+  const balance = totalBilled - totalPaid;
+
+  res.status(200).json({
+      success: true,
+      data: {
+          totalBilled,
+          totalPaid,
+          balance,
+          invoiceCount: invoices.length,
+          paymentCount: payments.length,
+          invoices: invoices.map(i => ({ _id: i._id, number: i.invoiceNumber, amount: i.totalAmount, date: i.invoiceDate, status: i.status })),
+          payments: payments.map(p => ({ _id: p._id, ref: p.paymentRef, amount: p.amount, date: p.createdAt, method: p.method }))
+      }
+  });
 });

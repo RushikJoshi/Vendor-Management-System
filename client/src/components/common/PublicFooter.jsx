@@ -20,9 +20,9 @@ export default function PublicFooter() {
           <div>
             <Link to="/" className="mb-8 flex items-center space-x-2">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#0097a7]">
-                <span className="text-xl font-extrabold text-white">HG</span>
+                <span className="text-xl font-extrabold text-white">GT</span>
               </div>
-              <span className="text-2xl font-extrabold tracking-tight">INFRA</span>
+              <span className="text-2xl font-extrabold tracking-tight">VMS</span>
             </Link>
             <p className="mb-8 leading-relaxed text-slate-400">
               Leading the infrastructure revolution with engineering excellence and a passion for building a better tomorrow.
@@ -80,7 +80,7 @@ export default function PublicFooter() {
         </div>
 
         <div className="flex flex-col items-center justify-between gap-6 border-t border-slate-800 pt-12 md:flex-row">
-          <p className="text-sm text-slate-500">© 2026 HG Infra Engineering Limited. All Rights Reserved.</p>
+          <p className="text-sm text-slate-500">© 2026 GT Vendor Management. All Rights Reserved.</p>
           <div className="flex space-x-6 text-sm text-slate-500">
             <a href="#/" className="transition-colors hover:text-white">Privacy Policy</a>
             <a href="#/" className="transition-colors hover:text-white">Terms of Use</a>

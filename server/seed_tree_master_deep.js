@@ -50,7 +50,7 @@ async function seedDeepMaster() {
               { id: "email", label: "Email ID of Authorized Person", type: "email", required: true },
               { id: "contactPersonMobile", label: "Mobile No. of Supplier Contact Person", type: "text", required: false },
               { id: "contactPersonEmail", label: "Email ID of Supplier Contact Person", type: "email", required: false },
-              { id: "otherMobile", label: "Other Mobile No.", type: "text", required: false },
+              { id: "otherMobile", label: "Alternate Mobile No.", type: "text", required: false },
               { id: "otherEmail", label: "Other Email ID", type: "email", required: false },
               { id: "designation", label: "Designation of Contact Person", type: "text", required: true },
             ]

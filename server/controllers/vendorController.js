@@ -86,8 +86,12 @@ exports.registerVendor = async (req, res) => {
     delete vendorData.password;
 
     console.log("💾 Creating Vendor record...");
+    const SequenceService = require("../services/SequenceService");
+    const vendorId = await SequenceService.getNextSequence(req.user?.tenantId || req.body.tenantId, "vendor");
+
     const vendor = await Vendor.create({
       ...vendorData,
+      vendorId,
       password: hashedPassword,
       status: "pending",
     });
@@ -146,34 +150,49 @@ exports.getVendors = async (req, res) => {
     try {
       const VendorApplication = require("../models/VendorApplication");
       const TreeSubmission = require("../models/TreeSubmission");
+      const SequenceService = require("../services/SequenceService");
       
+      const targetTenantId = req.user?.tenantId || "600000000000000000000001";
+
       const approvedCombined = await Promise.all([
-        VendorApplication.find({ status: "approved" }).lean(),
-        TreeSubmission.find({ status: "approved" }).lean()
+        VendorApplication.find({ status: "approved", tenantId: targetTenantId }).lean(),
+        TreeSubmission.find({ status: "approved", tenantId: targetTenantId }).lean()
       ]).then(([a, b]) => [...a, ...b]);
 
       for (const app of approvedCombined) {
         const email = (app.email || app.vendorEmail || "").toLowerCase().trim();
-        if (!email) continue;
+        const appTenantId = app.tenantId || targetTenantId;
+        
+        if (!email || !appTenantId) continue;
 
+        // Check if vendor exists
+        let vendor = await Vendor.findOne({ email, tenantId: appTenantId });
+        
         // Extract phone safely
         let phone = "0000000000";
         const dataMap = app.data instanceof Map ? Object.fromEntries(app.data) : (app.data || {});
         const possiblePhone = dataMap.phone || dataMap.mobile || dataMap.phoneNumber || app.phone || "0000000000";
         phone = String(possiblePhone).replace(/\D/g, '').slice(0, 10).padEnd(10, '0');
 
+        // Generate vendorId if not present
+        let vendorId = vendor?.vendorId;
+        if (!vendorId) {
+            vendorId = await SequenceService.getNextSequence(appTenantId, "vendor");
+        }
+
         // Upsert to bypass uniqueness/validation issues on non-mandatory fields
         await Vendor.findOneAndUpdate(
-          { email },
+          { email, tenantId: appTenantId },
           {
             $set: {
               name: app.companyName || app.vendorName || "Active Partner",
               companyName: app.companyName || app.vendorName,
+              vendorId: vendorId,
               status: 'active',
               lifecycleStatus: 'active',
               createdFromApplicationId: app._id,
               phone: phone,
-              tenantId: app.tenantId || req.user?.tenantId || "600000000000000000000001",
+              tenantId: appTenantId,
               createdBy: app.approvedBy || req.user?._id || app._id,
               isDeleted: false
             }

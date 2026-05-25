@@ -62,7 +62,7 @@ async function seedMasterForm() {
                         { label: "Email ID of Authorized Person", fieldId: "email", type: "text", required: true, order: 4 },
                         { label: "Mobile No. of Supplier Contact Person", fieldId: "contactPersonMobile", type: "text", required: false, order: 5 },
                         { label: "Email ID of Supplier Contact Person", fieldId: "contactPersonEmail", type: "text", required: false, order: 6 },
-                        { label: "Other Mobile No.", fieldId: "otherMobile", type: "text", required: false, order: 7 },
+                        { label: "Alternate Mobile No.", fieldId: "otherMobile", type: "text", required: false, order: 7 },
                         { label: "Other Email ID", fieldId: "otherEmail", type: "text", required: false, order: 8 },
                         { label: "Designation of Contact Person", fieldId: "designation", type: "text", required: true, order: 9 }
                     ]

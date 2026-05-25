@@ -2,6 +2,8 @@ const Vendor = require("../models/vendor.model");
 const VendorApplication = require("../models/VendorApplication");
 const TreeSubmission = require("../models/TreeSubmission");
 const Category = require("../models/Category");
+const PurchaseOrder = require("../models/PurchaseOrder");
+const RFQ = require("../models/RFQ");
 const asyncHandler = require("../utils/asyncHandler");
 
 /**
@@ -20,8 +22,6 @@ exports.getVendorStats = asyncHandler(async (req, res, next) => {
                 activeVendors: {
                     $sum: { $cond: [{ $eq: ["$status", "active"] }, 1, 0] }
                 },
-                totalOrders: { $sum: "$totalOrders" },
-                totalPendingPayments: { $sum: "$pendingPayments" },
                 averageRating: { $avg: "$rating" }
             }
         },
@@ -30,9 +30,19 @@ exports.getVendorStats = asyncHandler(async (req, res, next) => {
                 _id: 0,
                 totalVendors: 1,
                 activeVendors: 1,
-                totalOrders: 1,
-                totalPendingPayments: 1,
                 averageRating: { $round: ["$averageRating", 1] }
+            }
+        }
+    ]);
+
+    // 1.1) Financial Statistics from Purchase Orders
+    const financialQuery = PurchaseOrder.aggregate([
+        { $match: { status: { $nin: ["cancelled", "rejected"] } } },
+        {
+            $group: {
+                _id: null,
+                totalSpend: { $sum: "$totalAmount" },
+                totalOrders: { $sum: 1 }
             }
         }
     ]);
@@ -67,15 +77,19 @@ exports.getVendorStats = asyncHandler(async (req, res, next) => {
         { $group: { _id: "$category", count: { $sum: 1 } } },
         { $lookup: { from: "categories", localField: "_id", foreignField: "_id", as: "categoryInfo" } },
         { $unwind: { path: "$categoryInfo", preserveNullAndEmptyArrays: true } },
-        { $project: { _id: 0, name: { $ifNull: ["$categoryInfo.name", "General"] }, value: "$count" } }
+        { $project: { name: { $ifNull: ["$categoryInfo.name", "General"] }, value: "$count" } },
+        { $group: { _id: "$name", value: { $sum: "$value" } } },
+        { $project: { _id: 0, name: "$_id", value: 1 } }
     ]);
 
-    const [stats, monthlyGrowth, wizardPending, treePending, categoryMix] = await Promise.all([
-        statsQuery, 
+    const [stats, financialStats, monthlyGrowth, wizardPending, treePending, categoryMix, openRFQs] = await Promise.all([
+        statsQuery,
+        financialQuery,
         monthlyQuery,
         VendorApplication.countDocuments({ status: { $in: ["submitted", "under_review", "pending"] } }),
         TreeSubmission.countDocuments({ status: { $in: ["pending", "submitted"] } }),
-        categoryMixQuery
+        categoryMixQuery,
+        RFQ.countDocuments({ status: "published" })
     ]);
 
     const pendingApprovals = wizardPending + treePending;
@@ -90,16 +104,19 @@ exports.getVendorStats = asyncHandler(async (req, res, next) => {
     const result = stats.length > 0 ? stats[0] : {
         totalVendors: 0,
         activeVendors: 0,
-        totalOrders: 0,
-        totalPendingPayments: 0,
         averageRating: 0
     };
+
+    const financial = financialStats.length > 0 ? financialStats[0] : { totalSpend: 0, totalOrders: 0 };
 
     res.status(200).json({
         success: true,
         message: "Vendor statistics fetched successfully",
         data: {
             ...result,
+            totalOrders: financial.totalSpend, // Map spend to totalOrders field as frontend expects it there
+            orderCount: financial.totalOrders,
+            openRFQs,
             pendingApprovals,
             categoryMix,
             monthlyVendorStats: formattedMonthlyStats

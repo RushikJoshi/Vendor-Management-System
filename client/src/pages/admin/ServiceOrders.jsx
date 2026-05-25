@@ -72,18 +72,7 @@ export default function ServiceOrders() {
                         ₹{(so.totalAmount || 0).toLocaleString('en-IN')}
                       </p>
                    </div>
-                   <div className="flex items-center gap-2">
-                      {so.pdfUrl && (
-                        <a 
-                          href={`${window.location.origin}${so.pdfUrl}`} 
-                          target="_blank" 
-                          rel="noreferrer"
-                          className="h-10 w-10 flex items-center justify-center rounded-xl border border-slate-200 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-all font-bold"
-                          title="View PDF Document"
-                        >
-                          <ExternalLink size={18} />
-                        </a>
-                      )}
+                    <div className="flex items-center gap-2">
                       <button 
                          onClick={() => navigate(`/admin/procurement/po/${so._id}`)}
                          className="h-10 px-5 bg-slate-900 text-white rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-indigo-600 transition-all flex items-center gap-2 shadow-lg shadow-slate-100"

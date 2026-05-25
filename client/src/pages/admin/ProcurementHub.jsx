@@ -2,488 +2,524 @@ import { useContext, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import { ProcurementContext } from "../../context/ProcurementContext";
-import { ArrowRight, Truck } from "lucide-react";
+import { 
+  ArrowRight, 
+  Truck, 
+  LayoutDashboard, 
+  FileSearch, 
+  PackageCheck, 
+  WalletCards,
+  Plus,
+  ArrowUpRight,
+  Clock,
+  Search,
+  Download,
+  Loader2,
+  Users,
+  AlertCircle,
+  CheckCircle2,
+  FileText,
+  CreditCard,
+  Ban,
+  Receipt,
+  Building2,
+  Calendar,
+  Wallet,
+  MessageCircle,
+  FileSignature,
+  History,
+  TrendingUp,
+  ChevronRight,
+  UserCheck
+} from "lucide-react";
 import procurementApi from "../../services/procurementApi";
+import api from "../../services/api";
 
 const emptyPrItem = { description: "", quantity: 1, estimatedUnitPrice: 0, uom: "Nos", specs: "" };
 
 export default function ProcurementHub() {
-  const { loading, overview, purchaseRequests, purchaseOrders, deliveries, invoices, payments, slaBreaches, refreshAll } =
+  const { loading, overview, purchaseRequests, purchaseOrders, serviceOrders, deliveries, invoices, payments, slaBreaches, refreshAll } =
     useContext(ProcurementContext);
   const navigate = useNavigate();
 
-  const [prForm, setPrForm] = useState({
-    title: "",
-    description: "",
-    currency: "INR",
-    requiredBy: "",
-    items: [{ ...emptyPrItem }],
-  });
-  const [rfqDraft, setRfqDraft] = useState({ quoteDeadline: "", deliveryDeadline: "", publish: true });
-   const [working, setWorking] = useState(false);
-   const [reviewModal, setReviewModal] = useState({ open: false, id: null, status: "", reason: "" });
+  const [activeTab, setActiveTab] = useState("dashboard"); 
+  const [allComments, setAllComments] = useState([]);
+  const [loadingComments, setLoadingComments] = useState(false);
+  const [vendors, setVendors] = useState([]);
+  const [selectedVendorId, setSelectedVendorId] = useState("");
+  const [vendorStatement, setVendorStatement] = useState(null);
+  const [loadingStatement, setLoadingStatement] = useState(false);
+  const [working, setWorking] = useState(false);
+  const [reviewModal, setReviewModal] = useState({ open: false, id: null, status: "", reason: "" });
 
   useEffect(() => {
     refreshAll().catch(() => toast.error("Failed to load procurement data"));
+    fetchVendors();
+    fetchAllComments();
   }, [refreshAll]);
 
-  const latestApprovedPr = useMemo(
-    () => purchaseRequests.find((item) => item.status === "approved" && !item.rfqId),
-    [purchaseRequests]
-  );
-
-  const latestRfqId = useMemo(() => purchaseOrders[0]?.rfqId?._id || purchaseOrders[0]?.rfqId || "", [purchaseOrders]);
-
-  const handleCreatePr = async (submit = false) => {
-    setWorking(true);
-    try {
-      await procurementApi.createPR({
-        ...prForm,
-        submit,
-      });
-      toast.success(submit ? "PR submitted" : "PR draft created");
-      setPrForm({ title: "", description: "", currency: "INR", requiredBy: "", items: [{ ...emptyPrItem }] });
-      await refreshAll();
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Unable to create PR");
-    } finally {
-      setWorking(false);
-    }
+  const fetchAllComments = async () => {
+     setLoadingComments(true);
+     try {
+        const res = await procurementApi.getAllComments();
+        setAllComments(res.data.data || []);
+     } catch (err) {
+        console.error("Failed to load discussion stream", err);
+     } finally {
+        setLoadingComments(false);
+     }
   };
 
-  const approvePr = async (prId, approve) => {
-    setWorking(true);
-    try {
-      await procurementApi.approvePR(prId, { approve, remarks: approve ? "Approved in hub" : "Rejected in hub" });
-      toast.success(approve ? "PR approved" : "PR rejected");
-      await refreshAll();
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Action failed");
-    } finally {
-      setWorking(false);
-    }
+  const fetchVendors = async () => {
+     try {
+        const res = await api.get("/vendors");
+        setVendors(res.data.data || []);
+     } catch (err) {
+        console.error("Failed to fetch vendors", err);
+     }
   };
 
-  const convertToRfq = async () => {
-    if (!latestApprovedPr?._id) return toast.error("No approved PR available");
-    if (!rfqDraft.quoteDeadline) return toast.error("Quote deadline is required");
-    setWorking(true);
-    try {
-      await procurementApi.convertPRToRFQ(latestApprovedPr._id, {
-        quoteDeadline: rfqDraft.quoteDeadline,
-        deliveryDeadline: rfqDraft.deliveryDeadline || null,
-        publish: rfqDraft.publish,
-      });
-      toast.success("RFQ created from PR");
-      await refreshAll();
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Conversion failed");
-    } finally {
-      setWorking(false);
-    }
+  const fetchVendorStatement = async (vId) => {
+     if (!vId) return;
+     setLoadingStatement(true);
+     try {
+        const res = await procurementApi.getVendorStatementForAdmin(vId);
+        setVendorStatement(res.data.data);
+     } catch (err) {
+        toast.error("Failed to load vendor statement");
+     } finally {
+        setLoadingStatement(false);
+     }
   };
 
-  const runComparisonAndSelectTop = async () => {
-    if (!latestRfqId) return toast.error("No RFQ with quotations found yet");
-    setWorking(true);
-    try {
-      const comparison = await procurementApi.getComparison(latestRfqId);
-      const best = comparison.data.data?.[0];
-      if (!best?.quotationId) {
-        toast.error("No quotations available for comparison");
-      } else {
-        await procurementApi.selectVendor(best.quotationId);
-        toast.success("Top vendor selected and PO created");
-        await refreshAll();
-      }
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Comparison failed");
-    } finally {
-      setWorking(false);
-    }
+  useEffect(() => {
+     if (selectedVendorId) fetchVendorStatement(selectedVendorId);
+     else setVendorStatement(null);
+  }, [selectedVendorId]);
+
+  const StatusPill = ({ status }) => {
+    const colors = {
+      sent: "bg-indigo-50 text-indigo-700 border-indigo-100",
+      accepted: "bg-blue-50 text-blue-700 border-blue-100",
+      delivered: "bg-emerald-50 text-emerald-700 border-emerald-100",
+      paid: "bg-emerald-100 text-emerald-800 border-emerald-200",
+      approved: "bg-indigo-100 text-indigo-700 border-indigo-100",
+      rejected: "bg-rose-100 text-rose-700 border-rose-100",
+      submitted: "bg-amber-50 text-amber-700 border-amber-100",
+      verified: "bg-sky-100 text-sky-700 border-sky-200",
+    };
+    return (
+      <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest border ${colors[status?.toLowerCase()] || "bg-slate-50 text-slate-600 border-slate-100"}`}>
+        {status}
+      </span>
+    );
   };
 
-  const reviewInvoice = async () => {
-    if (!reviewModal.reason.trim()) return toast.error("A reason or remark is required");
-    
-    setWorking(true);
-    try {
-      await procurementApi.reviewInvoice(reviewModal.id, { 
-        approve: reviewModal.status === 'approved', 
-        reason: reviewModal.reason 
-      });
-      toast.success("Invoice status updated");
-      await refreshAll();
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Review failed");
-    } finally {
-      setWorking(false);
-      setReviewModal({ open: false, id: null, status: "", reason: "" });
-    }
+  const pendingInvoices = useMemo(() => invoices.filter(i => i.status === 'approved' || i.status === 'submitted'), [invoices]);
+
+  const handlePrint = () => {
+     window.print();
   };
 
-   const handlePay = (inv) => {
-     navigate(`/admin/procurement/payment/${inv._id}`);
-   };
+  if (loading && !overview) {
+     return (
+        <div className="flex flex-col items-center justify-center h-[70vh] space-y-4">
+           <Loader2 className="animate-spin text-indigo-600" size={40} />
+           <p className="text-xs font-black uppercase tracking-[0.3em] text-slate-400 animate-pulse">Synchronizing Global Procurement Node...</p>
+        </div>
+     );
+  }
 
   return (
-    <div className="space-y-4 p-3 md:p-5">
-      <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold text-slate-900">Procurement Hub</h1>
-          <p className="mt-1 text-sm text-slate-500">End-to-end flow: PR to RFQ to Quotation to Selection to PO to Delivery to Invoice to Payment.</p>
-        </div>
-        <button 
-          onClick={() => navigate("/admin/procurement/shipments")}
-          className="bg-indigo-600 hover:bg-black text-white px-6 py-3 rounded-xl font-bold text-sm shadow-lg flex items-center gap-2 transition-all active:scale-95 whitespace-nowrap"
-        >
-          <Truck size={18} /> Manage Logistics & Shipments
-        </button>
+    <div className="min-h-screen bg-slate-50/50 pb-20">
+      {/* Header Section */}
+      <div className="print:hidden bg-white border-b border-slate-200 px-6 py-6 sticky top-0 z-30 shadow-sm">
+         <div className="max-w-[1600px] mx-auto flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="space-y-1">
+               <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+                  <div className="p-2 bg-indigo-600 rounded-xl">
+                     <PackageCheck className="text-white" size={24} />
+                  </div>
+                  Procurement Hub
+               </h1>
+               <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">End-to-End Enterprise Procurement Workflow</p>
+            </div>
+            
+            <div className="flex items-center gap-3">
+               <button 
+                  onClick={() => navigate("/admin/procurement/shipments")}
+                  className="px-5 py-2.5 bg-slate-900 text-white rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2 hover:bg-black transition-all active:scale-95"
+               >
+                  <Truck size={16} /> Track Logistics
+               </button>
+               <button onClick={refreshAll} className="p-2.5 bg-white border border-slate-200 rounded-xl text-slate-600 hover:bg-slate-50">
+                  <Clock size={18} />
+               </button>
+            </div>
+         </div>
+
+         {/* Navigation Tabs */}
+         <div className="max-w-[1600px] mx-auto mt-8 flex items-center gap-8 border-b border-slate-100">
+            {[
+               { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
+               { id: "sourcing", label: "Sourcing & Bidding", icon: FileSearch },
+               { id: "operations", label: "Orders & Delivery", icon: PackageCheck },
+               { id: "financials", label: "Financials & SOA", icon: WalletCards },
+            ].map(tab => (
+               <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex items-center gap-2 pb-4 text-xs font-black uppercase tracking-widest transition-all relative ${activeTab === tab.id ? "text-indigo-600" : "text-slate-400 hover:text-slate-600"}`}
+               >
+                  <tab.icon size={16} />
+                  {tab.label}
+                  {activeTab === tab.id && <div className="absolute bottom-0 left-0 right-0 h-1 bg-indigo-600 rounded-t-full shadow-[0_-4px_10px_rgba(79,70,229,0.3)]" />}
+               </button>
+            ))}
+         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-8 gap-3">
-        { [
-          ["Pending PR", overview?.prPending || 0, null],
-          ["Open RFQ", overview?.openRfqs || 0, null],
-          ["Quotations", overview?.quotations || 0, null],
-          ["Open PO", overview?.openPOs || 0, null],
-          ["Deliveries", overview?.inTransitDeliveries || 0, "/admin/procurement/shipments"],
-          ["Invoices", overview?.pendingInvoices || 0, null],
-          ["Payments", overview?.pendingPayments || 0, null],
-          ["SLA Breach", overview?.breachedSLAs || 0, null],
-        ].map(([label, value, link]) => (
-          <div 
-            key={label} 
-            onClick={() => link && navigate(link)}
-            className={`rounded-xl border border-slate-200 bg-white p-3 shadow-sm transition-all ${link ? 'cursor-pointer hover:border-indigo-400 hover:shadow-md' : ''}`}
-          >
-            <p className="text-xs text-slate-500 font-bold uppercase tracking-widest">{label}</p>
-            <div className="flex items-center justify-between mt-1">
-              <p className="text-xl font-bold text-slate-900">{value}</p>
-              {link && <ArrowRight size={14} className="text-indigo-500" />}
+      <div className="max-w-[1600px] mx-auto p-6">
+         
+         {/* --- DASHBOARD TAB --- */}
+         {activeTab === "dashboard" && (
+            <div className="print:hidden space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {[
+                     { label: "Pending PRs", value: overview?.prPending, color: "text-amber-600", bg: "bg-amber-50" },
+                     { label: "Open RFQs", value: overview?.openRfqs, color: "text-indigo-600", bg: "bg-indigo-50" },
+                     { label: "Pending Shipments", value: overview?.inTransitDeliveries, color: "text-sky-600", bg: "bg-sky-50" },
+                     { label: "Unpaid Invoices", value: pendingInvoices.length, color: "text-rose-600", bg: "bg-rose-50" },
+                  ].map(stat => (
+                     <div key={stat.label} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+                        <div>
+                           <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">{stat.label}</p>
+                           <h3 className={`text-3xl font-black ${stat.color}`}>{stat.value || 0}</h3>
+                        </div>
+                        <div className={`p-3 rounded-xl ${stat.bg} ${stat.color}`}>
+                           <ArrowUpRight size={20} />
+                        </div>
+                     </div>
+                  ))}
+               </div>
+
+               {/* Quick Payment Action */}
+               <div className="bg-white rounded-2xl border-2 border-indigo-500/10 p-6 space-y-4 shadow-xl shadow-indigo-500/5">
+                  <div className="flex items-center justify-between">
+                     <h3 className="text-sm font-black uppercase tracking-widest text-slate-900 flex items-center gap-2">
+                        <div className="p-1.5 bg-indigo-100 text-indigo-600 rounded-lg"><Receipt size={16} /></div>
+                        Pending Payments Quick Action
+                     </h3>
+                  </div>
+                  <div className="overflow-x-auto rounded-xl border border-slate-100">
+                     <table className="w-full text-left">
+                        <thead className="bg-slate-50">
+                           <tr className="text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">
+                              <th className="px-4 py-3">Invoice #</th>
+                              <th className="px-4 py-3">Vendor & Bank Details</th>
+                              <th className="px-4 py-3 text-right">Amount</th>
+                              <th className="px-4 py-3 text-right">Action</th>
+                           </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-50">
+                           {pendingInvoices.length > 0 ? pendingInvoices.map(inv => (
+                              <tr key={inv._id} className="text-xs hover:bg-slate-50 transition-colors">
+                                 <td className="px-4 py-4 font-black text-slate-900">{inv.invoiceNumber}</td>
+                                 <td className="px-4 py-4">
+                                    <p className="font-bold text-slate-700">{inv.vendorId?.companyName || inv.vendorId?.name}</p>
+                                    <p className="text-[9px] text-indigo-600 font-black uppercase">Bank: {inv.vendorId?.bankAccount?.bankName || "N/A"} • Acc: {inv.vendorId?.bankAccount?.accountNumber || "N/A"}</p>
+                                 </td>
+                                 <td className="px-4 py-4 text-right font-black text-slate-900">₹{inv.totalAmount?.toLocaleString()}</td>
+                                 <td className="px-4 py-4 text-right">
+                                    <button onClick={() => navigate(`/admin/procurement/payment/${inv._id}`)} className="px-4 py-2 bg-indigo-600 text-white text-[10px] font-black uppercase rounded-lg hover:bg-black transition-all">
+                                       Pay Now
+                                    </button>
+                                 </td>
+                              </tr>
+                           )) : (
+                              <tr><td colSpan="4" className="py-10 text-center text-slate-300 font-black uppercase text-[10px]">No pending invoices</td></tr>
+                           )}
+                        </tbody>
+                     </table>
+                  </div>
+               </div>
+
+               {/* Real-time Discussion Ledger */}
+               <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+                  <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                     <h3 className="text-sm font-black uppercase tracking-widest text-slate-900 flex items-center gap-2">
+                        <div className="p-1.5 bg-indigo-600 text-white rounded-lg"><MessageCircle size={16} /></div>
+                        Real-time Discussion Ledger
+                     </h3>
+                  </div>
+                  <div className="divide-y divide-slate-100 max-h-[400px] overflow-y-auto">
+                     {loadingComments ? (
+                        <div className="p-10 flex justify-center"><Loader2 className="animate-spin text-indigo-500" /></div>
+                     ) : allComments.length > 0 ? (
+                        allComments.map(comment => (
+                           <div key={comment._id} className="p-5 hover:bg-slate-50 transition-colors">
+                              <div className="flex items-start gap-4">
+                                 <div className={`h-10 w-10 rounded-xl flex items-center justify-center text-xs font-black shrink-0 ${comment.userId?.role === 'vendor' ? 'bg-indigo-600 text-white' : 'bg-slate-900 text-white'}`}>
+                                    {comment.userId?.name?.charAt(0).toUpperCase()}
+                                 </div>
+                                 <div className="flex-1 space-y-1">
+                                    <div className="flex items-center justify-between">
+                                       <span className="text-[11px] font-black text-slate-900 uppercase">{comment.userId?.name}</span>
+                                       <span className="text-[10px] font-bold text-slate-400">{new Date(comment.createdAt).toLocaleTimeString()}</span>
+                                    </div>
+                                    <p className="text-sm font-medium text-slate-600 leading-relaxed">{comment.content}</p>
+                                    <button onClick={() => navigate(comment.targetModel === 'PurchaseOrder' ? `/admin/procurement/po/${comment.targetId}` : `/admin/rfqs`)} className="text-[10px] font-black text-indigo-600 uppercase tracking-widest mt-2 hover:underline">
+                                       View Context →
+                                    </button>
+                                 </div>
+                              </div>
+                           </div>
+                        ))
+                     ) : (
+                        <div className="p-10 text-center text-slate-300 font-black uppercase text-[10px]">No recent messages</div>
+                     )}
+                  </div>
+               </div>
             </div>
-          </div>
-        ))}
-      </div>
+         )}
 
-      <div className="grid xl:grid-cols-2 gap-4">
-        <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm space-y-3">
-          <h2 className="text-lg font-semibold text-slate-900">1) Create Purchase Request</h2>
-          <input
-            value={prForm.title}
-            onChange={(e) => setPrForm((prev) => ({ ...prev, title: e.target.value }))}
-            placeholder="PR title"
-            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-          />
-          <textarea
-            value={prForm.description}
-            onChange={(e) => setPrForm((prev) => ({ ...prev, description: e.target.value }))}
-            placeholder="PR description"
-            className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-            rows={3}
-          />
-          {prForm.items.map((item, idx) => (
-            <div key={idx} className="grid grid-cols-12 gap-2">
-              <input
-                value={item.description}
-                onChange={(e) =>
-                  setPrForm((prev) => ({
-                    ...prev,
-                    items: prev.items.map((row, i) => (i === idx ? { ...row, description: e.target.value } : row)),
-                  }))
-                }
-                placeholder="Item description"
-                className="col-span-6 rounded-lg border border-slate-300 px-3 py-2 text-sm"
-              />
-              <input
-                type="number"
-                min={1}
-                value={item.quantity}
-                onChange={(e) =>
-                  setPrForm((prev) => ({
-                    ...prev,
-                    items: prev.items.map((row, i) => (i === idx ? { ...row, quantity: Number(e.target.value || 1) } : row)),
-                  }))
-                }
-                className="col-span-3 rounded-lg border border-slate-300 px-3 py-2 text-sm"
-              />
-              <input
-                type="number"
-                min={0}
-                value={item.estimatedUnitPrice}
-                onChange={(e) =>
-                  setPrForm((prev) => ({
-                    ...prev,
-                    items: prev.items.map((row, i) =>
-                      i === idx ? { ...row, estimatedUnitPrice: Number(e.target.value || 0) } : row
-                    ),
-                  }))
-                }
-                className="col-span-3 rounded-lg border border-slate-300 px-3 py-2 text-sm"
-              />
+         {/* --- SOURCING TAB --- */}
+         {activeTab === "sourcing" && (
+            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+               <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-black uppercase tracking-widest text-slate-900">Procurement Requests (PR)</h3>
+                  <button onClick={() => navigate("/admin/rfqs/create")} className="px-5 py-2.5 bg-slate-900 text-white rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2 hover:bg-black">
+                     <Plus size={16} /> New Sourcing Event
+                  </button>
+               </div>
+               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {purchaseRequests.map(pr => (
+                     <div key={pr._id} className="bg-white p-6 rounded-[2.5rem] border border-slate-200 shadow-sm hover:border-indigo-400 transition-all group">
+                        <div className="flex justify-between items-start mb-6">
+                           <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400 group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-inner">
+                              <FileSearch size={24} />
+                           </div>
+                           <StatusPill status={pr.status} />
+                        </div>
+                        <h4 className="text-lg font-black text-slate-900 mb-1">{pr.title}</h4>
+                        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-6">Ref: #{pr._id.slice(-6).toUpperCase()}</p>
+                        <div className="space-y-3 mb-6">
+                           <div className="flex justify-between text-xs font-bold"><span className="text-slate-400 uppercase">Items</span><span className="text-slate-900">{pr.items?.length || 0} Lines</span></div>
+                           <div className="flex justify-between text-xs font-bold"><span className="text-slate-400 uppercase">Priority</span><span className="text-indigo-600 uppercase">Standard</span></div>
+                        </div>
+                        <button className="w-full py-3.5 bg-slate-50 group-hover:bg-slate-900 group-hover:text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all">
+                           Review Request
+                        </button>
+                     </div>
+                  ))}
+               </div>
             </div>
-          ))}
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={() => setPrForm((prev) => ({ ...prev, items: [...prev.items, { ...emptyPrItem }] }))}
-              className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
-            >
-              Add Item
-            </button>
-            <button
-              type="button"
-              disabled={working}
-              onClick={() => handleCreatePr(false)}
-              className="rounded-lg bg-slate-700 px-3 py-2 text-sm text-white"
-            >
-              Save Draft
-            </button>
-            <button
-              type="button"
-              disabled={working}
-              onClick={() => handleCreatePr(true)}
-              className="rounded-lg bg-emerald-600 px-3 py-2 text-sm text-white"
-            >
-              Submit PR
-            </button>
-          </div>
-        </section>
+         )}
 
-        <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm space-y-3">
-          <h2 className="text-lg font-semibold text-slate-900">2) Approve PR + Convert to RFQ</h2>
-          <div className="max-h-56 overflow-auto rounded-lg border border-slate-200">
-            <table className="w-full text-xs">
-              <thead className="bg-slate-50">
-                <tr>
-                  <th className="px-2 py-2 text-left">PR</th>
-                  <th className="px-2 py-2 text-left">Status</th>
-                  <th className="px-2 py-2 text-left">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {purchaseRequests.map((pr) => (
-                  <tr key={pr._id} className="border-t border-slate-100">
-                    <td className="px-2 py-2">{pr.requestNo}</td>
-                    <td className="px-2 py-2">{pr.status}</td>
-                    <td className="px-2 py-2 space-x-1">
-                      {pr.status === "submitted" ? (
-                        <>
-                          <button onClick={() => approvePr(pr._id, true)} className="rounded bg-emerald-600 px-2 py-1 text-white">
-                            Approve
-                          </button>
-                          <button onClick={() => approvePr(pr._id, false)} className="rounded bg-rose-600 px-2 py-1 text-white">
-                            Reject
-                          </button>
-                        </>
-                      ) : (
-                        "-"
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+         {/* --- OPERATIONS TAB --- */}
+         {activeTab === "operations" && (
+            <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
+               {/* Purchase Orders */}
+               <section className="space-y-4">
+                  <h3 className="text-sm font-black uppercase tracking-widest text-slate-900 flex items-center gap-2">
+                     <div className="h-2 w-2 bg-indigo-600 rounded-full"></div> Purchase Orders
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                     {purchaseOrders.map(po => (
+                        <div key={po._id} className="bg-white p-6 rounded-[2.5rem] border border-slate-200 shadow-sm group hover:border-indigo-600 transition-all">
+                           <div className="flex justify-between mb-4">
+                              <span className="text-[10px] font-black uppercase text-indigo-600">{po.poNumber}</span>
+                              <StatusPill status={po.status} />
+                           </div>
+                           <h4 className="text-lg font-black text-slate-900 mb-4">{po.vendorId?.companyName || "Vendor"}</h4>
+                           <div className="flex justify-between items-center pt-4 border-t border-slate-100">
+                              <div className="flex flex-col">
+                                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">Order Value</span>
+                                 <span className="text-xl font-black text-slate-900">₹{po.totalAmount?.toLocaleString()}</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                 {po.status !== 'paid' && (
+                                    <button 
+                                       onClick={(e) => {
+                                          e.stopPropagation();
+                                          const inv = (invoices || []).find(i => String(i.poId?._id || i.poId) === String(po._id));
+                                          if (inv) navigate(`/admin/procurement/payment/${inv._id}`);
+                                          else navigate(`/admin/procurement/po/${po._id}`);
+                                       }}
+                                       className="px-4 py-2 bg-indigo-600 text-white text-[10px] font-black uppercase rounded-lg hover:bg-black transition-all flex items-center gap-2"
+                                    >
+                                       <CreditCard size={12} /> Pay
+                                    </button>
+                                 )}
+                                 <button onClick={() => navigate(`/admin/procurement/po/${po._id}`)} className="p-2 bg-slate-50 group-hover:bg-slate-900 group-hover:text-white rounded-xl transition-all">
+                                    <ArrowRight size={18} />
+                                 </button>
+                              </div>
+                           </div>
+                        </div>
+                     ))}
+                  </div>
+               </section>
 
-          <div className="grid grid-cols-2 gap-2">
-            <input
-              type="datetime-local"
-              value={rfqDraft.quoteDeadline}
-              onChange={(e) => setRfqDraft((prev) => ({ ...prev, quoteDeadline: e.target.value }))}
-              className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
-            />
-            <input
-              type="datetime-local"
-              value={rfqDraft.deliveryDeadline}
-              onChange={(e) => setRfqDraft((prev) => ({ ...prev, deliveryDeadline: e.target.value }))}
-              className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
-            />
-          </div>
-          <button type="button" disabled={working} onClick={convertToRfq} className="rounded-lg bg-indigo-600 px-3 py-2 text-sm text-white">
-            Convert Latest Approved PR to RFQ
-          </button>
-        </section>
-      </div>
-
-      <div className="grid xl:grid-cols-2 gap-4">
-        <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm space-y-3">
-          <h2 className="text-lg font-semibold text-slate-900">3-6) Quotation Comparison and Vendor Selection</h2>
-          <button
-            type="button"
-            disabled={working}
-            onClick={runComparisonAndSelectTop}
-            className="rounded-lg bg-amber-600 px-3 py-2 text-sm text-white"
-          >
-            Run Comparison + Select Top Vendor
-          </button>
-          <p className="text-xs text-slate-500">
-            Selection auto-creates Purchase Order and transitions workflow to delivery tracking.
-          </p>
-        </section>
-
-        <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-          <h2 className="text-lg font-semibold text-slate-900 mb-3">7-9) Downstream Status</h2>
-          <div className="grid grid-cols-3 gap-2 text-xs">
-            <div className="rounded-lg border border-slate-200 p-2">
-              <p className="text-slate-500">PO</p>
-              <p className="font-semibold">{purchaseOrders.length}</p>
-            </div>
-            <div className="rounded-lg border border-slate-200 p-2">
-              <p className="text-slate-500">Deliveries</p>
-              <p className="font-semibold">{deliveries.length}</p>
-            </div>
-            <div className="rounded-lg border border-slate-200 p-2">
-              <p className="text-slate-500">Invoices</p>
-              <p className="font-semibold">{invoices.length}</p>
-            </div>
-          </div>
-          <div className="mt-3 rounded-lg border border-rose-200 bg-rose-50 p-2 text-xs text-rose-700">
-            SLA breaches: {slaBreaches.length}
-          </div>
-        </section>
-      </div>
-
-      <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-        <h2 className="text-lg font-semibold text-slate-900 mb-3">Active Purchase Orders</h2>
-        <div className="max-h-56 overflow-auto border border-slate-200 rounded-lg mb-6">
-          <table className="w-full text-xs text-left">
-            <thead className="bg-slate-50 border-b border-slate-200">
-              <tr>
-                <th className="px-3 py-3 font-semibold text-slate-600">PO Number</th>
-                <th className="px-3 py-3 font-semibold text-slate-600">Vendor</th>
-                <th className="px-3 py-3 font-semibold text-slate-600">Total Amount</th>
-                <th className="px-3 py-3 font-semibold text-slate-600">Status</th>
-                <th className="px-3 py-3 font-semibold text-slate-600 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {purchaseOrders.length > 0 ? purchaseOrders.map((po) => (
-                <tr key={po._id} className="hover:bg-slate-50">
-                  <td className="px-3 py-3 font-medium text-slate-900">{po.poNumber}</td>
-                  <td className="px-3 py-3 text-slate-600">{po.vendorId?.name || po.vendorId?.companyName || "Vendor"}</td>
-                  <td className="px-3 py-3 font-medium text-slate-900">₹{(po.totalAmount || 0).toLocaleString()}</td>
-                  <td className="px-3 py-3">
-                     <span className={`inline-flex px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
-                        po.status === 'delivered' || po.status === 'paid' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
-                     }`}>
-                        {po.status}
-                     </span>
-                  </td>
-                  <td className="px-3 py-3 text-right">
-                     <button onClick={() => navigate(`/admin/procurement/po/${po._id}`)} className="px-3 py-1.5 bg-slate-900 text-white rounded font-medium hover:bg-black transition-colors shadow-sm inline-flex items-center gap-2">
-                       Detail Document
-                     </button>
-                  </td>
-                </tr>
-              )) : (
-                 <tr>
-                    <td colSpan="5" className="px-3 py-6 text-center text-slate-400">No active purchase orders</td>
-                 </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-        <h2 className="text-lg font-semibold text-slate-900 mb-3">Invoice & Payment Actions</h2>
-        <div className="max-h-56 overflow-auto border border-slate-200 rounded-lg">
-          <table className="w-full text-xs text-left">
-            <thead className="bg-slate-50 border-b border-slate-200">
-              <tr>
-                <th className="px-3 py-3 font-semibold text-slate-600">Invoice ID</th>
-                <th className="px-3 py-3 font-semibold text-slate-600">Amount</th>
-                <th className="px-3 py-3 font-semibold text-slate-600">Status</th>
-                <th className="px-3 py-3 font-semibold text-slate-600">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {invoices.length > 0 ? invoices.map((inv) => (
-                <tr key={inv._id} className="hover:bg-slate-50">
-                  <td className="px-3 py-3 font-medium text-slate-900">{inv.invoiceNumber}</td>
-                  <td className="px-3 py-3 font-medium text-slate-900">₹{inv.totalAmount?.toLocaleString() || 0}</td>
-                  <td className="px-3 py-3">
-                     <span className={`inline-flex px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
-                        inv.status === 'paid' ? 'bg-emerald-100 text-emerald-700' : 
-                        inv.status === 'approved' ? 'bg-indigo-100 text-indigo-700' :
-                        inv.status === 'rejected' ? 'bg-rose-100 text-rose-700' :
-                        'bg-amber-100 text-amber-700'
-                     }`}>
-                        {inv.status}
-                     </span>
-                  </td>
-                  <td className="px-3 py-3">
-                     {inv.status === 'submitted' && (
-                        reviewModal.open && reviewModal.id === inv._id ? (
-                           <div className="flex items-center gap-1.5 animate-in slide-in-from-right-2 duration-300">
-                              <input 
-                                type="text" 
-                                placeholder={`Reason for ${reviewModal.status}...`} 
-                                value={reviewModal.reason} 
-                                onChange={(e) => setReviewModal(p => ({ ...p, reason: e.target.value }))} 
-                                className="border border-slate-200 rounded px-2 py-1 outline-none text-xs w-48 focus:border-indigo-500" 
-                                autoFocus 
-                              />
-                              <button disabled={working || !reviewModal.reason.trim()} onClick={reviewInvoice} className={`px-2 py-1 text-white rounded font-medium shadow-sm transition-all focus:outline-none disabled:opacity-50 ${reviewModal.status === 'approved' ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-rose-600 hover:bg-rose-700'}`}>
-                                 Ok
+               {/* Service Orders */}
+               <section className="space-y-4">
+                  <h3 className="text-sm font-black uppercase tracking-widest text-slate-900 flex items-center gap-2">
+                     <div className="h-2 w-2 bg-emerald-600 rounded-full"></div> Service Orders
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                     {serviceOrders.map(so => (
+                        <div key={so._id} className="bg-white p-6 rounded-[2.5rem] border border-slate-200 shadow-sm group hover:border-emerald-600 transition-all">
+                           <div className="flex justify-between mb-4">
+                              <span className="text-[10px] font-black uppercase text-emerald-600">{so.poNumber}</span>
+                              <StatusPill status={so.status} />
+                           </div>
+                           <h4 className="text-lg font-black text-slate-900 mb-4">{so.vendorId?.companyName || "Service Partner"}</h4>
+                           <div className="flex justify-between items-center pt-4 border-t border-slate-100">
+                              <span className="text-xl font-black text-slate-900">₹{so.totalAmount?.toLocaleString()}</span>
+                              <button onClick={() => navigate(`/admin/procurement/po/${so._id}`)} className="p-2 bg-slate-50 group-hover:bg-emerald-600 group-hover:text-white rounded-xl transition-all">
+                                 <ArrowRight size={18} />
                               </button>
-                              <button onClick={() => setReviewModal({open: false, id: null, status: '', reason: ''})} className="px-2 py-1 text-slate-500 hover:bg-slate-100 rounded transition-colors font-medium">✕</button>
                            </div>
-                        ) : (
-                           <div className="space-x-2">
-                              <button disabled={working} onClick={() => setReviewModal({ open: true, id: inv._id, status: 'approved', reason: '' })} className="px-2 py-1 bg-emerald-600 text-white rounded font-medium hover:bg-emerald-700 transition-colors">Approve</button>
-                              <button disabled={working} onClick={() => setReviewModal({ open: true, id: inv._id, status: 'rejected', reason: '' })} className="px-2 py-1 bg-rose-600 text-white rounded font-medium hover:bg-rose-700 transition-colors">Reject</button>
+                        </div>
+                     ))}
+                  </div>
+               </section>
+            </div>
+         )}
+
+         {/* --- FINANCIALS & SOA TAB --- */}
+         {activeTab === "financials" && (
+            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+               <div className="print:hidden bg-white rounded-2xl border border-slate-200 p-8 shadow-sm">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
+                     <div className="space-y-2">
+                        <h3 className="text-lg font-black text-slate-900 flex items-center gap-3">
+                           <div className="p-2 bg-indigo-100 text-indigo-600 rounded-xl"><Users size={20} /></div>
+                           Vendor Statement of Account (SOA)
+                        </h3>
+                        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Global Financial Reconciliation & Audit</p>
+                     </div>
+                     <div className="w-full md:w-80">
+                        <select value={selectedVendorId} onChange={e => setSelectedVendorId(e.target.value)} className="w-full px-4 py-3 bg-slate-50 border-none rounded-2xl text-sm font-bold text-slate-900 appearance-none focus:ring-2 ring-indigo-500/20">
+                           <option value="">Select a Vendor to Audit...</option>
+                           {vendors.map(v => <option key={v._id} value={v._id}>{v.name} ({v.companyName})</option>)}
+                        </select>
+                     </div>
+                  </div>
+
+                  {selectedVendorId && vendorStatement && (
+                     <div className="space-y-10">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                           <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100 text-center">
+                              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Total Exposure</p>
+                              <h4 className="text-3xl font-black text-slate-900">₹{vendorStatement.totalBilled?.toLocaleString()}</h4>
                            </div>
-                        )
-                     )}
-                     {inv.status === 'approved' && (
-                        <button disabled={working} onClick={() => handlePay(inv)} className="px-2 py-1 bg-indigo-600 text-white rounded font-medium hover:bg-indigo-700">Pay Now</button>
-                     )}
-                  </td>
-                </tr>
-              )) : (
-                 <tr>
-                    <td colSpan="4" className="px-3 py-6 text-center text-slate-400">No invoices generated yet</td>
-                 </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </section>
+                           <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100 text-center">
+                              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Total Settlements</p>
+                              <h4 className="text-3xl font-black text-emerald-600">₹{vendorStatement.totalPaid?.toLocaleString()}</h4>
+                           </div>
+                           <div className="p-6 bg-indigo-900 rounded-2xl text-white shadow-xl text-center">
+                              <p className="text-[10px] font-black uppercase tracking-widest text-indigo-300 mb-2">Net Outstanding</p>
+                              <h4 className="text-3xl font-black">₹{vendorStatement.balance?.toLocaleString()}</h4>
+                           </div>
+                        </div>
+                        <div className="flex justify-end gap-3">
+                           <button onClick={handlePrint} className="px-6 py-3 bg-slate-900 text-white rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2 hover:bg-black transition-all active:scale-95 shadow-xl shadow-slate-200">
+                              <Download size={16} /> Export Official SOA PDF
+                           </button>
+                        </div>
+                     </div>
+                  )}
+               </div>
 
-      <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-        <h2 className="text-lg font-semibold text-slate-900 mb-3">Recent Payments</h2>
-        <div className="max-h-56 overflow-auto">
-          <table className="w-full text-xs">
-            <thead className="bg-slate-50">
-              <tr>
-                <th className="px-2 py-2 text-left">Payment Ref</th>
-                <th className="px-2 py-2 text-left">Amount</th>
-                <th className="px-2 py-2 text-left">Method</th>
-                <th className="px-2 py-2 text-left">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {payments.map((item) => (
-                <tr key={item._id} className="border-t border-slate-100">
-                  <td className="px-2 py-2">
-                    <div className="flex flex-col">
-                      <span className="font-semibold text-slate-900">{item.transactionRef || "N/A"}</span>
-                      <span className="text-[10px] text-slate-400 font-medium uppercase tracking-tighter">{item.paymentRef}</span>
-                    </div>
-                  </td>
-                  <td className="px-2 py-2">{item.amount}</td>
-                  <td className="px-2 py-2">{item.method}</td>
-                  <td className="px-2 py-2">{item.status}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
+               {/* Professional Statement Table */}
+               {selectedVendorId && vendorStatement && (
+                  <div className="bg-white rounded-[2rem] border border-slate-200 shadow-sm overflow-hidden print:border-none print:shadow-none">
+                     <div className="hidden print:block p-10 border-b-4 border-slate-900 bg-white">
+                        <div className="flex justify-between items-start">
+                           <div className="space-y-4">
+                              <div className="flex items-center gap-3">
+                                 <div className="p-3 bg-slate-900 rounded-2xl"><Building2 className="text-white" size={32} /></div>
+                                 <div>
+                                    <h1 className="text-3xl font-black text-slate-900 uppercase tracking-tighter">Statement of Account</h1>
+                                    <p className="text-xs font-black text-indigo-600 uppercase tracking-[0.2em]">Administrative Audit Ledger</p>
+                                 </div>
+                              </div>
+                              <div className="space-y-1">
+                                 <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Audited Vendor</p>
+                                 <p className="text-xl font-black text-slate-900 uppercase">{vendors.find(v => v._id === selectedVendorId)?.companyName || "N/A"}</p>
+                              </div>
+                           </div>
+                           <div className="text-right space-y-4">
+                              <div className="space-y-1">
+                                 <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Date Generated</p>
+                                 <p className="text-sm font-black text-slate-900">{new Date().toLocaleDateString('en-GB')}</p>
+                              </div>
+                              <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 inline-block">
+                                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Net Exposure</p>
+                                 <p className="text-2xl font-black text-indigo-600 tracking-tighter">₹{vendorStatement.balance?.toLocaleString()}</p>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
 
-      {loading ? <p className="text-xs text-slate-500">Refreshing procurement data...</p> : null}
+                     <div className="p-6 bg-slate-900 text-white flex items-center justify-between print:bg-slate-50 print:text-slate-900 print:border-b-2 print:border-slate-200">
+                        <div className="flex items-center gap-3"><Calendar size={16} className="text-indigo-400" /><h5 className="text-[11px] font-black uppercase tracking-widest">Master Transaction History</h5></div>
+                     </div>
+
+                     <div className="overflow-x-auto">
+                        <table className="w-full text-left border-collapse">
+                           <thead>
+                              <tr className="bg-slate-50 text-[10px] font-black uppercase tracking-widest text-slate-400 border-b border-slate-100 print:bg-white print:border-b-2 print:border-slate-900">
+                                 <th className="px-8 py-5">Date</th><th className="px-8 py-5">Description</th><th className="px-8 py-5 text-right">Billed (DR)</th><th className="px-8 py-5 text-right">Settled (CR)</th><th className="px-8 py-5 text-right">Running Balance</th>
+                              </tr>
+                           </thead>
+                           <tbody className="divide-y divide-slate-100">
+                              {(() => {
+                                 const combined = [
+                                    ...vendorStatement.invoices.map(i => ({ date: new Date(i.date), type: 'invoice', ref: i.number, amount: i.amount, label: 'Invoice Submission' })),
+                                    ...vendorStatement.payments.map(p => ({ date: new Date(p.date), type: 'payment', ref: p.ref, amount: p.amount, label: 'Bank Settlement' }))
+                                 ].sort((a, b) => a.date - b.date);
+                                 let runningBalance = 0;
+                                 return combined.map((entry, idx) => {
+                                    if (entry.type === 'invoice') runningBalance += entry.amount;
+                                    else runningBalance -= entry.amount;
+                                    return (
+                                       <tr key={idx} className="hover:bg-slate-50/50 transition-colors text-xs font-bold print:hover:bg-transparent">
+                                          <td className="px-8 py-4 text-slate-500">{entry.date.toLocaleDateString('en-GB')}</td>
+                                          <td className="px-8 py-4 uppercase font-black tracking-tight">{entry.label} <span className="text-[9px] text-slate-400 ml-2">REF: {entry.ref}</span></td>
+                                          <td className="px-8 py-4 text-right font-black text-slate-900">{entry.type === 'invoice' ? `₹${entry.amount.toLocaleString()}` : '-'}</td>
+                                          <td className="px-8 py-4 text-right font-black text-emerald-600">{entry.type === 'payment' ? `₹${entry.amount.toLocaleString()}` : '-'}</td>
+                                          <td className="px-8 py-4 text-right font-black text-slate-900 bg-slate-50/30 print:bg-transparent">₹{runningBalance.toLocaleString()}</td>
+                                       </tr>
+                                    );
+                                 });
+                              })()}
+                           </tbody>
+                        </table>
+                     </div>
+                  </div>
+               )}
+            </div>
+         )}
+      </div>
+
+      {/* Global CSS for Printing Statement */}
+      <style dangerouslySetInnerHTML={{ __html: `
+        @media print {
+          @page { size: A4; margin: 0; }
+          body { background: white !important; padding: 0 !important; margin: 0 !important; }
+          .print\\:hidden, nav, header, footer, .sidebar, aside, button, .Toaster { display: none !important; }
+          .min-h-screen { background: white !important; padding: 0 !important; }
+          .max-w-\\[1600px\\] { max-width: none !important; padding: 0 !important; margin: 0 !important; }
+          .bg-slate-50\\/50, .bg-slate-50 { background: white !important; }
+          .rounded-\\[2rem\\], .rounded-2xl { border-radius: 0 !important; }
+          .shadow-sm, .shadow-xl { box-shadow: none !important; }
+          table { width: 100% !important; border-collapse: collapse !important; }
+          th, td { border: 1px solid #f1f5f9 !important; padding: 12px 15px !important; }
+          thead th { background-color: #f8fafc !important; color: #0f172a !important; border-bottom: 2px solid #0f172a !important; }
+        }
+      `}} />
     </div>
   );
 }

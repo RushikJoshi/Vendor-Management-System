@@ -4,11 +4,13 @@ import {
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import api from '../../services/api';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const CreateRFQ = () => {
     const navigate = useNavigate();
+    const { id } = useParams();
+    const isEdit = Boolean(id);
     const [step, setStep] = useState(1);
     const [departments, setDepartments] = useState([]);
     const [vendors, setVendors] = useState([]);
@@ -40,6 +42,11 @@ const CreateRFQ = () => {
         setCollapsed(prev => ({ ...prev, [section]: !prev[section] }));
     };
 
+    const formatToInputDate = (isoString) => {
+        if (!isoString) return '';
+        return isoString.split('T')[0];
+    };
+
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -53,17 +60,32 @@ const CreateRFQ = () => {
                 if (deptRes.status === 'fulfilled') mergedDepts = [...mergedDepts, ...deptRes.value.data.data];
                 if (catRes.status === 'fulfilled') mergedDepts = [...mergedDepts, ...catRes.value.data.data];
                 
-                // dedupe by ID if needed
                 const uniqueDepts = Array.from(new Map(mergedDepts.map(item => [item._id, item])).values());
-                
                 setDepartments(uniqueDepts);
                 if (vendorRes.status === 'fulfilled') setVendors(vendorRes.value.data.data);
+
+                if (isEdit) {
+                    const rfqRes = await api.get(`/rfqs/${id}`);
+                    const rfq = rfqRes.data.data;
+                    setFormData({
+                        ...rfq,
+                        departmentId: rfq.departmentId?._id || rfq.departmentId || '',
+                        quoteDeadline: formatToInputDate(rfq.quoteDeadline),
+                        deliveryDeadline: formatToInputDate(rfq.deliveryDeadline),
+                        vendorSelection: {
+                            type: rfq.vendorSelection?.type || 'open',
+                            targetedVendors: rfq.vendorSelection?.targetedVendors?.map(v => typeof v === 'object' ? v._id : v) || []
+                        }
+                    });
+                    // Expand all sections for edit
+                    setCollapsed({ s1: false, s2: false, s3: false, s4: false, s5: false, s6: false });
+                }
             } catch (err) {
                 toast.error('Registry sync failure');
             }
         };
         fetchData();
-    }, []);
+    }, [id, isEdit]);
 
     const handleInputChange = (e, section = null) => {
         const { name, value } = e.target;
@@ -127,7 +149,6 @@ const CreateRFQ = () => {
     const prevStep = () => setStep(s => s - 1);
 
     const handleSubmit = async (status) => {
-        // Full Validation before submission
         if (!formData.title?.trim()) return toast.error("Protcol title is mandatory.");
         if (!formData.description?.trim()) return toast.error("Strategic description is mandatory.");
         
@@ -137,18 +158,37 @@ const CreateRFQ = () => {
         if (!formData.quoteDeadline) return toast.error("Submission deadline is mandatory.");
 
         setLoading(true);
-        const toastId = toast.loading(`Committing Asset: ${status === 'draft' ? 'Draft Registry' : 'Active Transmission'}...`);
+        const toastId = toast.loading(`${isEdit ? 'Updating' : 'Committing'} Asset...`);
         try {
-            const finalData = { ...formData, status };
-            const res = await api.post('/rfqs', finalData);
-            const savedStatus = String(res.data?.data?.status || status).toLowerCase();
-            const successMessage =
-                savedStatus === 'pending_approval'
-                    ? 'RFQ submitted for approval successfully'
-                    : savedStatus === 'published'
-                    ? 'RFQ published successfully'
-                    : 'RFQ draft saved successfully';
-            toast.success(successMessage, { id: toastId });
+            // Clean up data for backend compatibility
+            const payload = { 
+                ...formData, 
+                status,
+                departmentId: formData.departmentId || null,
+                budget: {
+                    amount: formData.budget?.amount || 0,
+                    currency: formData.budget?.currency || 'USD'
+                },
+                approvals: {
+                    manager: { required: formData.approvals?.manager?.required || false },
+                    finance: { required: formData.approvals?.finance?.required || false }
+                }
+            };
+
+            if (isEdit) {
+                await api.patch(`/rfqs/${id}`, payload);
+                toast.success('RFQ Updated Successfully', { id: toastId });
+            } else {
+                const res = await api.post('/rfqs', payload);
+                const savedStatus = String(res.data?.data?.status || status).toLowerCase();
+                const successMessage =
+                    savedStatus === 'pending_approval'
+                        ? 'RFQ submitted for approval successfully'
+                        : savedStatus === 'published'
+                        ? 'RFQ published successfully'
+                        : 'RFQ draft saved successfully';
+                toast.success(successMessage, { id: toastId });
+            }
             navigate('/admin/rfqs');
         } catch (err) {
             toast.error(err.response?.data?.message || 'Operation failed', { id: toastId });
@@ -169,8 +209,12 @@ const CreateRFQ = () => {
                         <ArrowLeft size={20} />
                     </button>
                     <div>
-                        <h1 className="text-[14px] font-black tracking-tight text-[#1e1e1e] uppercase">Sourcing Protocol Genesis</h1>
-                        <p className="text-[10px] text-slate-500 font-medium tracking-widest uppercase mt-0.5">Initialize New Request for Quotation (RFQ)</p>
+                        <h1 className="text-[14px] font-black tracking-tight text-[#1e1e1e] uppercase">
+                            {isEdit ? 'Modify Sourcing Protocol' : 'Sourcing Protocol Genesis'}
+                        </h1>
+                        <p className="text-[10px] text-slate-500 font-medium tracking-widest uppercase mt-0.5">
+                            {isEdit ? `Editing RFQ: ${id.slice(-8).toUpperCase()}` : 'Initialize New Request for Quotation (RFQ)'}
+                        </p>
                     </div>
                 </div>
                 <div className="hidden sm:flex items-center gap-3">
@@ -285,7 +329,7 @@ const CreateRFQ = () => {
                                 </div>
                                 <div className="space-y-1">
                                     <label className="text-xs font-semibold tracking-wide text-slate-700">Estimated Budget (USD)</label>
-                                    <input name="amount" type="number" value={formData.budget.amount} onChange={(e) => handleInputChange(e, 'budget')} placeholder="0.00" className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100" />
+                                    <input name="amount" type="number" value={formData.budget?.amount || ''} onChange={(e) => handleInputChange(e, 'budget')} placeholder="0.00" className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100" />
                                 </div>
                             </div>
                         </div>
@@ -326,7 +370,7 @@ const CreateRFQ = () => {
                                                     checked={formData.vendorSelection.targetedVendors.includes(vendor._id)}
                                                     onChange={() => {
                                                         const current = formData.vendorSelection.targetedVendors;
-                                                        const updated = current.includes(vendor._id) ? current.filter(id => id !== vendor._id) : [...current, vendor._id];
+                                                        const updated = current.includes(vendor._id) ? current.filter(vid => vid !== vendor._id) : [...current, vendor._id];
                                                         setFormData(p => ({ ...p, vendorSelection: { ...p.vendorSelection, targetedVendors: updated }}));
                                                     }}
                                                 />
@@ -380,19 +424,19 @@ const CreateRFQ = () => {
                         {!collapsed.s6 && (
                             <div className="p-5">
                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <label className={`flex items-center justify-between p-4 rounded-xl border-2 cursor-pointer transition-all ${formData.approvals.manager.required ? 'border-emerald-500 bg-emerald-50' : 'border-slate-200 bg-white hover:border-slate-300'}`}>
+                                <label className={`flex items-center justify-between p-4 rounded-xl border-2 cursor-pointer transition-all ${formData.approvals?.manager?.required ? 'border-emerald-500 bg-emerald-50' : 'border-slate-200 bg-white hover:border-slate-300'}`}>
                                     <div>
                                         <div className="font-bold text-slate-900 mb-1">Department Lead Approval</div>
                                         <div className="text-xs text-slate-500">Requires line manager sign-off.</div>
                                     </div>
-                                    <input type="checkbox" className="w-5 h-5 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500" checked={formData.approvals.manager.required} onChange={() => setFormData(p => ({ ...p, approvals: { ...p.approvals, manager: { required: !p.approvals.manager.required }}}))} />
+                                    <input type="checkbox" className="w-5 h-5 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500" checked={formData.approvals?.manager?.required || false} onChange={() => setFormData(p => ({ ...p, approvals: { ...p.approvals, manager: { required: !p.approvals?.manager?.required }}}))} />
                                 </label>
-                                <label className={`flex items-center justify-between p-4 rounded-xl border-2 cursor-pointer transition-all ${formData.approvals.finance.required ? 'border-emerald-500 bg-emerald-50' : 'border-slate-200 bg-white hover:border-slate-300'}`}>
+                                <label className={`flex items-center justify-between p-4 rounded-xl border-2 cursor-pointer transition-all ${formData.approvals?.finance?.required ? 'border-emerald-500 bg-emerald-50' : 'border-slate-200 bg-white hover:border-slate-300'}`}>
                                     <div>
                                         <div className="font-bold text-slate-900 mb-1">Finance Control Approval</div>
                                         <div className="text-xs text-slate-500">Requires capital check clearance.</div>
                                     </div>
-                                    <input type="checkbox" className="w-5 h-5 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500" checked={formData.approvals.finance.required} onChange={() => setFormData(p => ({ ...p, approvals: { ...p.approvals, finance: { required: !p.approvals.finance.required }}}))} />
+                                    <input type="checkbox" className="w-5 h-5 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500" checked={formData.approvals?.finance?.required || false} onChange={() => setFormData(p => ({ ...p, approvals: { ...p.approvals, finance: { required: !p.approvals?.finance?.required }}}))} />
                                 </label>
                             </div>
                         </div>
@@ -405,10 +449,10 @@ const CreateRFQ = () => {
             <div className="w-full max-w-[1440px] mx-auto px-4 md:px-8 pb-8 sticky bottom-0 z-40">
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-4 rounded-xl border border-slate-200 bg-white/95 p-4 shadow-xl backdrop-blur-md">
                     <button onClick={() => handleSubmit('draft')} disabled={loading} className="w-full sm:w-auto rounded-lg border border-slate-300 bg-white px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-slate-700 transition hover:bg-slate-50">
-                        Registry Draft
+                        {isEdit ? 'Save Changes' : 'Registry Draft'}
                     </button>
-                    <button onClick={() => handleSubmit('published')} disabled={loading} className="w-full sm:w-auto rounded-lg bg-blue-700 px-8 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow-lg shadow-blue-700/30 transition-all hover:bg-blue-800 disabled:opacity-60 flex items-center gap-2">
-                        {loading ? 'Transmitting...' : requiresApproval ? 'Submit For Approval' : 'Transmit Protocol'} <Check size={16} />
+                    <button onClick={() => handleSubmit(isEdit ? formData.status : 'published')} disabled={loading} className="w-full sm:w-auto rounded-lg bg-blue-700 px-8 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow-lg shadow-blue-700/30 transition-all hover:bg-blue-800 disabled:opacity-60 flex items-center gap-2">
+                        {loading ? 'Processing...' : isEdit ? 'Commit Updates' : requiresApproval ? 'Submit For Approval' : 'Transmit Protocol'} <Check size={16} />
                     </button>
                 </div>
             </div>

@@ -24,7 +24,7 @@ export default function Sidebar({
     },
     {
       title: "Management",
-      items: links.filter(l => ["Vendors", "Form Builder", "Categories", "RFQs", "My RFQs", "Procurement", "Procurement Desk", "Submit Quotation", "Contracts", "My Contracts", "Service Orders", "Document Settings"].includes(l.label))
+      items: links.filter(l => ["Vendors", "Clients", "Sales Orders", "Form Builder", "Categories", "RFQs", "My RFQs", "Procurement", "Procurement Desk", "Submit Quotation", "Contracts", "My Contracts", "Service Orders", "Document Settings"].includes(l.label))
     },
     {
       title: "System",

@@ -43,7 +43,7 @@ export default function QuotationsComparison() {
         try {
             const res = await api.post(`/quotations/${quoteId}/accept`, { orderType });
             toast.success(`Success! Contract & ${orderType} have been provisioned.`, { id: toastId });
-            navigate("/admin/contracts");
+            navigate(`/admin/procurement/po/${res.data.data.order._id}`);
         } catch (err) {
             toast.error(err.response?.data?.message || "Internal Protocol Error: Failed to finalize acceptance.", { id: toastId });
         } finally {

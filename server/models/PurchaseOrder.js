@@ -31,6 +31,9 @@ const purchaseOrderSchema = new mongoose.Schema(
                 quantity: Number,
                 unitPrice: Number,
                 totalPrice: Number,
+                specifications: String,
+                hsn: String,
+                uom: String
             },
         ],
         totalAmount: {
@@ -39,9 +42,12 @@ const purchaseOrderSchema = new mongoose.Schema(
         },
         status: {
             type: String,
-            enum: ["draft", "sent", "accepted", "delivered", "paid", "cancelled"],
+            enum: ["draft", "sent", "accepted", "rejected", "delivered", "paid", "cancelled"],
             default: "draft",
         },
+        acceptedAt: Date,
+        rejectedAt: Date,
+        rejectionReason: String,
         deliveryTracking: {
             carrier: String,
             trackingNumber: String,

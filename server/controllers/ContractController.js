@@ -2,26 +2,32 @@ const Contract = require("../models/Contract");
 const AuditService = require("../services/AuditService");
 const NotificationService = require("../services/NotificationService");
 const { successResponse, errorResponse } = require("../utils/responseHandler");
+const { normalizeRole } = require("../config/roles");
 
 exports.getContractStats = async (req, res) => {
     try {
+        const userRole = normalizeRole(req.user.role);
         let query = {};
+        
+        // Ensure multi-tenant isolation
         if (req.user.tenantId) {
-            query.$or = [
-                { tenantId: req.user.tenantId },
-                { tenantId: { $exists: false } }
-            ];
+            query.tenantId = req.user.tenantId;
         }
 
         // RBAC: Vendors only see their own stats
-        // RBAC: Vendors only see their own stats
-        if (req.user.role === 'vendor') {
+        if (userRole === 'vendor') {
             const Vendor = require("../models/vendor.model");
-            let vendor = await Vendor.findOne({ userId: req.user.id, tenantId: req.user.tenantId });
-            if (!vendor && req.user.email) {
-                vendor = await Vendor.findOne({ email: req.user.email, tenantId: req.user.tenantId });
+            const vendor = await Vendor.findOne({ 
+                email: req.user.email, 
+                tenantId: req.user.tenantId 
+            });
+            
+            if (!vendor) {
+                return successResponse(res, "No vendor profile found", {
+                    total: 0, active: 0, expired: 0, expiringSoon: 0
+                });
             }
-            query.vendorId = vendor ? vendor._id : req.user.id;
+            query.vendorId = vendor._id;
         }
 
         const total = await Contract.countDocuments(query);
@@ -52,26 +58,29 @@ exports.getContracts = async (req, res) => {
     try {
         const { page = 1, limit = 10, status, search } = req.query;
         const skip = (page - 1) * limit;
+        const userRole = normalizeRole(req.user.role);
 
         let query = {};
 
         // Ensure multi-tenant isolation
         if (req.user.tenantId) {
-            query.$or = [
-                { tenantId: req.user.tenantId },
-                { tenantId: { $exists: false } } // Safe fallback for legacy records
-            ];
+            query.tenantId = req.user.tenantId;
         }
 
         // RBAC: Vendors only see their own contracts
-        // RBAC: Vendors only see their own contracts
-        if (req.user.role === 'vendor') {
+        if (userRole === 'vendor') {
             const Vendor = require("../models/vendor.model");
-            let vendor = await Vendor.findOne({ userId: req.user.id, tenantId: req.user.tenantId });
-            if (!vendor && req.user.email) {
-                vendor = await Vendor.findOne({ email: req.user.email, tenantId: req.user.tenantId });
+            const vendor = await Vendor.findOne({ 
+                email: req.user.email, 
+                tenantId: req.user.tenantId 
+            });
+            
+            if (!vendor) {
+                return successResponse(res, "No contracts found", [], 200, {
+                    total: 0, page: parseInt(page), limit: parseInt(limit), pages: 0
+                });
             }
-            query.vendorId = vendor ? vendor._id : req.user.id;
+            query.vendorId = vendor._id;
             query.status = 'active'; // Vendors only see active/published agreements
         }
 
@@ -87,10 +96,13 @@ exports.getContracts = async (req, res) => {
         }
 
         if (search) {
-            query.$or = [
-                { contractNumber: { $regex: search, $options: "i" } },
-                { contractTitle: { $regex: search, $options: "i" } }
-            ];
+            query.$and = query.$and || [];
+            query.$and.push({
+                $or: [
+                    { contractNumber: { $regex: search, $options: "i" } },
+                    { contractTitle: { $regex: search, $options: "i" } }
+                ]
+            });
         }
 
         const contracts = await Contract.find(query)
@@ -153,7 +165,13 @@ exports.createContract = async (req, res) => {
 
 exports.getVendorContracts = async (req, res) => {
     try {
-        const contracts = await Contract.find({ vendorId: req.params.vendorId }).sort("-createdAt");
+        let query = { vendorId: req.params.vendorId };
+        
+        if (req.user.tenantId) {
+            query.tenantId = req.user.tenantId;
+        }
+
+        const contracts = await Contract.find(query).sort("-createdAt");
         res.json({ success: true, data: contracts });
     } catch (err) {
         res.status(400).json({ success: false, message: err.message });
@@ -162,8 +180,24 @@ exports.getVendorContracts = async (req, res) => {
 
 exports.getContractById = async (req, res) => {
     try {
+        const userRole = normalizeRole(req.user.role);
         const contract = await Contract.findById(req.params.id).populate("vendorId", "companyName email");
         if (!contract) return res.status(404).json({ success: false, message: "Agreement not found" });
+
+        // Multi-tenant check
+        if (req.user.tenantId && contract.tenantId && String(contract.tenantId) !== String(req.user.tenantId)) {
+            return res.status(403).json({ success: false, message: "Access denied to this tenant's contract" });
+        }
+
+        // Vendor RBAC check
+        if (userRole === 'vendor') {
+            const Vendor = require("../models/vendor.model");
+            const vendor = await Vendor.findOne({ email: req.user.email, tenantId: req.user.tenantId });
+            if (!vendor || String(contract.vendorId?._id || contract.vendorId) !== String(vendor._id)) {
+                return res.status(403).json({ success: false, message: "Access denied to this contract" });
+            }
+        }
+
         return successResponse(res, "Agreement details retrieved", contract);
     } catch (err) {
         return errorResponse(res, err.message);
@@ -174,6 +208,11 @@ exports.terminateContract = async (req, res) => {
     try {
         const contract = await Contract.findById(req.params.id);
         if (!contract) throw new Error("Contract not found");
+
+        // Multi-tenant check
+        if (req.user.tenantId && contract.tenantId && String(contract.tenantId) !== String(req.user.tenantId)) {
+            return res.status(403).json({ success: false, message: "Action not allowed" });
+        }
 
         const beforeData = { status: contract.status };
         contract.status = "terminated";
@@ -198,6 +237,11 @@ exports.updateContract = async (req, res) => {
     try {
         const contract = await Contract.findById(req.params.id);
         if (!contract) return res.status(404).json({ success: false, message: "Contract not found" });
+
+        // Multi-tenant check
+        if (req.user.tenantId && contract.tenantId && String(contract.tenantId) !== String(req.user.tenantId)) {
+            return res.status(403).json({ success: false, message: "Action not allowed" });
+        }
 
         const beforeData = contract.toObject();
 
@@ -227,6 +271,11 @@ exports.deleteContract = async (req, res) => {
     try {
         const contract = await Contract.findById(req.params.id);
         if (!contract) return res.status(404).json({ success: false, message: "Contract not found" });
+
+        // Multi-tenant check
+        if (req.user.tenantId && contract.tenantId && String(contract.tenantId) !== String(req.user.tenantId)) {
+            return res.status(403).json({ success: false, message: "Action not allowed" });
+        }
 
         await Contract.findByIdAndDelete(req.params.id);
 

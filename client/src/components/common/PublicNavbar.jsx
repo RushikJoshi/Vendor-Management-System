@@ -105,8 +105,8 @@ export default function PublicNavbar() {
               </div>
             </div>
             <div className="flex flex-col">
-              <span className="font-['Roboto_Condensed',sans-serif] text-2xl font-bold leading-none tracking-tight text-white">HG INFRA</span>
-              <span className="mt-1 hidden text-[10px] uppercase tracking-[0.2em] text-slate-300 md:block">Engineering Ltd.</span>
+              <span className="font-['Roboto_Condensed',sans-serif] text-2xl font-bold leading-none tracking-tight text-white">GT</span>
+              <span className="mt-1 hidden text-[10px] uppercase tracking-[0.2em] text-slate-300 md:block">Vendor Management</span>
             </div>
           </Link>
 
@@ -177,8 +177,8 @@ export default function PublicNavbar() {
               <Shield className="text-[#001f3f]" size={18} />
             </div>
             <div className="flex flex-col">
-              <span className="text-xl font-extrabold tracking-tight text-white">HG INFRA</span>
-              <span className="mt-1 text-[8px] uppercase tracking-widest text-slate-400">Engineering Ltd.</span>
+              <span className="text-xl font-extrabold tracking-tight text-white">GT</span>
+              <span className="mt-1 text-[8px] uppercase tracking-widest text-slate-400">Vendor Management</span>
             </div>
           </div>
           <button className="rounded-lg bg-white/10 p-2 text-white" onClick={() => setMobileOpen(false)}>

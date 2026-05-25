@@ -3,6 +3,7 @@ const router = express.Router();
 const {
     createPO,
     getPOs,
+    getPOById,
     regenerateAllPOs
 } = require("../controllers/poController");
 const { protect } = require("../middlewares/auth.middleware");
@@ -14,6 +15,9 @@ router.use(restrictToTenant);
 router.route("/")
     .get(getPOs)
     .post(createPO);
+
+router.route("/:id")
+    .get(getPOById);
 
 router.get("/regenerate-all", regenerateAllPOs);
 

@@ -10,7 +10,7 @@ router.use(restrictToTenant);
 
 router.get('/history', authorizeRoles('admin', 'procurement'), controller.getHistory);
 router.post('/restore/:historyId', authorizeRoles('admin', 'procurement'), controller.restoreHistoryVersion);
-router.get('/', authorizeRoles('admin', 'procurement'), controller.getSettings);
+router.get('/', authorizeRoles('admin', 'procurement', 'manager', 'finance', 'hr', 'sales'), controller.getSettings);
 router.put('/', authorizeRoles('admin', 'procurement'), controller.updateSettings);
 
 module.exports = router;

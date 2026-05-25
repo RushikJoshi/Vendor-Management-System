@@ -114,6 +114,19 @@ export default function Vendors() {
     v.contactPerson?.toLowerCase().includes(search.toLowerCase())
   );
 
+  const handleDelete = async (e, id) => {
+    e.stopPropagation();
+    if (!window.confirm("Are you sure you want to purge this partner from the global registry? This action is irreversible.")) return;
+    
+    try {
+      await api.delete(`/vendors/${id}`);
+      toast.success("Partner purged successfully");
+      fetchVendors();
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Purge failed");
+    }
+  };
+
   return (
     <div className="space-y-6 pb-10 fade-in">
       {/* ── PREMIUM HEADER ─────────────────────────────────────────── */}
@@ -270,11 +283,18 @@ export default function Vendors() {
                         </td>
                         <td className="px-6 py-5 text-right">
                             <div className="flex items-center justify-end gap-2">
-                                <button className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-4 py-2 text-[11px] font-bold uppercase tracking-wider text-slate-600 shadow-sm hover:bg-slate-50 hover:text-indigo-600 transition-all active:scale-95">
+                                <button 
+                                    onClick={(e) => { e.stopPropagation(); navigate(`/admin/vendors/${v._id}`); }}
+                                    className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-4 py-2 text-[11px] font-bold uppercase tracking-wider text-slate-600 shadow-sm hover:bg-slate-50 hover:text-indigo-600 transition-all active:scale-95"
+                                >
                                     Manage <ArrowRight size={12} />
                                 </button>
-                                <button className="p-2 text-slate-300 hover:text-slate-900 transition-colors">
-                                    <MoreVertical size={16} />
+                                <button 
+                                    onClick={(e) => handleDelete(e, v._id)}
+                                    className="p-2 text-slate-300 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                                    title="Delete Partner"
+                                >
+                                    <Trash2 size={16} />
                                 </button>
                             </div>
                         </td>

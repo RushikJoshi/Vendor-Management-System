@@ -131,9 +131,9 @@ class RiskEngine {
             if (avgRating < 50) score += 40;
             else if (avgRating < 75) score += 10;
             else score -= 20;
-        } else if (vendor.averageRating > 0) {
-            // Fallback to pre-calculated rating
-            if (vendor.averageRating < 50) score += 30;
+        } else if (vendor.rating > 0) {
+            // Fallback to pre-calculated rating (0-5 scale)
+            if (vendor.rating < 2.5) score += 30;
         }
 
         // Pipeline Health

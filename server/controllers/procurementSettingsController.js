@@ -6,18 +6,18 @@ const MAX_HISTORY_ITEMS = 20;
 const ALLOWED_TYPES = ["PO", "SO"];
 
 const DEFAULT_DOC_CONFIG = {
-    companyName: "Global Tech",
-    companyAddress: "HQ Address",
-    gstNumber: "GSTIN-PENDING",
-    cinNumber: "CIN-PENDING",
-    panNumber: "PAN-PENDING",
-    contactEmail: "procurement@globaltech.com",
-    contactPhone: "+91-XXXXXXXXXX",
-    bankName: "PENDING BANK",
-    accountNumber: "XXXXXXXXXXXX",
-    ifscCode: "XXXX0000000",
-    accountName: "Global Tech Pvt Ltd",
-    branch: "PENDING BRANCH",
+    companyName: "GITAKSHMI TECHNOLOGIES PRIVATE LIMITED",
+    companyAddress: "OFFICE NO.701, 7TH FLOOR, KAIVANNA COMPLEX,\nOFF C.G. ROAD, AMBAWADI,\nAHMEDABAD GJ 380006",
+    gstNumber: "24AAICG0391B1Z2",
+    cinNumber: "U72900GJ2019PTC110363",
+    panNumber: "",
+    contactEmail: "accounts@gitakshmi.com",
+    contactPhone: "",
+    bankName: "",
+    accountNumber: "",
+    ifscCode: "",
+    accountName: "",
+    branch: "",
     poTerms: [
         { term: 'AGAINST FORM NO', desc: 'NOT APPLICABLE' },
         { term: 'TEST CERTIFICATE', desc: 'REQUIRED' }

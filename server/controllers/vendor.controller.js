@@ -316,7 +316,7 @@ exports.updateVendor = asyncHandler(async (req, res, next) => {
     successResponse(res, "Master state synchronized successfully", vendor);
 });
 
-// @desc    Soft Delete Vendor
+// @desc    Hard Delete Vendor from database
 // @route   DELETE /api/vendors/:id
 // @access  Private/Admin
 exports.deleteVendor = asyncHandler(async (req, res, next) => {
@@ -326,20 +326,19 @@ exports.deleteVendor = asyncHandler(async (req, res, next) => {
         return next(new AppError("Vendor not found", 404));
     }
 
-    // Set soft delete flag
-    vendor.isDeleted = true;
-    await vendor.save();
+    // Hard delete from database as requested by user
+    await Vendor.findByIdAndDelete(req.params.id);
 
     // LOG ACTIVITY
     logActivity({
-        action: "VENDOR_DELETED",
+        action: "VENDOR_PURGED",
         entityType: "Vendor",
         entityId: vendor._id,
         performedBy: req.user.id,
         ipAddress: req.ip,
     });
 
-    successResponse(res, "Vendor deleted successfully", null);
+    successResponse(res, "Vendor permanently deleted from database", null);
 });
 
 // @desc    Get Vendor Performance Metrics

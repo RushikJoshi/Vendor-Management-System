@@ -1,11 +1,15 @@
 const ROLE_HIERARCHY = {
     admin: 6,
     hr: 5,
+    compliance: 5,
+    manager: 4,
     finance: 4,
     procurement: 3,
     sales: 3,
+    reviewer: 2,
     viewer: 2,
-    vendor: 1
+    vendor: 1,
+    client: 1
 };
 
 const ROLE_NORMALIZE_MAP = {
@@ -23,19 +27,24 @@ const ROLE_NORMALIZE_MAP = {
     "sales": "sales",
     "sales_manager": "sales",
     "sales manager": "sales",
-    "manager": "procurement",
     "viewer": "viewer",
-    "vendor": "vendor"
+    "reviewer": "reviewer",
+    "vendor": "vendor",
+    "client": "client"
 };
 
 const MODULE_PERMISSIONS = {
     admin: ["*"],
     hr: ["dashboard", "users", "roles", "settings"],
+    compliance: ["dashboard", "vendors", "contracts", "analytics"],
+    manager: ["dashboard", "rfq", "contracts", "users"],
     finance: ["dashboard", "contracts", "analytics", "finance", "procurement"],
     procurement: ["dashboard", "rfq", "contracts", "vendor_forms", "form_builder", "procurement"],
     sales: ["dashboard", "rfq", "contracts", "analytics"],
+    reviewer: ["dashboard", "rfq"],
     viewer: ["dashboard"],
-    vendor: ["vendor_dashboard"]
+    vendor: ["vendor_dashboard"],
+    client: ["client_dashboard"]
 };
 
 function normalizeRole(rawRole) {

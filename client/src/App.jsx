@@ -4,8 +4,8 @@ import PublicLayout from "./layouts/PublicLayout";
 import AdminLayout from "./layouts/AdminLayout";
 import VendorLayout from "./layouts/VendorLayout";
 import ProtectedRoute from "./routes/ProtectedRoute";
+import ClientLayout from "./layouts/ClientLayout";
 
-import Landing from "./pages/public/Landing";
 import Login from "./pages/public/Login";
 // Legacy Register removed in favor of RegistrationWizard
 
@@ -46,9 +46,6 @@ import Categories from "./pages/admin/Categories";
 import CategoryForm from "./pages/admin/CategoryForm";
 import CategoryDetail from "./pages/admin/CategoryDetail";
 
-
-
-
 import { NotificationProvider } from "./context/NotificationContext";
 import { ProcurementProvider } from "./context/ProcurementContext";
 import { Toaster } from "react-hot-toast";
@@ -61,6 +58,15 @@ import ServiceOrders from "./pages/admin/ServiceOrders";
 import PaymentCheckout from "./pages/admin/PaymentCheckout";
 import ProcurementSettings from "./pages/admin/ProcurementSettings";
 import AdminDeliveries from "./pages/admin/AdminDeliveries";
+import VendorPerformance from "./pages/admin/VendorPerformance";
+import Clients from "./pages/admin/Clients";
+import SalesOrders from "./pages/admin/SalesOrders";
+import CreateSalesOrder from "./pages/admin/CreateSalesOrder";
+import SalesOrderDetail from "./pages/admin/SalesOrderDetail";
+import ClientDashboard from "./pages/client/ClientDashboard";
+import ClientOrders from "./pages/client/ClientOrders";
+import ClientChangePassword from "./pages/client/ClientChangePassword";
+import ClientPaymentCheckout from "./pages/client/ClientPaymentCheckout";
 
 import AboutUs from "./pages/public/AboutUs";
 
@@ -89,7 +95,7 @@ function App() {
 
           {/* public */}
           <Route element={<PublicLayout />}>
-            <Route path="/" element={<Landing />} />
+            <Route path="/" element={<Navigate to="/login" replace />} />
             <Route path="/about" element={<AboutUs />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<RegistrationWizard />} />
@@ -119,11 +125,16 @@ function App() {
             <Route path="submissions/:id" element={<ProtectedRoute module="submissions"><TreeSubmissionDetail /></ProtectedRoute>} />
             <Route path="rfqs" element={<ProtectedRoute module="rfq"><RFQs /></ProtectedRoute>} />
             <Route path="rfqs/create" element={<ProtectedRoute module="rfq"><CreateRFQ /></ProtectedRoute>} />
+            <Route path="rfqs/:id/edit" element={<ProtectedRoute module="rfq"><CreateRFQ /></ProtectedRoute>} />
             <Route path="rfqs/:id/compare" element={<ProtectedRoute module="rfq"><QuotationsComparison /></ProtectedRoute>} />
             <Route path="contracts" element={<ProtectedRoute module="contracts"><Contracts /></ProtectedRoute>} />
             <Route path="procurement" element={<ProtectedRoute module="procurement"><ProcurementHub /></ProtectedRoute>} />
             <Route path="procurement/service-orders" element={<ProtectedRoute module="procurement"><ServiceOrders /></ProtectedRoute>} />
             <Route path="procurement/settings" element={<ProtectedRoute module="procurement"><ProcurementSettings /></ProtectedRoute>} />
+            <Route path="sales/clients" element={<ProtectedRoute module="procurement"><Clients /></ProtectedRoute>} />
+            <Route path="sales/orders" element={<ProtectedRoute module="procurement"><SalesOrders /></ProtectedRoute>} />
+            <Route path="sales/orders/create" element={<ProtectedRoute module="procurement"><CreateSalesOrder /></ProtectedRoute>} />
+            <Route path="sales/orders/:id" element={<ProtectedRoute module="procurement"><SalesOrderDetail /></ProtectedRoute>} />
             <Route path="procurement/po/:id" element={<ProtectedRoute module="procurement"><PurchaseOrderDetail /></ProtectedRoute>} />
             <Route path="procurement/payment/:id" element={<ProtectedRoute module="procurement"><PaymentCheckout /></ProtectedRoute>} />
             <Route path="procurement/shipments" element={<ProtectedRoute module="procurement"><AdminDeliveries /></ProtectedRoute>} />
@@ -133,6 +144,7 @@ function App() {
             <Route path="vendors" element={<ProtectedRoute module="vendors"><Vendors /></ProtectedRoute>} />
             <Route path="vendors/add" element={<ProtectedRoute module="vendors"><AddVendor /></ProtectedRoute>} />
             <Route path="vendors/:id" element={<ProtectedRoute module="vendors"><ManageVendor /></ProtectedRoute>} />
+            <Route path="vendors/:id/performance" element={<ProtectedRoute module="vendors"><VendorPerformance /></ProtectedRoute>} />
             <Route path="analytics" element={<ProtectedRoute module="analytics"><DashboardAnalytics /></ProtectedRoute>} />
             <Route path="users" element={<ProtectedRoute module="users"><UserManagement /></ProtectedRoute>} />
             <Route path="users/create" element={<ProtectedRoute module="users"><CreateUser /></ProtectedRoute>} />
@@ -181,15 +193,34 @@ function App() {
 
           </Route>
 
+          {/* client — client only exclusively */}
+          <Route
+            path="/client/*"
+            element={
+              <ProtectedRoute role="client">
+                <ClientLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route path="dashboard" element={<ClientDashboard />} />
+            <Route path="orders" element={<ClientOrders />} />
+            <Route path="orders/:id" element={<SalesOrderDetail />} />
+            <Route path="orders/:id/pay" element={<ClientPaymentCheckout />} />
+            <Route path="*" element={<Navigate to="/client/dashboard" replace />} />
+          </Route>
+
           <Route path="/access-denied" element={<AccessDenied />} />
 
-
-          {/* Change password — only needs valid token (not full vendor route guard) */}
+          {/* Change password — only needs valid token (not full route guards) */}
           <Route path="/vendor/change-password" element={
             <ProtectedRoute requiredRole="vendor"><ChangePassword /></ProtectedRoute>
           } />
+          
+          <Route path="/client/change-password" element={
+            <ProtectedRoute requiredRole="client"><ClientChangePassword /></ProtectedRoute>
+          } />
 
-          <Route path="*" element={<Navigate to="/" />} />
+          <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
         </ProcurementProvider>
         </NotificationProvider>

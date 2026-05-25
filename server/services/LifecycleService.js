@@ -98,11 +98,12 @@ class LifecycleService {
             remarks
         });
 
-        // Update Vendor average
+        // Update Vendor average (normalize 0-100 score to 0-5 scale)
         const allReviews = await PerformanceReview.find({ vendorId });
-        const avgRating = allReviews.reduce((acc, r) => acc + r.overallScore, 0) / allReviews.length;
+        const avgOverallScore = allReviews.reduce((acc, r) => acc + r.overallScore, 0) / allReviews.length;
+        const normalizedRating = Number((avgOverallScore / 20).toFixed(1));
 
-        await Vendor.findByIdAndUpdate(vendorId, { averageRating: Math.round(avgRating) });
+        await Vendor.findByIdAndUpdate(vendorId, { rating: normalizedRating });
 
         // Audit Log
         await AuditService.logCreate(req, "PerformanceReview", review);

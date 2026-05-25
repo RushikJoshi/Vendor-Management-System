@@ -17,7 +17,7 @@ const notificationSchema = new mongoose.Schema(
         },
         type: {
             type: String,
-            enum: ["vendor", "rfq", "application", "contract", "quotation"],
+            enum: ["vendor", "rfq", "application", "contract", "quotation", "procurement", "payment", "comment"],
             required: true,
         },
         isRead: {

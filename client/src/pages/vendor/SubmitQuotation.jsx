@@ -13,6 +13,7 @@ import {
   surfaceClass,
   cn
 } from "../../components/vendor/VendorUI";
+import CommentSection from "../../components/CommentSection";
 
 export default function SubmitQuotation() {
     const navigate = useNavigate();
@@ -272,6 +273,11 @@ export default function SubmitQuotation() {
                     </div>
                 </div>
             </form>
+
+            {/* DISCUSSION AREA */}
+            <div className="mt-10 max-w-[1200px] mx-auto xl:max-w-none grid grid-cols-1 gap-6 pb-20">
+                <CommentSection targetModel="RFQ" targetId={id} />
+            </div>
         </PageShell>
     );
 }

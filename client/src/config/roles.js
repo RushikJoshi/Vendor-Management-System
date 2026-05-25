@@ -6,6 +6,7 @@ export const ROLE_HIERARCHY = {
   sales: 3,
   viewer: 2,
   vendor: 1,
+  client: 1,
 };
 
 export const ROLE_NORMALIZE_MAP = {
@@ -34,6 +35,8 @@ export const ROLE_NORMALIZE_MAP = {
   Viewer: "viewer",
   vendor: "vendor",
   Vendor: "vendor",
+  client: "client",
+  Client: "client",
 };
 
 export const MODULE_PERMISSIONS = {
@@ -44,6 +47,7 @@ export const MODULE_PERMISSIONS = {
   sales: ["dashboard", "rfq", "contracts", "analytics"],
   viewer: ["dashboard"],
   vendor: ["vendor_dashboard"],
+  client: ["client_dashboard"],
 };
 
 export function normalizeRole(rawRole) {

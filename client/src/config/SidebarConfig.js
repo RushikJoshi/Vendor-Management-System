@@ -30,6 +30,8 @@ export const sidebarItems = [
   { key: "contracts", label: "Contracts", path: "/admin/contracts", icon: FileSignature, allowedRoles: ["admin", "sales", "procurement", "finance"] },
   { key: "users", label: "Users", path: "/admin/users", icon: Users, allowedRoles: ["admin", "hr"] },
   { key: "procurement", label: "Document Settings", path: "/admin/procurement/settings", icon: Settings, allowedRoles: ["admin", "procurement"] },
+  { key: "procurement", label: "Clients", path: "/admin/sales/clients", icon: Users, allowedRoles: ["admin", "sales", "procurement"] },
+  { key: "procurement", label: "Sales Orders", path: "/admin/sales/orders", icon: FileText, allowedRoles: ["admin", "sales", "procurement"] },
   { key: "settings", label: "Settings", path: "/admin/settings", icon: Settings, allowedRoles: ["admin", "hr", "finance", "procurement", "viewer"] },
 ];
 

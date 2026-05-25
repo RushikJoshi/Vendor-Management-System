@@ -79,8 +79,12 @@ if (configs.NODE_ENV === "development") {
 
 // 4) Health Check
 app.get("/health", (req, res) => {
+    const mongoose = require("mongoose");
+    const dbStatus = mongoose.connection.readyState === 1 ? "Connected" : "Disconnected";
+    
     return successResponse(res, "System Healthy", {
         status: "UP",
+        database: dbStatus,
         uptime: process.uptime(),
         timestamp: new Date(),
         memoryUsage: process.memoryUsage(),
@@ -116,6 +120,8 @@ app.use(`${API_V1}/submissions`, require("./routes/submissionRoutes"));
 app.use(`${API_V1}/form`, require("./routes/treeFormRoutes"));
 app.use(`${API_V1}/submission`, require("./routes/treeSubmissionRoutes"));
 app.use(`${API_V1}/procurement`, require("./modules/procurement/routes/procurement.routes"));
+app.use(`${API_V1}/clients`, require("./routes/clientRoutes"));
+app.use(`${API_V1}/sales-orders`, require("./routes/clientSalesOrderRoutes"));
 
 // Backward compatibility & frontend aliases
 app.use("/api/auth", require("./routes/authRoutes"));
@@ -144,6 +150,8 @@ app.use("/api/form", require("./routes/treeFormRoutes"));
 app.use("/api/submission", require("./routes/treeSubmissionRoutes"));
 app.use("/api/procurement-settings", require("./routes/procurementSettingsRoutes"));
 app.use("/api/procurement", require("./modules/procurement/routes/procurement.routes"));
+app.use("/api/clients", require("./routes/clientRoutes"));
+app.use("/api/sales-orders", require("./routes/clientSalesOrderRoutes"));
 
 // 7) Serve Frontend Static Files
 let frontendPath = path.join(__dirname, "public");

@@ -146,16 +146,21 @@ exports.onboardCompany = asyncHandler(async (req, res, next) => {
 // @access  Public
 exports.login = asyncHandler(async (req, res, next) => {
   const { email, password } = req.body;
+  const logger = require("../utils/logger");
+
+  logger.info(`Login attempt for email: ${email}`);
 
   // Check for user
   const user = await User.findOne({ email }).select("+password");
   if (!user) {
+    logger.warn(`Login failed: User not found for email: ${email}`);
     return next(new AppError("Invalid email or password", 401));
   }
 
   // Check password
   const isMatch = await user.comparePassword(password);
   if (!isMatch) {
+    logger.warn(`Login failed: Incorrect password for email: ${email}`);
     return next(new AppError("Invalid email or password", 401));
   }
 

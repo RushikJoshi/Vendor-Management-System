@@ -89,7 +89,7 @@ exports.getAnalytics = async (req, res) => {
                 $project: {
                     categoryName: "$name",
                     vendorCount: { $size: "$vendors" },
-                    avgPerformance: { $avg: "$vendors.averageRating" },
+                    avgPerformance: { $avg: "$vendors.rating" },
                     avgRisk: { $avg: "$vendors.overallRiskScore" },
                     approvalRate: {
                         $cond: [

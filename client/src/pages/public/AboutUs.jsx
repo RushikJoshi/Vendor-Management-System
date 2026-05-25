@@ -87,13 +87,13 @@ const AboutUs = () => {
               transition={{ duration: 0.8 }}
             >
               <span className="inline-block py-2 px-6 rounded-full bg-[#0097a7] text-white text-[10px] font-bold uppercase tracking-[0.3em] mb-8 shadow-xl shadow-[#0097a7]/20">
-                Engineering Tomorrow's India
+                Managing Vendor Excellence
               </span>
               <h1 className="text-6xl md:text-9xl font-black text-white mb-8 tracking-tighter font-['Montserrat'] leading-[0.9]">
                 OUR <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0097a7] to-white">LEGACY</span>.
               </h1>
               <p className="text-xl md:text-2xl text-slate-300 max-w-2xl leading-relaxed font-light mb-12 border-l-4 border-[#0097a7] pl-8">
-                For over two decades, H.G. Infra has been the silent engine behind Bharat's infrastructure transformation, delivering excellence one milestone at a time.
+                For over two decades, GT has been the silent engine behind Bharat's vendor transformation, delivering excellence one milestone at a time.
               </p>
               <div className="flex flex-wrap gap-6">
                 <button className="px-10 py-5 bg-white text-[#001f3f] font-bold rounded-2xl flex items-center gap-3 hover:bg-[#0097a7] hover:text-white transition-all duration-500 shadow-2xl group">
@@ -146,13 +146,13 @@ const AboutUs = () => {
         <div className="container mx-auto px-6">
           <div className="flex flex-col lg:flex-row gap-20 items-center">
             <div className="lg:w-1/2">
-              <SectionHeading subtitle="Who We Are" title="Precision Engineering, Built on Trust" />
+              <SectionHeading subtitle="Who We Are" title="Vendor Management, Built on Trust" />
               <div className="space-y-8 relative">
                 {/* Decorative Side Line */}
                 <div className="absolute -left-6 top-0 bottom-0 w-1 bg-gradient-to-b from-[#0097a7] to-transparent rounded-full opacity-30"></div>
                 
                 <p className="text-xl text-slate-600 dark:text-slate-300 leading-relaxed font-medium italic">
-                  "Established in 2003, H.G. Infra Engineering Limited has evolved from a local executor to a national benchmark in infrastructure development."
+                  "Established in 2003, GT Vendor Management has evolved from a local executor to a national benchmark in vendor lifecycle management."
                 </p>
                 <p className="text-lg text-slate-500 dark:text-slate-400 leading-relaxed">
                   Our core strength lies in our technical brilliance and a massive fleet of modern machinery. We specialize in EPC projects for Highways, Railways, and Water Management, ensuring every square inch we build is a testament to India's growing might.
@@ -224,7 +224,7 @@ const AboutUs = () => {
               </div>
               <h3 className="text-4xl font-black text-white mb-8 tracking-tighter font-['Montserrat']">OUR VISION</h3>
               <p className="text-xl text-slate-300 leading-relaxed font-light">
-                To be India's most admired infrastructure pioneer, creating engineering marvels that power the nation's growth while setting global standards in integrity and quality.
+                To be India's most admired vendor management partner, creating digital ecosystems that power the nation's growth while setting global standards in integrity and quality.
               </p>
             </motion.div>
 
@@ -307,7 +307,7 @@ const AboutUs = () => {
       {/* Corporate Values - Icon Grid */}
       <section className="py-32 bg-slate-50 dark:bg-slate-900/30">
         <div className="container mx-auto px-6">
-          <SectionHeading subtitle="Our Values" title="The Pillars of H.G. Infra" />
+          <SectionHeading subtitle="Our Values" title="The Pillars of GT" />
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mt-20">
             {[

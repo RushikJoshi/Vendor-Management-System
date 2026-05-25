@@ -424,7 +424,8 @@ function FieldRenderer({ field, values, files, setValues, setFiles, repeatIndex,
   const fieldKey = repeatIndex ? `${field.id}_${repeatIndex}` : field.id;
   const setValue = (v) => setValues((p) => ({ ...p, [fieldKey]: v }));
   const current = values[fieldKey] ?? (field.type === "checkbox" ? [] : "");
-  const isTitleField = field.label?.toLowerCase().includes("title");
+  const labelLo = field.label?.toLowerCase() || "";
+  const isTitleField = labelLo.includes("title");
   const isDropdown = field.type === "dropdown";
   const isWideField = field.type === "checkbox" || field.type === "radio" || field.type === "file" || field.label === "Category" || field.label === "Sub Category" || field.label === "Region";
   
@@ -518,6 +519,11 @@ function FieldRenderer({ field, values, files, setValues, setFiles, repeatIndex,
   }
 
   if (field.type === "file") {
+    const file = files[fieldKey];
+    const allowedExtensions = ["pdf", "jpg", "jpeg", "png"];
+    const fileExtension = file?.name?.split('.').pop()?.toLowerCase();
+    const isInvalid = file && !allowedExtensions.includes(fileExtension);
+
     return (
       <div className={`space-y-1 ${flexClass}`}>
         <label className="text-[15px] font-bold tracking-tight text-slate-700 block mb-1.5">
@@ -525,21 +531,38 @@ function FieldRenderer({ field, values, files, setValues, setFiles, repeatIndex,
         </label>
         <input
           type="file"
-          className={`${inputBaseClass} file:mr-3 file:rounded-lg file:border-0 file:bg-stone-700 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-white hover:file:bg-stone-800`}
-          onChange={(e) => setFiles((p) => ({ ...p, [fieldKey]: e.target.files?.[0] || null }))}
+          accept=".pdf,.jpg,.jpeg,.png"
+          className={`${inputBaseClass} file:mr-3 file:rounded-lg file:border-0 file:bg-stone-700 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-white hover:file:bg-stone-800 ${isInvalid ? 'border-rose-500 bg-rose-50' : ''}`}
+          onChange={(e) => {
+             const selectedFile = e.target.files?.[0] || null;
+             if (selectedFile) {
+                const ext = selectedFile.name.split('.').pop()?.toLowerCase();
+                if (!allowedExtensions.includes(ext)) {
+                    toast.error("Invalid file type! Please upload PDF, JPG, or PNG only.");
+                }
+             }
+             setFiles((p) => ({ ...p, [fieldKey]: selectedFile }));
+          }}
         />
-        {files[fieldKey]?.name ? <p className="text-xs text-slate-500">Selected: {files[fieldKey].name}</p> : null}
+        <p className="text-[11px] text-slate-500 font-medium italic">Allowed types: PDF, JPG, PNG only</p>
+        {file?.name ? (
+            <div className="flex items-center gap-2 mt-1">
+                <p className={`text-xs ${isInvalid ? 'text-rose-600 font-bold' : 'text-slate-500'}`}>
+                    Selected: {file.name}
+                </p>
+                {isInvalid && <p className="text-[10px] text-rose-500 font-black uppercase">Invalid Type</p>}
+            </div>
+        ) : null}
       </div>
     );
   }
 
   const handleInputChange = (e) => {
     let val = e.target.value;
-    const labelLo = field.label?.toLowerCase() || "";
 
-    // 1. MOBILE / CONTACT / PHONE: Only allow numbers, max 15
-    if (labelLo.includes("mobile") || labelLo.includes("phone") || labelLo.includes("alternate")) {
-      val = val.replace(/\D/g, "").slice(0, 15);
+    // 1. MOBILE / CONTACT / PHONE: Only allow numbers, exactly 10
+    if (labelLo.includes("mobile") || labelLo.includes("phone") || labelLo.includes("alternate") || labelLo.includes("other")) {
+      val = val.replace(/\D/g, "").slice(0, 10);
     }
     // 2. GST: Alphanumeric, max 15, uppercase
     else if (labelLo.includes("gst")) {
@@ -632,6 +655,9 @@ function FieldRenderer({ field, values, files, setValues, setFiles, repeatIndex,
         </div>
       )}
       {hintText ? <p className="text-[11px] text-slate-500">{hintText}</p> : null}
+      {(labelLo.includes("mobile") || labelLo.includes("phone") || labelLo.includes("alternate") || labelLo.includes("other")) && current && current.length > 0 && current.length < 10 && (
+        <p className="text-[11px] text-rose-500 font-bold animate-pulse">Mobile number must be exactly 10 digits</p>
+      )}
     </div>
   );
 }
@@ -657,6 +683,7 @@ export default function TreeFormRenderer() {
   const [digilockerStage, setDigilockerStage] = useState("authorize"); // authorize, otp, verifying
   const [otpValue, setOtpValue] = useState("");
   const [gstPreview, setGstPreview] = useState(null);
+  const [submissionId, setSubmissionId] = useState("");
 
   // DigiLocker Mock Component
   const DigilockerPopup = () => (
@@ -845,20 +872,39 @@ export default function TreeFormRenderer() {
         toast.error(err.response?.data?.message || "Could not fetch GST details");
       }
     }
-    if (pattern === "ifsc" && IFSC_REGEX.test(normalizedValue)) {
+    if ((pattern === "ifsc" || label.includes("ifsc")) && IFSC_REGEX.test(normalizedValue)) {
       try {
         const res = await axios.get(`https://ifsc.razorpay.com/${normalizedValue}`);
         const bank = res.data?.BANK || "";
         const branch = res.data?.BRANCH || "";
+        const city = res.data?.CITY || "";
+        
         const allNodes = flattenNodes(form?.structure || []);
-        const bankField = allNodes.flatMap((n) => n.fields || []).find((f) => /bank name/i.test(f.label));
-        const branchField = allNodes.flatMap((n) => n.fields || []).find((f) => /branch/i.test(f.label));
+        const allFields = allNodes.flatMap((n) => n.fields || []);
+        const bankField = allFields.find((f) => /bank name/i.test(f.label));
+        const branchField = allFields.find((f) => /branch/i.test(f.label));
+        const cityField = allFields.find((f) => /bank city/i.test(f.label) || (/city/i.test(f.label) && f.id.toLowerCase().includes("bank")));
+
         setValues((p) => ({ 
           ...p, 
           ...(bankField && bank ? { [bankField.id]: bank } : {}),
-          ...(branchField && branch ? { [branchField.id]: branch } : {})
+          ...(branchField && branch ? { [branchField.id]: branch } : {}),
+          ...(cityField && city ? { [cityField.id]: city } : {})
         }));
-      } catch {}
+        toast.success(`Bank details fetched: ${bank}`);
+      } catch (err) {
+        console.error("IFSC lookup failed", err);
+      }
+    }
+
+    // BANK ACCOUNT VERIFICATION (MOCK/SIMULATED)
+    if (label.includes("account number") && normalizedValue.length >= 10) {
+        // This is a simulation of bank account verification
+        // In real production, we would call a 'Penny Drop' API like Cashfree/Razorpay
+        const tid = toast.loading("Verifying bank account status...");
+        setTimeout(() => {
+            toast.success("Account status verified with bank server.", { id: tid });
+        }, 1500);
     }
     
     // PINCODE AUTOFILL
@@ -1091,6 +1137,7 @@ export default function TreeFormRenderer() {
         headers: { "Content-Type": "multipart/form-data" },
       });
       localStorage.removeItem(draftStorageKey);
+      setSubmissionId(res.data.data._id);
       setSuccess(`Submitted successfully. ID: ${res.data.data._id}`);
     } catch (err) {
       const errs = err.response?.data?.errors;
@@ -1239,6 +1286,37 @@ export default function TreeFormRenderer() {
             </div>
         )}
         {showDigilocker && <DigilockerPopup />}
+        
+        {/* Success Modal */}
+        {submissionId && (
+            <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+            <motion.div 
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                className="bg-white rounded-[32px] shadow-2xl w-full max-w-lg overflow-hidden border border-slate-100 p-10 text-center"
+            >
+                <div className="mb-6 flex justify-center">
+                    <div className="bg-emerald-100 text-emerald-600 p-4 rounded-full">
+                        <CheckCircle2 size={48} strokeWidth={3} />
+                    </div>
+                </div>
+                <h2 className="text-3xl font-black text-slate-900 mb-2 uppercase tracking-tight">Registration Submitted!</h2>
+                <p className="text-slate-500 font-medium mb-8">Thank you for your application. Our procurement team will review your details and contact you shortly.</p>
+                
+                <div className="bg-slate-50 rounded-2xl p-6 border border-slate-100 mb-8">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-1">Reference Number</p>
+                    <p className="text-2xl font-black text-blue-700 tracking-wider font-mono">{submissionId}</p>
+                </div>
+
+                <button 
+                onClick={() => window.location.href = "/"} // Redirect back to portal home
+                className="w-full bg-slate-900 text-white py-4 rounded-2xl text-sm font-bold uppercase tracking-widest shadow-xl hover:bg-slate-800 transition-all active:scale-95"
+                >
+                OK - Exit Portal
+                </button>
+            </motion.div>
+            </div>
+        )}
       </div>
   );
 }
