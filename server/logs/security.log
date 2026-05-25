@@ -1477,3 +1477,10 @@
 2026-05-25 11:11:41:1141 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
 2026-05-25 11:11:41:1141 [warn] Background Job system (Email) is offline (No local Redis detected).
 2026-05-25 11:11:41:1141 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-25 15:44:39:4439 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-25 15:44:39:4439 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-25 15:44:39:4439 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-25 17:19:15:1915 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-25 17:19:15:1915 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-25 17:19:15:1915 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-25 17:49:47:4947 [warn] Login failed: Incorrect password for email: admin@gmail.com

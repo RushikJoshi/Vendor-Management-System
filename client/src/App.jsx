@@ -60,6 +60,7 @@ import ProcurementSettings from "./pages/admin/ProcurementSettings";
 import AdminDeliveries from "./pages/admin/AdminDeliveries";
 import VendorPerformance from "./pages/admin/VendorPerformance";
 import Clients from "./pages/admin/Clients";
+import AddClient from "./pages/admin/AddClient";
 import SalesOrders from "./pages/admin/SalesOrders";
 import CreateSalesOrder from "./pages/admin/CreateSalesOrder";
 import SalesOrderDetail from "./pages/admin/SalesOrderDetail";
@@ -132,6 +133,7 @@ function App() {
             <Route path="procurement/service-orders" element={<ProtectedRoute module="procurement"><ServiceOrders /></ProtectedRoute>} />
             <Route path="procurement/settings" element={<ProtectedRoute module="procurement"><ProcurementSettings /></ProtectedRoute>} />
             <Route path="sales/clients" element={<ProtectedRoute module="procurement"><Clients /></ProtectedRoute>} />
+            <Route path="sales/clients/add" element={<ProtectedRoute module="procurement"><AddClient /></ProtectedRoute>} />
             <Route path="sales/orders" element={<ProtectedRoute module="procurement"><SalesOrders /></ProtectedRoute>} />
             <Route path="sales/orders/create" element={<ProtectedRoute module="procurement"><CreateSalesOrder /></ProtectedRoute>} />
             <Route path="sales/orders/:id" element={<ProtectedRoute module="procurement"><SalesOrderDetail /></ProtectedRoute>} />

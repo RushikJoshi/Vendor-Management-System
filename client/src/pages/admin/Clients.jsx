@@ -3,20 +3,13 @@ import api from "../../services/api";
 import { Users, Plus, Mail, Phone, MapPin } from "lucide-react";
 import toast from "react-hot-toast";
 import Modal from "../../components/Modal";
+import { useNavigate } from "react-router-dom";
 
 export default function Clients() {
   const [clients, setClients] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [loginModalData, setLoginModalData] = useState(null);
-  const [submitting, setSubmitting] = useState(false);
-  const [formData, setFormData] = useState({
-    companyName: "",
-    name: "",
-    email: "",
-    phone: "",
-    address: ""
-  });
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchClients();
@@ -33,29 +26,6 @@ export default function Clients() {
     }
   };
 
-  const handleInputChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleAddClient = async (e) => {
-    e.preventDefault();
-    if (!formData.companyName || !formData.name || !formData.email || !formData.phone) {
-      return toast.error("All required fields must be filled!");
-    }
-
-    try {
-      setSubmitting(true);
-      await api.post("/clients", formData);
-      toast.success("Client added successfully");
-      setIsModalOpen(false);
-      setFormData({ companyName: "", name: "", email: "", phone: "", address: "" });
-      fetchClients();
-    } catch (err) {
-      toast.error("Failed to add client");
-    } finally {
-      setSubmitting(false);
-    }
-  };
 
   const handleCreateLogin = async (clientId) => {
     try {
@@ -80,7 +50,7 @@ export default function Clients() {
           <p className="text-slate-500 text-sm mt-1">Manage your sales customers</p>
         </div>
         <button 
-          onClick={() => setIsModalOpen(true)} 
+          onClick={() => navigate("/admin/sales/clients/add")} 
           className="mt-4 md:mt-0 px-5 py-2.5 bg-indigo-600 text-white rounded-xl flex items-center gap-2 text-sm font-bold hover:bg-indigo-700 transition shadow-md shadow-indigo-200"
         >
           <Plus size={18} /> Add Client
@@ -115,39 +85,6 @@ export default function Clients() {
           ))
         )}
       </div>
-
-      <Modal open={isModalOpen} onClose={() => setIsModalOpen(false)} title="Add New Client" size="max-w-md">
-        <form onSubmit={handleAddClient} className="space-y-4">
-          <div>
-            <label className="block text-[12px] font-bold text-slate-700 uppercase tracking-wider mb-1.5">Company Name <span className="text-red-500">*</span></label>
-            <input type="text" name="companyName" value={formData.companyName} onChange={handleInputChange} required className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 focus:bg-white transition text-sm font-medium" placeholder="Acme Corp" />
-          </div>
-          <div>
-            <label className="block text-[12px] font-bold text-slate-700 uppercase tracking-wider mb-1.5">Contact Person <span className="text-red-500">*</span></label>
-            <input type="text" name="name" value={formData.name} onChange={handleInputChange} required className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 focus:bg-white transition text-sm font-medium" placeholder="John Doe" />
-          </div>
-          <div>
-            <label className="block text-[12px] font-bold text-slate-700 uppercase tracking-wider mb-1.5">Email Address <span className="text-red-500">*</span></label>
-            <input type="email" name="email" value={formData.email} onChange={handleInputChange} required className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 focus:bg-white transition text-sm font-medium" placeholder="john@acme.com" />
-          </div>
-          <div>
-            <label className="block text-[12px] font-bold text-slate-700 uppercase tracking-wider mb-1.5">Phone Number <span className="text-red-500">*</span></label>
-            <input type="tel" name="phone" value={formData.phone} onChange={handleInputChange} required className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 focus:bg-white transition text-sm font-medium" placeholder="+1 234 567 8900" />
-          </div>
-          <div>
-            <label className="block text-[12px] font-bold text-slate-700 uppercase tracking-wider mb-1.5">Address (Optional)</label>
-            <textarea name="address" value={formData.address} onChange={handleInputChange} rows="2" className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 focus:bg-white transition text-sm font-medium" placeholder="123 Business Rd..." />
-          </div>
-          <div className="pt-4 flex justify-end gap-3">
-            <button type="button" onClick={() => setIsModalOpen(false)} className="px-5 py-2.5 text-sm font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition">
-              Cancel
-            </button>
-            <button type="submit" disabled={submitting} className="px-5 py-2.5 text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition shadow-md shadow-indigo-200 flex items-center gap-2">
-              {submitting ? "Saving..." : "Save Client"}
-            </button>
-          </div>
-        </form>
-      </Modal>
 
       <Modal open={!!loginModalData} onClose={() => setLoginModalData(null)} title="Client Login Credentials" size="max-w-sm">
         {loginModalData && (
