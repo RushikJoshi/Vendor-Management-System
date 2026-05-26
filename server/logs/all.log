@@ -2782,3 +2782,34 @@
 2026-05-25 17:49:46:4946 [info] Login attempt for email: admin@gmail.com
 2026-05-25 17:49:47:4947 [warn] Login failed: Incorrect password for email: admin@gmail.com
 2026-05-25 17:49:50:4950 [info] Login attempt for email: admin@gmail.com
+2026-05-26 09:37:27:3727 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-26 09:37:30:3730 [info] Server running in development mode on port 5000
+2026-05-26 09:37:30:3730 [info] 🎯 Job Processor Initialized
+2026-05-26 09:37:30:3730 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-26 09:37:30:3730 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-26 09:37:30:3730 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-26 09:37:31:3731 [info] MongoDB connected successfully
+2026-05-26 10:02:12:212 [info] Login attempt for email: admin@gmail.com
+2026-05-26 10:04:38:438 [warn] GST lookup provider failed for 08AAXFT5043K1ZG: Credit Not Available.
+2026-05-26 10:04:44:444 [warn] GST lookup provider failed for 08AAXFT5043K1ZG: Credit Not Available.
+2026-05-26 10:04:44:444 [warn] GST lookup provider failed for 08AAXFT5043K1ZG: Credit Not Available.
+2026-05-26 10:04:44:444 [warn] GST lookup provider failed for 08AAXFT5043K1ZG: Credit Not Available.
+2026-05-26 10:04:45:445 [warn] GST lookup provider failed for 08AAXFT5043K1ZG: Credit Not Available.
+2026-05-26 10:04:45:445 [warn] GST lookup provider failed for 08AAXFT5043K1ZG: Credit Not Available.
+2026-05-26 10:04:45:445 [warn] GST lookup provider failed for 08AAXFT5043K1ZG: Credit Not Available.
+2026-05-26 10:08:13:813 [warn] GST lookup provider failed for 08AAXFT5043K1ZG: Credit Not Available.
+2026-05-26 10:08:13:813 [warn] GST lookup provider failed for 08AAXFT5043K1ZG: Credit Not Available.
+2026-05-26 10:08:13:813 [warn] GST lookup provider failed for 08AAXFT5043K1ZG: Credit Not Available.
+2026-05-26 10:08:14:814 [warn] GST lookup provider failed for 08AAXFT5043K1ZG: Credit Not Available.
+2026-05-26 10:08:14:814 [warn] GST lookup provider failed for 08AAXFT5043K1ZG: Credit Not Available.
+2026-05-26 10:08:15:815 [warn] GST lookup provider failed for 08AAXFT5043K1ZG: Credit Not Available.
+2026-05-26 10:08:15:815 [warn] GST lookup provider failed for 08AAXFT5043K1ZG: Credit Not Available.
+2026-05-26 10:08:15:815 [warn] GST lookup provider failed for 08AAXFT5043K1ZG: Credit Not Available.
+2026-05-26 10:08:16:816 [warn] GST lookup provider failed for 08AAXFT5043K1ZG: Credit Not Available.
+2026-05-26 10:08:16:816 [warn] GST lookup provider failed for 08AAXFT5043K1ZG: Credit Not Available.
+2026-05-26 10:19:04:194 [info] Login attempt for email: admin@gmail.com
+2026-05-26 11:21:23:2123 [info] Login attempt for email: admin@gmail.com
+2026-05-26 11:49:14:4914 [info] Login attempt for email: admin@gmail.com
+2026-05-26 11:52:47:5247 [warn] GST lookup provider failed for 08AAXFT5043K1ZG: Credit Not Available.
+2026-05-26 12:40:28:4028 [info] Login attempt for email: admin@gmail.com
+2026-05-26 15:01:11:111 [info] Login attempt for email: admin@gmail.com
