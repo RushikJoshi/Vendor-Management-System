@@ -139,6 +139,19 @@ export default function SalesOrderDetail() {
   const invoiceDate = new Date(order.createdAt).toLocaleDateString('en-GB').replaceAll('/', '.');
   const invoiceTime = new Date(order.createdAt).toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'});
 
+  const qrPayload = {
+    SellerGstin: "24AAICG0391B1Z2",
+    BuyerGstin: clientGstin || "08AAXFT5043K1ZG",
+    DocNo: order.soNumber || "SO-2026-0004",
+    DocTyp: "INV",
+    DocDt: invoiceDate,
+    TotVal: grandTotal,
+    ItemCnt: items.length === 0 ? 1 : items.length,
+    MainHsnCode: "998313",
+    Irn: "-"
+  };
+  const qrDataString = encodeURIComponent(JSON.stringify(qrPayload));
+
   return (
     <div className="min-h-screen bg-slate-100 print:bg-white print:p-0 p-4 md:p-8">
       <style>{PRINT_STYLES}</style>
@@ -169,16 +182,16 @@ export default function SalesOrderDetail() {
       </div>
 
       {/* DOCUMENT AREA */}
-      <div id="print-root" ref={printRef} className="w-[794px] mx-auto bg-white text-black leading-tight font-sans relative shadow-md print:shadow-none">
+      <div id="print-root" ref={printRef} className="w-[794px] min-h-[1122px] flex flex-col mx-auto bg-white text-black leading-tight font-sans relative shadow-md print:shadow-none">
         
-        <div className="border border-black">
+        <div className="border-t border-x border-black">
           {/* HEADER & COMPANY INFO (SPLIT LEFT/RIGHT) */}
           <div className="flex border-b border-black w-full">
           
-          {/* LEFT COLUMN (65%) */}
-          <div className="w-[65%] flex flex-col border-r border-black">
+          {/* MASTER LEFT COLUMN (60%) */}
+          <div className="w-[60%] flex flex-col border-r border-black">
             {/* Header Left */}
-            <div className="p-2 pl-3 border-b border-black flex items-center justify-start gap-8">
+            <div className="p-2 pl-3 border-b border-black flex items-center justify-start gap-6">
               <div className="flex items-center">
                  <img src="/logo.png" alt="Gitakshmi Logo" className="h-24 object-contain" onError={(e) => { e.target.style.display='none'; e.target.nextSibling.style.display='block'; }} />
                  <div className="hidden items-center gap-2">
@@ -187,80 +200,84 @@ export default function SalesOrderDetail() {
                  </div>
               </div>
               <div className="flex flex-col items-start justify-center text-left">
-                <div className="font-black text-3xl tracking-wide uppercase text-gray-800">Tax Invoice</div>
-                <div className="text-xs font-semibold mt-0.5">(u/s 31 of CGST Act r/w Rule 46)</div>
-                <div className="font-bold mt-1 text-sm">MSME Regn No: TN-02-0074545</div>
+                <div className="font-black text-3xl tracking-wide uppercase text-gray-800 ml-12">Tax Invoice</div>
+                <div className="text-xs font-semibold mt-0.5 w-full text-center">(u/s 31 of CGST Act r/w Rule 46)</div>
+                <div className="font-bold mt-1 text-lg">MSME Regn No: TN-02-0074545</div>
               </div>
             </div>
             {/* Company Info Left */}
-            <div className="flex flex-col flex-1">
+            <div className="flex flex-col border-b border-black">
               <div className="p-1 pl-5 bg-white">
-                 <div className="font-bold text-2xl">Gitakshmi Technologies Private Limited</div>
-                 <div className="leading-relaxed text-xl text-gray-800 space-y-0.5">
+                 <div className="font-bold text-xl">Gitakshmi Technologies Private Limited</div>
+                 <div className="leading-tight text-lg font-bold text-gray-800 space-y-0.5">
                    <div>Office No.701, 7th Floor, Kaivanna Complex,</div>
                    <div>Off C.G. Road, Ambawadi,</div>
                    <div>Ahmedabad, Gujarat 380006</div>
                  </div>
               </div>
-              <div className="grid grid-cols-[140px_1fr] mt-1 pb-1 text-lg gap-y-1">
-                <div className="pl-5 font-semibold">GSTIN</div><div className="font-bold">: 24AAICG0391B1Z2</div>
-                <div className="pl-5 font-semibold">PAN</div><div className="font-bold">: AAICG0391B</div>
-                <div className="pl-5 font-semibold">Contact No</div><div className="font-bold">: +91 99999 99999</div>
-                <div className="pl-5 font-semibold">CIN</div><div className="font-bold">: U72900GJ2019PTC110363</div>
-                <div className="pl-5 font-semibold">Email ID</div><div className="font-bold">: info@gitakshmi.com</div>
-                <div className="pl-5 font-semibold">State</div><div className="font-bold">: Gujarat</div>
-                <div className="pl-5 font-semibold">IRN No</div><div className="font-bold break-all">: -</div>
+              <div className="grid grid-cols-[100px_1fr] mt-1 pb-1 text-lg gap-y-1 text-gray-800">
+                <div className="pl-5 font-bold">GSTIN</div><div className="font-bold">24AAICG0391B1Z2</div>
+                <div className="pl-5 font-bold">PAN</div><div className="font-bold">AAICG0391B</div>
+                <div className="pl-5 font-bold">Contact No</div><div className="font-bold">+91 99999 99999</div>
+                <div className="pl-5 font-bold">CIN</div><div className="font-bold">U72900GJ2019PTC110363</div>
+                <div className="pl-5 font-bold">Email ID</div><div className="font-bold">info@gitakshmi.com</div>
+                <div className="pl-5 font-bold">State</div><div className="font-bold">Gujarat</div>
+                <div className="pl-5 font-bold">IRN No</div><div className="font-bold break-all">-</div>
+              </div>
+            </div>
+            
+            {/* Bottom Left: Bill To & Delivery To */}
+            <div className="flex flex-1">
+              <div className="w-[50%] border-r border-black flex flex-col text-lg">
+                <div className="p-2 pl-3 font-bold border-b border-black text-xl bg-gray-200">Receiver (Bill TO)</div>
+                <div className="pt-1 pb-1 pl-3 pr-2 flex-1 flex flex-col leading-tight font-bold">
+                  <div className="text-xl mb-1">{client.companyName || client.name || "Client Name"}</div>
+                  <div className="whitespace-pre-wrap">{clientAddress}</div>
+                  <div>GSTIN: <span>{clientGstin}</span></div>
+                  <div>PAN: <span></span></div>
+                  <div>State Code: <span>{clientStateCode}</span></div>
+                  <div>State: <span>{clientState}</span></div>
+                </div>
+              </div>
+              <div className="w-[50%] flex flex-col text-lg">
+                <div className="p-2 pl-3 font-bold border-b border-black text-xl bg-gray-200">Consignee (Delivery To)</div>
+                <div className="pt-1 pb-1 pl-3 pr-2 flex-1 flex flex-col leading-tight font-bold">
+                  <div className="text-xl mb-1">{client.companyName || client.name || "Client Name"}</div>
+                  <div className="whitespace-pre-wrap">{deliveryAddress}</div>
+                  <div>GSTIN: <span>{clientGstin}</span></div>
+                  <div>PAN: <span></span></div>
+                  <div>State Code: <span>{clientStateCode}</span></div>
+                  <div>State: <span>{clientState}</span></div>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* RIGHT COLUMN (35%) */}
-          <div className="w-[35%] flex flex-col">
-            <div className="p-1.5 border-b border-black flex items-center justify-center">
-               <div className="font-bold text-[15px] text-center">Original for Recipient</div>
+          {/* MASTER RIGHT COLUMN (40%) */}
+          <div className="w-[40%] flex flex-col">
+            {/* Top Right: QR Code */}
+            <div className="border-b border-black flex flex-col">
+              <div className="p-1.5 border-b border-black flex items-center justify-center">
+                 <div className="font-bold text-xl text-center">Original for Recipient</div>
+              </div>
+              <div className="flex-1 flex flex-col justify-center items-center pt-9 pb-9">
+                 <img src={`https://api.qrserver.com/v1/create-qr-code/?size=400x400&ecc=H&data=${qrDataString}`} alt="QR Code" className="w-[60%] aspect-square object-contain mix-blend-multiply opacity-90" />
+              </div>
             </div>
-            <div className="flex-1 flex flex-col justify-center items-center p-2">
-               {/* Large dense QR Code */}
-               <img src={`https://api.qrserver.com/v1/create-qr-code/?size=400x400&ecc=H&data=${order.soNumber || 'INV'}-GitakshmiTechnologies-Invoice-Verification-Data-String-Padding-To-Increase-Density-1234567890`} alt="QR Code" className="w-[60%] aspect-square object-contain mix-blend-multiply opacity-90" />
-            </div>
-          </div>
-        </div>
 
-        {/* BILL TO & DELIVERY TO & INVOICE DETAILS */}
-        <div className="flex border-b border-black">
-          <div className="w-[30%] border-r border-black flex flex-col text-lg">
-            <div className="p-2 pl-3 font-bold border-b border-black text-base">Receiver (Bill TO)</div>
-            <div className="p-4 pl-5 flex-1 flex flex-col space-y-3">
-              <div className="font-bold text-xl">{client.companyName || client.name || "Client Name"}</div>
-              <div className="whitespace-pre-wrap leading-relaxed">{clientAddress}</div>
-              <div className="font-semibold">GSTIN: <span className="font-bold">{clientGstin}</span></div>
-              <div className="font-semibold">PAN: <span className="font-bold"></span></div>
-              <div className="font-semibold">State Code: <span className="font-bold">{clientStateCode}</span></div>
-              <div className="font-semibold">State: <span className="font-bold">{clientState}</span></div>
-            </div>
-          </div>
-          <div className="w-[30%] border-r border-black flex flex-col text-lg">
-            <div className="p-2 pl-3 font-bold border-b border-black text-base">Consignee (Delivery To)</div>
-            <div className="p-4 pl-5 flex-1 flex flex-col space-y-3">
-              <div className="font-bold text-xl">{client.companyName || client.name || "Client Name"}</div>
-              <div className="whitespace-pre-wrap leading-relaxed">{deliveryAddress}</div>
-              <div className="font-semibold">GSTIN: <span className="font-bold">{clientGstin}</span></div>
-              <div className="font-semibold">PAN: <span className="font-bold"></span></div>
-              <div className="font-semibold">State Code: <span className="font-bold">{clientStateCode}</span></div>
-              <div className="font-semibold">State: <span className="font-bold">{clientState}</span></div>
-            </div>
-          </div>
-          <div className="w-[40%] flex flex-col text-[14px]">
-            <div className="grid grid-cols-[auto_1fr] h-full content-evenly pt-1 pb-1">
-               <div className="p-0.5 pl-3 flex items-center">Invoice No</div><div className="p-0.5 pl-2 flex items-center">{order.soNumber || "6100000844"}</div>
-               <div className="p-0.5 pl-3 flex items-center">Invoice Date</div><div className="p-0.5 pl-2 flex items-center">{invoiceDate}</div>
-               <div className="p-0.5 pl-3 flex items-center">Time of Invoice</div><div className="p-0.5 pl-2 flex items-center">{invoiceTime}</div>
-               <div className="p-0.5 pl-3 flex items-center">Reverse Charge</div><div className="p-0.5 pl-2 flex items-center">Not Applicable</div>
-               <div className="p-0.5 pl-3 flex items-center">PO/Sow No.</div><div className="p-0.5 pl-2 flex items-center">Prof Service</div>
-               <div className="p-0.5 pl-3 flex items-center">PO/Sow Date</div><div className="p-0.5 pl-2 flex items-center">01.11.2024</div>
-               <div className="p-0.5 pl-3 flex items-center">Payment Terms</div><div className="p-0.5 pl-2 flex items-center leading-tight">Pay immediately w/o deduction</div>
-               <div className="p-0.5 pl-3 flex items-center">Place of Supply</div><div className="p-0.5 pl-2 flex items-center">{clientState}</div>
-               <div className="p-0.5 pl-3 flex items-center">Order No.</div><div className="p-0.5 pl-2 flex items-center">70000162</div>
+            {/* Bottom Right: Invoice Details */}
+            <div className="flex-1 flex flex-col text-lg">
+              <div className="grid grid-cols-[auto_1fr] gap-x-3 h-full content-between pt-1 pb-1">
+                 <div className="pl-3 flex items-center">Invoice No</div><div className="pl-2 flex items-center">{order.soNumber || "6100000844"}</div>
+                 <div className="pl-3 flex items-center">Invoice Date</div><div className="pl-2 flex items-center">{invoiceDate}</div>
+                 <div className="pl-3 flex items-center">Time of Invoice</div><div className="pl-2 flex items-center">{invoiceTime}</div>
+                 <div className="pl-3 flex items-center">Reverse Charge</div><div className="pl-2 flex items-center">Not Applicable</div>
+                 <div className="pl-3 flex items-center">PO/Sow No.</div><div className="pl-2 flex items-center">Prof Service</div>
+                 <div className="pl-3 flex items-center">PO/Sow Date</div><div className="pl-2 flex items-center">01.11.2024</div>
+                 <div className="pl-3 flex items-center">Payment Terms</div><div className="pl-2 flex items-center leading-tight">Pay immediately w/o deduction</div>
+                 <div className="pl-3 flex items-center">Place of Supply</div><div className="pl-2 flex items-center">{clientState}</div>
+                 <div className="pl-3 flex items-center">Order No.</div><div className="pl-2 flex items-center">70000162</div>
+              </div>
             </div>
           </div>
         </div>
@@ -270,28 +287,28 @@ export default function SalesOrderDetail() {
           <table className="w-full text-center border-collapse text-sm">
             <thead className="font-bold border-b border-black">
               <tr>
-                <th className="border-r border-black p-2 w-[5%] font-semibold">Sr.No</th>
-                <th className="border-r border-black p-2 text-left w-[25%] font-semibold">Description of Services</th>
-                <th className="border-r border-black p-2 font-semibold">HSN/SAC Code</th>
-                <th className="border-r border-black p-2 font-semibold">UOM</th>
-                <th className="border-r border-black p-2 font-semibold">QTY</th>
-                <th className="border-r border-black p-2 font-semibold">Rate</th>
-                <th className="border-r border-black p-2 font-semibold">Value</th>
-                <th className="border-r border-black p-2 font-semibold">IGST<br/>%</th>
-                <th className="border-r border-black p-2 font-semibold">Value</th>
-                <th className="border-r border-black p-2 font-semibold">CGST<br/>%</th>
-                <th className="border-r border-black p-2 font-semibold">Value</th>
-                <th className="border-r border-black p-2 font-semibold">SGST<br/>%</th>
-                <th className="border-r border-black p-2 font-semibold">Value</th>
-                <th className="p-2 font-semibold">Gross<br/>Amount</th>
+                <th className="border-r border-black p-2 w-[5%] font-bold">Sr.No</th>
+                <th className="border-r border-black p-2 text-left w-[25%] font-bold text-[1.2em]">Description of Services</th>
+                <th className="border-r border-black p-2 font-bold">HSN/SAC Code</th>
+                <th className="border-r border-black p-2 font-bold">UOM</th>
+                <th className="border-r border-black p-2 font-bold">QTY</th>
+                <th className="border-r border-black p-2 font-bold">Rate</th>
+                <th className="border-r border-black p-2 font-bold">Value</th>
+                <th className="border-r border-black p-2 font-bold">IGST<br/>%</th>
+                <th className="border-r border-black p-2 font-bold">Value</th>
+                <th className="border-r border-black p-2 font-bold">CGST<br/>%</th>
+                <th className="border-r border-black p-2 font-bold">Value</th>
+                <th className="border-r border-black p-2 font-bold">SGST<br/>%</th>
+                <th className="border-r border-black p-2 font-bold">Value</th>
+                <th className="p-2 font-bold">Gross<br/>Amount</th>
               </tr>
             </thead>
             <tbody>
               {items.length === 0 ? (
                 // Dummy Item for visual matching if no items
-                <tr className="border-b border-gray-300 font-bold">
+                <tr className="font-bold">
                   <td className="border-r border-black p-1">1</td>
-                  <td className="border-r border-black p-1 text-left">Professional Service<br/>Mani</td>
+                  <td className="border-r border-black p-1 text-left text-[1.5em]">Professional Service<br/>Mani</td>
                   <td className="border-r border-black p-1">998313</td>
                   <td className="border-r border-black p-1">HR</td>
                   <td className="border-r border-black p-1">122.00</td>
@@ -313,9 +330,9 @@ export default function SalesOrderDetail() {
                   const itemSgst = (itemTotal * sgstRate) / 100;
                   const itemGross = itemTotal + itemIgst + itemCgst + itemSgst;
                   return (
-                  <tr key={idx} className="border-b border-gray-300 font-bold">
+                  <tr key={idx} className="font-bold">
                     <td className="border-r border-black p-1">{idx + 1}</td>
-                    <td className="border-r border-black p-1 text-left whitespace-pre-wrap">{item.name || "Professional Service\\nMani"}</td>
+                    <td className="border-r border-black p-1 text-left whitespace-pre-wrap capitalize text-[1.5em]">{item.name || "Professional Service\nMani"}</td>
                     <td className="border-r border-black p-1">{item.hsn || "998313"}</td>
                     <td className="border-r border-black p-1 uppercase">{item.uom || "HR"}</td>
                     <td className="border-r border-black p-1">{item.quantity?.toFixed(2)}</td>
@@ -357,30 +374,32 @@ export default function SalesOrderDetail() {
                   <td className="p-1.5 text-right">{grandTotal.toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
                </tr>
                <tr className="font-bold text-base">
-                  <td colSpan={13} className="border-r border-black p-1.5 pr-6 text-right uppercase">INVOICE AMOUNT</td>
+                  <td colSpan={9} className="border-r border-black p-1.5"></td>
+                  <td colSpan={4} className="border-r border-black p-1.5 pr-6 text-right uppercase">INVOICE AMOUNT</td>
                   <td className="p-1.5 text-right">{grandTotal.toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
                </tr>
             </tfoot>
           </table>
         </div>
 
-        <div className="p-2 pl-3 font-bold border-b border-black text-lg">
+        <div className="p-2 pl-3 font-bold border-b border-black text-lg bg-gray-200">
            Amount In Words: {amountInWords} Rupees Only
+        </div>
         </div>
 
         {/* HSN SUMMARY TABLE */}
-        <div className="w-full bg-white">
+        <div className="w-[68%] bg-white border-x border-b border-black">
            <table className="w-full text-center border-collapse text-sm">
               <thead className="font-bold border-b border-black">
                  <tr>
-                    <th className="border-r border-black p-1.5 font-semibold">HSN / SAC</th>
-                    <th className="border-r border-black p-1.5 font-semibold">Taxable Value</th>
-                    <th className="border-r border-black p-1.5 font-semibold">CGST<br/>%</th>
-                    <th className="border-r border-black p-1.5 font-semibold">Amount</th>
-                    <th className="border-r border-black p-1.5 font-semibold">SGST<br/>%</th>
-                    <th className="border-r border-black p-1.5 font-semibold">Amount</th>
-                    <th className="border-r border-black p-1.5 font-semibold">IGST %</th>
-                    <th className="p-1.5 font-semibold">Amount</th>
+                    <th className="border-r border-black p-1.5 font-bold">HSN / SAC</th>
+                    <th className="border-r border-black p-1.5 font-bold">Taxable Value</th>
+                    <th className="border-r border-black p-1.5 font-bold">CGST<br/>%</th>
+                    <th className="border-r border-black p-1.5 font-bold">Amount</th>
+                    <th className="border-r border-black p-1.5 font-bold">SGST<br/>%</th>
+                    <th className="border-r border-black p-1.5 font-bold">Amount</th>
+                    <th className="border-r border-black p-1.5 font-bold">IGST %</th>
+                    <th className="p-1.5 font-bold">Amount</th>
                  </tr>
               </thead>
               <tbody>
@@ -397,43 +416,41 @@ export default function SalesOrderDetail() {
               </tbody>
            </table>
         </div>
-      </div>
 
         {/* FOOTER AREA */}
-        <div className="p-2 flex flex-col gap-2 text-sm">
+        <div className="p-2 flex flex-col gap-2 text-xl font-bold font-serif flex-1">
            
            <div>
-              <div className="font-bold underline mb-1 tracking-wide text-base">Declarations:</div>
-              <div className="font-bold text-gray-900 space-y-1">
+              <div className="underline mb-3 tracking-wide">Declarations:</div>
+              <div className="text-gray-900 space-y-3">
                  <div>1) I/We declare that this invoice shows actual price of the services described and that all particulars are true and correct.</div>
                  <div>2) Subject to the jurisdiction of courts in Ahmedabad.</div>
               </div>
            </div>
 
-           <div>
-              <div className="font-bold underline mb-1 tracking-wide text-base">Our Bank Details:</div>
-              <div className="font-bold text-gray-900 space-y-1">
+           <div className="mt-10">
+              <div className="underline mb-5 tracking-wide">Our Bank Details:</div>
+              <div className="text-gray-900 space-y-1">
                  <div>Bank Name : <span className="pl-4">HDFC Bank</span></div>
-                 <div>Account No : <span className="pl-5">00102320001213</span></div>
-                 <div>Branch & IFS Code: HDFC0000010.</div>
+                 <div>Account No : <span className="pl-5 font-sans font-bold text-lg">00102320001213</span></div>
+                 <div>Branch & IFS Code: <span className="font-sans font-bold text-lg">HDFC0000010.</span></div>
               </div>
            </div>
 
-           <div className="flex justify-between items-end mt-4 relative">
-              <div className="flex flex-col gap-1 font-bold text-sm">
-                 <div className="flex"><span className="w-16">Place</span> Ahmedabad</div>
-                 <div className="flex"><span className="w-16">Date</span> {invoiceDate}</div>
+           <div className="flex justify-between items-end mt-4 relative font-sans">
+              <div className="flex flex-col gap-1">
+                 <div className="flex"><span className="w-20">Place</span> Ahmedabad</div>
+                 <div className="flex"><span className="w-20">Date</span> {invoiceDate}</div>
               </div>
 
-              <div className="flex flex-col items-end gap-6 font-bold text-base absolute right-0 bottom-0">
+              <div className="flex flex-col items-end gap-16 absolute right-0 bottom-0">
                  <div>Gitakshmi Technologies Private Limited</div>
                  <div>Authorised Signatory</div>
               </div>
            </div>
 
-           <div className="flex justify-between font-bold text-gray-900 mt-6 pt-2 border-t border-gray-300">
+           <div className="flex justify-between text-gray-900 mt-auto pt-6">
               <div>E. & O.E</div>
-              <div className="text-gray-500 font-semibold text-xs pr-2">1 / 1</div>
            </div>
         </div>
 
@@ -442,5 +459,3 @@ export default function SalesOrderDetail() {
     </div>
   );
 }
-
-

@@ -2813,3 +2813,29 @@
 2026-05-26 11:52:47:5247 [warn] GST lookup provider failed for 08AAXFT5043K1ZG: Credit Not Available.
 2026-05-26 12:40:28:4028 [info] Login attempt for email: admin@gmail.com
 2026-05-26 15:01:11:111 [info] Login attempt for email: admin@gmail.com
+2026-05-26 15:51:42:5142 [info] Login attempt for email: admin@gmail.com
+2026-05-26 16:20:41:2041 [info] Login attempt for email: admin@gmail.com
+2026-05-26 18:33:01:331 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-26 18:33:03:333 [info] Server running in development mode on port 5000
+2026-05-26 18:33:03:333 [info] 🎯 Job Processor Initialized
+2026-05-26 18:33:04:334 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-26 18:33:04:334 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-26 18:33:04:334 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-26 18:33:04:334 [info] MongoDB connected successfully
+2026-05-26 18:33:30:3330 [info] Login attempt for email: admin@gmail.com
+2026-05-26 19:12:58:1258 [info] Login attempt for email: admin@gmail.com
+2026-05-27 09:53:42:5342 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-27 09:53:44:5344 [info] Server running in development mode on port 5000
+2026-05-27 09:53:44:5344 [info] 🎯 Job Processor Initialized
+2026-05-27 09:53:45:5345 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-27 09:53:45:5345 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-27 09:53:45:5345 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-27 09:53:48:5348 [info] MongoDB connected successfully
+2026-05-27 09:54:12:5412 [info] Login attempt for email: admin@gmail.com
+2026-05-27 10:11:27:1127 [info] Login attempt for email: admin@gmail.com
+2026-05-27 10:29:59:2959 [info] Login attempt for email: admin@gmail.com
+2026-05-27 10:32:15:3215 [info] Login attempt for email: admin@gmail.com
+2026-05-27 10:36:40:3640 [info] Login attempt for email: manassuthar507@gmail.com
+2026-05-27 10:36:40:3640 [warn] Login failed: Incorrect password for email: manassuthar507@gmail.com
+2026-05-27 10:36:51:3651 [info] Login attempt for email: manassuthar507@gmail.com
+2026-05-27 10:41:16:4116 [info] Login attempt for email: admin@gmail.com
