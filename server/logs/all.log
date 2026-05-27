@@ -2839,3 +2839,57 @@
 2026-05-27 10:36:40:3640 [warn] Login failed: Incorrect password for email: manassuthar507@gmail.com
 2026-05-27 10:36:51:3651 [info] Login attempt for email: manassuthar507@gmail.com
 2026-05-27 10:41:16:4116 [info] Login attempt for email: admin@gmail.com
+2026-05-27 10:59:07:597 [info] Login attempt for email: admin@gmail.com
+2026-05-27 11:30:54:3054 [info] Login attempt for email: admin@gmail.com
+2026-05-27 11:50:38:5038 [info] Login attempt for email: admin@gmail.com
+2026-05-27 12:46:55:4655 [info] Login attempt for email: admin@gmail.com
+2026-05-27 14:22:27:2227 [info] Login attempt for email: admin@gmail.com
+2026-05-27 14:39:16:3916 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-27 14:39:19:3919 [info] Server running in development mode on port 5000
+2026-05-27 14:39:19:3919 [info] 🎯 Job Processor Initialized
+2026-05-27 14:39:19:3919 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-27 14:39:19:3919 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-27 14:39:19:3919 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-27 14:39:20:3920 [info] MongoDB connected successfully
+2026-05-27 15:28:32:2832 [info] Login attempt for email: admin@gmail.com
+2026-05-27 15:36:05:365 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-27 15:36:10:3610 [info] Server running in development mode on port 5000
+2026-05-27 15:36:10:3610 [info] 🎯 Job Processor Initialized
+2026-05-27 15:36:11:3611 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-27 15:36:11:3611 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-27 15:36:11:3611 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-27 15:36:11:3611 [info] MongoDB connected successfully
+2026-05-27 15:46:07:467 [info] Login attempt for email: admin@gmail.com
+2026-05-27 15:51:14:5114 [info] Login attempt for email: manassuthar6@gmail.com
+2026-05-27 15:52:32:5232 [info] Login attempt for email: admin@gmail.com
+2026-05-27 16:00:34:034 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-27 16:00:38:038 [info] Server running in development mode on port 5000
+2026-05-27 16:00:38:038 [info] 🎯 Job Processor Initialized
+2026-05-27 16:00:38:038 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-27 16:00:38:038 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-27 16:00:38:038 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-27 16:00:39:039 [info] MongoDB connected successfully
+2026-05-27 16:08:18:818 [info] Login attempt for email: admin@gmail.com
+2026-05-27 16:14:28:1428 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-27 16:14:30:1430 [info] Server running in development mode on port 5000
+2026-05-27 16:14:30:1430 [info] 🎯 Job Processor Initialized
+2026-05-27 16:14:31:1431 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-27 16:14:31:1431 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-27 16:14:31:1431 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-27 16:14:31:1431 [info] MongoDB connected successfully
+2026-05-27 16:38:23:3823 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-27 16:38:24:3824 [info] Server running in development mode on port 5000
+2026-05-27 16:38:24:3824 [info] 🎯 Job Processor Initialized
+2026-05-27 16:38:24:3824 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-27 16:38:24:3824 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-27 16:38:24:3824 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-27 16:38:25:3825 [info] MongoDB connected successfully
+2026-05-27 16:38:31:3831 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-27 16:38:33:3833 [info] Server running in development mode on port 5000
+2026-05-27 16:38:33:3833 [info] 🎯 Job Processor Initialized
+2026-05-27 16:38:33:3833 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-27 16:38:33:3833 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-27 16:38:33:3833 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-27 16:38:33:3833 [info] MongoDB connected successfully
+2026-05-27 16:42:30:4230 [info] Login attempt for email: manassuthar6@gmail.com
+2026-05-27 16:49:31:4931 [info] Login attempt for email: admin@gmail.com

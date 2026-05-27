@@ -180,15 +180,25 @@ exports.acceptQuotation = asyncHandler(async (req, res, next) => {
 
     console.log(`[Quotation] Creating Contract & ${orderType}...`);
     
-    // Calculate Sequential Order Number
-    const existingCount = await PurchaseOrder.countDocuments({ tenantId: req.user.tenantId, orderType: orderType });
-    
     // Build Number based on settings
-    const prefix = orderType === "SO" ? (settings.soPrefix || "SO-") : (settings.poPrefix || "PO-");
-    const suffix = orderType === "SO" ? (settings.soSuffix || "") : (settings.poSuffix || "");
-    const startNum = orderType === "SO" ? (settings.soStartNumber || 1) : (settings.poStartNumber || 1);
+    const prefix = orderType === "SO" ? (doc.soPrefix ?? settings.soPrefix ?? "SO-") : (doc.poPrefix ?? settings.poPrefix ?? "PO-");
+    const suffix = orderType === "SO" ? (doc.soSuffix ?? settings.soSuffix ?? "") : (doc.poSuffix ?? settings.poSuffix ?? "");
+    const startNum = orderType === "SO" ? (doc.soStartNumber ?? settings.soStartNumber ?? 1) : (doc.poStartNumber ?? settings.poStartNumber ?? 1);
     
-    const nextSeq = startNum + existingCount;
+    // Calculate Sequential Order Number using nextPONumber if available, otherwise fallback to existingCount
+    let nextSeq;
+    if (orderType === "SO" && doc.nextSONumber) {
+        nextSeq = doc.nextSONumber;
+        doc.nextSONumber += 1;
+        await doc.save();
+    } else if (orderType === "PO" && doc.nextPONumber) {
+        nextSeq = doc.nextPONumber;
+        doc.nextPONumber += 1;
+        await doc.save();
+    } else {
+        const existingCount = await PurchaseOrder.countDocuments({ tenantId: req.user.tenantId, orderType: orderType });
+        nextSeq = startNum + existingCount;
+    }
     const orderNumber = `${prefix}${nextSeq.toString().padStart(4, '0')}${suffix}`;
     
     const contractNumber = `CNT-${Date.now().toString().slice(-6)}-${rfq._id.toString().slice(-4)}`.toUpperCase();
@@ -212,10 +222,13 @@ exports.acceptQuotation = asyncHandler(async (req, res, next) => {
     const poItems = quotation.items.map(quoteItem => {
         const rfqItem = rfq.items.find(ri => String(ri._id) === String(quoteItem.rfqItemId));
         return {
-            name: quoteItem.notes || rfqItem?.name || "Operational Requirement",
+            name: rfqItem?.name || quoteItem.notes || "Operational Requirement",
             quantity: rfqItem?.quantity || 1,
             unitPrice: quoteItem.unitPrice,
-            totalPrice: quoteItem.unitPrice * (rfqItem?.quantity || 1)
+            totalPrice: quoteItem.unitPrice * (rfqItem?.quantity || 1),
+            specifications: rfqItem?.specifications || "",
+            uom: rfqItem?.unit || "Nos",
+            hsn: quoteItem.hsn || ""
         };
     });
 

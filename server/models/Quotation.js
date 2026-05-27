@@ -18,6 +18,7 @@ const quotationSchema = new mongoose.Schema(
                 unitPrice: Number,
                 totalPrice: Number,
                 notes: String,
+                hsn: String,
             },
         ],
         totalAmount: {
