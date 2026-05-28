@@ -50,9 +50,12 @@ const treeFormSchema = new mongoose.Schema(
       enum: ["draft", "published"],
       default: "draft",
     },
+    tenantId: { type: mongoose.Schema.Types.ObjectId, ref: "Company", index: true },
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   },
   { timestamps: true }
 );
+
+treeFormSchema.index({ tenantId: 1, status: 1 });
 
 module.exports = mongoose.model("TreeForm", treeFormSchema);

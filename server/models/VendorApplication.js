@@ -20,6 +20,11 @@ const vendorApplicationSchema = new mongoose.Schema(
             type: mongoose.Schema.Types.ObjectId,
             ref: "Category"
         },
+        tenantId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Company",
+            index: true
+        },
         invitationToken: {
             type: String,
             index: true
@@ -74,15 +79,16 @@ const vendorApplicationSchema = new mongoose.Schema(
             default: "draft",
         },
         approvedAt: Date,
-        approvedBy: { type: mongoose.Schema.Types.ObjectId, ref: "Admin" },
+        approvedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+        vendorId: { type: mongoose.Schema.Types.ObjectId, ref: "Vendor", index: true },
         rejectedAt: Date,
-        rejectedBy: { type: mongoose.Schema.Types.ObjectId, ref: "Admin" },
+        rejectedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
         approvalHistory: [
             {
                 stage: String,
                 approver: {
                     type: mongoose.Schema.Types.ObjectId,
-                    ref: "Admin",
+                    ref: "User",
                 },
                 status: {
                     type: String,
@@ -107,7 +113,7 @@ const vendorApplicationSchema = new mongoose.Schema(
                 },
                 reviewedBy: {
                     type: mongoose.Schema.Types.ObjectId,
-                    ref: "Admin"
+                    ref: "User"
                 },
                 reviewedAt: Date,
                 remarks: String
@@ -140,6 +146,8 @@ const vendorApplicationSchema = new mongoose.Schema(
 vendorApplicationSchema.index({ riskLevel: 1 });
 vendorApplicationSchema.index({ category: 1 });
 vendorApplicationSchema.index({ status: 1 });
+vendorApplicationSchema.index({ tenantId: 1, status: 1 });
+vendorApplicationSchema.index({ tenantId: 1, email: 1 });
 vendorApplicationSchema.index({ "documents.expiryDate": 1 });
 vendorApplicationSchema.index({ "workflowStages.stageOrder": 1 });
 

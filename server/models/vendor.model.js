@@ -13,6 +13,11 @@ const vendorSchema = new mongoose.Schema(
             unique: true,
             sparse: true
         },
+        userId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+            index: true,
+        },
         email: {
             type: String,
             required: [true, "Vendor email is required"],
@@ -32,6 +37,15 @@ const vendorSchema = new mongoose.Schema(
         companyName: {
             type: String,
             trim: true,
+        },
+        contactPerson: {
+            type: String,
+            trim: true,
+        },
+        serviceType: {
+            type: String,
+            trim: true,
+            default: "General",
         },
         gstNumber: {
             type: String,
@@ -136,6 +150,54 @@ const vendorSchema = new mongoose.Schema(
             ifscCode: String,
             branchName: String,
         },
+        companyDetails: {
+            website: String,
+            establishmentYear: Number,
+            natureOfBusiness: String,
+            employeeCount: Number,
+            registeredAddress: String,
+        },
+        contactDetails: {
+            name: String,
+            designation: String,
+            mobile: String,
+            email: String,
+            alternateContact: String,
+        },
+        statutoryDetails: {
+            panNumber: String,
+            gstNumber: String,
+            registrationType: String,
+            msmeNumber: String,
+            msmeCategory: String,
+        },
+        taxDetails: {
+            itrLast3Years: String,
+            taxResidencyCert: String,
+            vatNumber: String,
+        },
+        complianceDetails: {
+            antiBribery: Boolean,
+            noConflict: Boolean,
+            dataPrivacy: Boolean,
+        },
+        documents: [
+            {
+                name: String,
+                url: String,
+                public_id: String,
+                fieldName: String,
+                status: {
+                    type: String,
+                    enum: ["pending", "verified", "rejected"],
+                    default: "pending",
+                },
+            },
+        ],
+        contractsCount: {
+            type: Number,
+            default: 0,
+        },
     },
     {
         timestamps: true,
@@ -154,5 +216,9 @@ vendorSchema.virtual("onTimeDeliveryPercentage").get(function () {
 vendorSchema.pre(/^find/, async function () {
     this.find({ isDeleted: { $ne: true } });
 });
+
+vendorSchema.index({ tenantId: 1, email: 1 });
+vendorSchema.index({ tenantId: 1, status: 1 });
+vendorSchema.index({ tenantId: 1, category: 1, lifecycleStatus: 1 });
 
 module.exports = mongoose.models.Vendor || mongoose.model("Vendor", vendorSchema);

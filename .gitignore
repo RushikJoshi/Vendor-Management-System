@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+client/node_modules/
+server/node_modules/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+client/.env
+server/.env
+
+# Logs and runtime output
+logs/
+*.log
+server/logs/
+server/uploads/
+uploads/
+
+# Build output and caches
+dist/
+client/dist/
+client/.vite/
+server/public/assets/
+*.zip
+
+# Local scratch and generated document extraction
+tmp/
+scratch/
+po_extracted/
+*.docx
+*.pdf
+
+# OS/editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

@@ -89,16 +89,14 @@ export default function Clients() {
       <Modal open={!!loginModalData} onClose={() => setLoginModalData(null)} title="Client Login Credentials" size="max-w-sm">
         {loginModalData && (
           <div className="space-y-4">
-             <div className="p-4 bg-yellow-50 text-yellow-800 rounded-xl text-[13px] border border-yellow-200">
-                Please copy these credentials and share them securely with the client. The password will not be shown again.
+             <div className={`p-4 rounded-xl text-[13px] border ${loginModalData.emailSent ? "bg-emerald-50 text-emerald-800 border-emerald-200" : "bg-yellow-50 text-yellow-800 border-yellow-200"}`}>
+                {loginModalData.emailSent
+                  ? "The client login was created and the temporary password was sent by email."
+                  : "The client login was created, but the credential email could not be sent. Check SMTP settings before asking the client to log in."}
              </div>
              <div>
                 <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Email / Username</label>
                 <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 font-medium text-sm">{loginModalData.email}</div>
-             </div>
-             <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Temporary Password</label>
-                <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 font-mono font-bold text-lg tracking-widest text-indigo-600">{loginModalData.password}</div>
              </div>
              <div className="pt-4 flex justify-end">
                <button onClick={() => setLoginModalData(null)} className="px-5 py-2.5 text-sm font-bold text-white bg-indigo-600 rounded-xl hover:bg-indigo-700 transition">Close</button>

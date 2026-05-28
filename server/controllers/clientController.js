@@ -3,15 +3,32 @@ const User = require("../models/User");
 const asyncHandler = require("../utils/asyncHandler");
 const AppError = require("../utils/AppError");
 const sendEmail = require("../utils/email");
+const configs = require("../config/env");
+
+const sanitizeClientPayload = (payload = {}) => ({
+    name: payload.name,
+    companyName: payload.companyName,
+    email: payload.email ? String(payload.email).trim().toLowerCase() : payload.email,
+    phone: payload.phone,
+    address: payload.address,
+    gstin: payload.gstin,
+});
 
 // @desc    Create new client
 // @route   POST /api/clients
 // @access  Private
 exports.createClient = asyncHandler(async (req, res, next) => {
-    req.body.tenantId = req.user.tenantId;
-    req.body.createdBy = req.user._id;
+    const payload = sanitizeClientPayload(req.body);
+    const existing = await Client.findOne({ tenantId: req.user.tenantId, email: payload.email });
+    if (existing) {
+        return next(new AppError("Client with this email already exists for this tenant.", 400));
+    }
 
-    const client = await Client.create(req.body);
+    const client = await Client.create({
+        ...payload,
+        tenantId: req.user.tenantId,
+        createdBy: req.user._id,
+    });
 
     res.status(201).json({
         success: true,
@@ -65,7 +82,7 @@ exports.updateClient = asyncHandler(async (req, res, next) => {
         return next(new AppError("Client not found", 404));
     }
 
-    client = await Client.findByIdAndUpdate(req.params.id, req.body, {
+    client = await Client.findByIdAndUpdate(req.params.id, sanitizeClientPayload(req.body), {
         new: true,
         runValidators: true,
     });
@@ -115,14 +132,14 @@ exports.createClientLogin = asyncHandler(async (req, res, next) => {
     }
 
     // Check if user already exists
-    let user = await User.findOne({ email: client.email });
+    let user = await User.findOne({ email: client.email, tenantId: req.user.tenantId });
     if (user) {
         return next(new AppError("A user with this email already exists", 400));
     }
 
-    // Generate a random password (8 characters)
+    // Generate a cryptographically strong temporary password.
     const crypto = require("crypto");
-    const generatedPassword = crypto.randomBytes(4).toString("hex");
+    const generatedPassword = crypto.randomBytes(12).toString("base64url");
 
     // Create user
     user = await User.create({
@@ -135,6 +152,7 @@ exports.createClientLogin = asyncHandler(async (req, res, next) => {
         mustChangePassword: true
     });
 
+    let emailSent = false;
     try {
         const emailHtml = `
         <div style="font-family: 'Inter', Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
@@ -161,7 +179,7 @@ exports.createClientLogin = asyncHandler(async (req, res, next) => {
             </div>
 
             <div style="text-align: center; margin-bottom: 32px;">
-              <a href="${process.env.CLIENT_URL || 'http://localhost:5173'}/login" style="background-color: #4f46e5; color: white; text-decoration: none; padding: 14px 28px; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block;">Access Client Portal</a>
+              <a href="${configs.FRONTEND_URL || 'http://localhost:5173'}/login" style="background-color: #4f46e5; color: white; text-decoration: none; padding: 14px 28px; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block;">Access Client Portal</a>
             </div>
 
             <p style="font-size: 14px; color: #64748b; margin-bottom: 0; text-align: center; border-top: 1px solid #f1f5f9; padding-top: 24px;"><em>For your security, please log in and change your password immediately.</em></p>
@@ -177,16 +195,19 @@ exports.createClientLogin = asyncHandler(async (req, res, next) => {
             subject: "Your Client Portal Login Credentials",
             html: emailHtml
         });
+        emailSent = true;
     } catch (err) {
         console.error("Failed to send email to client:", err.message);
     }
 
     res.status(201).json({
         success: true,
-        message: "Client login created successfully",
+        message: emailSent
+            ? "Client login created successfully. Temporary credentials were sent by email."
+            : "Client login created, but credential email could not be sent.",
         data: {
             email: user.email,
-            password: generatedPassword
+            emailSent,
         }
     });
 });

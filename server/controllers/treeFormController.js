@@ -174,6 +174,7 @@ exports.createForm = async (req, res) => {
       version,
       structure,
       status,
+      tenantId: req.user?.tenantId,
       createdBy: req.user?._id,
     });
 
@@ -196,6 +197,7 @@ exports.createDefaultForm = async (req, res) => {
 
     const created = await TreeForm.create({
       ...defaultVendorTemplate,
+      tenantId: req.user?.tenantId,
       createdBy: req.user?._id,
     });
 
@@ -228,7 +230,9 @@ exports.createDefaultForm = async (req, res) => {
 
 exports.getFormById = async (req, res) => {
   try {
-    const form = await TreeForm.findById(req.params.id);
+    const filter = { _id: req.params.id };
+    if (req.user?.tenantId) filter.tenantId = req.user.tenantId;
+    const form = await TreeForm.findOne(filter);
     if (!form) return res.status(404).json({ success: false, message: "Form not found." });
     return res.status(200).json({ success: true, data: form });
   } catch (error) {
@@ -238,7 +242,9 @@ exports.getFormById = async (req, res) => {
 
 exports.getForms = async (req, res) => {
   try {
-    const forms = await TreeForm.find().sort({ createdAt: -1 });
+    const filter = {};
+    if (req.user?.tenantId) filter.tenantId = req.user.tenantId;
+    const forms = await TreeForm.find(filter).sort({ createdAt: -1 });
     return res.status(200).json({ success: true, data: forms });
   } catch (error) {
     return res.status(500).json({ success: false, message: error.message });
@@ -249,7 +255,9 @@ exports.updateForm = async (req, res) => {
   try {
     const { id } = req.params;
     const { name, categoryName, structure, status, version } = req.body;
-    const form = await TreeForm.findById(id);
+    const filter = { _id: id };
+    if (req.user?.tenantId) filter.tenantId = req.user.tenantId;
+    const form = await TreeForm.findOne(filter);
     if (!form) return res.status(404).json({ success: false, message: "Form not found." });
 
     form.name = name || form.name;
@@ -462,6 +470,7 @@ exports.submitForm = async (req, res) => {
         formName: form.name,
         categoryName: form.categoryName || "",
         category: resolvedCategoryId,
+        tenantId: form.tenantId,
         data,
         status: "pending",
         vendorEmail: (emailEntry?.value || "").toString().trim().toLowerCase(),
@@ -478,10 +487,11 @@ exports.getSubmissions = async (req, res) => {
   try {
     const VendorApplication = require("../models/VendorApplication");
     const FormTemplate = require("../models/FormTemplate");
+    const tenantFilter = req.user?.tenantId ? { tenantId: req.user.tenantId } : {};
 
     const [treeRows, appRows] = await Promise.all([
-      TreeSubmission.find().sort({ createdAt: -1 }),
-      VendorApplication.find().populate("category", "name").populate("formTemplate").sort({ createdAt: -1 }),
+      TreeSubmission.find(tenantFilter).sort({ createdAt: -1 }),
+      VendorApplication.find(tenantFilter).populate("category", "name").populate("formTemplate").sort({ createdAt: -1 }),
     ]);
 
     // Harmonize VendorApplication records to match TreeSubmission shape
@@ -614,14 +624,15 @@ exports.getSubmissions = async (req, res) => {
 
 exports.getSubmissionById = async (req, res) => {
   try {
-    const row = await TreeSubmission.findById(req.params.id).populate("formId", "name structure");
+    const tenantFilter = req.user?.tenantId ? { tenantId: req.user.tenantId } : {};
+    const row = await TreeSubmission.findOne({ _id: req.params.id, ...tenantFilter }).populate("formId", "name structure");
     if (row) {
       return res.status(200).json({ success: true, data: { ...row.toObject(), _source: "tree" } });
     }
 
     // Fallback: try VendorApplication
     const VendorApplication = require("../models/VendorApplication");
-    const app = await VendorApplication.findById(req.params.id).populate("category", "name").populate("formTemplate");
+    const app = await VendorApplication.findOne({ _id: req.params.id, ...tenantFilter }).populate("category", "name").populate("formTemplate");
     if (!app) {
       return res.status(404).json({ success: false, message: "Submission not found." });
     }

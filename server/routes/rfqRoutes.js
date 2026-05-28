@@ -8,6 +8,7 @@ const {
     updateRFQStatus,
     sendRFQToVendors,
     reviewRFQ,
+    deleteRFQ,
 } = require("../controllers/rfqController");
 const { protect } = require("../middlewares/auth.middleware");
 const { restrictToTenant } = require("../middlewares/tenant.middleware");
@@ -23,7 +24,8 @@ router.route("/")
 
 router.route("/:id")
     .get(checkAnyActionAccess("rfq_view", "vendor_rfq_view"), getRFQDetails)
-    .patch(checkActionAccess("rfq_create"), updateRFQ);
+    .patch(checkActionAccess("rfq_create"), updateRFQ)
+    .delete(checkActionAccess("rfq_manage"), deleteRFQ);
 
 router.patch("/:id/status", checkAnyActionAccess("rfq_create", "rfq_approve"), updateRFQStatus);
 router.post("/:id/review", checkActionAccess("rfq_approve"), reviewRFQ);
