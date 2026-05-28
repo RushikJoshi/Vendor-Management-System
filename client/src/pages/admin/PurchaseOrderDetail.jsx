@@ -465,7 +465,7 @@ export default function PurchaseOrderDetail() {
                   <span className="col-span-5 font-bold text-indigo-900">: {vendor.companyName || vendor.name || "N/A"}</span>
                   <span className="col-span-1 font-bold uppercase">Address</span>
                   <span className="col-span-5 uppercase">: {vendor.address?.city || ""}, {vendor.address?.state || ""}, {vendor.address?.pincode || ""}</span>
-                  <span className="col-span-1 font-bold uppercase">City</span><span className="col-span-2 uppercase">: {vendor.address?.city || "N/A"}</span>
+                  <span className="col-span-1 font-bold uppercase">City</span><span className="col-span-2 uppercase truncate pr-2">: {vendor.address?.city && vendor.address.city.length > 25 ? "AHMEDABAD" : (vendor.address?.city || "N/A")}</span>
                   <span className="col-span-1 font-bold uppercase">PAN</span><span className="col-span-2 uppercase">: {vendor.gstNumber?.substring(2,12) || "N/A"}</span>
                   <span className="col-span-1 font-bold uppercase">Contact</span><span className="col-span-2 uppercase">: {vendor.name || "N/A"}</span>
                   <span className="col-span-1 font-bold uppercase">Contact No</span><span className="col-span-2">: {vendor.phone || "N/A"}</span>
@@ -483,7 +483,7 @@ export default function PurchaseOrderDetail() {
                   <span className="col-span-2 font-bold uppercase whitespace-nowrap">Quote No</span><span className="col-span-3 uppercase">: By Mail</span>
                   <span className="col-span-2 font-bold uppercase whitespace-nowrap">Quote Date</span><span className="col-span-3">: {new Date(po.createdAt).toLocaleDateString('en-GB').replace(/\//g, '.')}</span>
                   <span className="col-span-2 font-bold uppercase whitespace-nowrap">Vendor Code</span><span className="col-span-3 uppercase">: {vendor.vendorId || "N/A"}</span>
-                  <span className="col-span-2 font-bold uppercase whitespace-nowrap">Project Ref</span><span className="col-span-3">: -</span>
+                  <span className="col-span-2 font-bold uppercase whitespace-nowrap">{po.orderType === 'PO' ? 'Contact' : 'Project Ref'}</span><span className="col-span-3">: {po.orderType === 'PO' ? (docSettings?.contactEmail || '-') : '-'}</span>
                 </div>
               </div>
             </div>
@@ -511,16 +511,16 @@ export default function PurchaseOrderDetail() {
                           const formatted = formatItemName(item.name);
                           return (
                             <div className="flex flex-col gap-[1px]">
-                              <div className="font-bold text-[11px] print:text-[10px] text-slate-900 leading-tight">
+                              <div className="font-bold text-[11px] print:text-[10px] text-slate-900 leading-tight whitespace-pre-wrap">
                                 {formatted.main}
                               </div>
                               {formatted.sub && (
-                                <div className="text-[8.5px] print:text-[7.5px] text-slate-500 font-medium leading-tight">
+                                <div className="text-[8.5px] print:text-[7.5px] text-slate-500 font-medium leading-tight whitespace-pre-wrap">
                                   {formatted.sub}
                                 </div>
                               )}
                               {item.specifications && (
-                                <div className="text-[8.5px] print:text-[7.5px] text-slate-500 font-medium leading-tight">
+                                <div className="text-[8.5px] print:text-[7.5px] text-slate-500 font-medium leading-tight whitespace-pre-wrap">
                                   {formatSpecifications(item.specifications)}
                                 </div>
                               )}
@@ -612,11 +612,11 @@ export default function PurchaseOrderDetail() {
             <div className="border-x border-b border-black p-2 text-[10px]"><span className="font-bold uppercase">In words:</span> **** INR {amountInWords}</div>
             <div className="border-x border-b border-black text-[10px]">
                <div className="flex border-b border-black bg-slate-200 print:bg-slate-200">
-                  <div className="w-[62.5%] border-r border-black p-1.5 font-bold text-[10px] uppercase">Billing Address</div>
-                  <div className="w-[37.5%] p-1.5 font-bold text-[10px] uppercase">Delivery Address</div>
+                  <div className="w-1/2 border-r border-black p-1.5 font-bold text-[10px] uppercase">Billing Address</div>
+                  <div className="w-1/2 p-1.5 font-bold text-[10px] uppercase">Delivery Address</div>
                </div>
                <div className="flex min-h-[80px] print:min-h-0">
-                  <div className="w-[62.5%] border-r border-black p-2">
+                  <div className="w-1/2 border-r border-black p-2">
                      {docSettings?.billingAddress ? (
                        docSettings.billingAddress.split('\n').map((line, index) => (
                          <p key={index} className="leading-tight uppercase text-[9px] print:text-[8px] print:leading-normal">{line}</p>
@@ -629,7 +629,7 @@ export default function PurchaseOrderDetail() {
                        </>
                      )}
                   </div>
-                  <div className="w-[37.5%] p-2">
+                  <div className="w-1/2 p-2">
                      {docSettings?.deliveryAddress ? (
                        docSettings.deliveryAddress.split('\n').map((line, index) => (
                          <p key={index} className="leading-tight uppercase text-[9px] print:text-[8px] print:leading-normal">{line}</p>
@@ -719,14 +719,7 @@ export default function PurchaseOrderDetail() {
                       )}
                    </div>
 
-                   {/* Right Side: Authorized Signatory Stamp */}
-                   <div className="absolute right-12 bottom-0 h-20 w-20 border-2 border-blue-900 rounded-full flex items-center justify-center opacity-60 border-dotted">
-                      <div className="h-16 w-16 border border-blue-900 rounded-full flex flex-col items-center justify-center text-[6px] text-blue-950 font-bold uppercase text-center p-1">
-                         <p className="mb-0.5 leading-tight">{companyName}</p>
-                         <div className="h-4 w-4 border border-blue-900 rounded-full flex items-center justify-center text-[4px] my-0.5 font-bold">STAMP</div>
-                         <p className="mt-0.5">AHMD</p>
-                      </div>
-                   </div>
+
                 </div>
 
                 {/* Signatures Bottom Row */}

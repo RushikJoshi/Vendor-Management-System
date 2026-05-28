@@ -50,7 +50,8 @@ export default function SubmitQuotation() {
                             name: item.name,
                             quantity: item.quantity,
                             unit: item.unit,
-                            unitPrice: 0
+                            unitPrice: 0,
+                            hsn: ""
                         }))
                     }));
                 }
@@ -79,7 +80,8 @@ export default function SubmitQuotation() {
                     name: item.name,
                     quantity: item.quantity,
                     unit: item.unit,
-                    unitPrice: 0
+                    unitPrice: 0,
+                    hsn: ""
                 }))
             });
         } catch {
@@ -87,6 +89,12 @@ export default function SubmitQuotation() {
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleHsnChange = (index, value) => {
+        const newItems = [...formData.items];
+        newItems[index].hsn = value;
+        setFormData({ ...formData, items: newItems });
     };
 
     const handlePriceChange = (index, value) => {
@@ -170,10 +178,22 @@ export default function SubmitQuotation() {
                     <SectionCard title="Requirement Price Matrix" description="Provide your best unit price for each requested item. All values in INR.">
                         <div className="divide-y divide-slate-100 border-t border-slate-100">
                             {formData.items.length > 0 ? formData.items.map((item, idx) => (
-                                <div key={idx} className="p-6 grid grid-cols-1 md:grid-cols-[1fr_180px_140px] gap-6 items-center hover:bg-slate-50/30 transition">
+                                <div key={idx} className="p-6 grid grid-cols-1 md:grid-cols-[1fr_140px_160px_120px] lg:grid-cols-[1fr_120px_180px_120px] gap-6 items-center hover:bg-slate-50/30 transition">
                                     <div>
                                         <p className="text-[14px] font-semibold text-slate-900">{item.name}</p>
                                         <p className="text-[12px] font-medium text-slate-500 mt-1">{item.quantity} {item.unit} Required</p>
+                                    </div>
+                                    <div>
+                                        <div className="relative">
+                                            <input 
+                                                type="text"
+                                                placeholder="HSN/SAC"
+                                                value={item.hsn || ""}
+                                                onChange={(e) => handleHsnChange(idx, e.target.value)}
+                                                className={cn(inputClass, "font-semibold bg-white")}
+                                                required
+                                            />
+                                        </div>
                                     </div>
                                     <div>
                                         <div className="relative">
