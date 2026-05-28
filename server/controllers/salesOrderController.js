@@ -6,7 +6,7 @@ const SequenceService = require("../services/SequenceService");
 const { normalizeRole } = require("../config/roles");
 
 const ORDER_STATUSES = ["Draft", "Sent", "Accepted", "Invoiced", "Paid", "Cancelled"];
-const CLIENT_VISIBLE_STATUSES = ["Sent", "Accepted", "Invoiced", "Paid", "Cancelled"];
+const CLIENT_VISIBLE_STATUSES = ["Draft", "Sent", "Accepted", "Invoiced", "Paid", "Cancelled"];
 
 // Mock PDF Generator for Sales Order
 const generateSalesOrderPDF = async (soData) => {
@@ -186,8 +186,8 @@ exports.paySalesOrder = asyncHandler(async (req, res, next) => {
     if (salesOrder.status === 'Paid') {
         return next(new AppError("Order is already paid", 400));
     }
-    if (!["Sent", "Accepted", "Invoiced"].includes(salesOrder.status)) {
-        return next(new AppError("Only sent, accepted or invoiced sales orders can be paid.", 400));
+    if (!["Draft", "Sent", "Accepted", "Invoiced"].includes(salesOrder.status)) {
+        return next(new AppError("Only draft, sent, accepted or invoiced sales orders can be paid.", 400));
     }
     if (!paymentMethod) {
         return next(new AppError("Payment method is required.", 400));

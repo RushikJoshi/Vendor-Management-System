@@ -6,6 +6,7 @@ import VendorLayout from "./layouts/VendorLayout";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import ClientLayout from "./layouts/ClientLayout";
 
+import ClientLogin from "./pages/public/ClientLogin";
 import Login from "./pages/public/Login";
 // Legacy Register removed in favor of RegistrationWizard
 
@@ -68,6 +69,7 @@ import ClientDashboard from "./pages/client/ClientDashboard";
 import ClientOrders from "./pages/client/ClientOrders";
 import ClientChangePassword from "./pages/client/ClientChangePassword";
 import ClientPaymentCheckout from "./pages/client/ClientPaymentCheckout";
+import ClientSettings from "./pages/client/ClientSettings";
 
 import AboutUs from "./pages/public/AboutUs";
 
@@ -99,6 +101,7 @@ function App() {
             <Route path="/" element={<Navigate to="/login" replace />} />
             <Route path="/about" element={<AboutUs />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/client/login" element={<ClientLogin />} />
             <Route path="/register" element={<RegistrationWizard />} />
             <Route path="/register/:formId" element={<RegistrationWizard />} />
             <Route path="/vendor/register" element={<RegistrationWizard />} />
@@ -206,8 +209,15 @@ function App() {
           >
             <Route path="dashboard" element={<ClientDashboard />} />
             <Route path="orders" element={<ClientOrders />} />
+            <Route path="pending-payments" element={<ClientOrders />} />
             <Route path="orders/:id" element={<SalesOrderDetail />} />
             <Route path="orders/:id/pay" element={<ClientPaymentCheckout />} />
+            
+            {/* Account Settings Routes */}
+            <Route path="profile" element={<ClientSettings />} />
+            <Route path="settings" element={<ClientSettings />} />
+            <Route path="activity" element={<ClientSettings />} />
+            
             <Route path="*" element={<Navigate to="/client/dashboard" replace />} />
           </Route>
 

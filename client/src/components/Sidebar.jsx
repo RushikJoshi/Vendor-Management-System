@@ -20,7 +20,7 @@ export default function Sidebar({
   const groups = [
     {
       title: "Core",
-      items: links.filter(l => ["Dashboard", "Applications", "My Profile"].includes(l.label))
+      items: links.filter(l => ["Dashboard", "Applications", "My Profile", "My Orders", "Pending Payments"].includes(l.label))
     },
     {
       title: "Management",

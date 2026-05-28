@@ -27,9 +27,19 @@ export default function Navbar({
   const isVendor = String(user?.role || "").toLowerCase() === "vendor";
 
   const handleProfileAction = (action) => {
-    if (isVendor) {
+    const role = String(user?.role || "").toLowerCase();
+    
+    if (role === "vendor") {
       if (action === "profile") navigate("/vendor/change-password");
       else navigate("/vendor/dashboard");
+      setIsProfileOpen(false);
+      return;
+    }
+
+    if (role === "client") {
+      if (action === "profile") navigate("/client/profile");
+      if (action === "settings") navigate("/client/settings");
+      if (action === "activity") navigate("/client/activity");
       setIsProfileOpen(false);
       return;
     }

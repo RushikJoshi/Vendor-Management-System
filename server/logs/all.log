@@ -2895,3 +2895,94 @@
 2026-05-27 16:49:31:4931 [info] Login attempt for email: admin@gmail.com
 2026-05-27 17:55:58:5558 [info] Login attempt for email: admin@gmail.com
 2026-05-27 18:11:25:1125 [info] Login attempt for email: admin@gmail.com
+2026-05-28 11:28:17:2817 [info] Attempting to connect to MongoDB: mongodb://127.0.0.1:27017/vendor_management
+2026-05-28 11:28:19:2819 [info] Server running in development mode on port 5000
+2026-05-28 11:28:19:2819 [info] 🎯 Job Processor Initialized
+2026-05-28 11:28:19:2819 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-28 11:28:19:2819 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-28 11:28:19:2819 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-28 11:28:19:2819 [info] MongoDB connected successfully
+2026-05-28 11:29:29:2929 [info] Login attempt received
+2026-05-28 11:29:29:2929 [warn] Login failed: user not found
+2026-05-28 11:29:34:2934 [info] Login attempt received
+2026-05-28 11:29:34:2934 [warn] Login failed: user not found
+2026-05-28 11:29:39:2939 [info] Login attempt received
+2026-05-28 11:29:39:2939 [warn] Login failed: user not found
+2026-05-28 11:30:03:303 [info] Login attempt received
+2026-05-28 11:30:03:303 [warn] Login failed: user not found
+2026-05-28 11:30:27:3027 [info] Login attempt received
+2026-05-28 11:30:27:3027 [warn] Login failed: user not found
+2026-05-28 11:30:53:3053 [info] Login attempt received
+2026-05-28 11:30:53:3053 [warn] Login failed: user not found
+2026-05-28 11:30:56:3056 [info] Attempting to connect to MongoDB: mongodb://127.0.0.1:27017/vendor_management
+2026-05-28 11:30:57:3057 [info] Server running in development mode on port 5000
+2026-05-28 11:30:57:3057 [info] 🎯 Job Processor Initialized
+2026-05-28 11:30:57:3057 [info] Login attempt received
+2026-05-28 11:30:57:3057 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-28 11:30:57:3057 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-28 11:30:57:3057 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-28 11:30:57:3057 [info] MongoDB connected successfully
+2026-05-28 11:30:58:3058 [warn] Login failed: user not found
+2026-05-28 11:31:27:3127 [info] Login attempt received
+2026-05-28 11:34:15:3415 [info] Attempting to connect to MongoDB: mongodb://127.0.0.1:27017/vendor_management
+2026-05-28 11:34:17:3417 [info] Server running in development mode on port 5000
+2026-05-28 11:34:17:3417 [info] 🎯 Job Processor Initialized
+2026-05-28 11:34:17:3417 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-28 11:34:17:3417 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-28 11:34:17:3417 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-28 11:34:17:3417 [info] MongoDB connected successfully
+2026-05-28 11:35:39:3539 [info] Login attempt received
+2026-05-28 11:35:39:3539 [warn] Login failed: invalid password for user 6a17da214e457e0e27745b08
+2026-05-28 11:35:42:3542 [info] Login attempt received
+2026-05-28 11:40:21:4021 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-28 11:40:22:4022 [info] Server running in development mode on port 5000
+2026-05-28 11:40:22:4022 [info] 🎯 Job Processor Initialized
+2026-05-28 11:40:22:4022 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-28 11:40:22:4022 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-28 11:40:22:4022 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-28 11:40:23:4023 [info] MongoDB connected successfully
+2026-05-28 11:40:59:4059 [info] Login attempt received
+2026-05-28 11:52:11:5211 [info] Login attempt received
+2026-05-28 11:52:29:5229 [info] Login attempt received
+2026-05-28 11:52:30:5230 [warn] Login failed: invalid password for user 69f0a1f1c73c30fec8615ff3
+2026-05-28 11:52:42:5242 [info] Login attempt received
+2026-05-28 11:58:02:582 [info] Login attempt received
+2026-05-28 11:58:19:5819 [info] Login attempt received
+2026-05-28 12:16:10:1610 [info] Login attempt received
+2026-05-28 12:20:50:2050 [info] Login attempt received
+2026-05-28 12:20:50:2050 [warn] Login failed: invalid password for user 6a1039e9c124a1fd60dd9bf6
+2026-05-28 12:20:50:2050 [info] Login attempt received
+2026-05-28 12:20:50:2050 [warn] Login failed: invalid password for user 6a1039e9c124a1fd60dd9bf6
+2026-05-28 12:20:50:2050 [info] Login attempt received
+2026-05-28 12:20:51:2051 [warn] Login failed: invalid password for user 6a1039e9c124a1fd60dd9bf6
+2026-05-28 12:20:51:2051 [info] Login attempt received
+2026-05-28 12:20:51:2051 [warn] Login failed: invalid password for user 6a1039e9c124a1fd60dd9bf6
+2026-05-28 12:20:56:2056 [info] Login attempt received
+2026-05-28 12:30:44:3044 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-28 12:30:46:3046 [info] Server running in development mode on port 5000
+2026-05-28 12:30:46:3046 [info] 🎯 Job Processor Initialized
+2026-05-28 12:30:46:3046 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-28 12:30:46:3046 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-28 12:30:46:3046 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-28 12:30:47:3047 [info] MongoDB connected successfully
+2026-05-28 12:30:52:3052 [info] Attempting to connect to MongoDB: ac-5fjgzq2-shard-00-00.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-01.7hkgxdu.mongodb.net:27017,ac-5fjgzq2-shard-00-02.7hkgxdu.mongodb.net:27017/vendorDB?ssl=true&replicaSet=atlas-p02h84-shard-0&authSource=admin&retryWrites=true&w=majority
+2026-05-28 12:30:54:3054 [info] Server running in development mode on port 5000
+2026-05-28 12:30:54:3054 [info] 🎯 Job Processor Initialized
+2026-05-28 12:30:54:3054 [warn] Background Job system (Scheduler) is offline (No local Redis detected).
+2026-05-28 12:30:54:3054 [warn] Background Job system (Email) is offline (No local Redis detected).
+2026-05-28 12:30:54:3054 [warn] Redis Cache system is offline (No local Redis detected). Main functionality is unaffected.
+2026-05-28 12:30:55:3055 [info] MongoDB connected successfully
+2026-05-28 12:31:24:3124 [info] Login attempt received
+2026-05-28 12:31:48:3148 [info] Login attempt received
+2026-05-28 13:16:56:1656 [info] Login attempt received
+2026-05-28 14:30:04:304 [info] Login attempt received
+2026-05-28 14:36:20:3620 [info] Login attempt received
+2026-05-28 14:51:58:5158 [info] Login attempt received
+2026-05-28 15:18:55:1855 [info] Login attempt received
+2026-05-28 15:19:17:1917 [info] Login attempt received
+2026-05-28 15:19:58:1958 [info] Login attempt received
+2026-05-28 15:21:21:2121 [info] Login attempt received
+2026-05-28 15:27:48:2748 [info] Login attempt received
+2026-05-28 15:43:47:4347 [info] Login attempt received
+2026-05-28 15:43:47:4347 [warn] Login failed: invalid password for user 69a5199747f6502ea0e294bf
+2026-05-28 15:43:53:4353 [info] Login attempt received

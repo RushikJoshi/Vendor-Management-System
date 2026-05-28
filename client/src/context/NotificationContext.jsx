@@ -19,7 +19,7 @@ export const NotificationProvider = ({ children }) => {
 
     const fetchNotifications = async () => {
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             if (!token) return;
 
             const res = await axios.get(`${API_URL}/notifications`, {
@@ -42,7 +42,7 @@ export const NotificationProvider = ({ children }) => {
             const newSocket = io(SOCKET_URL, {
                 transports: ["websocket", "polling"],
                 reconnectionAttempts: 3,
-                auth: { token: localStorage.getItem('token') },
+                auth: { token: sessionStorage.getItem('token') },
             });
             setSocket(newSocket);
 
@@ -68,7 +68,7 @@ export const NotificationProvider = ({ children }) => {
 
     const markAsRead = async (id) => {
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             await axios.patch(`${API_URL}/notifications/${id}/read`, {}, {
                 headers: { Authorization: `Bearer ${token}` }
             });
@@ -83,7 +83,7 @@ export const NotificationProvider = ({ children }) => {
 
     const markAllAsRead = async () => {
         try {
-            const token = localStorage.getItem('token');
+            const token = sessionStorage.getItem('token');
             await axios.patch(`${API_URL}/notifications/read-all`, {}, {
                 headers: { Authorization: `Bearer ${token}` }
             });

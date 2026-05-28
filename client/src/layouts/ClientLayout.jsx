@@ -1,6 +1,6 @@
 import { Outlet } from "react-router-dom";
 import { useContext, useState } from "react";
-import { LayoutDashboard, ShoppingCart, UserCircle2 } from "lucide-react";
+import { LayoutDashboard, ShoppingCart, UserCircle2, CreditCard } from "lucide-react";
 
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
@@ -8,7 +8,8 @@ import { AuthContext } from "../context/AuthContext";
 
 const clientLinks = [
   { to: "/client/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/client/orders", label: "My Orders", icon: ShoppingCart }
+  { to: "/client/orders", label: "My Orders", icon: ShoppingCart },
+  { to: "/client/pending-payments", label: "Pending Payments", icon: CreditCard }
 ];
 
 export default function ClientLayout() {

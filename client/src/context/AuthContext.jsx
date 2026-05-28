@@ -16,7 +16,7 @@ export function AuthProvider({ children }) {
   // ── Rehydrate session on mount ────────────────────────
   useEffect(() => {
     const fetchMe = async () => {
-      const token = localStorage.getItem("token");
+      const token = sessionStorage.getItem("token");
       if (!token) {
         setLoading(false);
         return;
@@ -43,12 +43,12 @@ export function AuthProvider({ children }) {
           };
           setUser(hydratedUser);
           setAllowedModules(computedModules);
-          localStorage.setItem("role", hydratedUser.role);
-          localStorage.setItem("user", JSON.stringify(hydratedUser));
-          localStorage.setItem("mustChangePassword", String(!!hydratedUser.mustChangePassword));
+          sessionStorage.setItem("role", hydratedUser.role);
+          sessionStorage.setItem("user", JSON.stringify(hydratedUser));
+          sessionStorage.setItem("mustChangePassword", String(!!hydratedUser.mustChangePassword));
         }
       } catch (err) {
-        localStorage.clear();
+        sessionStorage.clear();
       }
       setLoading(false);
     };
@@ -57,11 +57,20 @@ export function AuthProvider({ children }) {
 
 
   // ── Login ─────────────────────────────────────────────
-  const login = async (email, password) => {
+  const login = async (email, password, portalType = "admin-portal") => {
     const res = await api.post("/auth/login", { email, password });
     const { token, user: userData } = res.data;
     const role = userData?.role || "vendor";
     const normalizedRole = normalizeRole(role);
+
+    // Block cross-portal logins
+    if (portalType === "admin-portal" && normalizedRole === "client") {
+      throw { response: { data: { message: "Client accounts must log in via the Client Portal." } } };
+    }
+    if (portalType === "client-portal" && normalizedRole !== "client") {
+      throw { response: { data: { message: "Admin/Vendor accounts must log in via the Main Portal." } } };
+    }
+
     const normalizedPermissions = sanitizePermissions(userData?.permissions || []);
     const effectivePermissions =
       normalizedPermissions.length > 0
@@ -77,10 +86,10 @@ export function AuthProvider({ children }) {
       allowedModules: computedModules,
     };
 
-    localStorage.setItem("token", token);
-    localStorage.setItem("role", role);
-    localStorage.setItem("user", JSON.stringify(mergedUser));
-    localStorage.setItem("mustChangePassword", String(!!mergedUser.mustChangePassword));
+    sessionStorage.setItem("token", token);
+    sessionStorage.setItem("role", role);
+    sessionStorage.setItem("user", JSON.stringify(mergedUser));
+    sessionStorage.setItem("mustChangePassword", String(!!mergedUser.mustChangePassword));
 
     api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
     setUser(mergedUser);
@@ -107,24 +116,67 @@ export function AuthProvider({ children }) {
 
   // ── After password changed: update state + navigate ───
   const onPasswordChanged = (newToken) => {
-    localStorage.setItem("token", newToken);
-    localStorage.setItem("mustChangePassword", "false");
+    sessionStorage.setItem("token", newToken);
+    sessionStorage.setItem("mustChangePassword", "false");
     api.defaults.headers.common["Authorization"] = `Bearer ${newToken}`;
     setUser((prev) => {
       const nextUser = { ...(prev || {}), mustChangePassword: false };
-      localStorage.setItem("user", JSON.stringify(nextUser));
+      sessionStorage.setItem("user", JSON.stringify(nextUser));
       return nextUser;
     });
     navigate("/vendor/dashboard");
   };
 
   // ── Logout ────────────────────────────────────────────
-  const logout = () => {
-    localStorage.clear();
+  const logout = async (isExpired = false) => {
+    try {
+      // Optional: notify backend to clear refresh token cookie
+      await api.post("/auth/logout");
+    } catch(e) {
+      // ignore errors during logout
+    }
+
+    const role = sessionStorage.getItem("role") || (user?.role) || "";
+    sessionStorage.clear();
     delete api.defaults.headers.common["Authorization"];
     setUser(null);
-    navigate("/login");
+    
+    const isClient = String(role).toLowerCase() === "client";
+    const redirectPath = isClient ? "/client/login" : "/login";
+    
+    if (isExpired) {
+      navigate(`${redirectPath}?expired=true`);
+    } else {
+      navigate(redirectPath);
+    }
   };
+
+  // ── Inactivity Timer (10 Minutes) ─────────────────────
+  useEffect(() => {
+    if (!user) return;
+
+    let timeoutId;
+    const INACTIVITY_LIMIT = 10 * 60 * 1000; // 10 minutes
+
+    const resetTimer = () => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        logout(true);
+      }, INACTIVITY_LIMIT);
+    };
+
+    // Attach listeners to reset timer on user activity
+    const events = ['mousemove', 'mousedown', 'keydown', 'touchstart', 'scroll'];
+    events.forEach(event => document.addEventListener(event, resetTimer));
+
+    // Initialize timer
+    resetTimer();
+
+    return () => {
+      clearTimeout(timeoutId);
+      events.forEach(event => document.removeEventListener(event, resetTimer));
+    };
+  }, [user]);
 
   return (
     <AuthContext.Provider value={{ user, allowedModules, login, logout, loading, onPasswordChanged }}>
