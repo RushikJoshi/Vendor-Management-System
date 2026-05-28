@@ -6,8 +6,10 @@ dns.setServers(['8.8.8.8']);
 
 const connectDB = async () => {
     try {
-        logger.info(`Attempting to connect to MongoDB: ${process.env.MONGO_URI.split('@')[1]}`); // Log only the host part for security
-        await mongoose.connect(process.env.MONGO_URI);
+        const mongoUri = process.env.MONGO_URI || process.env.MONGODB_URI;
+        const safeTarget = mongoUri.includes("@") ? mongoUri.split("@").pop() : mongoUri.replace(/\/\/.*?:.*?@/, "//<redacted>@");
+        logger.info(`Attempting to connect to MongoDB: ${safeTarget}`);
+        await mongoose.connect(mongoUri);
         logger.info("MongoDB connected successfully");
     } catch (error) {
         logger.error(`MongoDB connection error: ${error.message}`);

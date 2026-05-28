@@ -12,8 +12,9 @@ exports.restrictToTenant = (req, res, next) => {
 
     const role = req.user?.role?.toLowerCase();
     
-    // Superadmins and System Admins can bypass strict tenant checks or use header
-    const bypassRoles = ['superadmin', 'platform_admin', 'admin', 'system_admin', 'procurement'];
+    // Only platform-level roles may choose tenant context explicitly.
+    // Company admins and procurement users must remain scoped to their own tenant.
+    const bypassRoles = ['superadmin', 'platform_admin', 'system_admin'];
     if (bypassRoles.includes(role)) {
         req.tenantId = req.headers['x-tenant-id'] || req.user?.tenantId;
         return next();

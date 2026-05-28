@@ -1,4 +1,5 @@
 const RFQ = require("../models/RFQ");
+const Quotation = require("../models/Quotation");
 const Vendor = require("../models/vendor.model");
 const Category = require("../models/Category");
 const PurchaseRequest = require("../modules/procurement/models/PurchaseRequest");
@@ -419,4 +420,23 @@ exports.updateRFQ = asyncHandler(async (req, res, next) => {
   );
   if (!rfq) return next(new AppError("RFQ not found", 404));
   res.status(200).json({ success: true, data: rfq });
+});
+
+exports.deleteRFQ = asyncHandler(async (req, res, next) => {
+  const rfq = await RFQ.findOne({ _id: req.params.id, tenantId: req.user.tenantId });
+  if (!rfq) return next(new AppError("RFQ not found", 404));
+
+  const quotationCount = await Quotation.countDocuments({ rfqId: rfq._id, tenantId: req.user.tenantId });
+  if (quotationCount > 0) {
+    rfq.status = "cancelled";
+    await rfq.save({ validateBeforeSave: false });
+    return res.status(200).json({
+      success: true,
+      message: "RFQ has quotations, so it was cancelled instead of deleted.",
+      data: rfq,
+    });
+  }
+
+  await rfq.deleteOne();
+  res.status(200).json({ success: true, message: "RFQ deleted successfully." });
 });

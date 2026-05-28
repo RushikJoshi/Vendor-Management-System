@@ -13,7 +13,8 @@ const clientSchema = new mongoose.Schema(
         email: {
             type: String,
             required: true,
-            unique: true,
+            lowercase: true,
+            trim: true,
         },
         phone: {
             type: String,
@@ -37,5 +38,8 @@ const clientSchema = new mongoose.Schema(
     },
     { timestamps: true }
 );
+
+clientSchema.index({ tenantId: 1, email: 1 }, { unique: true });
+clientSchema.index({ tenantId: 1, companyName: 1 });
 
 module.exports = mongoose.model("Client", clientSchema);

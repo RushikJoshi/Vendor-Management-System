@@ -12,6 +12,13 @@ const Invoice = require("../modules/procurement/models/Invoice");
 const Notification = require("../models/Notification");
 const { lookupGstProfile: fetchGstProfile } = require("../services/gstLookup.service");
 
+const findVendorForUser = (user) => {
+    const filter = {
+        $or: [{ userId: user._id || user.id }, { email: user.email }],
+    };
+    if (user.tenantId) filter.tenantId = user.tenantId;
+    return Vendor.findOne(filter);
+};
 
 // @desc    Upload GST Certificate
 // @route   PUT /api/vendors/:id/upload-gst
@@ -109,16 +116,10 @@ exports.uploadAgreement = asyncHandler(async (req, res, next) => {
 // @route   GET /api/vendors/me
 // @access  Private (Vendor only)
 exports.getMe = asyncHandler(async (req, res, next) => {
-    const vendor = await Vendor.findOne({ userId: req.user.id });
+    const vendor = await findVendorForUser(req.user);
 
     if (!vendor) {
-        // Fallback for admins testing or if not linked yet
-        const adminVendor = await Vendor.findOne({ email: req.user.email });
-        if (!adminVendor) {
-            // No profile found, but return 200 null to allow frontend to handle it cleanly
-            return successResponse(res, "No vendor profile found for this account", null);
-        }
-        return successResponse(res, "Vendor profile fetched", adminVendor);
+        return successResponse(res, "No vendor profile found for this account", null);
     }
 
 
@@ -129,7 +130,7 @@ exports.getMe = asyncHandler(async (req, res, next) => {
 // @route   PUT /api/vendors/me
 // @access  Private (Vendor only)
 exports.updateMe = asyncHandler(async (req, res, next) => {
-    const vendor = await Vendor.findOne({ userId: req.user.id });
+    const vendor = await findVendorForUser(req.user);
 
     if (!vendor) {
         return next(new AppError("Vendor profile not found! Please complete your registration first.", 404));
@@ -156,21 +157,23 @@ exports.updateMe = asyncHandler(async (req, res, next) => {
 // @access  Private/Admin
 exports.createVendor = asyncHandler(async (req, res, next) => {
     const { email, gstNumber } = req.body;
+    const tenantId = req.body.tenantId || req.user.tenantId;
 
 
     // Duplication check (Email & GST Number)
-    const existingEmail = await Vendor.findOne({ email });
+    const existingEmail = await Vendor.findOne({ email, tenantId });
     if (existingEmail) {
         return next(new AppError("Email is already in use", 400));
     }
 
-    const existingGST = await Vendor.findOne({ gstNumber });
+    const existingGST = gstNumber ? await Vendor.findOne({ gstNumber, tenantId }) : null;
     if (existingGST) {
         return next(new AppError("GST Number is already in use", 400));
     }
 
     // Assign Creator ID
     req.body.createdBy = req.user.id;
+    req.body.tenantId = tenantId;
 
     const vendor = await Vendor.create(req.body);
 
@@ -341,6 +344,38 @@ exports.deleteVendor = asyncHandler(async (req, res, next) => {
     successResponse(res, "Vendor permanently deleted from database", null);
 });
 
+exports.blacklistVendor = asyncHandler(async (req, res, next) => {
+    const vendor = await Vendor.findById(req.params.id);
+    if (!vendor) {
+        return next(new AppError("Vendor not found", 404));
+    }
+
+    const { reason = "Policy violation", remarks = "" } = req.body || {};
+    const oldData = vendor.toObject();
+
+    vendor.status = "inactive";
+    vendor.lifecycleStatus = "blacklisted";
+    vendor.blacklistHistory.push({
+        reason,
+        remarks,
+        blacklistedBy: req.user._id,
+        blacklistedAt: new Date(),
+    });
+    await vendor.save({ validateBeforeSave: false });
+
+    logActivity({
+        action: "VENDOR_BLACKLISTED",
+        entityType: "Vendor",
+        entityId: vendor._id,
+        performedBy: req.user.id,
+        oldData,
+        newData: vendor.toObject(),
+        ipAddress: req.ip,
+    });
+
+    successResponse(res, "Vendor blacklisted successfully", vendor);
+});
+
 // @desc    Get Vendor Performance Metrics
 // @route   GET /api/vendors/:id/performance
 // @access  Private (Admin + User)
@@ -408,7 +443,7 @@ exports.lookupGstProfile = asyncHandler(async (req, res) => {
 // @route   GET /api/vendors/me/stats
 // @access  Private (Vendor only)
 exports.getVendorDashboardStats = asyncHandler(async (req, res, next) => {
-    const vendor = await Vendor.findOne({ userId: req.user.id });
+    const vendor = await findVendorForUser(req.user);
 
     if (!vendor) {
         // Fallback or handle null profile

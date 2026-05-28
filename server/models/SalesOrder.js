@@ -5,7 +5,6 @@ const salesOrderSchema = new mongoose.Schema(
         soNumber: {
             type: String,
             required: true,
-            unique: true,
         },
         clientId: {
             type: mongoose.Schema.Types.ObjectId,
@@ -14,10 +13,10 @@ const salesOrderSchema = new mongoose.Schema(
         },
         items: [
             {
-                name: String,
-                quantity: Number,
-                unitPrice: Number,
-                totalPrice: Number,
+                name: { type: String, required: true, trim: true },
+                quantity: { type: Number, required: true, min: 1 },
+                unitPrice: { type: Number, required: true, min: 0 },
+                totalPrice: { type: Number, required: true, min: 0 },
                 hsn: String,
             },
         ],
@@ -34,6 +33,22 @@ const salesOrderSchema = new mongoose.Schema(
         deliveryAddress: String,
         pdfUrl: String,
         notes: String,
+        payment: {
+            method: String,
+            reference: String,
+            amount: Number,
+            paidAt: Date,
+            paidBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+        },
+        statusHistory: [
+            {
+                from: String,
+                to: String,
+                changedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+                changedAt: { type: Date, default: Date.now },
+                remarks: String,
+            },
+        ],
         tenantId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Company",
@@ -46,5 +61,9 @@ const salesOrderSchema = new mongoose.Schema(
     },
     { timestamps: true }
 );
+
+salesOrderSchema.index({ tenantId: 1, status: 1 });
+salesOrderSchema.index({ tenantId: 1, clientId: 1, createdAt: -1 });
+salesOrderSchema.index({ tenantId: 1, soNumber: 1 }, { unique: true });
 
 module.exports = mongoose.model("SalesOrder", salesOrderSchema);

@@ -1,6 +1,7 @@
 const express = require('express');
 const { protect } = require('../middlewares/auth.middleware');
 const { authorizeRoles } = require('../middlewares/role.middleware');
+const { restrictToTenant } = require('../middlewares/tenant.middleware');
 const {
     createClient,
     getClients,
@@ -13,19 +14,19 @@ const {
 const router = express.Router();
 
 router.use(protect);
-router.use(authorizeRoles('admin', 'superadmin'));
+router.use(restrictToTenant);
 
 router
     .route('/')
-    .get(getClients)
-    .post(createClient);
+    .get(authorizeRoles('admin', 'sales', 'procurement'), getClients)
+    .post(authorizeRoles('admin', 'sales'), createClient);
 
 router
     .route('/:id')
-    .get(getClient)
-    .put(updateClient)
-    .delete(deleteClient);
+    .get(authorizeRoles('admin', 'sales', 'procurement'), getClient)
+    .put(authorizeRoles('admin', 'sales'), updateClient)
+    .delete(authorizeRoles('admin'), deleteClient);
 
-router.post('/:id/create-login', createClientLogin);
+router.post('/:id/create-login', authorizeRoles('admin', 'sales'), createClientLogin);
 
 module.exports = router;

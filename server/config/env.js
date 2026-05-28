@@ -1,12 +1,23 @@
 const env = require("env-var");
 require("dotenv").config();
 
+const mongoUri = process.env.MONGO_URI || process.env.MONGODB_URI;
+if (!mongoUri) {
+    throw new Error("MONGO_URI or MONGODB_URI is required");
+}
+
 const configs = {
     PORT: env.get("PORT").default("5000").asString(), // Relaxed to allow named pipes (iisnode)
     NODE_ENV: env.get("NODE_ENV").default("development").asString(),
-    MONGODB_URI: env.get("MONGO_URI").required().asString(),
+    MONGODB_URI: mongoUri,
     JWT_SECRET: env.get("JWT_SECRET").required().asString(),
-    JWT_EXPIRY: env.get("JWT_EXPIRY").default("1d").asString(),
+    JWT_EXPIRE: env.get("JWT_EXPIRE").default(env.get("JWT_EXPIRY").default("15m").asString()).asString(),
+    JWT_EXPIRY: env.get("JWT_EXPIRY").default(env.get("JWT_EXPIRE").default("15m").asString()).asString(),
+    REFRESH_TOKEN_SECRET: env.get("REFRESH_TOKEN_SECRET").required().asString(),
+    REFRESH_TOKEN_EXPIRE: env.get("REFRESH_TOKEN_EXPIRE").default("7d").asString(),
+    FRONTEND_URL: env.get("FRONTEND_URL").default("http://localhost:5173").asString(),
+    CORS_ORIGIN: env.get("CORS_ORIGIN").default(env.get("FRONTEND_URL").default("http://localhost:5173").asString()).asString(),
+    ALLOW_PUBLIC_COMPANY_ONBOARDING: env.get("ALLOW_PUBLIC_COMPANY_ONBOARDING").default("false").asBool(),
 
     // Admin Credentials Override
     SYSTEM_EMAIL: env.get("EMAIL").asString(),

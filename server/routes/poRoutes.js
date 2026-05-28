@@ -8,9 +8,12 @@ const {
 } = require("../controllers/poController");
 const { protect } = require("../middlewares/auth.middleware");
 const { restrictToTenant } = require("../middlewares/tenant.middleware");
+const { authorizeRoles } = require("../middlewares/role.middleware");
 
 router.use(protect);
 router.use(restrictToTenant);
+
+router.get("/regenerate-all", authorizeRoles("admin", "procurement"), regenerateAllPOs);
 
 router.route("/")
     .get(getPOs)
@@ -18,7 +21,5 @@ router.route("/")
 
 router.route("/:id")
     .get(getPOById);
-
-router.get("/regenerate-all", regenerateAllPOs);
 
 module.exports = router;

@@ -9,6 +9,7 @@ const {
   sanitizePermissionKeys,
   getDefaultPermissionsForRole,
 } = require("../config/userPermissions");
+const configs = require("../config/env");
 
 const MODULE_ALIAS_MAP = {
   dashboard: "dashboard",
@@ -63,21 +64,31 @@ const generateTokens = (id, tenantId) => {
 // @route   POST /api/auth/register
 // @access  Public
 exports.register = asyncHandler(async (req, res, next) => {
-  const { name, email, password, role, tenantId } = req.body;
+  const { name, email, password } = req.body;
+
+  if (!name || !email || !password) {
+    return next(new AppError("Name, email and password are required", 400));
+  }
+
+  if (String(password).length < 8) {
+    return next(new AppError("Password must be at least 8 characters", 400));
+  }
+
+  const normalizedEmail = String(email).trim().toLowerCase();
 
   // Email already exists check
-  const existingUser = await User.findOne({ email });
+  const existingUser = await User.findOne({ email: normalizedEmail });
   if (existingUser) {
     return next(new AppError("Email already exists", 400));
   }
 
-  // Create user
+  // Public registration must never accept role or tenant assignment from the client.
   const user = await User.create({
-    name,
-    email,
+    name: String(name).trim(),
+    email: normalizedEmail,
     password,
-    role,
-    tenantId
+    role: "vendor",
+    permissions: getDefaultPermissionsForRole("vendor"),
   });
 
   res.status(201).json({
@@ -97,6 +108,10 @@ exports.register = asyncHandler(async (req, res, next) => {
 // @route   POST /api/auth/onboard
 // @access  Public
 exports.onboardCompany = asyncHandler(async (req, res, next) => {
+  if (!configs.ALLOW_PUBLIC_COMPANY_ONBOARDING) {
+    return next(new AppError("Public company onboarding is disabled", 403));
+  }
+
   const { companyName, companyEmail, adminName, adminEmail, password } = req.body;
 
   // Check if company already exists
@@ -148,19 +163,24 @@ exports.login = asyncHandler(async (req, res, next) => {
   const { email, password } = req.body;
   const logger = require("../utils/logger");
 
-  logger.info(`Login attempt for email: ${email}`);
+  logger.info("Login attempt received");
 
   // Check for user
-  const user = await User.findOne({ email }).select("+password");
+  const user = await User.findOne({ email: String(email || "").trim().toLowerCase() }).select("+password");
   if (!user) {
-    logger.warn(`Login failed: User not found for email: ${email}`);
+    logger.warn("Login failed: user not found");
     return next(new AppError("Invalid email or password", 401));
+  }
+
+  if (user.status !== "active") {
+    logger.warn(`Login blocked for inactive user: ${user._id}`);
+    return next(new AppError("Your account is inactive. Contact your administrator.", 403));
   }
 
   // Check password
   const isMatch = await user.comparePassword(password);
   if (!isMatch) {
-    logger.warn(`Login failed: Incorrect password for email: ${email}`);
+    logger.warn(`Login failed: invalid password for user ${user._id}`);
     return next(new AppError("Invalid email or password", 401));
   }
 
@@ -178,6 +198,10 @@ exports.login = asyncHandler(async (req, res, next) => {
     sameSite: "strict",
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   });
+
+  try {
+    await require("../services/AuditService").logLogin(req, user, true);
+  } catch { /* non-blocking audit */ }
 
   const userData = {
     id: user._id,

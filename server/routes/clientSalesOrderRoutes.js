@@ -1,6 +1,7 @@
 const express = require('express');
 const { protect } = require('../middlewares/auth.middleware');
 const { authorizeRoles } = require('../middlewares/role.middleware');
+const { restrictToTenant } = require('../middlewares/tenant.middleware');
 const {
     createSalesOrder,
     getSalesOrders,
@@ -12,23 +13,23 @@ const {
 const router = express.Router();
 
 router.use(protect);
-router.use(authorizeRoles('admin', 'superadmin', 'client'));
+router.use(restrictToTenant);
 
 router
     .route('/')
-    .get(getSalesOrders)
-    .post(createSalesOrder);
+    .get(authorizeRoles('admin', 'sales', 'procurement', 'client'), getSalesOrders)
+    .post(authorizeRoles('admin', 'sales'), createSalesOrder);
 
 router
     .route('/:id')
-    .get(getSalesOrder);
+    .get(authorizeRoles('admin', 'sales', 'procurement', 'client'), getSalesOrder);
 
 router
     .route('/:id/status')
-    .put(updateSalesOrderStatus);
+    .put(authorizeRoles('admin', 'sales'), updateSalesOrderStatus);
 
 router
     .route('/:id/pay')
-    .post(paySalesOrder);
+    .post(authorizeRoles('client'), paySalesOrder);
 
 module.exports = router;

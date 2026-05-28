@@ -22,6 +22,7 @@ export const PERMISSION_GROUPS = [
       { key: "rfq_view", label: "View RFQ" },
       { key: "rfq_create", label: "Create RFQ" },
       { key: "rfq_approve", label: "Approve RFQ" },
+      { key: "rfq_manage", label: "Manage RFQ" },
     ],
   },
   {
@@ -29,6 +30,12 @@ export const PERMISSION_GROUPS = [
     items: [
       { key: "contracts_view", label: "View Contracts" },
       { key: "contracts_manage", label: "Manage Contracts" },
+    ],
+  },
+  {
+    title: "Sales",
+    items: [
+      { key: "sales_manage", label: "Manage Sales" },
     ],
   },
   {
@@ -59,10 +66,10 @@ export const ROLE_OPTIONS = [
 export const DEFAULT_ROLE_PERMISSIONS = {
   admin: ["*"],
   hr: ["dashboard_view", "users_view", "users_create", "users_edit", "vendors_view", "vendors_add", "vendors_edit"],
-  procurement: ["dashboard_view", "vendors_view", "vendors_add", "vendors_edit", "rfq_view", "rfq_create", "rfq_approve", "contracts_view", "contracts_manage"],
-  manager: ["dashboard_view", "vendors_view", "rfq_view", "rfq_approve", "contracts_view", "users_view"],
-  sales: ["dashboard_view", "rfq_view", "rfq_create", "contracts_view"],
-  finance: ["dashboard_view", "rfq_view", "rfq_approve", "contracts_view", "contracts_manage"],
+  procurement: ["dashboard_view", "vendors_view", "vendors_add", "vendors_edit", "rfq_view", "rfq_create", "rfq_approve", "rfq_manage", "contracts_view", "contracts_manage", "sales_manage"],
+  manager: ["dashboard_view", "vendors_view", "rfq_view", "rfq_approve", "rfq_manage", "contracts_view", "users_view"],
+  sales: ["dashboard_view", "rfq_view", "rfq_create", "contracts_view", "sales_manage"],
+  finance: ["dashboard_view", "rfq_view", "rfq_approve", "rfq_manage", "contracts_view", "contracts_manage"],
   viewer: ["dashboard_view"],
   vendor: ["vendor_dashboard", "vendor_rfq_view", "vendor_quote_submit"],
 };
@@ -78,8 +85,10 @@ const PERMISSION_ALIASES = {
   "rfq.view": "rfq_view",
   "rfq.create": "rfq_create",
   "rfq.approve": "rfq_approve",
+  "rfq.manage": "rfq_manage",
   "contracts.view": "contracts_view",
   "contracts.manage": "contracts_manage",
+  "sales.manage": "sales_manage",
   "settings.access": "settings_access",
   "vendor.dashboard": "vendor_dashboard",
   "vendor.rfq.view": "vendor_rfq_view",

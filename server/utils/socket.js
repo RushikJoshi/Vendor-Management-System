@@ -1,11 +1,24 @@
 const socketIO = require("socket.io");
+const jwt = require("jsonwebtoken");
 let io;
 
 const init = (server) => {
     io = socketIO(server, {
         cors: {
-            origin: "*", // Adjust in production
+            origin: process.env.CORS_ORIGIN || process.env.FRONTEND_URL || "*",
             methods: ["GET", "POST"]
+        }
+    });
+
+    io.use((socket, next) => {
+        const token = socket.handshake.auth?.token || socket.handshake.headers?.authorization?.replace(/^Bearer\s+/i, "");
+        if (!token) return next(new Error("Authentication required"));
+
+        try {
+            socket.user = jwt.verify(token, process.env.JWT_SECRET);
+            return next();
+        } catch {
+            return next(new Error("Invalid socket token"));
         }
     });
 
@@ -13,9 +26,13 @@ const init = (server) => {
         console.log("A user connected:", socket.id);
 
         socket.on("join", (userId) => {
-            if (userId) {
-                socket.join(userId);
-                console.log(`User ${userId} joined their notification room.`);
+            const authenticatedUserId = String(socket.user?.id || "");
+            if (userId && String(userId) !== authenticatedUserId) {
+                return;
+            }
+            if (authenticatedUserId) {
+                socket.join(authenticatedUserId);
+                console.log(`User ${authenticatedUserId} joined their notification room.`);
             }
         });
 

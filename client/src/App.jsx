@@ -132,11 +132,11 @@ function App() {
             <Route path="procurement" element={<ProtectedRoute module="procurement"><ProcurementHub /></ProtectedRoute>} />
             <Route path="procurement/service-orders" element={<ProtectedRoute module="procurement"><ServiceOrders /></ProtectedRoute>} />
             <Route path="procurement/settings" element={<ProtectedRoute module="procurement"><ProcurementSettings /></ProtectedRoute>} />
-            <Route path="sales/clients" element={<ProtectedRoute module="procurement"><Clients /></ProtectedRoute>} />
-            <Route path="sales/clients/add" element={<ProtectedRoute module="procurement"><AddClient /></ProtectedRoute>} />
-            <Route path="sales/orders" element={<ProtectedRoute module="procurement"><SalesOrders /></ProtectedRoute>} />
-            <Route path="sales/orders/create" element={<ProtectedRoute module="procurement"><CreateSalesOrder /></ProtectedRoute>} />
-            <Route path="sales/orders/:id" element={<ProtectedRoute module="procurement"><SalesOrderDetail /></ProtectedRoute>} />
+            <Route path="sales/clients" element={<ProtectedRoute module="sales"><Clients /></ProtectedRoute>} />
+            <Route path="sales/clients/add" element={<ProtectedRoute module="sales"><AddClient /></ProtectedRoute>} />
+            <Route path="sales/orders" element={<ProtectedRoute module="sales"><SalesOrders /></ProtectedRoute>} />
+            <Route path="sales/orders/create" element={<ProtectedRoute module="sales"><CreateSalesOrder /></ProtectedRoute>} />
+            <Route path="sales/orders/:id" element={<ProtectedRoute module="sales"><SalesOrderDetail /></ProtectedRoute>} />
             <Route path="procurement/po/:id" element={<ProtectedRoute module="procurement"><PurchaseOrderDetail /></ProtectedRoute>} />
             <Route path="procurement/payment/:id" element={<ProtectedRoute module="procurement"><PaymentCheckout /></ProtectedRoute>} />
             <Route path="procurement/shipments" element={<ProtectedRoute module="procurement"><AdminDeliveries /></ProtectedRoute>} />

@@ -42,6 +42,7 @@ export const NotificationProvider = ({ children }) => {
             const newSocket = io(SOCKET_URL, {
                 transports: ["websocket", "polling"],
                 reconnectionAttempts: 3,
+                auth: { token: localStorage.getItem('token') },
             });
             setSocket(newSocket);
 

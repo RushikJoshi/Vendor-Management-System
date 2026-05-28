@@ -58,7 +58,22 @@ connectDB();
 
 // 2) Security & Optimization Middlewares
 app.use(helmet());
-app.use(cors());
+const allowedOrigins = (configs.CORS_ORIGIN || configs.FRONTEND_URL || "")
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+
+app.use(cors({
+    origin(origin, callback) {
+        if (!origin) return callback(null, true);
+        if (configs.NODE_ENV !== "production" && /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
+            return callback(null, true);
+        }
+        if (allowedOrigins.includes(origin)) return callback(null, true);
+        return callback(new Error("CORS origin not allowed"));
+    },
+    credentials: true,
+}));
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 app.use(cookieParser());

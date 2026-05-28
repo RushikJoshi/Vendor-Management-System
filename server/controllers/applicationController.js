@@ -12,7 +12,31 @@ const PdfService = require("../services/PdfService");
 const SequenceService = require("../services/SequenceService");
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
+const mongoose = require("mongoose");
+const { normalizeRole } = require("../config/roles");
 const { successResponse, errorResponse } = require("../utils/responseHandler");
+
+const TEMP_PASSWORD_CHARS = "ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#";
+
+const generateTemporaryPassword = (length = 12) =>
+    Array.from({ length }, () => TEMP_PASSWORD_CHARS[crypto.randomInt(TEMP_PASSWORD_CHARS.length)]).join("");
+
+const getApplicationValue = (application, ...keys) => {
+    for (const key of keys) {
+        const val = application.data instanceof Map ? application.data.get(key) : application.data?.[key];
+        if (val && val !== "N/A") return val;
+    }
+    return "N/A";
+};
+
+const normalizePhone = (value) => {
+    const digits = String(value || "").replace(/\D/g, "");
+    if (digits.length >= 10) return digits.slice(-10);
+    return "0000000000";
+};
+
+const tenantMismatch = (userTenantId, recordTenantId) =>
+    Boolean(userTenantId && recordTenantId && String(userTenantId) !== String(recordTenantId));
 
 const resolveApplicationTenantId = async (application, fallbackTenantId = null) => {
     if (fallbackTenantId) return fallbackTenantId;
@@ -82,7 +106,7 @@ exports.submitApplication = async (req, res) => {
         }
 
         // Priority: explicit body email → form field email → form field co_email
-        const email =
+        const rawEmail =
             req.body.email ||
             incomingData?.email ||
             incomingData?.co_email ||
@@ -91,7 +115,8 @@ exports.submitApplication = async (req, res) => {
             incomingData?.vendorEmail ||
             incomingData?.emailAddress;
 
-        if (!email) throw new Error("Compliance Error: Identification email is required to process dossier.");
+        if (!rawEmail) throw new Error("Compliance Error: Identification email is required to process dossier.");
+        const email = String(rawEmail).trim().toLowerCase();
 
         // 1) Find existing application - Only match by token to allow multiple applications per email
         // If invitationToken is provided, we update that specific dossier. 
@@ -122,6 +147,7 @@ exports.submitApplication = async (req, res) => {
 
             application = await VendorApplication.create({
                 applicationId,
+                tenantId,
                 formTemplate: req.body.formTemplateId || category.formTemplate,
                 formVersion: req.body.formVersion || 1,
                 category: resolvedCategoryId || category._id,
@@ -165,6 +191,7 @@ exports.submitApplication = async (req, res) => {
 
             application = await VendorApplication.create({
                 applicationId,
+                tenantId,
                 formTemplate: finalFormTemplateId,
                 formVersion: req.body.formVersion || 1,
                 category: category._id,
@@ -196,6 +223,7 @@ exports.submitApplication = async (req, res) => {
             const defaultCategory = await Category.findOne() || null;
             application = await VendorApplication.create({
                 applicationId,
+                tenantId,
                 formTemplate: req.body.formTemplateId,
                 formVersion: req.body.formVersion || 1,
                 category: defaultCategory ? defaultCategory._id : null,
@@ -294,9 +322,16 @@ exports.submitApplication = async (req, res) => {
 exports.finalizeSubmission = async (req, res) => {
     try {
         const { id } = req.params;
+        const submittedEmail = String(req.body?.email || "").trim().toLowerCase();
+        const submittedToken = req.body?.invitationToken;
         const application = await VendorApplication.findById(id);
 
         if (!application) throw new Error("Application not found");
+        const tokenMatches = application.invitationToken && submittedToken && String(application.invitationToken) === String(submittedToken);
+        const emailMatches = submittedEmail && submittedEmail === String(application.email || "").toLowerCase();
+        if (!tokenMatches && !emailMatches) {
+            return errorResponse(res, "Finalize requires matching email or invitation token.", null, 403);
+        }
 
         application.status = "submitted";
         application.submittedAt = new Date();
@@ -375,6 +410,9 @@ exports.processApprovalStage = async (req, res, next) => {
         // ── 2. Load application ───────────────────────
         const application = await VendorApplication.findById(id);
         if (!application) return res.status(404).json({ success: false, message: "Application not found" });
+        if (tenantMismatch(req.user?.tenantId, application.tenantId)) {
+            return res.status(404).json({ success: false, message: "Application not found" });
+        }
 
         // ── 3. Normalize user identity ────────────────
         const userId = req.user._id?.toString() || req.user.id || null;
@@ -437,6 +475,7 @@ exports.processApprovalStage = async (req, res, next) => {
             status: application.status,
             currentStage: application.currentStage,
             workflowStages: application.workflowStages,
+            tenantId: application.tenantId || req.user?.tenantId,
         };
         if (application.approvedAt) updatePayload.approvedAt = application.approvedAt;
         if (application.approvedBy) updatePayload.approvedBy = application.approvedBy;
@@ -506,6 +545,9 @@ exports.approveApplication = async (req, res) => {
 
         const application = await VendorApplication.findById(id);
         if (!application) return errorResponse(res, "Application not found", null, 404);
+        if (tenantMismatch(req.user?.tenantId, application.tenantId)) {
+            return errorResponse(res, "Application not found", null, 404);
+        }
 
         // 1. Status guard — only submitted/in_review can be approved
         const actionableStatuses = ["submitted", "in_review", "draft"];
@@ -513,22 +555,25 @@ exports.approveApplication = async (req, res) => {
             return errorResponse(res, `Cannot approve: application is already '${application.status}'`, null, 400);
         }
 
+        const tenantId = await resolveApplicationTenantId(application, req.user?.tenantId);
+
         // 2. Check if vendor already exists (prevent duplicate)
-        const existingVendor = await Vendor.findOne({ email: application.email });
+        const existingVendor = await Vendor.findOne({ email: application.email, tenantId });
         if (existingVendor) {
             // Already created — just mark approved
             application.status = "approved";
             application.approvedAt = new Date();
             application.approvedBy = req.user._id;
             application.currentStage = "COMPLETED";
+            application.tenantId = application.tenantId || tenantId;
+            application.vendorId = existingVendor._id;
             application.workflowStages?.forEach(s => { if (s.status !== 'approved') s.status = 'approved'; });
             await application.save({ validateBeforeSave: false });
             return successResponse(res, "Application approved (vendor already exists)", application);
         }
 
-        // 3. Generate secure 8-char temp password (upper + lower + digits)
-        const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
-        const tempPassword = Array.from({ length: 8 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+        // 3. Generate secure temporary credentials for first login.
+        const tempPassword = generateTemporaryPassword();
         const hashedPassword = await bcrypt.hash(tempPassword, 12);
 
         // 4. Helper to extract form data values
@@ -540,13 +585,16 @@ exports.approveApplication = async (req, res) => {
             return 'N/A';
         };
 
-        const tenantId = await resolveApplicationTenantId(application, req.user?.tenantId);
+        const contactNameVal = getVal('co_contact', 'contactName', 'contactPerson');
+        const vendorName = contactNameVal !== 'N/A' ? contactNameVal : application.companyName;
+        const vendorPhone = normalizePhone(getVal('co_mobile', 'mobileNumber', 'phone', 'mobile'));
 
         // 5. Create or Update Vendor account mapping form data
-        let vendor = await Vendor.findOne({ email: application.email });
+        let vendor = await Vendor.findOne({ email: application.email, tenantId });
         if (vendor) {
+            vendor.name = vendorName;
             vendor.companyName = application.companyName;
-            vendor.phone = getVal('co_mobile', 'mobileNumber', 'phone', 'mobile');
+            vendor.phone = vendorPhone;
             vendor.category = application.category;
             vendor.address = getVal('co_address', 'address', 'registeredAddress');
             await vendor.save();
@@ -554,15 +602,19 @@ exports.approveApplication = async (req, res) => {
             const vendorId = await SequenceService.getNextSequence(tenantId, "vendor");
             vendor = await Vendor.create({
                 vendorId,
+                name: vendorName,
                 email: application.email,
                 companyName: application.companyName,
                 password: hashedPassword,
-                status: 'approved',
-                phone: getVal('co_mobile', 'mobileNumber', 'phone', 'mobile'),
-                contactPerson: getVal('co_contact', 'contactName', 'contactPerson'),
+                status: 'active',
+                lifecycleStatus: 'active',
+                phone: vendorPhone,
+                contactPerson: vendorName,
                 serviceType: getVal('co_nature', 'natureOfBusiness', 'serviceType') !== 'N/A'
                     ? getVal('co_nature', 'natureOfBusiness', 'serviceType') : 'General',
                 category: application.category,
+                tenantId,
+                createdBy: req.user._id,
                 address: getVal('co_address', 'address', 'registeredAddress'),
                 companyDetails: {
                     website: getVal('co_website', 'website'),
@@ -613,10 +665,10 @@ exports.approveApplication = async (req, res) => {
         }
 
         // 5b. Handle User account for authentication
-        let user = await User.findOne({ email: application.email });
+        let user = await User.findOne({ email: application.email, tenantId });
         if (!user) {
             user = await User.create({
-                name: application.companyName,
+                name: vendorName,
                 email: application.email,
                 password: tempPassword,
                 role: "vendor",
@@ -627,7 +679,7 @@ exports.approveApplication = async (req, res) => {
         } else {
             // Only update role to vendor if they are not already an admin/hr
             if (user.role === "vendor") {
-                user.name = application.companyName;
+                user.name = vendorName;
                 user.status = "active";
                 user.mustChangePassword = true;
                 user.password = tempPassword;
@@ -636,7 +688,8 @@ exports.approveApplication = async (req, res) => {
         }
 
         // Link User to Vendor
-        vendor.createdBy = user._id;
+        vendor.userId = user._id;
+        vendor.createdBy = vendor.createdBy || req.user._id;
         await vendor.save();
 
         // 6. Update application status
@@ -644,6 +697,8 @@ exports.approveApplication = async (req, res) => {
         application.approvedAt = new Date();
         application.approvedBy = req.user._id;
         application.currentStage = 'COMPLETED';
+        application.tenantId = application.tenantId || tenantId;
+        application.vendorId = vendor._id;
         if (remarks) {
             const currentStageObj = application.workflowStages?.find(s => s.status === 'pending');
             if (currentStageObj) { currentStageObj.status = 'approved'; currentStageObj.remarks = remarks; }
@@ -656,12 +711,12 @@ exports.approveApplication = async (req, res) => {
 
         // 7b. NOTIFY VENDOR IN-APP
         const NotificationService = require("../services/NotificationService");
-        NotificationService.sendNotification(vendor._id, {
+        NotificationService.sendNotification(user._id, {
             title: "Application Approved",
             message: `Your application for ${application.companyName} has been approved.`,
             type: "application",
             relatedEntityId: application._id
-        });
+        }).catch(err => console.error('Approval notification failed:', err));
 
 
         // 8. Audit log
@@ -695,6 +750,9 @@ exports.rejectApplication = async (req, res) => {
 
         const application = await VendorApplication.findById(id);
         if (!application) return errorResponse(res, "Application not found", null, 404);
+        if (tenantMismatch(req.user?.tenantId, application.tenantId)) {
+            return errorResponse(res, "Application not found", null, 404);
+        }
 
         if (application.status === 'rejected') {
             return errorResponse(res, 'Application is already rejected', null, 400);
@@ -732,9 +790,8 @@ exports.rejectApplication = async (req, res) => {
 };
 
 async function createVendorFromApplication(application, fallbackTenantId = null) {
-    // 1. Generate secure 8-char temp password (upper + lower + digits)
-    const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
-    const tempPassword = Array.from({ length: 8 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+    // 1. Generate secure temporary credentials for first login.
+    const tempPassword = generateTemporaryPassword();
     const hashedPassword = await bcrypt.hash(tempPassword, 12);
 
     // 2. Helper to extract form data values robustly across different form templates
@@ -749,14 +806,15 @@ async function createVendorFromApplication(application, fallbackTenantId = null)
     // 3. Create or Update Vendor account mapping form data
     const contactNameVal = getVal('co_contact', 'contactName', 'contactPerson');
     const vendorName = contactNameVal !== 'N/A' ? contactNameVal : application.companyName;
-
-    let vendor = await Vendor.findOne({ email: application.email });
+    const vendorPhone = normalizePhone(getVal('co_mobile', 'mobileNumber', 'phone', 'mobile'));
     const tenantId = await resolveApplicationTenantId(application, fallbackTenantId);
+
+    let vendor = await Vendor.findOne({ email: application.email, tenantId });
 
     if (vendor) {
         vendor.name = vendorName;
         vendor.companyName = application.companyName;
-        vendor.phone = getVal('co_mobile', 'mobileNumber', 'phone', 'mobile');
+        vendor.phone = vendorPhone;
         vendor.category = application.category;
         vendor.address = getVal('co_address', 'address', 'registeredAddress');
         await vendor.save();
@@ -765,16 +823,18 @@ async function createVendorFromApplication(application, fallbackTenantId = null)
         vendor = await Vendor.create({
             vendorId,
             name: vendorName,
-            createdBy: application.approvedBy || application.category,
+            createdBy: application.approvedBy,
             email: application.email,
             companyName: application.companyName,
             password: hashedPassword,
             status: 'active',
-            phone: getVal('co_mobile', 'mobileNumber', 'phone', 'mobile'),
+            lifecycleStatus: 'active',
+            phone: vendorPhone,
             contactPerson: vendorName,
             serviceType: getVal('co_nature', 'natureOfBusiness', 'serviceType') !== 'N/A'
                 ? getVal('co_nature', 'natureOfBusiness', 'serviceType') : 'General',
             category: application.category,
+            tenantId,
             address: getVal('co_address', 'address', 'registeredAddress'),
             companyDetails: {
                 website: getVal('co_website', 'website'),
@@ -825,10 +885,10 @@ async function createVendorFromApplication(application, fallbackTenantId = null)
     }
 
     // 4. Handle User account for authentication
-    let user = await User.findOne({ email: application.email });
+    let user = await User.findOne({ email: application.email, tenantId });
     if (!user) {
         user = await User.create({
-            name: application.companyName,
+            name: vendorName,
             email: application.email,
             password: tempPassword,
             role: "vendor",
@@ -838,7 +898,7 @@ async function createVendorFromApplication(application, fallbackTenantId = null)
         });
     } else {
         if (user.role === "vendor") {
-            user.name = application.companyName;
+            user.name = vendorName;
             user.status = "active";
             user.mustChangePassword = true;
             user.password = tempPassword;
@@ -847,12 +907,13 @@ async function createVendorFromApplication(application, fallbackTenantId = null)
     }
 
     // Link User to Vendor
-    vendor.createdBy = user._id;
+    vendor.userId = user._id;
+    vendor.createdBy = vendor.createdBy || application.approvedBy || user._id;
     await vendor.save();
 
     // 5. Update the application to link vendor ID using findByIdAndUpdate (bypasses hooks)
     await VendorApplication.findByIdAndUpdate(application._id, {
-        $set: { vendorId: vendor._id }
+        $set: { vendorId: vendor._id, tenantId }
     });
 
     // 5. Send rich welcome email (this will send the template to the user's registry email)
@@ -868,7 +929,12 @@ async function createVendorFromApplication(application, fallbackTenantId = null)
 exports.getApplicationState = async (req, res) => {
     try {
         const { email } = req.params;
-        const application = await VendorApplication.findOne({ email }).populate("category formTemplate");
+        const normalizedEmail = String(email || "").trim().toLowerCase();
+        const application = await VendorApplication.findOne({ email: normalizedEmail })
+            .select("applicationId companyName email status currentStage submittedAt approvedAt rejectedAt updatedAt category")
+            .populate("category", "name");
+
+        if (!application) return errorResponse(res, "Application not found", null, 404);
         return successResponse(res, "Application state retrieved", application);
     } catch (err) {
         return errorResponse(res, err.message, null, 400);
@@ -883,19 +949,22 @@ exports.getApplications = async (req, res) => {
         let query = {};
         if (status) query.status = status;
         if (category) query.category = category;
+        if (req.user?.tenantId) query.tenantId = req.user.tenantId;
 
         // RBAC: Vendors should only see their own applications
-        if (req.user.role === "vendor") {
+        if (normalizeRole(req.user.role) === "vendor") {
             query.email = req.user.email;
         }
 
 
         const TreeSubmission = require("../models/TreeSubmission");
+        const treeQuery = status ? { status } : {};
+        if (req.user?.tenantId) treeQuery.tenantId = req.user.tenantId;
         
         // Fetch from both sources
         const [apps, treeSubmissions] = await Promise.all([
              VendorApplication.find(query).populate("category").sort("-createdAt").skip(skip).limit(parseInt(limit)),
-             TreeSubmission.find(status ? { status } : {}).populate("formId").sort("-createdAt").skip(skip).limit(parseInt(limit))
+             TreeSubmission.find(treeQuery).populate("formId").sort("-createdAt").skip(skip).limit(parseInt(limit))
         ]);
         // Fix VendorApplication companyName from data when stored as generic fallback
         const fixedApps = apps.map(a => {
@@ -935,7 +1004,7 @@ exports.getApplications = async (req, res) => {
             });
         }
 
-        const total = (await VendorApplication.countDocuments(query)) + (await TreeSubmission.countDocuments(status ? { status } : {}));
+        const total = (await VendorApplication.countDocuments(query)) + (await TreeSubmission.countDocuments(treeQuery));
 
         const pagination = {
             total,
@@ -951,7 +1020,11 @@ exports.getApplications = async (req, res) => {
 
 exports.getApplicationById = async (req, res) => {
     try {
-        const application = await VendorApplication.findById(req.params.id)
+        const filter = { _id: req.params.id };
+        if (req.user?.tenantId) filter.tenantId = req.user.tenantId;
+        if (normalizeRole(req.user?.role) === "vendor") filter.email = req.user.email;
+
+        const application = await VendorApplication.findOne(filter)
             .populate("category formTemplate");
 
         if (!application) return errorResponse(res, "Application not found", null, 404);

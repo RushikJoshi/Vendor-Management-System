@@ -8,6 +8,7 @@ const {
     deleteCategory,
 } = require("../controllers/categoryController");
 const { protect } = require("../middlewares/auth.middleware");
+const { authorizeRoles } = require("../middlewares/role.middleware");
 
 // ── Public Routes (For registration page) ─────────────
 router.get("/public-list", async (req, res) => {
@@ -36,13 +37,13 @@ router.get("/public-list", async (req, res) => {
 router.use(protect);
 
 router.route("/")
-    .get(getCategories)
-    .post(createCategory);
+    .get(authorizeRoles("admin", "hr", "procurement", "manager"), getCategories)
+    .post(authorizeRoles("admin", "hr", "procurement"), createCategory);
 
 router.route("/:id")
-    .get(getCategoryById)
-    .put(updateCategory)
-    .delete(deleteCategory);
+    .get(authorizeRoles("admin", "hr", "procurement", "manager"), getCategoryById)
+    .put(authorizeRoles("admin", "hr", "procurement"), updateCategory)
+    .delete(authorizeRoles("admin", "hr"), deleteCategory);
 
 module.exports = router;
 

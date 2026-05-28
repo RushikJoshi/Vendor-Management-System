@@ -13,7 +13,8 @@ const {
     getVendorDashboardStats,
     updateMe,
     sendPaymentReminder,
-    lookupGstProfile
+    lookupGstProfile,
+    blacklistVendor
 } = require("../controllers/vendor.controller");
 
 
@@ -71,6 +72,7 @@ router
     .patch(authorizeRoles("admin", "hr"), checkActionAccess("vendors_edit"), validate(updateSchema), updateVendor)
     .delete(authorizeRoles("admin", "hr"), checkActionAccess("vendors_edit"), deleteVendor);
 
+router.post("/:id/blacklist", authorizeRoles("admin", "hr"), checkActionAccess("vendors_edit"), blacklistVendor);
 router.get("/:id/performance", authorizeRoles("admin", "hr", "manager"), getVendorPerformance);
 router.post("/:id/remind-payment", authorizeRoles("admin", "hr"), sendPaymentReminder);
 
